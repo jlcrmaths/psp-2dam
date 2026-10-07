@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glosario PSP</title>
+<link rel="stylesheet" href="../estilo/tema.css">
+<script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t)}catch(e){}</script>
+</head>
+<body class="">
+<header class="cabecera">
+  <a class="marca" href="../index.html">PSP · 2º DAM</a>
+  <nav><a href="../glosario/index.html">Glosario</a><button id="tema" type="button" aria-label="Cambiar entre tema claro y oscuro">◐</button></nav>
+</header>
+<main class="contenido">
+<h1>Glosario PSP</h1>
+<p class="suave">Términos de Java usados en las clases, en orden alfabético.</p>
+<input id="buscar" type="search" placeholder="Buscar un término…" aria-label="Buscar un término">
+<div id="lista" class="rejilla">
+<article class="ficha tarjeta" data-nombre="array (int[], Thread[])">
+<h2><code>array (int[], Thread[])</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Fila de cajas numeradas que guardan el mismo tipo de dato. Se empieza a contar en 0.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Guardar varios valores u objetos juntos, por ejemplo 5 hilos o 10 enteros. <code>.length</code> dice cuántos hay.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">int[] numeros = {1, 2, 3};
+System.out.println(numeros[0]);       // 1
+System.out.println(numeros.length);   // 3
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="constructor">
+<h2><code>constructor</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método especial que se ejecuta al hacer <code>new</code>. Se llama igual que la clase y no lleva <code>void</code>.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Dar a un objeto sus datos iniciales. Así un hilo recibe el array con el que va a trabajar, porque <code>run()</code> no tiene parámetros.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">public HiloSuma(int[] numeros) {
+    this.numeros = numeros;
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="for">
+<h2><code>for</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Bucle que repite un bloque de código un número de veces.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Recorrer un array o repetir algo, por ejemplo crear 5 hilos. Tiene tres partes: inicio, condición y paso.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">for (int i = 0; i &lt; 5; i++) {
+    System.out.println(i);   // 0 1 2 3 4
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="getName()">
+<h2><code>getName()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de <code>Thread</code> que devuelve el nombre del hilo.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Saber qué hilo está ejecutando un código, por ejemplo para mostrarlo en pantalla.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread h = new Thread(new Contador(), &quot;Hilo 1&quot;);
+System.out.println(h.getName());   // Hilo 1
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre=".length">
+<h2><code>.length</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Propiedad de un array que dice cuántos elementos tiene.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Recorrer un array entero sin escribir su tamaño a mano. No lleva paréntesis.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">int[] numeros = new int[10];
+System.out.println(numeros.length);   // 10
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="main">
+<h2><code>main</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método donde empieza a ejecutarse un programa Java.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Es el punto de entrada. Java empieza siempre por aquí, en el hilo llamado <code>main</code>.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">public static void main(String[] args) {
+    System.out.println(&quot;Empieza el programa&quot;);
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="new Thread(objeto, &quot;nombre&quot;)">
+<h2><code>new Thread(objeto, &quot;nombre&quot;)</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Forma de crear un hilo: se le da un objeto <code>Runnable</code> y un nombre.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Crear un hilo a partir de una clase con <code>run()</code> y ponerle un nombre fácil de reconocer.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread h1 = new Thread(new Contador(), &quot;Hilo 1&quot;);
+h1.start();
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="@Override">
+<h2><code>@Override</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Etiqueta que avisa de que un método reemplaza al de la clase o interfaz original.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Hace que el compilador avise si te equivocas al escribir el nombre del método (por ejemplo <code>Run</code> en vez de <code>run</code>).</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">@Override
+public void run() {
+    System.out.println(&quot;Hola&quot;);
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Principal">
+<h2><code>Principal</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Nombre que usa el profesor para la clase que contiene el <code>main</code>.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Reunir el código que crea y lanza los hilos. No es una palabra de Java: es una costumbre de nombre.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">public class Principal {
+    public static void main(String[] args) {
+        new Thread(new Gato(), &quot;Gato&quot;).start();
+    }
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="private">
+<h2><code>private</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Palabra clave que hace que un atributo solo se pueda usar dentro de su clase.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Guardar datos propios de la clase, como el array que recibe un hilo.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">private int[] numeros;
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="run()">
+<h2><code>run()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método que contiene lo que hace el hilo.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Escribir aquí el trabajo del hilo. Java lo llama solo cuando haces <code>start()</code>.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">@Override
+public void run() {
+    System.out.println(&quot;Miau!&quot;);
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Runnable">
+<h2><code>Runnable</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Interfaz (un contrato) para clases que quieren ejecutarse en un hilo. Obliga a escribir <code>run()</code>.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Definir qué hace un hilo sin heredar de <code>Thread</code>. Sirve aunque la clase ya herede de otra.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">public class Gato implements Runnable {
+    @Override
+    public void run() {
+        System.out.println(&quot;Miau!&quot;);
+    }
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="start()">
+<h2><code>start()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de <code>Thread</code> que pone en marcha el hilo.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Crear el hilo de verdad y que Java llame a <code>run()</code>. Si llamas a <code>run()</code> directamente, no hay hilo nuevo.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread h1 = new Thread(new Contador(), &quot;Hilo 1&quot;);
+h1.start();
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="switch">
+<h2><code>switch</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Instrucción que mira un valor y salta al <code>case</code> que coincide.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Elegir entre varias opciones sin escribir muchos <code>if</code>. Cada <code>case</code> termina con <code>break</code>.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">switch (operacion) {
+    case &quot;suma&quot;:
+        System.out.println(&quot;sumo&quot;);
+        break;
+    case &quot;resta&quot;:
+        System.out.println(&quot;resto&quot;);
+        break;
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="System.out.println">
+<h2><code>System.out.println</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Instrucción que escribe un texto en la pantalla y salta de línea.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Mostrar mensajes y resultados en la consola de NetBeans.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">System.out.println(&quot;Hilo 1: &quot; + 5);   // Hilo 1: 5
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="this">
+<h2><code>this</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Palabra clave que significa «este objeto».</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Distinguir el atributo de la clase de un parámetro con el mismo nombre.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">this.numeros = numeros;   // atributo = parámetro
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Thread">
+<h2><code>Thread</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase de Java que representa un hilo de ejecución.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Crear, arrancar y controlar hilos. Cada objeto <code>Thread</code> es un hilo.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread h = new Thread(new Perro());
+h.start();
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Thread.currentThread()">
+<h2><code>Thread.currentThread()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método que devuelve el hilo que está ejecutando ese código en este momento.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Preguntar «¿qué hilo soy?». Se usa dentro de <code>run()</code>, junto con <code>getName()</code>.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread actual = Thread.currentThread();
+System.out.println(actual.getName());
+</code></pre>
+</dd>
+</dl>
+</article>
+</div>
+<p id="vacio" class="suave" hidden>Ningún término coincide.</p>
+</main>
+<script type="module" src="../estilo/tema.js"></script>
+<script type="module" src="../estilo/glosario.js"></script>
+</body>
+</html>
