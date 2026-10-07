@@ -1,6 +1,6 @@
 # Apartado 6.1 – Crear hilos en Java
 
-Trabaja con `Runnable`. Cada ejercicio es un proyecto de NetBeans distinto. Las clases van en el paquete `crearhilos`.
+Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete `crearhilos`.
 
 ## Ejercicio 1: tres hilos contadores (proyecto `CrearHilos`)
 
@@ -12,15 +12,11 @@ Hilo x: y
 
 `x` es el número del hilo (1, 2 o 3). `y` es el número que está contando. Ejemplo: `Hilo 2: 7`.
 
-Clases:
-- `Contador`: implementa `Runnable`. Su método `run()` cuenta del 1 al 10. Muestra el nombre del hilo con `Thread.currentThread().getName()`.
-- `Principal`: crea los tres hilos con `new Thread(new Contador(), "Hilo 1")` (y "Hilo 2", "Hilo 3") y los lanza con `start()`.
-
-### Ayuda ligera
-Los tres hilos hacen exactamente lo mismo. Piensa cuántas clases con `run()` necesitas de verdad, y cómo sabe cada hilo quién es.
+### Pistas
+Los tres hilos hacen exactamente lo mismo. Piensa cuántas clases necesitas de verdad, y cómo sabe cada hilo quién es. Trabaja con `Runnable`.
 
 ### Más ayuda
-Necesitas una sola clase, `Contador`, que implementa `Runnable`. Dentro de `run()` va un bucle `for` que cuenta del 1 al 10. El número del hilo no se guarda en la clase: cada `Thread` recibe un nombre cuando se crea, y `Thread.currentThread().getName()` devuelve el nombre del hilo que está ejecutando el código. La clase `Principal` crea tres objetos `Thread` con tres nombres distintos y los arranca.
+Necesitas una sola clase, `Contador`, que implementa `Runnable`. Dentro de su método `run()` va un bucle `for` que cuenta del 1 al 10. El número del hilo no se guarda en la clase: cada `Thread` recibe un nombre cuando se crea con `new Thread(new Contador(), "Hilo 1")`, y `Thread.currentThread().getName()` devuelve el nombre del hilo que está ejecutando el código. La clase `Principal` crea tres objetos `Thread` con tres nombres distintos ("Hilo 1", "Hilo 2" y "Hilo 3") y los lanza con `start()`.
 
 ### Paso a paso
 1. Crea el proyecto `CrearHilos` y el paquete `crearhilos`.
@@ -35,13 +31,10 @@ Necesitas una sola clase, `Contador`, que implementa `Runnable`. Dentro de `run(
 
 ## Ejercicio 2: Gato y Perro (proyecto `EjemploPerrosGatos`)
 
-Clases:
-- `Gato`: implementa `Runnable`. Su método `run()` muestra `Miau!`.
-- `Perro`: implementa `Runnable`. Su método `run()` muestra `Guau!`.
-- `Principal`: crea un hilo con un `Gato` y otro con un `Perro`, y los lanza con `start()`.
+Crea dos hilos a la vez: uno para un gato, que muestra `Miau!`, y otro para un perro, que muestra `Guau!`.
 
-### Ayuda ligera
-Son dos clases muy pequeñas, una por animal. Cada una solo escribe una palabra. Lo importante es cómo se convierten en hilos.
+### Pistas
+Son dos clases muy pequeñas, una por animal, y cada una solo escribe una palabra. Las dos son `Runnable`. Lo importante es cómo se convierten en hilos.
 
 ### Más ayuda
 `Gato` y `Perro` implementan `Runnable` y tienen su método `run()`: el de `Gato` muestra `Miau!` y el de `Perro` muestra `Guau!`, con `System.out.println`. Ninguna de las dos es un hilo por sí sola: en `Principal` se crea un objeto `Thread` con cada una, y se llama a `start()` en los dos.
@@ -58,14 +51,12 @@ Son dos clases muy pequeñas, una por animal. Cada una solo escribe una palabra.
 
 ## Ejercicio 3: cinco gatos y cinco perros (proyecto `CincoPerrosGatos`)
 
-Amplía el ejercicio 2 para lanzar 5 hilos `Gato` y 5 hilos `Perro`.
+Amplía el ejercicio anterior para lanzar 5 hilos Gato y 5 hilos Perro. Crea 2 arrays de 5 y, con un `for` de 5 iteraciones, lanza uno de cada en cada vuelta (en la primera, un Gato y un Perro; en la siguiente, otro de cada, y así hasta 5).
 
-- Crea dos arrays de 5 hilos (`Thread[]`): uno para los gatos y otro para los perros.
-- Con un `for` de 5 iteraciones, crea y lanza un gato y un perro en cada vuelta (en la primera, un `Gato` y un `Perro`; en la siguiente, otro de cada, y así hasta 5).
-- Cada hilo muestra su nombre y su sonido. Ejemplo: `Gato 3: Miau!`.
+Cada hilo muestra su nombre y su sonido. Ejemplo: `Gato 3: Miau!`.
 
-### Ayuda ligera
-En vez de crear diez hilos con diez variables sueltas, guárdalos en dos arrays y deja que un bucle haga el trabajo repetido.
+### Pistas
+En vez de crear diez hilos con diez variables sueltas, guárdalos en dos arrays y deja que el bucle haga el trabajo repetido. Piensa en cómo sacar el nombre de cada hilo.
 
 ### Más ayuda
 Necesitas dos arrays de tipo `Thread` con tamaño 5, uno para gatos y otro para perros. Un bucle `for` de cinco vueltas crea en cada vuelta un hilo gato y un hilo perro, los guarda en la posición de esa vuelta y los arranca con `start()`. Las posiciones de un array empiezan en 0, pero los nombres deben empezar en 1. Para que cada hilo diga quién es, `Gato` y `Perro` muestran el nombre del hilo con `Thread.currentThread().getName()`, además de su sonido.
@@ -85,10 +76,8 @@ Necesitas dos arrays de tipo `Thread` con tamaño 5, uno para gatos y otro para 
 
 Tenemos un array de 10 enteros. Un hilo los suma, otro los resta y otro los multiplica.
 
-Pista: pasa el array al constructor de cada clase y guárdalo en un atributo. Después puedes usar tres clases distintas (`HiloSuma`, `HiloResta`, `HiloMultiplica`) o una sola clase con un `switch`.
-
-### Ayuda ligera
-El método `run()` no recibe nada de fuera. Piensa por dónde puede entrar el array en la clase antes de que el hilo empiece a trabajar.
+### Pistas
+El método `run()` no recibe nada de fuera. Piensa por dónde puede entrar el array en la clase antes de que el hilo empiece a trabajar: pásalo como argumento al constructor y guárdalo. Después puedes usar tres clases distintas o una sola con un `switch`.
 
 ### Más ayuda
 El array entra por el constructor y se guarda en un atributo privado de la clase; `run()` lo recorre con un bucle `for`. Cada operación necesita su valor de partida: la suma empieza en 0, la multiplicación empieza en 1, y la resta parte del primer elemento y resta desde el segundo. Puedes hacer tres clases (`HiloSuma`, `HiloResta` y `HiloMultiplica`) o una sola que reciba también el nombre de la operación y use un `switch`.

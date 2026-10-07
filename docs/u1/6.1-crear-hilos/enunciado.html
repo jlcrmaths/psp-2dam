@@ -14,7 +14,7 @@
 </header>
 <main class="contenido">
 <h1>Apartado 6.1 – Crear hilos en Java</h1>
-<p>Trabaja con <code>Runnable</code>. Cada ejercicio es un proyecto de NetBeans distinto. Las clases van en el paquete <code>crearhilos</code>.</p>
+<p>Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete <code>crearhilos</code>.</p>
 
 <section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
 <h2>Ejercicio 1: tres hilos contadores (proyecto <code>CrearHilos</code>)</h2>
@@ -22,16 +22,11 @@
 <pre><code>Hilo x: y
 </code></pre>
 <p><code>x</code> es el número del hilo (1, 2 o 3). <code>y</code> es el número que está contando. Ejemplo: <code>Hilo 2: 7</code>.</p>
-<p>Clases:</p>
-<ul>
-<li><code>Contador</code>: implementa <code>Runnable</code>. Su método <code>run()</code> cuenta del 1 al 10. Muestra el nombre del hilo con <code>Thread.currentThread().getName()</code>.</li>
-<li><code>Principal</code>: crea los tres hilos con <code>new Thread(new Contador(), &quot;Hilo 1&quot;)</code> (y &quot;Hilo 2&quot;, &quot;Hilo 3&quot;) y los lanza con <code>start()</code>.</li>
-</ul>
 
-<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Ayuda ligera</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
-<div class="ayuda" data-nivel="0"><h3>Ayuda ligera</h3><p>Los tres hilos hacen exactamente lo mismo. Piensa cuántas clases con <code>run()</code> necesitas de verdad, y cómo sabe cada hilo quién es.</p>
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Los tres hilos hacen exactamente lo mismo. Piensa cuántas clases necesitas de verdad, y cómo sabe cada hilo quién es. Trabaja con <code>Runnable</code>.</p>
 </div>
-<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Necesitas una sola clase, <code>Contador</code>, que implementa <code>Runnable</code>. Dentro de <code>run()</code> va un bucle <code>for</code> que cuenta del 1 al 10. El número del hilo no se guarda en la clase: cada <code>Thread</code> recibe un nombre cuando se crea, y <code>Thread.currentThread().getName()</code> devuelve el nombre del hilo que está ejecutando el código. La clase <code>Principal</code> crea tres objetos <code>Thread</code> con tres nombres distintos y los arranca.</p>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Necesitas una sola clase, <code>Contador</code>, que implementa <code>Runnable</code>. Dentro de su método <code>run()</code> va un bucle <code>for</code> que cuenta del 1 al 10. El número del hilo no se guarda en la clase: cada <code>Thread</code> recibe un nombre cuando se crea con <code>new Thread(new Contador(), &quot;Hilo 1&quot;)</code>, y <code>Thread.currentThread().getName()</code> devuelve el nombre del hilo que está ejecutando el código. La clase <code>Principal</code> crea tres objetos <code>Thread</code> con tres nombres distintos (&quot;Hilo 1&quot;, &quot;Hilo 2&quot; y &quot;Hilo 3&quot;) y los lanza con <code>start()</code>.</p>
 </div>
 <div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
 <li>Crea el proyecto <code>CrearHilos</code> y el paquete <code>crearhilos</code>.</li>
@@ -48,15 +43,10 @@
 </section>
 <section class="ejercicio tarjeta" id="ej-2" data-ejercicio="ej-2">
 <h2>Ejercicio 2: Gato y Perro (proyecto <code>EjemploPerrosGatos</code>)</h2>
-<p>Clases:</p>
-<ul>
-<li><code>Gato</code>: implementa <code>Runnable</code>. Su método <code>run()</code> muestra <code>Miau!</code>.</li>
-<li><code>Perro</code>: implementa <code>Runnable</code>. Su método <code>run()</code> muestra <code>Guau!</code>.</li>
-<li><code>Principal</code>: crea un hilo con un <code>Gato</code> y otro con un <code>Perro</code>, y los lanza con <code>start()</code>.</li>
-</ul>
+<p>Crea dos hilos a la vez: uno para un gato, que muestra <code>Miau!</code>, y otro para un perro, que muestra <code>Guau!</code>.</p>
 
-<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Ayuda ligera</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
-<div class="ayuda" data-nivel="0"><h3>Ayuda ligera</h3><p>Son dos clases muy pequeñas, una por animal. Cada una solo escribe una palabra. Lo importante es cómo se convierten en hilos.</p>
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Son dos clases muy pequeñas, una por animal, y cada una solo escribe una palabra. Las dos son <code>Runnable</code>. Lo importante es cómo se convierten en hilos.</p>
 </div>
 <div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p><code>Gato</code> y <code>Perro</code> implementan <code>Runnable</code> y tienen su método <code>run()</code>: el de <code>Gato</code> muestra <code>Miau!</code> y el de <code>Perro</code> muestra <code>Guau!</code>, con <code>System.out.println</code>. Ninguna de las dos es un hilo por sí sola: en <code>Principal</code> se crea un objeto <code>Thread</code> con cada una, y se llama a <code>start()</code> en los dos.</p>
 </div>
@@ -74,15 +64,11 @@
 </section>
 <section class="ejercicio tarjeta" id="ej-3" data-ejercicio="ej-3">
 <h2>Ejercicio 3: cinco gatos y cinco perros (proyecto <code>CincoPerrosGatos</code>)</h2>
-<p>Amplía el ejercicio 2 para lanzar 5 hilos <code>Gato</code> y 5 hilos <code>Perro</code>.</p>
-<ul>
-<li>Crea dos arrays de 5 hilos (<code>Thread[]</code>): uno para los gatos y otro para los perros.</li>
-<li>Con un <code>for</code> de 5 iteraciones, crea y lanza un gato y un perro en cada vuelta (en la primera, un <code>Gato</code> y un <code>Perro</code>; en la siguiente, otro de cada, y así hasta 5).</li>
-<li>Cada hilo muestra su nombre y su sonido. Ejemplo: <code>Gato 3: Miau!</code>.</li>
-</ul>
+<p>Amplía el ejercicio anterior para lanzar 5 hilos Gato y 5 hilos Perro. Crea 2 arrays de 5 y, con un <code>for</code> de 5 iteraciones, lanza uno de cada en cada vuelta (en la primera, un Gato y un Perro; en la siguiente, otro de cada, y así hasta 5).</p>
+<p>Cada hilo muestra su nombre y su sonido. Ejemplo: <code>Gato 3: Miau!</code>.</p>
 
-<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Ayuda ligera</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
-<div class="ayuda" data-nivel="0"><h3>Ayuda ligera</h3><p>En vez de crear diez hilos con diez variables sueltas, guárdalos en dos arrays y deja que un bucle haga el trabajo repetido.</p>
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>En vez de crear diez hilos con diez variables sueltas, guárdalos en dos arrays y deja que el bucle haga el trabajo repetido. Piensa en cómo sacar el nombre de cada hilo.</p>
 </div>
 <div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Necesitas dos arrays de tipo <code>Thread</code> con tamaño 5, uno para gatos y otro para perros. Un bucle <code>for</code> de cinco vueltas crea en cada vuelta un hilo gato y un hilo perro, los guarda en la posición de esa vuelta y los arranca con <code>start()</code>. Las posiciones de un array empiezan en 0, pero los nombres deben empezar en 1. Para que cada hilo diga quién es, <code>Gato</code> y <code>Perro</code> muestran el nombre del hilo con <code>Thread.currentThread().getName()</code>, además de su sonido.</p>
 </div>
@@ -102,10 +88,9 @@
 <section class="ejercicio tarjeta" id="ej-4" data-ejercicio="ej-4">
 <h2>Ejercicio 4: operaciones con un array (proyecto <code>OperacionesArray</code>)</h2>
 <p>Tenemos un array de 10 enteros. Un hilo los suma, otro los resta y otro los multiplica.</p>
-<p>Pista: pasa el array al constructor de cada clase y guárdalo en un atributo. Después puedes usar tres clases distintas (<code>HiloSuma</code>, <code>HiloResta</code>, <code>HiloMultiplica</code>) o una sola clase con un <code>switch</code>.</p>
 
-<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Ayuda ligera</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
-<div class="ayuda" data-nivel="0"><h3>Ayuda ligera</h3><p>El método <code>run()</code> no recibe nada de fuera. Piensa por dónde puede entrar el array en la clase antes de que el hilo empiece a trabajar.</p>
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El método <code>run()</code> no recibe nada de fuera. Piensa por dónde puede entrar el array en la clase antes de que el hilo empiece a trabajar: pásalo como argumento al constructor y guárdalo. Después puedes usar tres clases distintas o una sola con un <code>switch</code>.</p>
 </div>
 <div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>El array entra por el constructor y se guarda en un atributo privado de la clase; <code>run()</code> lo recorre con un bucle <code>for</code>. Cada operación necesita su valor de partida: la suma empieza en 0, la multiplicación empieza en 1, y la resta parte del primer elemento y resta desde el segundo. Puedes hacer tres clases (<code>HiloSuma</code>, <code>HiloResta</code> y <code>HiloMultiplica</code>) o una sola que reciba también el nombre de la operación y use un <code>switch</code>.</p>
 </div>

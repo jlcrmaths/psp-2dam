@@ -12,7 +12,7 @@ Texto de intro.
 
 Haz algo con \`Thread\`.
 
-### Ayuda ligera
+### Pistas
 Piensa en una clase.
 
 ### Más ayuda
@@ -26,7 +26,7 @@ Usa \`Runnable\`.
 
 Segundo ejercicio.
 
-### Ayuda ligera
+### Pistas
 Una pista.
 
 ### Más ayuda
@@ -59,7 +59,7 @@ test('falta una ayuda: el error nombra el ejercicio y la ayuda', () => {
 
 test('una ayuda con bloque de código es un error', () => {
   const roto = BUENO.replace('Piensa en una clase.', `${CERCA}java\nint x;\n${CERCA}`);
-  assert.throws(() => analizarEnunciado(roto), /Ayuda ligera.*lleva código/);
+  assert.throws(() => analizarEnunciado(roto), /Pistas.*lleva código/);
 });
 
 test('sin ejercicios es un error', () => {

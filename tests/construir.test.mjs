@@ -22,7 +22,7 @@ function repo({ conNotas = true, conEnunciado = true } = {}) {
   escribir(raiz, [...a, 'apartado.json'], '{"titulo":"6.1 X","orden":1,"resumen":"resumen"}');
   if (conEnunciado) {
     escribir(raiz, [...a, 'enunciado.md'],
-      '# X\n\n## Ejercicio 1: uno\n\ntexto\n\n### Ayuda ligera\na\n\n### Más ayuda\nb\n\n### Paso a paso\n1. c\n');
+      '# X\n\n## Ejercicio 1: uno\n\ntexto\n\n### Pistas\na\n\n### Más ayuda\nb\n\n### Paso a paso\n1. c\n');
   }
   escribir(raiz, [...a, 'presentacion.md'], '# Hola\n---\n{{codigo: P/A.java}}\n');
   escribir(raiz, [...a, 'proyectos', 'P', 'src', 'x', 'A.java'],
