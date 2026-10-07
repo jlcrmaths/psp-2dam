@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PSP 6.1 - Crear hilos en Java</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/white.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+<style>.reveal pre code { max-height: 520px; font-size: 0.75em; } .reveal { font-size: 34px; }</style>
+</head>
+<body>
+<div class="reveal">
+<div class="slides">
+
+<section>
+  <h2>Crear hilos en Java</h2>
+  <p>PSP · 2º DAM · Apartado 6.1</p>
+</section>
+
+<section>
+  <h3>Objetivo</h3>
+  <ul>
+    <li>Crear un hilo en Java</li>
+    <li>Escribir su método <code>run()</code></li>
+    <li>Ponerlo en marcha con <code>start()</code></li>
+    <li>Ver que varios hilos se ejecutan a la vez</li>
+  </ul>
+</section>
+
+<section>
+  <h3>Teoría breve</h3>
+  <ul>
+    <li>Un hilo = un objeto de la clase <code>Thread</code></li>
+    <li>Lo que hace el hilo se escribe en <code>run()</code></li>
+    <li><code>start()</code> arranca el hilo y llama a <code>run()</code></li>
+    <li>Siempre hay un hilo <code>main</code></li>
+  </ul>
+  <p class="fragment">Dos formas: <b>extender <code>Thread</code></b> o <b>implementar <code>Runnable</code></b></p>
+</section>
+
+<section>
+  <h3>Ejemplo: un hilo con Runnable</h3>
+  <pre><code class="language-java" data-trim data-noescape>
+public class Saludo implements Runnable {
+    @Override
+    public void run() {
+        System.out.println("¡Saludo desde un hilo!");
+    }
+}
+
+// En main:
+Thread hilo1 = new Thread(new Saludo(), "Hilo 1");
+hilo1.start();
+  </code></pre>
+</section>
+
+<section>
+  <h3>Error típico</h3>
+  <p><code>hilo1.run()</code> no crea un hilo nuevo.</p>
+  <p>Siempre usa <code>start()</code>.</p>
+</section>
+
+<section>
+  <h3>Ejercicio 1 · proyecto CrearHilos</h3>
+  <p>Tres hilos. Cada uno cuenta del 1 al 10.</p>
+  <p>Salida: <code>Hilo x: y</code></p>
+  <ul>
+    <li><code>Contador</code> implements <code>Runnable</code></li>
+    <li><code>Principal</code> crea los hilos con nombre</li>
+  </ul>
+  <p class="fragment">Ejecútalo varias veces. ¿Sale siempre igual?</p>
+</section>
+
+<section>
+  <h3>Ejercicio 2 · proyecto EjemploPerrosGatos</h3>
+  <ul>
+    <li><code>Gato.run()</code> muestra <code>Miau!</code></li>
+    <li><code>Perro.run()</code> muestra <code>Guau!</code></li>
+    <li><code>Principal</code> lanza los dos hilos</li>
+  </ul>
+</section>
+
+<section>
+  <h3>Solución 1: Contador</h3>
+  <pre><code class="language-java" data-trim data-noescape>
+package crearhilos;
+
+public class Contador implements Runnable {
+
+    @Override
+    public void run() {
+        for (int i = 1; i <= 10; i++) {
+            System.out.println(Thread.currentThread().getName() + ": " + i);
+        }
+    }
+}
+  </code></pre>
+</section>
+
+<section>
+  <h3>Solución 1: Principal</h3>
+  <pre><code class="language-java" data-trim data-noescape>
+public class Principal {
+
+    public static void main(String[] args) {
+        Thread h1 = new Thread(new Contador(), "Hilo 1");
+        Thread h2 = new Thread(new Contador(), "Hilo 2");
+        Thread h3 = new Thread(new Contador(), "Hilo 3");
+
+        h1.start();
+        h2.start();
+        h3.start();
+    }
+}
+  </code></pre>
+</section>
+
+<section>
+  <h3>Solución 2: Gato y Perro</h3>
+  <pre><code class="language-java" data-trim data-noescape>
+public class Gato implements Runnable {
+    @Override
+    public void run() { System.out.println("Miau!"); }
+}
+
+public class Perro implements Runnable {
+    @Override
+    public void run() { System.out.println("Guau!"); }
+}
+
+// Principal.main:
+new Thread(new Gato(), "Gato").start();
+new Thread(new Perro(), "Perro").start();
+  </code></pre>
+  <p class="fragment">El orden de salida no está garantizado.</p>
+</section>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+<script>
+  Reveal.initialize({ hash: true, plugins: [ RevealHighlight ] });
+</script>
+</body>
+</html>

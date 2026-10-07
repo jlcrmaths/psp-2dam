@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glosario PSP</title>
+<style>
+:root{--bg:#f6f7f9;--card:#fff;--text:#1f2933;--muted:#5f6c7b;--accent:#2563eb;--code-bg:#0f172a;--code-text:#e2e8f0;--inline-bg:#eef2f7;--border:#e3e8ef}
+@media (prefers-color-scheme: dark){:root{--bg:#0d1117;--card:#161b22;--text:#e6edf3;--muted:#9aa7b4;--accent:#6ea8fe;--code-bg:#010409;--code-text:#e6edf3;--inline-bg:#232a33;--border:#2b333d}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{max-width:1000px;margin:0 auto;padding:32px 16px 8px}
+h1{margin:0 0 .3rem;font-size:2rem}
+header p{margin:0 0 1rem;color:var(--muted)}
+#buscar{width:100%;padding:10px 14px;font:inherit;color:var(--text);background:var(--card);border:1px solid var(--border);border-radius:10px}
+main{max-width:1000px;margin:0 auto;padding:8px 16px 40px;display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:16px}
+.ficha{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.ficha h2{margin:0 0 .6rem;font-size:1.2rem;color:var(--accent)}
+.ficha h2 code{background:none;padding:0;font-size:1em}
+dl{margin:0}
+dt{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-top:.7rem}
+dd{margin:.15rem 0 0}
+code{font:.9em ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;background:var(--inline-bg);padding:.1em .35em;border-radius:5px}
+pre{margin:.2rem 0 0;background:var(--code-bg);color:var(--code-text);padding:12px 14px;border-radius:8px;overflow-x:auto;line-height:1.45}
+pre code{background:none;padding:0;color:inherit}
+.vacio{display:none;max-width:1000px;margin:0 auto;padding:0 16px;color:var(--muted)}
+@media (max-width:520px){main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Glosario PSP</h1>
+  <p>Términos de Java usados en las clases, en orden alfabético.</p>
+  <input id="buscar" type="search" placeholder="Buscar un término…" aria-label="Buscar un término">
+</header>
+<main id="lista">
+  <article class="ficha" data-nombre="getName()">
+    <h2><code>getName()</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Método de <code>Thread</code> que devuelve el nombre del hilo.</dd>
+      <dt>Para qué sirve</dt><dd>Saber qué hilo está ejecutando un código, por ejemplo para mostrarlo en pantalla.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>Thread h = new Thread(new Contador(), "Hilo 1");
+System.out.println(h.getName());   // Hilo 1</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="main">
+    <h2><code>main</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Método donde empieza a ejecutarse un programa Java.</dd>
+      <dt>Para qué sirve</dt><dd>Es el punto de entrada. Java empieza siempre por aquí, en el hilo llamado <code>main</code>.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>public static void main(String[] args) {
+    System.out.println("Empieza el programa");
+}</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="new Thread(objeto, &quot;nombre&quot;)">
+    <h2><code>new Thread(objeto, &quot;nombre&quot;)</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Forma de crear un hilo: se le da un objeto <code>Runnable</code> y un nombre.</dd>
+      <dt>Para qué sirve</dt><dd>Crear un hilo a partir de una clase con <code>run()</code> y ponerle un nombre fácil de reconocer.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>Thread h1 = new Thread(new Contador(), "Hilo 1");
+h1.start();</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="@Override">
+    <h2><code>@Override</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Etiqueta que avisa de que un método reemplaza al de la clase o interfaz original.</dd>
+      <dt>Para qué sirve</dt><dd>Hace que el compilador avise si te equivocas al escribir el nombre del método (por ejemplo <code>Run</code> en vez de <code>run</code>).</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>@Override
+public void run() {
+    System.out.println("Hola");
+}</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="Principal">
+    <h2><code>Principal</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Nombre que usa el profesor para la clase que contiene el <code>main</code>.</dd>
+      <dt>Para qué sirve</dt><dd>Reunir el código que crea y lanza los hilos. No es una palabra de Java: es una costumbre de nombre.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>public class Principal {
+    public static void main(String[] args) {
+        new Thread(new Gato(), "Gato").start();
+    }
+}</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="run()">
+    <h2><code>run()</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Método que contiene lo que hace el hilo.</dd>
+      <dt>Para qué sirve</dt><dd>Escribir aquí el trabajo del hilo. Java lo llama solo cuando haces <code>start()</code>.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>@Override
+public void run() {
+    System.out.println("Miau!");
+}</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="Runnable">
+    <h2><code>Runnable</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Interfaz (un contrato) para clases que quieren ejecutarse en un hilo. Obliga a escribir <code>run()</code>.</dd>
+      <dt>Para qué sirve</dt><dd>Definir qué hace un hilo sin heredar de <code>Thread</code>. Sirve aunque la clase ya herede de otra.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>public class Gato implements Runnable {
+    @Override
+    public void run() {
+        System.out.println("Miau!");
+    }
+}</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="start()">
+    <h2><code>start()</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Método de <code>Thread</code> que pone en marcha el hilo.</dd>
+      <dt>Para qué sirve</dt><dd>Crear el hilo de verdad y que Java llame a <code>run()</code>. Si llamas a <code>run()</code> directamente, no hay hilo nuevo.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>Thread h1 = new Thread(new Contador(), "Hilo 1");
+h1.start();</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="System.out.println">
+    <h2><code>System.out.println</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Instrucción que escribe un texto en la pantalla y salta de línea.</dd>
+      <dt>Para qué sirve</dt><dd>Mostrar mensajes y resultados en la consola de NetBeans.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>System.out.println("Hilo 1: " + 5);   // Hilo 1: 5</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="Thread">
+    <h2><code>Thread</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Clase de Java que representa un hilo de ejecución.</dd>
+      <dt>Para qué sirve</dt><dd>Crear, arrancar y controlar hilos. Cada objeto <code>Thread</code> es un hilo.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>Thread h = new Thread(new Perro());
+h.start();</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="Thread.currentThread()">
+    <h2><code>Thread.currentThread()</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Método que devuelve el hilo que está ejecutando ese código en este momento.</dd>
+      <dt>Para qué sirve</dt><dd>Preguntar «¿qué hilo soy?». Se usa dentro de <code>run()</code>, junto con <code>getName()</code>.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>Thread actual = Thread.currentThread();
+System.out.println(actual.getName());</code></pre></dd>
+    </dl>
+  </article>
+</main>
+<p class="vacio" id="vacio">Ningún término coincide.</p>
+<script>
+  var buscar = document.getElementById('buscar');
+  var fichas = document.querySelectorAll('.ficha');
+  var vacio = document.getElementById('vacio');
+  buscar.addEventListener('input', function () {
+    var q = buscar.value.toLowerCase(), n = 0;
+    fichas.forEach(function (f) {
+      var ok = f.textContent.toLowerCase().indexOf(q) !== -1;
+      f.style.display = ok ? '' : 'none';
+      if (ok) n++;
+    });
+    vacio.style.display = n ? 'none' : 'block';
+  });
+</script>
+</body>
+</html>
