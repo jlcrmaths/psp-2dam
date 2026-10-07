@@ -7,3 +7,6 @@ node_modules/
 **/dist/
 .DS_Store
 .superpowers/
+contenido/*/*/proyectos/*/nbproject/
+contenido/*/*/proyectos/*/build.xml
+contenido/*/*/proyectos/*/manifest.mf

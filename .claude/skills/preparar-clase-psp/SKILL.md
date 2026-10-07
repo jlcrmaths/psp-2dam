@@ -13,6 +13,8 @@ Para el apartado que te pida, escribe las fuentes (el HTML lo genera construir.m
 5. glosario/<termino>.md: una ficha por término nuevo, con la cabecera "nombre: ..." y los campos "## Qué es", "## Para qué sirve" y "## Ejemplo mínimo".
 6. contenido/<unidad>/<apartado>/apartado.json (titulo, orden, resumen) y, si la unidad es nueva, contenido/<unidad>/unidad.json (titulo, orden).
 
+Después de crear proyectos nuevos, ejecuta "node netbeans.mjs": prepara los archivos de NetBeans y enlaza cada proyecto en ~/NetBeansProjects, que es donde el usuario los abre. Si se cambia el estilo de un proyecto ya generado, usa la plantilla de plantillas/netbeans.
+
 Después de escribir las fuentes, ejecuta "node --test" y "PSP_FRASE=... node construir.mjs", compila los proyectos con javac y revisa docs/ en el navegador antes de dar nada por hecho.
 
 Usa lenguaje sencillo y ejemplos pequeños.
