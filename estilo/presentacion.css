@@ -1,13 +1,19 @@
 body.presentacion { background: var(--fondo); }
 .reveal { font-family: var(--fuente); color: var(--texto); font-size: 32px; }
 .reveal h1, .reveal h2, .reveal h3 { color: var(--acento); font-family: var(--fuente); text-transform: none; font-weight: 700; letter-spacing: 0; }
+.reveal h1 { font-size: 2.5em; }
+.reveal h2 { font-size: 1.8em; }
+.reveal h3 { font-size: 1.4em; }
+.reveal h1, .reveal h2, .reveal h3 { margin: 0 0 .5em; line-height: 1.2; }
+.reveal p { margin: .6em 0; line-height: 1.4; }
+.reveal ul, .reveal ol { text-align: left; margin-left: 1em; }
 .reveal a { color: var(--acento); }
 .reveal ul, .reveal ol { display: block; }
 .reveal li { margin-bottom: .35em; }
 .reveal code { font-family: var(--mono); }
 .reveal :not(pre) > code { background: var(--en-linea); color: var(--texto); padding: .05em .3em; border-radius: 5px; }
-.reveal pre { box-shadow: none; width: 100%; }
-.reveal pre code { max-height: 520px; font-size: .78em; border-radius: var(--radio); }
+.reveal pre { position: relative; display: block; box-shadow: none; width: 90%; margin: 20px auto; text-align: left; }
+.reveal pre code { max-height: 520px; font-size: .78em; border-radius: var(--radio); text-align: left; }
 .reveal pre code.hljs { background: var(--codigo-fondo); }
 .reveal .peque { font-size: .8em; }
 .reveal .salida { background: #0a0e12; color: #9fe870; padding: .6em 1em; border-radius: 8px; font-family: var(--mono); font-size: .8em; text-align: left; line-height: 1.5; }
