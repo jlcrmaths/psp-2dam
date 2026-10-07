@@ -1,10 +1,9 @@
 material-profesor/
+privado/
+node_modules/
+/clases/
 **/nbproject/private/
 **/build/
 **/dist/
-/clases/6.1-crear-hilos/build.xml
-/clases/6.1-crear-hilos/manifest.mf
-/clases/6.1-crear-hilos/nbproject/
-/clases/6.1-crear-hilos/build/
-/clases/PSP Unidad1/
 .DS_Store
+.superpowers/

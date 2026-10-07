@@ -1,0 +1,12 @@
+{
+  "name": "psp-2dam",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "construir": "node construir.mjs",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "marked": "^18.1.0"
+  }
+}
