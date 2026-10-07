@@ -1,0 +1,5 @@
+{
+  "titulo": "6.1 Crear hilos en Java",
+  "orden": 1,
+  "resumen": "Hilos con Runnable: contadores, Gato y Perro, arrays de hilos y operaciones sobre un array."
+}
