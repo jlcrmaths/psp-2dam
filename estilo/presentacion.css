@@ -1,0 +1,16 @@
+body.presentacion { background: var(--fondo); }
+.reveal { font-family: var(--fuente); color: var(--texto); font-size: 32px; }
+.reveal h1, .reveal h2, .reveal h3 { color: var(--acento); font-family: var(--fuente); text-transform: none; font-weight: 700; letter-spacing: 0; }
+.reveal a { color: var(--acento); }
+.reveal ul, .reveal ol { display: block; }
+.reveal li { margin-bottom: .35em; }
+.reveal code { font-family: var(--mono); }
+.reveal :not(pre) > code { background: var(--en-linea); color: var(--texto); padding: .05em .3em; border-radius: 5px; }
+.reveal pre { box-shadow: none; width: 100%; }
+.reveal pre code { max-height: 520px; font-size: .78em; border-radius: var(--radio); }
+.reveal pre code.hljs { background: var(--codigo-fondo); }
+.reveal .peque { font-size: .8em; }
+.reveal .salida { background: #0a0e12; color: #9fe870; padding: .6em 1em; border-radius: 8px; font-family: var(--mono); font-size: .8em; text-align: left; line-height: 1.5; }
+.reveal .caja { background: var(--caja-fondo); border-left: 6px solid var(--acento); padding: .4em .9em; text-align: left; font-size: .85em; border-radius: 6px; }
+.reveal .aviso { background: var(--aviso-fondo); border-left: 6px solid var(--aviso-borde); padding: .4em .9em; text-align: left; font-size: .85em; border-radius: 6px; }
+.reveal .slide-number { color: var(--suave); background: transparent; }
