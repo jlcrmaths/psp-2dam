@@ -34,6 +34,36 @@ pre code{background:none;padding:0;color:inherit}
   <input id="buscar" type="search" placeholder="Buscar un término…" aria-label="Buscar un término">
 </header>
 <main id="lista">
+  <article class="ficha" data-nombre="array">
+    <h2><code>array</code> (<code>int[]</code>, <code>Thread[]</code>)</h2>
+    <dl>
+      <dt>Qué es</dt><dd>Fila de cajas numeradas que guardan el mismo tipo de dato. Se empieza a contar en 0.</dd>
+      <dt>Para qué sirve</dt><dd>Guardar varios valores u objetos juntos, por ejemplo 5 hilos o 10 enteros. <code>.length</code> dice cuántos hay.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>int[] numeros = {1, 2, 3};
+System.out.println(numeros[0]);       // 1
+System.out.println(numeros.length);   // 3</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="constructor">
+    <h2><code>constructor</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Método especial que se ejecuta al hacer <code>new</code>. Se llama igual que la clase y no lleva <code>void</code>.</dd>
+      <dt>Para qué sirve</dt><dd>Dar a un objeto sus datos iniciales. Así un hilo recibe el array con el que va a trabajar, porque <code>run()</code> no tiene parámetros.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>public HiloSuma(int[] numeros) {
+    this.numeros = numeros;
+}</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="for">
+    <h2><code>for</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Bucle que repite un bloque de código un número de veces.</dd>
+      <dt>Para qué sirve</dt><dd>Recorrer un array o repetir algo, por ejemplo crear 5 hilos. Tiene tres partes: inicio, condición y paso.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>for (int i = 0; i &lt; 5; i++) {
+    System.out.println(i);   // 0 1 2 3 4
+}</code></pre></dd>
+    </dl>
+  </article>
   <article class="ficha" data-nombre="getName()">
     <h2><code>getName()</code></h2>
     <dl>
@@ -41,6 +71,15 @@ pre code{background:none;padding:0;color:inherit}
       <dt>Para qué sirve</dt><dd>Saber qué hilo está ejecutando un código, por ejemplo para mostrarlo en pantalla.</dd>
       <dt>Ejemplo mínimo</dt><dd><pre><code>Thread h = new Thread(new Contador(), "Hilo 1");
 System.out.println(h.getName());   // Hilo 1</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="length">
+    <h2><code>.length</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Propiedad de un array que dice cuántos elementos tiene.</dd>
+      <dt>Para qué sirve</dt><dd>Recorrer un array entero sin escribir su tamaño a mano. No lleva paréntesis.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>int[] numeros = new int[10];
+System.out.println(numeros.length);   // 10</code></pre></dd>
     </dl>
   </article>
   <article class="ficha" data-nombre="main">
@@ -85,6 +124,14 @@ public void run() {
 }</code></pre></dd>
     </dl>
   </article>
+  <article class="ficha" data-nombre="private">
+    <h2><code>private</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Palabra clave que hace que un atributo solo se pueda usar dentro de su clase.</dd>
+      <dt>Para qué sirve</dt><dd>Guardar datos propios de la clase, como el array que recibe un hilo.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>private int[] numeros;</code></pre></dd>
+    </dl>
+  </article>
   <article class="ficha" data-nombre="run()">
     <h2><code>run()</code></h2>
     <dl>
@@ -118,12 +165,35 @@ public void run() {
 h1.start();</code></pre></dd>
     </dl>
   </article>
+  <article class="ficha" data-nombre="switch">
+    <h2><code>switch</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Instrucción que mira un valor y salta al <code>case</code> que coincide.</dd>
+      <dt>Para qué sirve</dt><dd>Elegir entre varias opciones sin escribir muchos <code>if</code>. Cada <code>case</code> termina con <code>break</code>.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>switch (operacion) {
+    case "suma":
+        System.out.println("sumo");
+        break;
+    case "resta":
+        System.out.println("resto");
+        break;
+}</code></pre></dd>
+    </dl>
+  </article>
   <article class="ficha" data-nombre="System.out.println">
     <h2><code>System.out.println</code></h2>
     <dl>
       <dt>Qué es</dt><dd>Instrucción que escribe un texto en la pantalla y salta de línea.</dd>
       <dt>Para qué sirve</dt><dd>Mostrar mensajes y resultados en la consola de NetBeans.</dd>
       <dt>Ejemplo mínimo</dt><dd><pre><code>System.out.println("Hilo 1: " + 5);   // Hilo 1: 5</code></pre></dd>
+    </dl>
+  </article>
+  <article class="ficha" data-nombre="this">
+    <h2><code>this</code></h2>
+    <dl>
+      <dt>Qué es</dt><dd>Palabra clave que significa «este objeto».</dd>
+      <dt>Para qué sirve</dt><dd>Distinguir el atributo de la clase de un parámetro con el mismo nombre.</dd>
+      <dt>Ejemplo mínimo</dt><dd><pre><code>this.numeros = numeros;   // atributo = parámetro</code></pre></dd>
     </dl>
   </article>
   <article class="ficha" data-nombre="Thread">

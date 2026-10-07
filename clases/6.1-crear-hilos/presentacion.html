@@ -34,6 +34,8 @@
     <li>Crear un hilo con <code>Runnable</code></li>
     <li>Ponerlo en marcha con <code>start()</code></li>
     <li>Ver que varios hilos trabajan a la vez</li>
+    <li>Lanzar muchos hilos con arrays y un <code>for</code></li>
+    <li>Pasar datos a un hilo con el constructor</li>
   </ul>
 </section>
 
@@ -235,6 +237,210 @@ hPerro.start();
 </section>
 
 <section>
+  <section>
+    <h3>Ejercicio 3: cinco gatos y cinco perros</h3>
+    <p>Amplía el ejercicio 2: lanza <b>5 hilos Gato</b> y <b>5 hilos Perro</b>.</p>
+    <ul class="peque">
+      <li>Crea <b>2 arrays</b> de 5 hilos: uno de gatos y otro de perros</li>
+      <li>Con un <code>for</code> de 5 vueltas, lanza un Gato y un Perro en cada vuelta</li>
+    </ul>
+    <p class="peque">Proyecto <b>CincoPerrosGatos</b></p>
+  </section>
+  <section>
+    <h3>Antes de empezar: ¿qué es un array?</h3>
+    <p>Un <b>array</b> es una fila de cajas numeradas. Todas guardan el mismo tipo de cosa.</p>
+    <pre><code class="language-java" data-trim data-line-numbers="1|2|3">
+Thread[] gatos = new Thread[5];
+gatos[0] = new Thread(new Gato(), "Gato 1");
+gatos[0].start();
+    </code></pre>
+    <ul class="peque">
+      <li><code>Thread[]</code>: «una fila de hilos». Los corchetes <code>[]</code> indican que es un array</li>
+      <li><code>new Thread[5]</code>: crea la fila con <b>5 cajas vacías</b></li>
+      <li><code>gatos[0]</code>: la primera caja. Se empieza a contar en <b>0</b>, no en 1. La última es <code>gatos[4]</code></li>
+    </ul>
+  </section>
+  <section>
+    <h3>Cómo pensarlo</h3>
+    <ul>
+      <li>¿Cuántas clases con <code>run()</code> necesito? <span class="fragment">Dos: <code>Gato</code> y <code>Perro</code>. Las mismas, pero ahora muestran el <b>nombre del hilo</b>.</span></li>
+      <li>¿Cuántos hilos hay en total? <span class="fragment">10: 5 gatos y 5 perros</span></li>
+      <li>¿Escribo 10 veces <code>new Thread</code>? <span class="fragment">No: un <code>for</code> repite el mismo trozo 5 veces</span></li>
+    </ul>
+  </section>
+  <section>
+    <h3>Solución: Gato y Perro con nombre</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1-7|4-5|9-15">
+public class Gato implements Runnable {
+
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName() + ": Miau!");
+    }
+}
+
+public class Perro implements Runnable {
+
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName() + ": Guau!");
+    }
+}
+    </code></pre>
+    <p class="peque">Con 10 hilos, el nombre dice quién habla. Sale <code>Gato 3: Miau!</code></p>
+  </section>
+  <section>
+    <h3>Solución: los dos arrays y el for</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1-2|4|5|6|7|8">
+Thread[] gatos = new Thread[5];
+Thread[] perros = new Thread[5];
+
+for (int i = 0; i &lt; 5; i++) {
+    gatos[i] = new Thread(new Gato(), "Gato " + (i + 1));
+    perros[i] = new Thread(new Perro(), "Perro " + (i + 1));
+    gatos[i].start();
+    perros[i].start();
+}
+    </code></pre>
+  </section>
+  <section>
+    <h3>Línea por línea</h3>
+    <ul class="peque">
+      <li><code>Thread[] gatos = new Thread[5];</code>: fila de 5 cajas para los hilos gato. La siguiente línea hace lo mismo con los perros</li>
+      <li><code>for (int i = 0; i &lt; 5; i++)</code>: <code>i</code> empieza en 0 y sube hasta 4. El cuerpo se repite <b>5 veces</b>. Para en 5 porque <code>i &lt; 5</code> ya no se cumple</li>
+      <li><code>gatos[i] = new Thread(...)</code>: en la caja número <code>i</code> guarda un hilo nuevo con un <code>Gato</code></li>
+      <li><code>"Gato " + (i + 1)</code>: <code>i</code> vale 0 la primera vez, pero el nombre debe ser <code>Gato 1</code>. Por eso se suma 1. Los paréntesis hacen que se sume antes de pegar el texto</li>
+      <li><code>gatos[i].start()</code>: pone en marcha el hilo de esa caja</li>
+    </ul>
+  </section>
+  <section>
+    <h3>¿Qué sale en pantalla?</h3>
+    <div class="salida">Perro 2: Guau!<br>Perro 1: Guau!<br>Gato 3: Miau!<br>Gato 2: Miau!<br>Perro 3: Guau!<br>Gato 1: Miau!<br>…</div>
+    <p class="aviso">Se lanzan en orden (Gato 1, Perro 1, Gato 2…). Pero <b>no terminan en orden</b>. Ejecútalo varias veces: cambia cada vez.</p>
+  </section>
+  <section>
+    <h3>Error típico</h3>
+    <p class="aviso"><code>for (int i = 0; i &lt;= 5; i++)</code> da 6 vueltas. En la sexta, <code>gatos[5]</code> no existe y Java lanza <code>ArrayIndexOutOfBoundsException</code>.</p>
+    <p class="caja">Un array de 5 tiene posiciones del 0 al 4.</p>
+  </section>
+</section>
+
+<section>
+  <section>
+    <h3>Ejercicio 4: operaciones con un array</h3>
+    <p>Tenemos un array de <b>10 enteros</b>.</p>
+    <ul>
+      <li>Un hilo los <b>suma</b></li>
+      <li>Otro los <b>resta</b></li>
+      <li>Otro los <b>multiplica</b></li>
+    </ul>
+    <p class="caja"><b>Pista:</b> pasa el array al constructor de cada clase. Después, tres clases distintas o una con <code>switch</code>.</p>
+    <p class="peque">Proyecto <b>OperacionesArray</b></p>
+  </section>
+  <section>
+    <h3>El problema nuevo</h3>
+    <p><code>run()</code> no tiene parámetros: no puedes pasarle el array.</p>
+    <p class="fragment">Entonces el array entra por otro sitio: el <b>constructor</b>. Es un método especial que se ejecuta al hacer <code>new</code>. La clase lo guarda y <code>run()</code> lo usa después.</p>
+    <p class="fragment caja">Orden: <code>new HiloSuma(numeros)</code> guarda el array. Más tarde, <code>start()</code> llama a <code>run()</code>, que lo usa.</p>
+  </section>
+  <section>
+    <h3>Solución: HiloSuma</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="3|5-7|9-17|11|12-14|15">
+public class HiloSuma implements Runnable {
+
+    private int[] numeros;
+
+    public HiloSuma(int[] numeros) {
+        this.numeros = numeros;
+    }
+
+    @Override
+    public void run() {
+        int total = 0;
+        for (int i = 0; i &lt; numeros.length; i++) {
+            total = total + numeros[i];
+        }
+        System.out.println(Thread.currentThread().getName() + ": suma = " + total);
+    }
+}
+    </code></pre>
+  </section>
+  <section>
+    <h3>Línea por línea</h3>
+    <ul class="peque">
+      <li><code>private int[] numeros;</code>: la clase tiene una caja propia donde guardar un array de enteros. <code>private</code>: solo esta clase la usa</li>
+      <li><code>public HiloSuma(int[] numeros)</code>: el <b>constructor</b>. Se llama igual que la clase y no lleva <code>void</code>. Recibe el array</li>
+      <li><code>this.numeros = numeros;</code>: <code>this.numeros</code> es la caja de la clase. <code>numeros</code> a secas es lo que llega. Copia el array a la caja</li>
+      <li><code>int total = 0;</code>: empieza en 0 porque sumar 0 no cambia nada</li>
+      <li><code>numeros.length</code>: cuántos elementos tiene el array (10)</li>
+      <li><code>total = total + numeros[i];</code>: añade el elemento <code>i</code> al total, vuelta a vuelta</li>
+    </ul>
+  </section>
+  <section>
+    <h3>HiloResta y HiloMultiplica</h3>
+    <p>Son iguales. Solo cambia el valor inicial y la operación.</p>
+    <pre><code class="language-java" data-trim data-line-numbers="1-5|7-11">
+int total = numeros[0];
+for (int i = 1; i &lt; numeros.length; i++) {
+    total = total - numeros[i];
+}
+// HiloResta
+
+int total = 1;
+for (int i = 0; i &lt; numeros.length; i++) {
+    total = total * numeros[i];
+}
+// HiloMultiplica
+    </code></pre>
+    <ul class="peque">
+      <li><b>Resta:</b> empieza con el primer número y resta los demás. Por eso el <code>for</code> empieza en <code>i = 1</code></li>
+      <li><b>Multiplicación:</b> empieza en 1. Si empezara en 0, todo daría 0</li>
+    </ul>
+  </section>
+  <section>
+    <h3>Crear y lanzar los tres hilos</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1|3-5|7-9">
+int[] numeros = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+
+Thread h1 = new Thread(new HiloSuma(numeros), "Hilo 1");
+Thread h2 = new Thread(new HiloResta(numeros), "Hilo 2");
+Thread h3 = new Thread(new HiloMultiplica(numeros), "Hilo 3");
+
+h1.start();
+h2.start();
+h3.start();
+    </code></pre>
+    <ul class="peque">
+      <li><code>{1, 2, ..., 10}</code>: crea el array de 10 enteros con esos valores</li>
+      <li>Los <b>tres hilos reciben el mismo array</b> y solo lo leen. No hay problema</li>
+    </ul>
+  </section>
+  <section>
+    <h3>¿Qué sale en pantalla?</h3>
+    <div class="salida">Hilo 3: multiplicación = 3628800<br>Hilo 2: resta = -53<br>Hilo 1: suma = 55</div>
+    <p class="aviso">Los resultados siempre son los mismos. El <b>orden</b> de las tres líneas puede cambiar.</p>
+  </section>
+  <section>
+    <h3>La otra opción: un switch</h3>
+    <p>Una sola clase que recibe también qué operación hacer.</p>
+    <pre><code class="language-java" data-trim data-line-numbers="1|3|4-6|7-9|10">
+new HiloOperaciones(numeros, "suma")
+
+switch (operacion) {
+    case "suma":
+        ...
+        break;
+    case "resta":
+        ...
+        break;
+}
+    </code></pre>
+    <p class="peque"><code>switch</code> mira el valor y salta al <code>case</code> que coincide. <code>break</code> evita seguir con el siguiente.</p>
+    <p class="caja">Las dos opciones valen. Con tres clases cada una es más corta y fácil de leer.</p>
+  </section>
+</section>
+
+<section>
   <h3>Resumen</h3>
   <ul>
     <li>Un hilo es un objeto <code>Thread</code></li>
@@ -242,6 +448,8 @@ hPerro.start();
     <li><code>start()</code> lo pone en marcha. <code>run()</code> solo, no</li>
     <li>El orden de la salida no está garantizado</li>
     <li>El nombre del hilo: <code>Thread.currentThread().getName()</code></li>
+    <li>Varios hilos se guardan en un <b>array</b> (<code>Thread[]</code>) y un <code>for</code> los crea y lanza</li>
+    <li>Los datos entran a un hilo por el <b>constructor</b>, no por <code>run()</code></li>
   </ul>
 </section>
 
