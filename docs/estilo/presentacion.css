@@ -20,3 +20,6 @@ body.presentacion { background: var(--fondo); }
 .reveal .caja { background: var(--caja-fondo); border-left: 6px solid var(--acento); padding: .4em .9em; text-align: left; font-size: .85em; border-radius: 6px; }
 .reveal .aviso { background: var(--aviso-fondo); border-left: 6px solid var(--aviso-borde); padding: .4em .9em; text-align: left; font-size: .85em; border-radius: 6px; }
 .reveal .slide-number { color: var(--suave); background: transparent; }
+.reveal .controls { color: var(--acento); }
+.reveal .controls button { opacity: .9; }
+.reveal .progress { color: var(--acento); }
