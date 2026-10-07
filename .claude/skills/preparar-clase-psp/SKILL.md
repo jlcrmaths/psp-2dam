@@ -23,9 +23,9 @@ Estilo del profesor (obligatorio):
 - Un archivo .java por clase, en un paquete en minúsculas (por ejemplo crearhilos).
 - Cada ejercicio en su propia carpeta de proyecto NetBeans, con nombre en español (por ejemplo CrearHilos, EjemploPerrosGatos), con la estructura src/<paquete>/.
 - La clase con el main se llama Principal.
-- En ejercicios de hilos, usa Runnable con new Thread(new Clase(), "Hilo 1"). Esto solo se aplica a ejercicios de hilos. En los demás apartados (repaso de Java, procesos) se mantiene el resto del estilo: un archivo por clase, proyecto propio, clase Principal, sin comentarios.
+- En ejercicios de hilos, usa Runnable con new Thread(new Clase(), "Hilo 1"). Esto solo se aplica a ejercicios de hilos. En los demás apartados (repaso de Java, procesos) se mantiene el resto del estilo: un archivo por clase, proyecto propio, clase Principal, con comentarios solo en lo nuevo.
 - Variables con nombres cortos.
-- Sin comentarios dentro del código. Las explicaciones van en las notas del profesor (privado/.../notas-profesor.md).
+- Comentarios dentro del código, en español sencillo, con // en línea propia encima de lo que explican, cada vez que se introduce algo nuevo por primera vez en el curso (una palabra clave, una clase de Java, un patrón). Lo que ya se explicó antes no se repite. Cada clase nueva lleva una línea que dice para qué sirve. Las diapositivas no muestran esos comentarios: {{codigo}} los quita, así que la numeración de líneas resaltadas cuenta sin ellos.
 - En ejercicios de hilos, la salida por pantalla usa Thread.currentThread().getName(). En los demás apartados, la salida se muestra con System.out.println normal.
 
 Glosario y explicaciones:

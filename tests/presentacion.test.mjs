@@ -36,6 +36,21 @@ test('incluirCodigo admite rango de líneas y resaltado', () => {
   assert.doesNotMatch(html, /public class Cuenta/);
 });
 
+test('incluirCodigo quita los comentarios de línea completa y el rango cuenta sin ellos', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'psp-com-'));
+  const src = join(dir, 'Con', 'src', 'x');
+  mkdirSync(src, { recursive: true });
+  writeFileSync(join(src, 'Hilo.java'),
+    'package x;\n\n// Explicación de la clase\npublic class Hilo {\n    // Explicación del atributo\n    int a = 1; // se queda\n    int b = 2;\n}\n');
+  const entero = incluirCodigo('{{codigo: Con/Hilo.java}}', dir, 'p.md');
+  assert.doesNotMatch(entero, /Explicación/);
+  assert.match(entero, /int a = 1; \/\/ se queda/);
+  const rango = incluirCodigo('{{codigo: Con/Hilo.java :: 2-3}}', dir, 'p.md');
+  assert.match(rango, /int a = 1/);
+  assert.match(rango, /int b = 2/);
+  assert.doesNotMatch(rango, /public class Hilo/);
+});
+
 test('incluirCodigo con un archivo inexistente da un error claro', () => {
   assert.throws(
     () => incluirCodigo('{{codigo: Ejemplo/NoExiste.java}}', proyectos(), 'p.md'),
