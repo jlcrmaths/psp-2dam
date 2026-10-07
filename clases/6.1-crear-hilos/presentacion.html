@@ -7,7 +7,16 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/white.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
-<style>.reveal pre code { max-height: 520px; font-size: 0.75em; } .reveal { font-size: 34px; }</style>
+<style>
+.reveal { font-size: 32px; }
+.reveal pre code { max-height: 520px; font-size: 0.78em; }
+.reveal ul, .reveal ol { display: block; }
+.reveal li { margin-bottom: .35em; }
+.reveal .peque { font-size: .8em; }
+.reveal .salida { background: #111; color: #9fe870; padding: .6em 1em; border-radius: 8px; font-family: monospace; font-size: .8em; text-align: left; line-height: 1.5; }
+.reveal .caja { background: #eef4ff; border-left: 6px solid #2563eb; padding: .4em .9em; text-align: left; font-size: .85em; }
+.reveal .aviso { background: #fff4e5; border-left: 6px solid #f59e0b; padding: .4em .9em; text-align: left; font-size: .85em; }
+</style>
 </head>
 <body>
 <div class="reveal">
@@ -19,121 +28,221 @@
 </section>
 
 <section>
-  <h3>Objetivo</h3>
+  <h3>Objetivo de la clase</h3>
   <ul>
-    <li>Crear un hilo en Java</li>
-    <li>Escribir su método <code>run()</code></li>
+    <li>Entender qué es un hilo</li>
+    <li>Crear un hilo con <code>Runnable</code></li>
     <li>Ponerlo en marcha con <code>start()</code></li>
-    <li>Ver que varios hilos se ejecutan a la vez</li>
+    <li>Ver que varios hilos trabajan a la vez</li>
   </ul>
 </section>
 
 <section>
-  <h3>Teoría breve</h3>
-  <ul>
-    <li>Un hilo = un objeto de la clase <code>Thread</code></li>
-    <li>Lo que hace el hilo se escribe en <code>run()</code></li>
-    <li><code>start()</code> arranca el hilo y llama a <code>run()</code></li>
-    <li>Siempre hay un hilo <code>main</code></li>
-  </ul>
-  <p class="fragment">Dos formas: <b>extender <code>Thread</code></b> o <b>implementar <code>Runnable</code></b></p>
+  <section>
+    <h3>¿Qué es un hilo?</h3>
+    <p>Un programa normal hace <b>una cosa cada vez</b>, en orden.</p>
+    <p class="fragment">Un <b>hilo</b> es un camino de ejecución. Con varios hilos, el programa puede hacer <b>varias cosas a la vez</b>.</p>
+  </section>
+  <section>
+    <h3>Una idea para recordarlo</h3>
+    <p>Una cocina con tres cocineros. Cada cocinero es un hilo. Los tres trabajan a la vez en la misma cocina.</p>
+    <p class="fragment">Nadie decide quién termina antes. Por eso el orden no siempre es el mismo.</p>
+  </section>
+  <section>
+    <h3>El hilo principal</h3>
+    <p>Cuando un programa Java arranca, ya hay un hilo funcionando. Se llama <code>main</code>.</p>
+    <p class="fragment">Es el último en terminar: el programa acaba cuando termina <code>main</code>.</p>
+  </section>
 </section>
 
 <section>
-  <h3>Ejemplo: un hilo con Runnable</h3>
-  <pre><code class="language-java" data-trim data-noescape>
+  <section>
+    <h3>Las piezas que vamos a usar</h3>
+    <ul>
+      <li><code>Thread</code>: la clase de Java que representa un hilo</li>
+      <li><code>Runnable</code>: un contrato para clases que se ejecutan en un hilo</li>
+      <li><code>run()</code>: lo que hace el hilo</li>
+      <li><code>start()</code>: pone el hilo en marcha</li>
+    </ul>
+  </section>
+  <section>
+    <h3>Dos formas de crear un hilo</h3>
+    <ol>
+      <li>Heredar de <code>Thread</code></li>
+      <li>Implementar <code>Runnable</code> <span class="peque">(la que usamos hoy)</span></li>
+    </ol>
+    <p class="fragment caja">Con <code>Runnable</code> funciona siempre, aunque la clase ya herede de otra. Java no permite heredar de dos clases.</p>
+  </section>
+  <section>
+    <h3>Crear un hilo con Runnable: 4 pasos</h3>
+    <ol>
+      <li class="fragment">Escribe una clase que <b>implemente</b> <code>Runnable</code></li>
+      <li class="fragment">Escribe su método <code>run()</code> con lo que debe hacer el hilo</li>
+      <li class="fragment">Crea un <code>Thread</code> y pásale un objeto de esa clase</li>
+      <li class="fragment">Llama a <code>start()</code></li>
+    </ol>
+  </section>
+</section>
+
+<section>
+  <section>
+    <h3>Primer ejemplo: la clase Saludo</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1|2-5|1-6">
 public class Saludo implements Runnable {
     @Override
     public void run() {
-        System.out.println("¡Saludo desde un hilo!");
+        System.out.println("¡Hola desde un hilo!");
     }
 }
-
-// En main:
+    </code></pre>
+    <p class="peque">Pulsa la flecha para ir línea por línea.</p>
+  </section>
+  <section>
+    <h3>Línea por línea</h3>
+    <ul class="peque">
+      <li><code>public class Saludo implements Runnable</code><br>Creamos la clase <code>Saludo</code> y decimos que es <code>Runnable</code>: promete tener un método <code>run()</code>.</li>
+      <li><code>@Override</code><br>Avisa a Java de que <code>run()</code> cumple la promesa. Si lo escribes mal, Java te avisa.</li>
+      <li><code>public void run()</code><br>Aquí va lo que hace el hilo.</li>
+      <li><code>System.out.println(...)</code><br>Escribe un texto en pantalla.</li>
+    </ul>
+  </section>
+  <section>
+    <h3>Ponerlo en marcha</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1|2|1-2">
 Thread hilo1 = new Thread(new Saludo(), "Hilo 1");
 hilo1.start();
-  </code></pre>
+    </code></pre>
+    <ul class="peque">
+      <li><code>new Saludo()</code>: crea el objeto con el trabajo</li>
+      <li><code>new Thread(..., "Hilo 1")</code>: crea el hilo y le pone nombre</li>
+      <li><code>hilo1.start()</code>: Java crea el hilo y llama a <code>run()</code></li>
+    </ul>
+  </section>
+  <section>
+    <h3>Qué verás en pantalla</h3>
+    <div class="salida">¡Hola desde un hilo!</div>
+  </section>
+  <section>
+    <h3>Error típico</h3>
+    <p class="aviso"><code>hilo1.run()</code> <b>no crea</b> un hilo nuevo. Ejecuta el código en el hilo <code>main</code>, como una llamada normal.</p>
+    <p class="caja">Para crear el hilo, siempre <code>start()</code>.</p>
+  </section>
 </section>
 
 <section>
-  <h3>Error típico</h3>
-  <p><code>hilo1.run()</code> no crea un hilo nuevo.</p>
-  <p>Siempre usa <code>start()</code>.</p>
-</section>
-
-<section>
-  <h3>Ejercicio 1 · proyecto CrearHilos</h3>
-  <p>Tres hilos. Cada uno cuenta del 1 al 10.</p>
-  <p>Salida: <code>Hilo x: y</code></p>
-  <ul>
-    <li><code>Contador</code> implements <code>Runnable</code></li>
-    <li><code>Principal</code> crea los hilos con nombre</li>
-  </ul>
-  <p class="fragment">Ejecútalo varias veces. ¿Sale siempre igual?</p>
-</section>
-
-<section>
-  <h3>Ejercicio 2 · proyecto EjemploPerrosGatos</h3>
-  <ul>
-    <li><code>Gato.run()</code> muestra <code>Miau!</code></li>
-    <li><code>Perro.run()</code> muestra <code>Guau!</code></li>
-    <li><code>Principal</code> lanza los dos hilos</li>
-  </ul>
-</section>
-
-<section>
-  <h3>Solución 1: Contador</h3>
-  <pre><code class="language-java" data-trim data-noescape>
-package crearhilos;
-
+  <section>
+    <h3>Ejercicio 1: tres contadores</h3>
+    <p>Tres hilos. Cada uno cuenta del 1 al 10.</p>
+    <p>Salida de cada línea: <code>Hilo x: y</code></p>
+    <div class="salida">Hilo 1: 1<br>Hilo 2: 1<br>Hilo 1: 2<br>…</div>
+    <p class="peque">Proyecto <b>CrearHilos</b></p>
+  </section>
+  <section>
+    <h3>Cómo pensarlo</h3>
+    <ul>
+      <li>¿Cuántas clases necesito con <code>run()</code>? <span class="fragment">Una: <code>Contador</code>. Los tres hilos usan la misma.</span></li>
+      <li>¿Cómo sabe cada hilo su número? <span class="fragment">Por el <b>nombre</b> del hilo.</span></li>
+      <li>¿Cómo pregunto mi nombre? <span class="fragment"><code>Thread.currentThread().getName()</code></span></li>
+    </ul>
+  </section>
+  <section>
+    <h3>Solución: Contador</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1|3-4|5|6-8">
 public class Contador implements Runnable {
 
     @Override
     public void run() {
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i &lt;= 10; i++) {
             System.out.println(Thread.currentThread().getName() + ": " + i);
         }
     }
 }
-  </code></pre>
+    </code></pre>
+  </section>
+  <section>
+    <h3>Línea por línea</h3>
+    <ul class="peque">
+      <li><code>implements Runnable</code>: esta clase puede ejecutarse en un hilo</li>
+      <li><code>for (int i = 1; i &lt;= 10; i++)</code>: <code>i</code> empieza en 1, sube de uno en uno y para en 10</li>
+      <li><code>Thread.currentThread()</code>: «el hilo que está ejecutando esto ahora mismo»</li>
+      <li><code>.getName()</code>: «dime su nombre»</li>
+      <li><code>+ ": " + i</code>: pega los dos puntos y el número. Sale <code>Hilo 2: 7</code></li>
+    </ul>
+  </section>
+  <section>
+    <h3>Crear los tres hilos</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1-3|5-7">
+Thread h1 = new Thread(new Contador(), "Hilo 1");
+Thread h2 = new Thread(new Contador(), "Hilo 2");
+Thread h3 = new Thread(new Contador(), "Hilo 3");
+
+h1.start();
+h2.start();
+h3.start();
+    </code></pre>
+    <ul class="peque">
+      <li>Primero se crean los tres hilos, cada uno con su nombre</li>
+      <li>Después se arrancan los tres</li>
+    </ul>
+  </section>
+  <section>
+    <h3>¿Qué sale en pantalla?</h3>
+    <div class="salida">Hilo 1: 1<br>Hilo 1: 2<br>Hilo 2: 1<br>Hilo 3: 1<br>Hilo 2: 2<br>…</div>
+    <p class="aviso">Se mezclan. Ejecútalo varias veces: <b>no sale igual</b>. Es normal. El sistema decide quién avanza.</p>
+  </section>
 </section>
 
 <section>
-  <h3>Solución 1: Principal</h3>
-  <pre><code class="language-java" data-trim data-noescape>
-public class Principal {
-
-    public static void main(String[] args) {
-        Thread h1 = new Thread(new Contador(), "Hilo 1");
-        Thread h2 = new Thread(new Contador(), "Hilo 2");
-        Thread h3 = new Thread(new Contador(), "Hilo 3");
-
-        h1.start();
-        h2.start();
-        h3.start();
-    }
-}
-  </code></pre>
-</section>
-
-<section>
-  <h3>Solución 2: Gato y Perro</h3>
-  <pre><code class="language-java" data-trim data-noescape>
+  <section>
+    <h3>Ejercicio 2: Gato y Perro</h3>
+    <ul>
+      <li><code>Gato</code>: su <code>run()</code> muestra <code>Miau!</code></li>
+      <li><code>Perro</code>: su <code>run()</code> muestra <code>Guau!</code></li>
+      <li>Lanza un hilo de cada uno</li>
+    </ul>
+    <p class="peque">Proyecto <b>EjemploPerrosGatos</b></p>
+  </section>
+  <section>
+    <h3>Solución: Gato y Perro</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1-6|8-13">
 public class Gato implements Runnable {
     @Override
-    public void run() { System.out.println("Miau!"); }
+    public void run() {
+        System.out.println("Miau!");
+    }
 }
 
 public class Perro implements Runnable {
     @Override
-    public void run() { System.out.println("Guau!"); }
+    public void run() {
+        System.out.println("Guau!");
+    }
 }
+    </code></pre>
+  </section>
+  <section>
+    <h3>Lanzarlos</h3>
+    <pre><code class="language-java" data-trim>
+Thread hGato = new Thread(new Gato(), "Gato");
+Thread hPerro = new Thread(new Perro(), "Perro");
 
-// Principal.main:
-new Thread(new Gato(), "Gato").start();
-new Thread(new Perro(), "Perro").start();
-  </code></pre>
-  <p class="fragment">El orden de salida no está garantizado.</p>
+hGato.start();
+hPerro.start();
+    </code></pre>
+    <div class="salida">Miau!<br>Guau!</div>
+    <p class="fragment aviso">¿Sale siempre <code>Miau!</code> primero? Pruébalo varias veces.</p>
+  </section>
+</section>
+
+<section>
+  <h3>Resumen</h3>
+  <ul>
+    <li>Un hilo es un objeto <code>Thread</code></li>
+    <li>Lo que hace va en <code>run()</code></li>
+    <li><code>start()</code> lo pone en marcha. <code>run()</code> solo, no</li>
+    <li>El orden de la salida no está garantizado</li>
+    <li>El nombre del hilo: <code>Thread.currentThread().getName()</code></li>
+  </ul>
 </section>
 
 </div>
@@ -142,7 +251,7 @@ new Thread(new Perro(), "Perro").start();
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
 <script>
-  Reveal.initialize({ hash: true, plugins: [ RevealHighlight ] });
+  Reveal.initialize({ hash: true, slideNumber: 'c/t', plugins: [ RevealHighlight ] });
 </script>
 </body>
 </html>
