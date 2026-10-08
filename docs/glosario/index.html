@@ -31,6 +31,32 @@ System.out.println(numeros.length);   // 3
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="ArrayList">
+<h2><code>ArrayList</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Lista que crece sola cuando se añaden elementos. Entre &lt; &gt; se indica qué guarda.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Guardar cosas cuando no sabemos cuántas serán, por ejemplo los clientes que van llegando. A diferencia de un array, no tiene tamaño fijo.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">ArrayList&lt;Thread&gt; clientes = new ArrayList&lt;&gt;();
+clientes.add(hilo);
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="boolean">
+<h2><code>boolean</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Tipo de dato que solo puede valer true (verdadero) o false (falso).</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Guardar un sí o un no, por ejemplo si hay un cuadro en el almacén. Se puede negar con ! (!hayCuadro) y combinar con &amp;&amp; (y).</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">boolean hayCuadro = false;
+hayCuadro = true;
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="constructor">
 <h2><code>constructor</code></h2>
 <dl>
@@ -41,6 +67,34 @@ System.out.println(numeros.length);   // 3
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">public HiloSuma(int[] numeros) {
     this.numeros = numeros;
 }
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="double">
+<h2><code>double</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Tipo de dato para números con decimales.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Guardar importes de dinero o medidas. Se escribe con punto: 0.75.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">double dinero = 0;
+dinero = dinero + 1.75;
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="FileWriter / Files">
+<h2><code>FileWriter / Files</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>FileWriter es la clase de Java que escribe texto en un fichero. Files.readAllLines lee un fichero entero y devuelve una lista con una entrada por línea.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Guardar y leer datos en ficheros de texto. FileWriter(ruta, true) añade al final en vez de borrar. Siempre hay que cerrar el fichero con close() y manejar IOException.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">FileWriter fw = new FileWriter(&quot;datos.txt&quot;, true);
+fw.write(&quot;hola\n&quot;);
+fw.close();
+int lineas = Files.readAllLines(Path.of(&quot;datos.txt&quot;)).size();
 </code></pre>
 </dd>
 </dl>
@@ -59,6 +113,20 @@ System.out.println(numeros.length);   // 3
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="for (Thread t : lista)">
+<h2><code>for (Thread t : lista)</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Forma corta del for para recorrer todos los elementos de una lista o array, uno en cada vuelta.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>No hace falta contar posiciones: t es el elemento actual. Se lee «para cada hilo t de la lista».</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">for (Thread t : clientes) {
+    t.join();
+}
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="getName()">
 <h2><code>getName()</code></h2>
 <dl>
@@ -68,6 +136,37 @@ System.out.println(numeros.length);   // 3
 </dd>
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread h = new Thread(new Contador(), &quot;Hilo 1&quot;);
 System.out.println(h.getName());   // Hilo 1
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="IOException">
+<h2><code>IOException</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Error que lanza Java cuando falla una operación con ficheros: no existe, no hay permiso, el disco está lleno...</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Java obliga a tenerlo en cuenta con try/catch cada vez que se usa un fichero.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">try {
+    FileWriter fw = new FileWriter(&quot;datos.txt&quot;);
+    fw.close();
+} catch (IOException e) {
+    System.out.println(&quot;No se puede abrir el fichero&quot;);
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="join()">
+<h2><code>join()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de Thread que hace esperar al hilo que lo llama hasta que el otro hilo termine.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Esperar a que acaben varios hilos antes de seguir, por ejemplo para mostrar un mensaje final. Obliga a manejar InterruptedException (main puede declarar throws InterruptedException).</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">hilo.start();
+hilo.join();
+System.out.println(&quot;El hilo ha terminado&quot;);
 </code></pre>
 </dd>
 </dl>
@@ -108,6 +207,32 @@ System.out.println(numeros.length);   // 10
 </dd>
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread h1 = new Thread(new Contador(), &quot;Hilo 1&quot;);
 h1.start();
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="notify()">
+<h2><code>notify()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método que despierta a un hilo que está esperando con wait() sobre el mismo objeto.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Avisar a otro hilo de que algo ha cambiado. Solo despierta a uno, y no se puede elegir cuál.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">hayCuadro = true;
+notify();
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="notifyAll()">
+<h2><code>notifyAll()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Como notify(), pero despierta a todos los hilos que esperan con wait() sobre el mismo objeto.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Cuando hay más de dos hilos esperando, notify() puede despertar al equivocado. Con notifyAll() cada hilo se despierta, comprueba su condición y se vuelve a dormir si no puede seguir.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">hayCuadro = false;
+notifyAll();
 </code></pre>
 </dd>
 </dl>
@@ -155,6 +280,33 @@ public void run() {
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="Random">
+<h2><code>Random</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase de Java que genera números al azar.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Variar los tiempos o los valores en cada ejecución. nextInt(3) da 0, 1 o 2.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Random azar = new Random();
+int segundos = 1 + azar.nextInt(3); // 1, 2 o 3
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="return">
+<h2><code>return</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Instrucción que termina el método y entrega un valor a quien lo llamó.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Devolver un resultado, por ejemplo true o false. Un método que devuelve algo lleva su tipo en lugar de void.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">public boolean vender() {
+    return true;
+}
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="run()">
 <h2><code>run()</code></h2>
 <dl>
@@ -187,6 +339,19 @@ public void run() {
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="Scanner">
+<h2><code>Scanner</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase de Java que lee lo que el usuario escribe por teclado.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Hacer menús y preguntar datos. nextInt() lee un número entero. System.in es el teclado.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Scanner teclado = new Scanner(System.in);
+int opcion = teclado.nextInt();
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="start()">
 <h2><code>start()</code></h2>
 <dl>
@@ -214,6 +379,20 @@ h1.start();
     case &quot;resta&quot;:
         System.out.println(&quot;resto&quot;);
         break;
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="synchronized">
+<h2><code>synchronized</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Palabra clave que se pone en un método para que solo un hilo a la vez pueda estar dentro de él.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Evitar que dos hilos toquen a la vez el mismo objeto. Es imprescindible para usar wait() y notify().</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">public synchronized void depositar(int numero) {
+    // solo un hilo a la vez entra aquí
 }
 </code></pre>
 </dd>
@@ -265,6 +444,81 @@ h.start();
 </dd>
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread actual = Thread.currentThread();
 System.out.println(actual.getName());
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Thread.sleep()">
+<h2><code>Thread.sleep()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método que duerme el hilo actual durante los milisegundos que se le indican (1000 = 1 segundo).</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Simular que algo tarda: un lavado, una máquina que fabrica una pieza. Obliga a escribir try/catch con InterruptedException. Se usa fuera de synchronized para no bloquear a los demás hilos.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">try {
+    Thread.sleep(2000);
+} catch (InterruptedException e) {
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="throws">
+<h2><code>throws</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Palabra que se pone en la cabecera de un método para avisar de que puede lanzar un error de cierto tipo y dejarlo pasar.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Evitar escribir un try/catch en cada llamada a join() o sleep(): el método declara el error y quien lo llame se ocupa.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">public static void main(String[] args) throws InterruptedException {
+    hilo.join();
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="try / catch">
+<h2><code>try / catch</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Estructura que prueba un código y, si Java lanza un error de un tipo concreto, ejecuta otro bloque en lugar de parar el programa.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Es obligatorio con wait(), que puede lanzar InterruptedException (aviso de que alguien interrumpió la espera). Si no hacemos nada con el aviso, el catch queda vacío.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">try {
+    wait();
+} catch (InterruptedException e) {
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="wait()">
+<h2><code>wait()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método que duerme al hilo que lo llama y suelta el objeto para que otro hilo pueda entrar.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Esperar a que otro hilo avise de que ya se puede continuar. Solo se usa dentro de un método synchronized y obliga a escribir try/catch.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">while (hayCuadro) {
+    try {
+        wait();
+    } catch (InterruptedException e) {
+    }
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="while">
+<h2><code>while</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Instrucción que repite un bloque de código mientras se cumpla una condición.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Repetir algo sin saber cuántas veces. Si la condición es falsa desde el principio, el bloque no se ejecuta ninguna vez. Con wait() se usa while y no if, para volver a comprobar la condición al despertar.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">while (hayCuadro) {
+    wait();
+}
 </code></pre>
 </dd>
 </dl>

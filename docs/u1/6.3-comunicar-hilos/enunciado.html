@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apartado 6.3 – Comunicación entre hilos</title>
+<link rel="stylesheet" href="../../estilo/tema.css">
+<script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t)}catch(e){}</script>
+</head>
+<body class="">
+<header class="cabecera">
+  <a class="marca" href="../../index.html">PSP · 2º DAM</a>
+  <nav><a href="../../glosario/index.html">Glosario</a><button id="tema" type="button" aria-label="Cambiar entre tema claro y oscuro">◐</button></nav>
+</header>
+<main class="contenido">
+<h1>Apartado 6.3 – Comunicación entre hilos</h1>
+<p>Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete <code>comunicarhilos</code>.</p>
+
+<section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
+<h2>Ejercicio 1: un pintor y un vendedor (proyecto <code>PintorVendedor</code>)</h2>
+<p>Hay un pintor y un vendedor de cuadros. Los dos comparten un almacén donde solo entra un cuadro.</p>
+<ul>
+<li>El pintor debe esperar a que el almacén esté vacío para dejar un cuadro.</li>
+<li>El vendedor debe esperar a que haya un cuadro en el almacén para poder venderlo.</li>
+<li>El programa termina cuando se han vendido 10 cuadros.</li>
+</ul>
+<p>Cada vez que el pintor deja un cuadro o el vendedor lo vende, se muestra por pantalla. Ejemplo: <code>Pintor: deja el cuadro 3</code> y <code>Vendedor: vende el cuadro 3</code>.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El almacén es algo que comparten los dos hilos, así que necesita su propia clase y los dos hilos deben recibir el mismo objeto. Cuando un hilo no puede continuar, tiene que dormirse hasta que el otro le avise. Eso lo hacen <code>wait()</code> y <code>notify()</code>, dentro de métodos <code>synchronized</code>.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>Almacen</code> con un atributo <code>boolean</code> que diga si hay un cuadro. Tiene dos métodos <code>synchronized</code>: uno para depositar y otro para vender. Cada método usa un bucle <code>while</code> que llama a <code>wait()</code> mientras no pueda continuar: el pintor, mientras haya cuadro; el vendedor, mientras no lo haya. Cuando puede continuar, cambia el atributo, muestra el mensaje y llama a <code>notify()</code> para despertar al otro hilo. <code>wait()</code> obliga a escribir un <code>try</code> con <code>catch (InterruptedException e)</code>. <code>Pintor</code> y <code>Vendedor</code> implementan <code>Runnable</code>, reciben el almacén en el constructor y repiten 10 veces su método. <code>Principal</code> crea un solo <code>Almacen</code> y se lo pasa a los dos.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>PintorVendedor</code> y el paquete <code>comunicarhilos</code>.</li>
+<li>Crea la clase <code>Almacen</code> con un atributo privado <code>boolean</code> llamado <code>hayCuadro</code>, que empiece en <code>false</code>.</li>
+<li>Escribe el método <code>depositar</code>, marcado como <code>synchronized</code>, que recibe el número del cuadro.</li>
+<li>Dentro, escribe un <code>while</code> que, mientras <code>hayCuadro</code> sea <code>true</code>, llame a <code>wait()</code> (dentro de un <code>try</code> con <code>catch (InterruptedException e)</code>).</li>
+<li>Al salir del <code>while</code>, pon <code>hayCuadro</code> a <code>true</code>, muestra el nombre del hilo y el cuadro que deja, y llama a <code>notify()</code>.</li>
+<li>Escribe el método <code>vender</code> del mismo modo, pero al revés: espera mientras no haya cuadro, pone <code>hayCuadro</code> a <code>false</code>, muestra el mensaje y llama a <code>notify()</code>.</li>
+<li>Crea las clases <code>Pintor</code> y <code>Vendedor</code>, que implementan <code>Runnable</code>. Cada una guarda el <code>Almacen</code> que recibe en el constructor.</li>
+<li>En el <code>run()</code> de cada una, escribe un <code>for</code> de 1 a 10 que llame a <code>depositar</code> o a <code>vender</code> con el número de la vuelta.</li>
+<li>En <code>Principal</code>, crea un solo <code>Almacen</code> y dos hilos con los nombres &quot;Pintor&quot; y &quot;Vendedor&quot;, pasándoles ese mismo almacén.</li>
+<li>Arranca los dos hilos con <code>start()</code> y comprueba que los cuadros se dejan y se venden de uno en uno, del 1 al 10.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-2" data-ejercicio="ej-2">
+<h2>Ejercicio 2: un pintor y dos vendedores (proyecto <code>PintorDosVendedores</code>)</h2>
+<p>Ahora hay un pintor y dos vendedores de cuadros. Los tres comparten un almacén donde solo entra un cuadro.</p>
+<ul>
+<li>El pintor debe esperar a que el almacén esté vacío para dejar un cuadro.</li>
+<li>Los vendedores deben esperar a que haya un cuadro en el almacén para poder venderlo.</li>
+<li>El programa termina cuando se han pintado 10 cuadros y se han vendido todos.</li>
+</ul>
+<p>Cada cuadro lo vende un solo vendedor. Ejemplo: <code>Vendedor 2: vende el cuadro 5</code>.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Ahora hay tres hilos esperando sobre el mismo almacén, y <code>notify()</code> solo despierta a uno cualquiera, que puede ser el equivocado. Además, los vendedores no saben cuántos cuadros les tocan, así que el almacén debe poder decirles que ya no hay más.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Cambia <code>notify()</code> por <code>notifyAll()</code>, que despierta a todos los hilos que esperan; cada uno vuelve a comprobar su condición y los que no pueden seguir se duermen otra vez. Añade al almacén un atributo <code>boolean</code> <code>terminado</code> y un método <code>terminar()</code> que lo pone a <code>true</code> y avisa a todos. El método de vender devuelve un <code>boolean</code>: <code>true</code> si ha vendido un cuadro y <code>false</code> si el almacén está vacío y el pintor ya terminó. El vendedor repite su trabajo mientras ese método devuelva <code>true</code>. El pintor llama a <code>terminar()</code> al acabar sus 10 cuadros.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>PintorDosVendedores</code> y el paquete <code>comunicarhilos</code>, y copia las clases del ejercicio anterior.</li>
+<li>En <code>Almacen</code>, añade un atributo <code>int</code> con el número del cuadro que hay dentro y otro <code>boolean</code> llamado <code>terminado</code>, que empiece en <code>false</code>.</li>
+<li>En <code>depositar</code>, guarda también el número del cuadro y cambia <code>notify()</code> por <code>notifyAll()</code>.</li>
+<li>Cambia <code>vender</code> para que devuelva un <code>boolean</code> y no reciba nada. Su <code>while</code> espera mientras no haya cuadro y tampoco haya terminado.</li>
+<li>Después del <code>while</code>, si no hay cuadro es que el pintor ha terminado: devuelve <code>false</code>.</li>
+<li>Si hay cuadro, pon <code>hayCuadro</code> a <code>false</code>, muestra el mensaje con el número guardado, llama a <code>notifyAll()</code> y devuelve <code>true</code>.</li>
+<li>Escribe el método <code>terminar()</code>, <code>synchronized</code>: pone <code>terminado</code> a <code>true</code> y llama a <code>notifyAll()</code>.</li>
+<li>En <code>Pintor</code>, llama a <code>terminar()</code> después del <code>for</code>.</li>
+<li>En <code>Vendedor</code>, sustituye el <code>for</code> por un <code>while</code> que repita mientras el método de vender devuelva <code>true</code>.</li>
+<li>En <code>Principal</code>, crea un almacén, un pintor y dos vendedores con los nombres &quot;Vendedor 1&quot; y &quot;Vendedor 2&quot;, y arranca los tres.</li>
+<li>Ejecuta varias veces: el programa debe terminar siempre y los cuadros del 1 al 10 se venden una sola vez cada uno.</li>
+</ol>
+</div>
+</section>
+<section class="tarjeta"><h2>Preguntas</h2><ol>
+<li>Quita el <code>wait()</code> del vendedor del ejercicio 1. ¿Qué pasa? ¿Por qué hace falta?</li>
+<li>¿Por qué se usa <code>while</code> y no <code>if</code> alrededor de <code>wait()</code>?</li>
+<li>En el ejercicio 2, ¿se reparten los cuadros por igual entre los dos vendedores? ¿Y siempre igual en cada ejecución?</li>
+<li>¿Qué pasaría en el ejercicio 2 si el pintor no llamara a <code>terminar()</code>?</li>
+</ol>
+</section>
+</main>
+<script type="module" src="../../estilo/tema.js"></script>
+<script type="module" src="../../estilo/ayudas.js"></script>
+</body>
+</html>

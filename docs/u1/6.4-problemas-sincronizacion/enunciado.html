@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apartado 6.4 – Problemas de sincronización</title>
+<link rel="stylesheet" href="../../estilo/tema.css">
+<script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t)}catch(e){}</script>
+</head>
+<body class="">
+<header class="cabecera">
+  <a class="marca" href="../../index.html">PSP · 2º DAM</a>
+  <nav><a href="../../glosario/index.html">Glosario</a><button id="tema" type="button" aria-label="Cambiar entre tema claro y oscuro">◐</button></nav>
+</header>
+<main class="contenido">
+<h1>Apartado 6.4 – Problemas de sincronización</h1>
+<p>Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete <code>sincronizacion</code>. Los ejercicios van de menos a más difícil.</p>
+
+<section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
+<h2>Ejercicio 1: lectores y escritores (proyecto <code>LectoresEscritores</code>)</h2>
+<p>Hay 10 hilos escritores y 10 hilos lectores.</p>
+<ul>
+<li>Cada escritor escribe su nombre en una línea nueva de un fichero de texto.</li>
+<li>Cada lector lee cuántas líneas tiene el fichero en el momento de la lectura y lo muestra por pantalla.</li>
+</ul>
+<p>Ejemplo de salida: <code>Lector 4 lee: el fichero tiene 6 líneas</code>.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El fichero es lo que comparten los 20 hilos, así que debe estar en su propia clase y todos deben usar el mismo objeto. Piensa qué podría salir mal si un lector leyera mientras un escritor está escribiendo. Aquí basta con <code>synchronized</code>.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>Fichero</code> que guarde la ruta del fichero y tenga dos métodos <code>synchronized</code>: uno que añade una línea al final y otro que cuenta las líneas. Para escribir sirve <code>FileWriter</code> con el segundo argumento a <code>true</code>, que añade en vez de borrar. Para contar sirve <code>Files.readAllLines</code>, que devuelve una lista con una entrada por línea. Los dos obligan a escribir un <code>try</code> con <code>catch (IOException e)</code>. <code>Escritor</code> y <code>Lector</code> implementan <code>Runnable</code>, reciben el <code>Fichero</code> en el constructor y llaman a su método. En <code>Principal</code>, un <code>for</code> crea y arranca un escritor y un lector en cada vuelta.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>LectoresEscritores</code> y el paquete <code>sincronizacion</code>.</li>
+<li>Crea la clase <code>Fichero</code> con un atributo privado <code>String</code> para la ruta.</li>
+<li>En el constructor, guarda la ruta y crea el fichero vacío con un <code>FileWriter</code>, para que cada ejecución empiece desde cero.</li>
+<li>Escribe el método <code>escribir</code>, <code>synchronized</code>, que añade el nombre del hilo y un salto de línea al final del fichero y cierra el fichero.</li>
+<li>Escribe el método <code>contarLineas</code>, <code>synchronized</code>, que lee todas las líneas y muestra cuántas hay.</li>
+<li>Crea <code>Escritor</code> y <code>Lector</code>, que implementan <code>Runnable</code> y reciben el <code>Fichero</code> en el constructor.</li>
+<li>En el <code>run()</code> de cada una, llama al método correspondiente pasando <code>Thread.currentThread().getName()</code>.</li>
+<li>En <code>Principal</code>, crea un solo <code>Fichero</code> y un <code>for</code> de 1 a 10 que cree y arranque un <code>Escritor</code> y un <code>Lector</code> con nombres como &quot;Escritor 3&quot; y &quot;Lector 3&quot;.</li>
+<li>Ejecuta varias veces y comprueba que cada lector ve entre 0 y 10 líneas y que al final el fichero tiene 10.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-2" data-ejercicio="ej-2">
+<h2>Ejercicio 2: fábrica de piezas (proyecto <code>FabricaPiezas</code>)</h2>
+<p>Una fábrica tiene tres máquinas automáticas que generan piezas y las ponen en una cinta transportadora. Una máquina empaquetadora las recoge de la cinta.</p>
+<ul>
+<li>La cinta admite como máximo 5 piezas. Si está llena, las máquinas esperan a que se libere espacio.</li>
+<li>Cada máquina genera una pieza cada 1 a 3 segundos (al azar) y la pone en la cinta si hay espacio.</li>
+<li>La empaquetadora retira una pieza cada 2 segundos. Si no hay ninguna, espera.</li>
+<li>Cada vez que se pone o se retira una pieza, se muestra el estado de la cinta.</li>
+<li>La fábrica termina cuando se han fabricado 50 piezas y no queda ninguna en la cinta. Entonces se muestra <code>Fábrica cerrada</code>.</li>
+</ul>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>La cinta es el objeto compartido y es un problema de productor y consumidor, como el del pintor. La diferencia es que hay varios productores y un tope de piezas fabricadas entre todos. Cuando hay más de dos hilos esperando, elige bien el método para avisar. Para el mensaje final, <code>main</code> tiene que esperar a que terminen los cuatro hilos.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase <code>Cinta</code> guarda cuántas piezas hay y cuántas se han fabricado en total. El método de poner espera mientras la cinta esté llena y falten piezas por fabricar; si ya se fabricaron las 50, devuelve <code>false</code> para que la máquina termine. El método de retirar espera mientras no haya piezas. Los dos avisan con <code>notifyAll()</code>. <code>Thread.sleep()</code> simula el tiempo de cada máquina, y <code>Random</code> da el número de segundos al azar; ambos se usan fuera de los métodos <code>synchronized</code>. La empaquetadora repite 50 veces su trabajo. En <code>Principal</code>, <code>join()</code> sobre los cuatro hilos hace esperar a <code>main</code> antes de mostrar el mensaje.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>FabricaPiezas</code> y el paquete <code>sincronizacion</code>.</li>
+<li>Crea <code>Cinta</code> con dos atributos <code>int</code>: piezas que hay ahora y piezas fabricadas en total.</li>
+<li>Escribe el método de poner, <code>synchronized</code>, que devuelve un <code>boolean</code>. Espera con un <code>while</code> mientras la cinta tenga 5 y falten piezas por fabricar.</li>
+<li>Tras el <code>while</code>, si ya se fabricaron las 50, devuelve <code>false</code>. Si no, suma una pieza a la cinta y al total, muestra el estado, llama a <code>notifyAll()</code> y devuelve <code>true</code>.</li>
+<li>Escribe el método de retirar, <code>synchronized</code>: espera mientras no haya piezas, resta una, muestra el estado y llama a <code>notifyAll()</code>.</li>
+<li>Crea <code>Maquina</code>: en un bucle, duerme entre 1 y 3 segundos con <code>Thread.sleep</code> y pone una pieza. Repite mientras el método de poner devuelva <code>true</code>.</li>
+<li>Crea <code>Empaquetador</code>: un <code>for</code> de 50 vueltas que duerme 2 segundos y retira una pieza.</li>
+<li>En <code>Principal</code>, crea una <code>Cinta</code>, tres hilos con <code>Maquina</code> (&quot;Máquina 1&quot;, &quot;Máquina 2&quot; y &quot;Máquina 3&quot;) y un hilo con <code>Empaquetador</code>.</li>
+<li>Arranca los cuatro hilos y haz <code>join()</code> a los cuatro. <code>main</code> tendrá que declarar <code>throws InterruptedException</code>.</li>
+<li>Después de los <code>join()</code>, muestra <code>Fábrica cerrada</code>. Comprueba que salen 50 piezas puestas y 50 retiradas.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-3" data-ejercicio="ej-3">
+<h2>Ejercicio 3: lavandería CleanFast (proyecto <code>Lavanderia</code>)</h2>
+<p>Una lavandería de autoservicio tiene 4 lavadoras. Los clientes llegan, esperan si no hay ninguna libre y lavan su ropa durante un tiempo al azar de entre 5 y 10 segundos. El lavado cuesta 3 euros. El cliente no paga ni cuenta como atendido hasta que consigue una lavadora.</p>
+<p>El programa muestra un menú con tres opciones:</p>
+<ol>
+<li><strong>Simular llegada de clientes:</strong> pregunta cuántos llegan y lanza un hilo por cliente.</li>
+<li><strong>Mostrar estado:</strong> muestra los clientes atendidos, la ganancia total (atendidos por 3 €), las lavadoras disponibles y las que están en uso.</li>
+<li><strong>Cerrar:</strong> no se aceptan más clientes, se espera a que terminen todos los que estaban esperando o lavando y entonces acaba el programa.</li>
+</ol>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Las lavadoras son lo que comparten los clientes. No hace falta una clase por lavadora: basta con saber cuántas están libres. El menú vive en <code>main</code> y los clientes en hilos. Piensa en cómo esperar al final a todos los hilos que lanzaste, sin saber de antemano cuántos serán.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase <code>Lavanderia</code> guarda cuántas lavadoras hay libres (empieza en 4) y cuántos clientes se han atendido. Un método <code>synchronized</code> para entrar espera mientras no haya ninguna libre; al conseguirla, resta una libre y suma un atendido. Otro para salir suma una libre y llama a <code>notifyAll()</code>. El cliente duerme con <code>Thread.sleep</code> entre las dos llamadas, fuera de los métodos <code>synchronized</code>. En <code>Principal</code>, <code>Scanner</code> lee la opción del menú, un <code>switch</code> elige qué hacer y un <code>ArrayList</code> de hilos guarda los clientes lanzados. Al cerrar, se recorre la lista haciendo <code>join()</code> a cada hilo.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>Lavanderia</code> y el paquete <code>sincronizacion</code>.</li>
+<li>Crea <code>Lavanderia</code> con dos atributos <code>int</code>: lavadoras libres (4) y clientes atendidos (0).</li>
+<li>Escribe el método de entrar, <code>synchronized</code>: si no hay libres, muestra que el cliente espera; espera con un <code>while</code>; al salir, resta una libre, suma un atendido y muestra que paga.</li>
+<li>Escribe el método de salir, <code>synchronized</code>: suma una libre, muestra el mensaje y llama a <code>notifyAll()</code>.</li>
+<li>Escribe el método que muestra el estado, también <code>synchronized</code>, con los cuatro datos del enunciado.</li>
+<li>Crea <code>Cliente</code>, que implementa <code>Runnable</code>: entra, duerme entre 5 y 10 segundos y sale.</li>
+<li>En <code>Principal</code>, crea una sola <code>Lavanderia</code>, un <code>Scanner</code> y un <code>ArrayList&lt;Thread&gt;</code>.</li>
+<li>Escribe un bucle que muestre el menú, lea la opción y use un <code>switch</code>.</li>
+<li>En la opción 1, pregunta cuántos clientes llegan y crea un <code>Thread</code> por cada uno, con nombre &quot;Cliente&quot; y su número. Guárdalos en la lista y arráncalos.</li>
+<li>En la opción 2, muestra el estado. En la opción 3, sal del bucle.</li>
+<li>Tras el bucle, haz <code>join()</code> a todos los hilos de la lista y muestra el estado final.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-4" data-ejercicio="ej-4">
+<h2>Ejercicio 4: panadería self-service (proyecto <code>Panaderia</code>)</h2>
+<p>Se simula una panadería donde los clientes toman las barras de pan directamente del mostrador.</p>
+<ul>
+<li>Al abrir hay 20 barras en el mostrador.</li>
+<li><strong>El panadero</strong> revisa cada segundo si hay menos de 10 barras. Si es así, hornea un lote de 20, lo que tarda 20 segundos. Mientras hornea, los clientes pueden seguir comprando.</li>
+<li><strong>Los clientes</strong> llegan en grupos y cada uno pide entre 1 y 10 barras. Si no hay suficientes, espera a que el panadero hornee más. El orden en que se atiende a los clientes no importa.</li>
+<li><strong>El precio:</strong> la primera barra cuesta 1 € y cada una de las demás 0,75 €. Por ejemplo, 3 barras cuestan 2,50 €.</li>
+<li><strong>Menú:</strong> 1) registrar un grupo de clientes, preguntando cuántos son y cuántas barras quiere cada uno; 2) ver el estado del mostrador (barras disponibles, dinero recaudado y barras horneadas en total, contando las 20 iniciales); 3) cerrar la panadería.</li>
+<li><strong>Al cerrar:</strong> el panadero se lleva las barras que queden, hornea un último lote de 20 para el día siguiente y se muestra un resumen con el total de barras vendidas y el dinero recaudado.</li>
+</ul>
+<p>El programa muestra mensajes de cada acción: clientes esperando o llevándose barras, y el panadero horneando.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El mostrador es el objeto compartido por el panadero y los clientes. Hornear tarda 20 segundos: piensa dónde poner esa espera para que los clientes no queden bloqueados. Al cerrar, hay clientes que quizá siguen esperando pan, y esos necesitan que el panadero siga trabajando.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase <code>Mostrador</code> guarda las barras, las horneadas, las vendidas, el dinero (un <code>double</code>) y si se está cerrando. Su método de comprar espera mientras no haya barras suficientes. El panadero es un <code>Runnable</code> con un bucle que duerme un segundo y comprueba si hacen falta barras; el horneado (<code>Thread.sleep</code> de 20 segundos) va fuera de los métodos <code>synchronized</code> y después repone el mostrador con <code>notifyAll()</code>. Cada cliente es un hilo que recibe cuántas barras quiere. Primero pregunta lo que quiere cada cliente y luego lanza los hilos. Al cerrar, primero se espera con <code>join()</code> a los clientes, después se avisa al panadero y se espera a que termine.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>Panaderia</code> y el paquete <code>sincronizacion</code>.</li>
+<li>Crea <code>Mostrador</code> con los atributos: barras (20), horneadas (20), vendidas (0), dinero (0) y si se está cerrando (<code>false</code>).</li>
+<li>Escribe <code>comprar</code>, <code>synchronized</code>: si no hay barras suficientes, muestra que el cliente espera. Espera con un <code>while</code>. Después resta las barras, suma a vendidas, calcula el precio y lo suma al dinero, y muestra la compra.</li>
+<li>Escribe un método que diga si quedan menos de 10 barras y otro, <code>reponer</code>, que sume barras y horneadas, muestre el mensaje y llame a <code>notifyAll()</code>.</li>
+<li>Escribe los métodos para vaciar el mostrador, para marcar que se cierra y para saber si se está cerrando.</li>
+<li>Escribe los métodos que muestran el estado y el resumen final.</li>
+<li>Crea <code>Panadero</code>: mientras no se esté cerrando, duerme un segundo y, si hacen falta barras, hornea. Hornear es mostrar un mensaje, dormir 20 segundos y reponer 20 barras.</li>
+<li>Al terminar ese bucle, el panadero vacía el mostrador y hornea un último lote.</li>
+<li>Crea <code>Cliente</code>, con un atributo para las barras que quiere. Su <code>run()</code> llama a <code>comprar</code>.</li>
+<li>En <code>Principal</code>, arranca el hilo del panadero y muestra el menú con un <code>switch</code>. En la opción 1, pregunta el número de clientes y las barras de cada uno (vuelve a preguntar si no está entre 1 y 10) y lanza los hilos.</li>
+<li>En la opción 3, haz <code>join()</code> a todos los clientes, marca que se cierra, haz <code>join()</code> al panadero y muestra el resumen.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-5" data-ejercicio="ej-5">
+<h2>Ejercicio 5: sala de partida de stream (proyecto <code>SalaStream</code>)</h2>
+<p>Una sala de stream de un juego tiene jugadores y espectadores, todos hilos.</p>
+<ul>
+<li><strong>Jugadores:</strong> solo puede haber uno en la sala a la vez. Si hay un jugador con una partida en marcha, los demás esperan en cola a que termine.</li>
+<li><strong>Espectadores:</strong> entran todos los que quieran, pero solo si hay una partida iniciada. Si no la hay, esperan. Pueden llegar cuando la partida ya está empezada.</li>
+<li><strong>Al terminar la partida,</strong> el jugador sale y la sala se cierra: los espectadores salen automáticamente. Entonces puede entrar el siguiente jugador de la cola y los espectadores nuevos. Los espectadores de la partida anterior no se quedan para la siguiente: si quieren verla, deben entrar de nuevo.</li>
+<li>Se muestra por pantalla cada entrada, salida e inicio de partida.</li>
+</ul>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>La sala es el objeto compartido. Jugadores y espectadores esperan cosas distintas: los jugadores esperan a que la sala esté libre, y los espectadores esperan a que haya una partida. Un espectador solo debe quedarse hasta que acabe la partida que vio, aunque ya haya empezado otra. Piensa cómo puede saber un espectador a qué partida pertenece.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase <code>Sala</code> guarda si hay partida en marcha (<code>boolean</code>), el número de la partida actual y cuántos espectadores hay dentro. El jugador espera mientras haya una partida; al entrar, la marca y avisa con <code>notifyAll()</code>. Al terminar, la desmarca y vuelve a avisar. El espectador espera mientras no haya partida; al entrar, apunta el número de la partida que va a ver. Después espera mientras esa misma partida siga en marcha. Cuando termina la última partida, <code>Principal</code> cierra la sala para que los espectadores que siguen esperando se vayan. Los jugadores juegan entre 3 y 5 segundos con <code>Thread.sleep</code>, y los espectadores llegan en un momento al azar.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>SalaStream</code> y el paquete <code>sincronizacion</code>.</li>
+<li>Crea <code>Sala</code> con los atributos: partida en marcha (<code>boolean</code>), número de partida (<code>int</code>), espectadores (<code>int</code>) y sala cerrada (<code>boolean</code>).</li>
+<li>Escribe el método con el que el jugador empieza: si hay partida, muestra que espera en la cola; espera con un <code>while</code>; después marca la partida, suma 1 al número, muestra el mensaje y llama a <code>notifyAll()</code>.</li>
+<li>Escribe el método con el que el jugador termina: desmarca la partida, muestra el mensaje y llama a <code>notifyAll()</code>.</li>
+<li>Escribe el método con el que el espectador entra: espera mientras no haya partida y la sala no esté cerrada. Si sigue sin haber partida, devuelve 0. Si no, suma un espectador y devuelve el número de la partida.</li>
+<li>Escribe el método con el que el espectador espera a que termine su partida: espera mientras haya partida y siga siendo el mismo número. Después resta un espectador y muestra que sale.</li>
+<li>Escribe el método que cierra la sala y despierta a todos.</li>
+<li>Crea <code>Jugador</code>, que empieza una partida, duerme entre 3 y 5 segundos y la termina.</li>
+<li>Crea <code>Espectador</code>, que duerme un tiempo al azar, entra y, si ha entrado a una partida, espera a que acabe. Si no, muestra que se va.</li>
+<li>En <code>Principal</code>, crea la sala, 3 jugadores y 8 espectadores y arráncalos.</li>
+<li>Haz <code>join()</code> a los jugadores, cierra la sala y haz <code>join()</code> a los espectadores. Muestra <code>Sala cerrada</code>.</li>
+</ol>
+</div>
+</section>
+<section class="tarjeta"><h2>Preguntas</h2><ol>
+<li>Ejercicio 1: ¿qué podría pasar si <code>contarLineas</code> no fuera <code>synchronized</code>?</li>
+<li>Ejercicio 2: ¿qué pasa si en la cinta se usa <code>notify()</code> en vez de <code>notifyAll()</code>?</li>
+<li>Ejercicio 3: ¿en qué momento exacto se cuenta a un cliente como atendido? ¿Por qué ahí?</li>
+<li>Ejercicio 4: ¿por qué el panadero hornea fuera de un método <code>synchronized</code>?</li>
+<li>Ejercicio 5: ¿qué pasa si el espectador no apunta el número de partida y solo mira si hay una en marcha?</li>
+</ol>
+</section>
+</main>
+<script type="module" src="../../estilo/tema.js"></script>
+<script type="module" src="../../estilo/ayudas.js"></script>
+</body>
+</html>

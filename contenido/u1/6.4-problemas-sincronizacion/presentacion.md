@@ -1,0 +1,390 @@
+<!-- html -->
+  <h2>Problemas de sincronización</h2>
+  <p>PSP · 2º DAM · Apartado 6.4</p>
+
+---
+
+<!-- html -->
+  <h3>Objetivo de la clase</h3>
+  <ul>
+    <li>Resolver cinco problemas con hilos que comparten un objeto</li>
+    <li>Reconocer el <b>patrón</b> que se repite en todos</li>
+    <li>Simular tiempo con <code>Thread.sleep()</code> y azar con <code>Random</code></li>
+    <li>Esperar a que terminen varios hilos con <code>join()</code></li>
+    <li>Leer del teclado con <code>Scanner</code> y escribir en un fichero</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>El patrón de los cinco ejercicios</h3>
+  <ol>
+    <li class="fragment">Hay <b>un objeto compartido</b> (fichero, cinta, lavandería…)</li>
+    <li class="fragment">Sus métodos son <code>synchronized</code></li>
+    <li class="fragment">Si el hilo no puede continuar: <code>while (no puedo) wait();</code></li>
+    <li class="fragment">Cuando cambia el estado: <code>notifyAll();</code></li>
+    <li class="fragment">Los hilos solo <b>duermen</b>, <b>llaman al objeto</b> y repiten</li>
+  </ol>
+  <p class="fragment caja">Entiende uno y entiendes los cinco.</p>
+
+--
+
+<!-- html -->
+  <h3>Herramientas nuevas</h3>
+  <ul class="peque">
+    <li><code>Thread.sleep(2000)</code>: duerme el hilo 2 segundos (2000 milisegundos). Simula que algo tarda</li>
+    <li><code>new Random().nextInt(3)</code>: número al azar entre 0 y 2</li>
+    <li><code>hilo.join()</code>: «espero aquí hasta que ese hilo termine»</li>
+    <li><code>new Scanner(System.in).nextInt()</code>: lee un número que escribe el usuario</li>
+    <li><code>ArrayList&lt;Thread&gt;</code>: una lista que crece sola</li>
+  </ul>
+  <p class="aviso">Regla: <code>sleep</code> va <b>fuera</b> de <code>synchronized</code>. Si un hilo duerme dentro, los demás no pueden ni entrar a mirar.</p>
+
+---
+
+<!-- html -->
+  <h3>Ejercicio 1: lectores y escritores</h3>
+  <ul>
+    <li>10 hilos <b>escritores</b>: cada uno escribe su nombre en una línea nueva de un fichero</li>
+    <li>10 hilos <b>lectores</b>: cada uno cuenta las líneas que hay en ese momento y lo muestra</li>
+  </ul>
+  <div class="salida">Escritor 1 ha escrito su nombre<br>Lector 1 lee: el fichero tiene 1 líneas<br>…</div>
+  <p class="peque">Proyecto <b>LectoresEscritores</b></p>
+
+--
+
+<!-- html -->
+  <h3>¿Qué puede salir mal?</h3>
+  <p>Si un lector lee <b>mientras</b> un escritor escribe, puede ver datos a medias. Si dos escritores escriben a la vez, las líneas se mezclan.</p>
+  <p class="fragment caja">Solución: el fichero es un objeto compartido y sus métodos son <code>synchronized</code>. Mientras uno trabaja, los demás esperan fuera.</p>
+  <p class="fragment peque">Aquí no hace falta <code>wait()</code>: nadie tiene que esperar a que ocurra nada concreto. Solo no pisarse.</p>
+
+--
+
+<!-- html -->
+  <h3>Solución: el fichero</h3>
+  {{codigo: LectoresEscritores/Fichero.java :: 20-38 @@ 1|3|4|5|14}}
+
+--
+
+<!-- html -->
+  <h3>Línea por línea</h3>
+  <ul class="peque">
+    <li><code>synchronized</code>: un solo hilo a la vez dentro del método. Vale para <b>los dos</b> métodos: un lector tampoco entra si hay un escritor dentro</li>
+    <li><code>new FileWriter(ruta, true)</code>: abre el fichero. El <code>true</code> significa «añadir al final»; sin él borraría lo anterior</li>
+    <li><code>fw.write(nombre + "\n")</code>: escribe el nombre y un salto de línea</li>
+    <li><code>fw.close()</code>: cierra el fichero y guarda lo escrito</li>
+    <li><code>Files.readAllLines(...)</code>: lee todo el fichero y devuelve una lista con una entrada por línea; <code>size()</code> dice cuántas</li>
+    <li><code>try / catch (IOException e)</code>: Java obliga a prever que un fichero puede fallar</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Crear los 20 hilos</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1|3|4-5|6-7">
+Fichero fichero = new Fichero("escritores.txt");
+
+for (int i = 1; i &lt;= 10; i++) {
+    Thread escritor = new Thread(new Escritor(fichero), "Escritor " + i);
+    Thread lector = new Thread(new Lector(fichero), "Lector " + i);
+    escritor.start();
+    lector.start();
+}
+  </code></pre>
+  <p class="peque">Un solo <code>Fichero</code>, 20 hilos. Cada vuelta del <code>for</code> lanza un escritor y un lector.</p>
+
+---
+
+<!-- html -->
+  <h3>Ejercicio 2: fábrica de piezas</h3>
+  <ul class="peque">
+    <li>3 máquinas ponen piezas en una <b>cinta</b> de capacidad 5. Una pieza cada 1–3 s</li>
+    <li>1 empaquetadora retira una pieza cada 2 s</li>
+    <li>Cinta llena: las máquinas esperan. Cinta vacía: la empaquetadora espera</li>
+    <li>Acaba al fabricar <b>50</b> piezas. Se muestra «Fábrica cerrada»</li>
+  </ul>
+  <p class="peque">Proyecto <b>FabricaPiezas</b></p>
+
+--
+
+<!-- html -->
+  <h3>Cómo pensarlo</h3>
+  <ul>
+    <li>Es el pintor y el vendedor otra vez, pero con <b>tres productores</b> <span class="fragment">→ <code>notifyAll()</code></span></li>
+    <li>El límite de 50 es de <b>todas las máquinas juntas</b> <span class="fragment">→ el contador está en la <code>Cinta</code>, no en cada máquina</span></li>
+    <li>¿Cómo sabe una máquina que debe parar? <span class="fragment">→ <code>poner()</code> devuelve <code>false</code></span></li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Solución: la cinta</h3>
+  {{codigo: FabricaPiezas/Cinta.java :: 6-21 @@ 1|2|8-9|11-12|14}}
+
+--
+
+<!-- html -->
+  <h3>Línea por línea</h3>
+  <ul class="peque">
+    <li><code>while (piezas == 5 &amp;&amp; fabricadas &lt; 50)</code>: espera si la cinta está llena <b>y</b> aún faltan piezas. Si ya se hicieron 50 no tiene sentido esperar</li>
+    <li><code>if (fabricadas == 50) return false;</code>: ya no hacen falta más piezas. La máquina recibe <code>false</code> y termina</li>
+    <li><code>piezas++; fabricadas++;</code>: <code>++</code> suma uno. Una pieza más en la cinta y una más fabricada</li>
+    <li><code>notifyAll()</code>: despierta a todos. La empaquetadora ya puede retirar; las máquinas comprueban si hay hueco</li>
+  </ul>
+  <p class="peque"><code>retirar()</code> es igual al revés: espera mientras <code>piezas == 0</code>, resta una y avisa.</p>
+
+--
+
+<!-- html -->
+  <h3>La máquina: sleep y Random</h3>
+  {{codigo: FabricaPiezas/Maquina.java :: 12-22 @@ 1|2|6|9}}
+  <ul class="peque">
+    <li><code>azar.nextInt(3)</code> da 0, 1 o 2. Con <code>1 + …</code> sale 1, 2 o 3</li>
+    <li>Se multiplica por 1000: <code>sleep</code> trabaja en milisegundos</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Esperar a que acaben todos: join</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1-4|6-9|11">
+m1.start();
+m2.start();
+m3.start();
+empaquetador.start();
+
+m1.join();
+m2.join();
+m3.join();
+empaquetador.join();
+
+System.out.println("Fábrica cerrada");
+  </code></pre>
+  <ul class="peque">
+    <li><code>join()</code>: «espero a que este hilo termine»</li>
+    <li>Sin los <code>join()</code>, «Fábrica cerrada» saldría <b>al principio</b>, porque <code>main</code> no espera</li>
+    <li><code>main</code> declara <code>throws InterruptedException</code> para no escribir un <code>try/catch</code> en cada <code>join</code></li>
+  </ul>
+
+---
+
+<!-- html -->
+  <h3>Ejercicio 3: lavandería CleanFast</h3>
+  <ul class="peque">
+    <li>4 lavadoras. Cada cliente lava de 5 a 10 segundos y paga 3 €</li>
+    <li>Sin lavadora libre, el cliente espera. <b>Solo cuenta como atendido cuando consigue una</b></li>
+    <li>Menú: 1) llegan clientes, 2) estado, 3) cerrar (espera a que terminen todos)</li>
+  </ul>
+  <p class="peque">Proyecto <b>Lavanderia</b></p>
+
+--
+
+<!-- html -->
+  <h3>Cómo pensarlo</h3>
+  <ul>
+    <li>¿Hace falta una clase por lavadora? <span class="fragment">No: solo importa <b>cuántas</b> hay libres.</span></li>
+    <li>Es el almacén de un cuadro, pero con <b>4 huecos</b> en vez de 1</li>
+    <li>¿Dónde cuento al cliente como atendido? <span class="fragment">Justo <b>después</b> del <code>while</code>, cuando ya tiene lavadora.</span></li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Solución: la lavandería</h3>
+  {{codigo: Lavanderia/Lavanderia.java :: 6-26 @@ 1|3-5|6-11|12-13|17-20}}
+
+--
+
+<!-- html -->
+  <h3>El cliente</h3>
+  <ul class="peque">
+    <li><code>lavanderia.entrar()</code>: espera si no hay lavadora y coge una</li>
+    <li><code>Thread.sleep(…)</code>: lava entre 5 y 10 segundos. <b>Fuera</b> de <code>synchronized</code>: las otras lavadoras siguen trabajando</li>
+    <li><code>lavanderia.salir()</code>: deja la lavadora libre y avisa con <code>notifyAll()</code></li>
+  </ul>
+  <p class="caja">Se usa <code>notifyAll()</code> porque pueden esperar varios clientes y todos buscan lo mismo: el que llegue primero a la lavadora, la coge.</p>
+
+--
+
+<!-- html -->
+  <h3>El menú</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1-2|4-5|6-12|13-15|16-18">
+Scanner teclado = new Scanner(System.in);
+ArrayList&lt;Thread&gt; clientes = new ArrayList&lt;&gt;();
+
+int opcion = teclado.nextInt();
+switch (opcion) {
+    case 1:
+        int cuantos = teclado.nextInt();
+        for (int i = 0; i &lt; cuantos; i++) {
+            Thread c = new Thread(new Cliente(lavanderia), "Cliente " + siguiente);
+            clientes.add(c);
+            c.start();
+        }
+        break;
+    case 2:
+        lavanderia.mostrarEstado();
+        break;
+    case 3:
+        abierta = false;
+        break;
+}
+  </code></pre>
+
+--
+
+<!-- html -->
+  <h3>Línea por línea</h3>
+  <ul class="peque">
+    <li><code>Scanner</code>: lee lo que escribe el usuario. <code>nextInt()</code> lee un número</li>
+    <li><code>ArrayList&lt;Thread&gt;</code>: una lista de hilos que crece sola. Aquí no sabemos cuántos clientes llegarán, así que un array de tamaño fijo no sirve</li>
+    <li><code>switch</code>: elige qué hacer según la opción. Cada <code>case</code> acaba en <code>break</code></li>
+    <li>Cerrar = salir del bucle, y después esperar a todos los clientes:</li>
+  </ul>
+  <pre><code class="language-java" data-trim>
+for (Thread t : clientes) {
+    t.join();
+}
+  </code></pre>
+  <p class="peque">«Para cada hilo <code>t</code> de la lista, espera a que termine.»</p>
+
+---
+
+<!-- html -->
+  <h3>Ejercicio 4: panadería self-service</h3>
+  <ul class="peque">
+    <li>20 barras al abrir. Cada segundo el panadero mira: si quedan menos de 10, hornea 20 (tarda 20 s)</li>
+    <li>Cada cliente pide de 1 a 10 barras. Si no hay suficientes, espera</li>
+    <li>Primera barra 1 €, las demás 0,75 €</li>
+    <li>Menú: 1) grupo de clientes, 2) estado, 3) cerrar</li>
+    <li>Al cerrar: el panadero se lleva lo que queda y hornea un último lote</li>
+  </ul>
+  <p class="peque">Proyecto <b>Panaderia</b></p>
+
+--
+
+<!-- html -->
+  <h3>Cómo pensarlo</h3>
+  <ul>
+    <li>¿Quién comparte qué? <span class="fragment">Panadero y clientes comparten el <code>Mostrador</code>.</span></li>
+    <li>Hornear tarda 20 s. ¿Dentro de <code>synchronized</code>? <span class="fragment"><b>No</b>: los clientes no podrían comprar mientras tanto.</span></li>
+    <li>¿Cuándo se cierra? <span class="fragment">Cuando <b>todos los clientes</b> han terminado. Algunos aún esperan pan: el panadero tiene que seguir horneando.</span></li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Solución: el mostrador</h3>
+  {{codigo: Panaderia/Mostrador.java :: 3-25 @@ 4|12|20|22}}
+
+--
+
+<!-- html -->
+  <h3>Línea por línea</h3>
+  <ul class="peque">
+    <li><code>double dinero</code>: <code>double</code> es un número con decimales</li>
+    <li><code>while (barras &lt; cuantas)</code>: el cliente espera hasta que haya <b>tantas como pide</b>, no solo «alguna»</li>
+    <li><code>1 + 0.75 * (cuantas - 1)</code>: la primera barra 1 €, las demás 0,75 €. Con 3 barras: 1 + 0,75 × 2 = 2,50 €</li>
+    <li><code>reponer(20)</code>: suma las barras y llama a <code>notifyAll()</code>. Los clientes dormidos vuelven a mirar si ya hay suficientes</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>El panadero</h3>
+  {{codigo: Panaderia/Panadero.java :: 10-32 @@ 2|4-5|8-9|12-16|18-23}}
+  <ul class="peque">
+    <li><code>dormir()</code> y <code>hornear()</code> son métodos de la propia clase: evitan repetir las mismas líneas</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Cerrar la panadería</h3>
+  <ol class="peque">
+    <li>Salir del menú. No se aceptan más clientes</li>
+    <li><code>join()</code> a todos los clientes: los que esperan pan se atienden</li>
+    <li><code>mostrador.cerrar()</code>: avisa al panadero</li>
+    <li>El panadero sale de su bucle, se lleva lo que queda y hornea el último lote</li>
+    <li><code>join()</code> al panadero y resumen final</li>
+  </ol>
+  <p class="aviso">El orden importa. Si se avisara al panadero <b>antes</b>, vaciaría el mostrador y los clientes que esperan se quedarían colgados.</p>
+
+---
+
+<!-- html -->
+  <h3>Ejercicio 5: sala de partida de stream</h3>
+  <ul class="peque">
+    <li><b>Jugadores:</b> solo uno en la sala. Los demás esperan en cola</li>
+    <li><b>Espectadores:</b> entran todos los que quieran, pero <b>solo si hay partida</b>. Si no, esperan</li>
+    <li>Cuando la partida acaba, los espectadores salen. Para ver la siguiente deben entrar de nuevo</li>
+  </ul>
+  <p class="peque">Proyecto <b>SalaStream</b></p>
+
+--
+
+<!-- html -->
+  <h3>Dos grupos esperando cosas distintas</h3>
+  <ul>
+    <li>El <b>jugador</b> espera a que <b>no</b> haya partida</li>
+    <li>El <b>espectador</b> espera a que <b>sí</b> haya partida</li>
+  </ul>
+  <p class="caja">Los dos esperan sobre el mismo objeto, <code>Sala</code>. Por eso <code>notifyAll()</code>: cada uno se despierta, mira su condición y, si no es su momento, se vuelve a dormir.</p>
+
+--
+
+<!-- html -->
+  <h3>El truco: el número de partida</h3>
+  <p>Un espectador debe irse cuando acaba <b>su</b> partida, aunque otro jugador ya haya empezado la siguiente.</p>
+  <p class="fragment">Si solo mirara «¿hay partida?», se quedaría a la siguiente sin darse cuenta.</p>
+  <p class="fragment caja">Solución: al entrar, apunta el número de la partida. Se queda mientras <code>jugando &amp;&amp; partida == mi número</code>.</p>
+
+--
+
+<!-- html -->
+  <h3>Solución: la sala</h3>
+  {{codigo: SalaStream/Sala.java :: 3-23 @@ 1-4|8-9|11-16|17-18|20}}
+
+--
+
+<!-- html -->
+  <h3>Los espectadores</h3>
+  {{codigo: SalaStream/Sala.java :: 31-59 @@ 6-11|12-14|15-17|21-26|27-28}}
+  <ul class="peque">
+    <li><code>entrarEspectador()</code> devuelve el número de partida que va a ver (o 0 si ya no habrá más)</li>
+    <li><code>ver(n)</code> espera mientras <b>esa</b> partida siga en marcha, y entonces sale</li>
+    <li><code>cerrar()</code> lo llama <code>main</code> al acabar los jugadores: libera a los espectadores que esperaban una partida que ya no llegará</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>¿Qué sale en pantalla?</h3>
+  <div class="salida">Jugador 1 empieza la partida 1<br>Jugador 2 espera en la cola: la sala está ocupada<br>Espectador 6 entra a ver la partida 1 (espectadores: 1)<br>Jugador 1 termina la partida 1 y sale de la sala<br>Jugador 2 empieza la partida 2<br>Espectador 6 sale de la sala (espectadores: 0)<br>…</div>
+  <p class="aviso">Cambia en cada ejecución: quién llega primero y quién entra de la cola no está fijado.</p>
+
+---
+
+<!-- html -->
+  <h3>Errores típicos</h3>
+  <ul>
+    <li><code>Thread.sleep()</code> dentro de un método <code>synchronized</code>: nadie más puede avanzar</li>
+    <li><code>notify()</code> en vez de <code>notifyAll()</code>: a veces funciona y a veces se cuelga</li>
+    <li><code>if</code> en vez de <code>while</code> alrededor de <code>wait()</code></li>
+    <li>Un objeto compartido por hilo: ya no se comparte nada</li>
+    <li>Olvidar los <code>join()</code>: el mensaje final sale al principio</li>
+    <li>Contar el límite en cada hilo en vez de en el objeto compartido</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Para pensar</h3>
+  <ol>
+    <li>¿Qué pasa si <code>contarLineas</code> no es <code>synchronized</code>?</li>
+    <li>¿Qué pasa si la cinta usa <code>notify()</code> en vez de <code>notifyAll()</code>?</li>
+    <li>¿Cuándo exactamente se cuenta a un cliente como atendido? ¿Por qué ahí?</li>
+    <li>¿Por qué hornea el panadero fuera de <code>synchronized</code>?</li>
+    <li>¿Qué pasa si el espectador no apunta el número de partida?</li>
+  </ol>

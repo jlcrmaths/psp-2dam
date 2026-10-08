@@ -10,3 +10,6 @@ node_modules/
 contenido/*/*/proyectos/*/nbproject/
 contenido/*/*/proyectos/*/build.xml
 contenido/*/*/proyectos/*/manifest.mf
+
+# generado al ejecutar el ejercicio de lectores y escritores
+**/escritores.txt
