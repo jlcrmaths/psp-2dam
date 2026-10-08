@@ -442,6 +442,91 @@ switch (operacion) {
 ---
 
 <!-- html -->
+    <h3>Ejercicio 5: estadísticas de notas</h3>
+    <p>Tenemos un array con <b>10 notas</b>: 7, 4, 9, 6, 10, 3, 8, 5, 7 y 6.</p>
+    <ul>
+      <li>Un hilo calcula la nota <b>máxima</b></li>
+      <li>Otro la <b>mínima</b></li>
+      <li>Otro la <b>media</b></li>
+    </ul>
+    <p class="caja"><b>Pista:</b> es el mismo esquema que el ejercicio 4. Fíjate en con qué valor empieza cada cálculo.</p>
+    <p class="peque">Proyecto <b>EstadisticasNotas</b></p>
+
+--
+
+<!-- html -->
+    <h3>Lo nuevo: buscar el mayor</h3>
+    <p>Para encontrar la nota más alta, el hilo la va guardando y la cambia cuando ve una mejor.</p>
+    <p class="fragment">Es como pasar lista con una nota en la mano: miras la siguiente, y si es más alta, sueltas la que tenías y te quedas con esa.</p>
+    <p class="fragment caja">Para decidir si cambiar necesitas un <code>if</code>: ejecuta unas líneas <b>solo si</b> la condición es cierta.</p>
+
+--
+
+<!-- html -->
+    <h3>Solución: HiloMaximo</h3>
+    {{codigo: EstadisticasNotas/HiloMaximo.java @@ 3|5-7|9-18|11|12-16|13-15|17}}
+
+--
+
+<!-- html -->
+    <h3>Línea por línea</h3>
+    <ul class="peque">
+      <li><code>int maximo = notas[0];</code>: empieza con la primera nota, la de la posición 0. Es el máximo provisional</li>
+      <li><code>for (int i = 1; ...)</code>: empieza en 1 porque la posición 0 ya está en <code>maximo</code>. No hace falta compararla consigo misma</li>
+      <li><code>if (notas[i] &gt; maximo)</code>: ¿esta nota es mayor que el máximo provisional? Si no, no pasa nada y sigue la vuelta siguiente</li>
+      <li><code>maximo = notas[i];</code>: solo si lo era, esta nota pasa a ser el máximo</li>
+      <li>Al acabar el <code>for</code>, <code>maximo</code> guarda la nota más alta: 10</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>Error típico: empezar en 0</h3>
+    <p class="aviso">En el <b>máximo</b>, empezar en 0 funciona con notas de 0 a 10. Pero en el <b>mínimo</b> no: ninguna nota es menor que 0 y siempre saldría 0.</p>
+    <p class="caja">Máximo y mínimo empiezan siempre en <b>una nota del array</b>, no en un número inventado.</p>
+
+--
+
+<!-- html -->
+    <h3>HiloMinimo y HiloMedia</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1-6|8-13">
+int minimo = notas[0];
+for (int i = 1; i &lt; notas.length; i++) {
+    if (notas[i] &lt; minimo) {
+        minimo = notas[i];
+    }
+}  // HiloMinimo
+
+double total = 0;
+for (int i = 0; i &lt; notas.length; i++) {
+    total = total + notas[i];
+}
+double media = total / notas.length;
+// HiloMedia
+    </code></pre>
+    <ul class="peque">
+      <li><b>Mínimo:</b> igual que el máximo, pero con <code>&lt;</code></li>
+      <li><b>Media:</b> suma como en el ejercicio 4 y divide entre <code>length</code> (10)</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>Lo nuevo: double</h3>
+    <p>El total de las notas es 65. La media es 65 / 10.</p>
+    <p class="fragment">Con <code>int</code>, la división entre enteros <b>descarta los decimales</b>: 65 / 10 da <b>6</b>.</p>
+    <p class="fragment">Con <code>double</code> (número con decimales), da <b>6.5</b>. Por eso <code>total</code> es <code>double</code>.</p>
+
+--
+
+<!-- html -->
+    <h3>¿Qué sale en pantalla?</h3>
+    <div class="salida">Hilo 2: mínimo = 3<br>Hilo 3: media = 6.5<br>Hilo 1: máximo = 10</div>
+    <p class="aviso">Los resultados son siempre los mismos. El <b>orden</b> de las tres líneas puede cambiar.</p>
+
+---
+
+<!-- html -->
   <h3>Resumen</h3>
   <ul>
     <li>Un hilo es un objeto <code>Thread</code></li>
@@ -451,4 +536,5 @@ switch (operacion) {
     <li>El nombre del hilo: <code>Thread.currentThread().getName()</code></li>
     <li>Varios hilos se guardan en un <b>array</b> (<code>Thread[]</code>) y un <code>for</code> los crea y lanza</li>
     <li>Los datos entran a un hilo por el <b>constructor</b>, no por <code>run()</code></li>
+    <li>Máximo y mínimo empiezan en una nota del array; la media necesita <code>double</code></li>
   </ul>

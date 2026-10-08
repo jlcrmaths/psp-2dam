@@ -94,9 +94,33 @@ El array entra por el constructor y se guarda en un atributo privado de la clase
 9. Crea tres hilos, cada uno con su clase, pasándoles el mismo array y un nombre ("Hilo 1", "Hilo 2" y "Hilo 3").
 10. Arranca los tres con `start()` y comprueba los resultados: suma 55, resta -53 y multiplicación 3628800.
 
+## Ejercicio 5: estadísticas de notas (proyecto `EstadisticasNotas`)
+
+Tenemos un array con las 10 notas de una clase: 7, 4, 9, 6, 10, 3, 8, 5, 7 y 6. Un hilo calcula la nota máxima, otro la mínima y otro la media.
+
+### Pistas
+Es el mismo esquema del ejercicio 4: el array entra por el constructor. Ahora lo importante es el valor de partida de cada cálculo. Para el máximo y el mínimo, piensa con qué nota conviene empezar a comparar. Para la media, piensa qué pasa con los decimales cuando divides dos números enteros.
+
+### Más ayuda
+Tres clases (`HiloMaximo`, `HiloMinimo` y `HiloMedia`) que guardan el array en un atributo privado y lo recorren en `run()`. El máximo y el mínimo empiezan en la primera nota del array y, con un `if` dentro del `for`, se cambian cuando aparece una nota mayor (máximo) o menor (mínimo). La media suma todas las notas igual que en el ejercicio 4 y al final divide entre `length`. Si el total es de tipo `int`, la división descarta los decimales; para que salga 6.5 y no 6, el total debe ser `double`.
+
+### Paso a paso
+1. Crea el proyecto `EstadisticasNotas` y el paquete `crearhilos`.
+2. Crea la clase `HiloMaximo` y haz que implemente `Runnable`.
+3. Añade un atributo privado de tipo array de enteros y un constructor que lo reciba y lo guarde con `this`.
+4. En `run()`, crea una variable `maximo` que empiece en la primera nota del array.
+5. Recorre el array con un `for` desde la posición 1. En cada vuelta, si la nota es mayor que `maximo`, guárdala en `maximo`.
+6. Al terminar, muestra el nombre del hilo y el resultado.
+7. Crea `HiloMinimo` igual, pero cambiando la comparación: se guarda la nota si es menor.
+8. Crea `HiloMedia`. Declara el total como `double` con valor 0 y súmale cada nota con un `for` desde la posición 0.
+9. Al terminar el bucle, divide el total entre el número de notas y muestra la media.
+10. En `Principal`, crea el array con las 10 notas y tres hilos, uno por clase, con el mismo array y los nombres "Hilo 1", "Hilo 2" y "Hilo 3".
+11. Arranca los tres con `start()` y comprueba los resultados: máximo 10, mínimo 3 y media 6.5.
+
 ## Preguntas
 
 1. Ejecuta el ejercicio 1 varias veces. ¿Sale siempre igual? ¿Por qué?
 2. Ejecuta el ejercicio 2 varias veces. ¿Sale siempre primero `Miau!`?
 3. Ejecuta el ejercicio 3 varias veces. ¿Salen siempre alternados (Gato 1, Perro 1, Gato 2...), aunque se lancen así? ¿Por qué?
 4. En el ejercicio 4, ¿importa que los tres hilos lean el mismo array a la vez? ¿Y si un hilo lo modificara?
+5. En el ejercicio 5, ¿qué saldría si el mínimo empezara en 0? ¿Y si el total de la media fuera `int`?
