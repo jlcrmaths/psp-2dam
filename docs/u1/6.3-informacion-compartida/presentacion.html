@@ -56,7 +56,7 @@
     <ul>
       <li>¿Qué comparten los hilos? <span class="fragment">El <b>jardín</b>: un solo objeto <code>RecursoJardin</code>.</span></li>
       <li>¿Cuántas clases de hilo? <span class="fragment">Dos: <code>EntraJardin</code> y <code>SaleJardin</code>.</span></li>
-      <li>¿Cómo espera <code>main</code> a los 20? <span class="fragment">Con <code>join()</code> en cada uno.</span></li>
+      <li>¿Cómo espera <code>main</code> a los 20? <span class="fragment">Con el método <code>join()</code> de la clase <code>Thread</code> en cada uno.</span></li>
     </ul>
 </section>
 <section>
@@ -97,9 +97,9 @@
     <ul class="peque">
       <li><code>private int cuenta;</code><br>El número de personas. Es el dato que comparten los 20 hilos.</li>
       <li><code>cuenta = 100;</code><br>En el constructor, empieza con 100 personas.</li>
-      <li><code>getCuenta()</code><br>Devuelve la cuenta, para mostrarla al final.</li>
+      <li><code>getCuenta()</code><br>Método de la clase <code>RecursoJardin</code>. Devuelve la cuenta, para mostrarla al final.</li>
       <li><code>int temp = cuenta;</code><br>Primero <b>lee</b> el valor y lo guarda aparte.</li>
-      <li><code>Thread.sleep(100);</code><br>Espera 100 milisegundos. Aquí otros hilos tienen tiempo de leer el <b>mismo</b> valor.</li>
+      <li><code>Thread.sleep(100);</code><br>El método <code>sleep()</code> de la clase <code>Thread</code> espera 100 milisegundos. Aquí otros hilos tienen tiempo de leer el <b>mismo</b> valor.</li>
       <li><code>cuenta = temp + 1;</code><br>Por último <b>guarda</b> el resultado.</li>
     </ul>
 </section>
@@ -148,9 +148,9 @@ for (Thread t : lista) {
 <h3>Principal, línea por línea</h3>
     <ul class="peque">
       <li>Se crea <b>un solo</b> jardín. Los 20 hilos reciben ese mismo objeto.</li>
-      <li>El primer <code>for</code> crea los hilos y los guarda en la lista: uno que entra y otro que sale, diez veces.</li>
-      <li>El segundo recorre la lista y arranca cada hilo con <code>start()</code>.</li>
-      <li>El tercero hace <code>join()</code> en cada uno: <code>main</code> espera a que acaben los 20 antes de mostrar la cuenta.</li>
+      <li>El primer <code>for</code> crea los hilos y los guarda en la lista con el método <code>add()</code> de la clase <code>ArrayList</code>: uno que entra y otro que sale, diez veces.</li>
+      <li>El segundo recorre la lista y arranca cada hilo con el método <code>start()</code> de la clase <code>Thread</code>.</li>
+      <li>El tercero llama al método <code>join()</code> de la clase <code>Thread</code> en cada uno: <code>main</code> espera a que acaben los 20 antes de mostrar la cuenta.</li>
     </ul>
 </section>
 <section>
@@ -173,7 +173,7 @@ for (Thread t : lista) {
     <li>Sumar 1 son tres pasos: leer, calcular y guardar</li>
     <li>Si dos hilos se cuelan entre los pasos, se pierden cambios: <b>condición de carrera</b></li>
     <li>El resultado es incorrecto y cambia en cada ejecución</li>
-    <li>Con <code>join()</code>, <code>main</code> espera a todos antes de mostrar el resultado</li>
+    <li>El método <code>join()</code> de la clase <code>Thread</code> hace que <code>main</code> espere a todos antes de mostrar el resultado</li>
     <li>Se arregla permitiendo un solo hilo a la vez: <code>synchronized</code></li>
   </ul>
 </section>

@@ -40,23 +40,28 @@ h1.setPriority(Thread.MAX_PRIORITY);
 int p = h1.getPriority();
     </code></pre>
     <ul class="peque">
-      <li><code>setPriority(...)</code>: cambia la prioridad. Se llama <b>antes</b> de <code>start()</code></li>
-      <li><code>getPriority()</code>: devuelve el número</li>
+      <li>El método <code>setPriority(...)</code> de la clase <code>Thread</code>: cambia la prioridad. Se llama <b>antes</b> de <code>start()</code></li>
+      <li>El método <code>getPriority()</code> de la clase <code>Thread</code>: devuelve el número</li>
     </ul>
 
 --
 
 <!-- html -->
     <h3>Thread.yield()</h3>
-    <p><code>Thread.yield()</code> dice al planificador: "si quieres, deja pasar a otro hilo".</p>
+    <p>El método <code>yield()</code> de la clase <code>Thread</code> dice al planificador: "si quieres, deja pasar a otro hilo". Se escribe <code>Thread.yield()</code>.</p>
     <p class="fragment aviso">Es solo una <b>sugerencia</b>. Java puede ignorarla.</p>
 
 ---
 
 <!-- html -->
     <h3>Ejercicio 1: quince hilos</h3>
-    <p>Quince hilos hacen la misma tarea pesada. Cinco con prioridad mínima, cinco normal, cinco máxima.</p>
-    <p>Al terminar, cada hilo muestra su nombre y su prioridad.</p>
+    <p class="caja"><b>La tarea:</b> unir 20000 letras "A" en una cadena. Todos los hilos hacen la misma.</p>
+    <ul>
+      <li><b>5 hilos</b> con prioridad mínima (1)</li>
+      <li><b>5 hilos</b> con prioridad normal (5)</li>
+      <li><b>5 hilos</b> con prioridad máxima (10)</li>
+    </ul>
+    <p>Al terminar, cada hilo muestra su nombre y su prioridad:</p>
     <div class="salida">Hilos en marcha, espera...<br>Máximo 3 (prioridad 10) termina<br>Normal 1 (prioridad 5) termina<br>…</div>
     <p class="peque">Proyecto <b>PrioridadesHilos</b></p>
 
@@ -85,8 +90,8 @@ int p = h1.getPriority();
       <li><code>String cadena = "";</code><br>Una cadena vacía.</li>
       <li><code>for (int i = 0; i &lt; 20000; i++)</code><br>20000 vueltas.</li>
       <li><code>cadena += "A";</code><br>Añade una "A". Es lento a propósito: copiar la cadena cada vez hace la tarea pesada.</li>
-      <li><code>Thread.yield();</code><br>Sugiere que otro hilo pase. Se repite en cada vuelta.</li>
-      <li><code>getPriority()</code><br>Al final, el hilo dice su nombre y su prioridad.</li>
+      <li><code>Thread.yield();</code><br>El método <code>yield()</code> de la clase <code>Thread</code> sugiere que otro hilo pase. Se repite en cada vuelta.</li>
+      <li><code>getName()</code> y <code>getPriority()</code><br>Métodos de la clase <code>Thread</code>. Al final, el hilo dice su nombre y su prioridad.</li>
     </ul>
 
 --
@@ -115,7 +120,7 @@ for (int i = 0; i &lt; 5; i++) {
       <li>Tres arrays de cinco <code>Thread</code>, uno por prioridad.</li>
       <li>El <code>for</code> da cinco vueltas. En cada una crea tres hilos con la <b>misma</b> clase <code>Tarea</code> y nombres distintos.</li>
       <li><code>"Mínimo " + (i + 1)</code>: el paréntesis hace que sume 1 antes de unir el texto (Mínimo 1, no Mínimo 01).</li>
-      <li>Los mínimos y los máximos cambian su prioridad. Los normales no: ya tienen 5.</li>
+      <li>Los mínimos y los máximos llaman al método <code>setPriority()</code> de la clase <code>Thread</code>. Los normales no: ya tienen 5.</li>
     </ul>
 
 --
@@ -158,8 +163,8 @@ for (int i = 0; i &lt; 5; i++) {
   <ul>
     <li>La prioridad de un hilo es un número del 1 al 10</li>
     <li><code>MIN_PRIORITY</code> = 1, <code>NORM_PRIORITY</code> = 5, <code>MAX_PRIORITY</code> = 10</li>
-    <li><code>setPriority()</code> la cambia (antes de <code>start()</code>); <code>getPriority()</code> la lee</li>
+    <li>Métodos de la clase <code>Thread</code>: <code>setPriority()</code> la cambia (antes de <code>start()</code>) y <code>getPriority()</code> la lee</li>
     <li>Un hilo hereda la prioridad del hilo que lo crea</li>
-    <li><code>Thread.yield()</code> es solo una sugerencia</li>
+    <li>El método <code>yield()</code> de la clase <code>Thread</code> es solo una sugerencia</li>
     <li>La prioridad <b>no garantiza</b> el orden: no se usa para sincronizar</li>
   </ul>
