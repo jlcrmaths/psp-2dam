@@ -1,6 +1,6 @@
 <!-- html -->
   <h2>Comunicación entre hilos</h2>
-  <p>PSP · 2º DAM · Apartado 6.3</p>
+  <p>PSP · 2º DAM · Apartado 6.4</p>
 
 ---
 

@@ -1,4 +1,4 @@
-# Apartado 6.3 – Comunicación entre hilos
+# Apartado 6.4 – Comunicación entre hilos
 
 Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete `comunicarhilos`.
 

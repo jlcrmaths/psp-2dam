@@ -1,5 +1,5 @@
 {
-  "titulo": "6.3 Comunicación entre hilos",
-  "orden": 3,
+  "titulo": "6.4 Comunicación entre hilos",
+  "orden": 4,
   "resumen": "Hilos que comparten un almacén: synchronized, wait, notify y notifyAll con un pintor y sus vendedores."
 }

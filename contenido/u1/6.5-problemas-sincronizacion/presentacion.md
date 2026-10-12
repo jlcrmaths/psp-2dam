@@ -1,6 +1,6 @@
 <!-- html -->
   <h2>Problemas de sincronización</h2>
-  <p>PSP · 2º DAM · Apartado 6.4</p>
+  <p>PSP · 2º DAM · Apartado 6.5</p>
 
 ---
 

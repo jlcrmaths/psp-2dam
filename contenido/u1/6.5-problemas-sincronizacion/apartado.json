@@ -1,5 +1,5 @@
 {
-  "titulo": "6.4 Problemas de sincronización",
-  "orden": 4,
+  "titulo": "6.5 Problemas de sincronización",
+  "orden": 5,
   "resumen": "Cinco problemas con hilos: lectores y escritores, fábrica, lavandería, panadería y sala de stream."
 }
