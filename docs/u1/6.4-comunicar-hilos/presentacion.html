@@ -21,8 +21,8 @@
 <h3>Objetivo de la clase</h3>
   <ul>
     <li>Entender qué pasa cuando dos hilos <b>comparten</b> un objeto</li>
-    <li>Hacer que un hilo <b>espere</b> a otro con <code>wait()</code></li>
-    <li>Avisar con <code>notify()</code> y <code>notifyAll()</code></li>
+    <li>Hacer que un hilo <b>espere</b> a otro con el método <code>wait()</code> de la clase <code>Object</code></li>
+    <li>Avisar con los métodos <code>notify()</code> y <code>notifyAll()</code> de la clase <code>Object</code></li>
     <li>Proteger el objeto con <code>synchronized</code></li>
     <li>Resolver el problema del pintor y los vendedores</li>
   </ul>
@@ -46,11 +46,11 @@
 <h3>Las piezas que vamos a usar</h3>
   <ul>
     <li><code>synchronized</code>: solo un hilo a la vez dentro del método</li>
-    <li><code>wait()</code>: «me duermo hasta que me avisen»</li>
-    <li><code>notify()</code>: «despierto a uno de los que esperan»</li>
-    <li><code>notifyAll()</code>: «despierto a todos los que esperan»</li>
+    <li>El método <code>wait()</code> de la clase <code>Object</code>: «me duermo hasta que me avisen»</li>
+    <li>El método <code>notify()</code> de la clase <code>Object</code>: «despierto a uno de los que esperan»</li>
+    <li>El método <code>notifyAll()</code> de la clase <code>Object</code>: «despierto a todos los que esperan»</li>
   </ul>
-  <p class="aviso"><code>wait()</code>, <code>notify()</code> y <code>notifyAll()</code> solo se pueden llamar <b>dentro</b> de un método <code>synchronized</code>.</p>
+  <p class="aviso">Los métodos <code>wait()</code>, <code>notify()</code> y <code>notifyAll()</code> de la clase <code>Object</code> solo se pueden llamar <b>dentro</b> de un método <code>synchronized</code>.</p>
 </section>
 </section>
 <section>
@@ -116,9 +116,9 @@
 <h3>Línea por línea (2)</h3>
   <ul class="peque">
     <li><code>wait();</code><br>El pintor se <b>duerme</b> y <b>suelta el almacén</b>, para que el vendedor pueda entrar a sacar el cuadro.</li>
-    <li><code>try { … } catch (InterruptedException e) { }</code><br>Java obliga a escribirlo con <code>wait()</code>, por si alguien interrumpe la espera. Aquí no hacemos nada con ese aviso.</li>
+    <li><code>try { … } catch (InterruptedException e) { }</code><br>Java obliga a escribirlo con el método <code>wait()</code>, por si alguien interrumpe la espera. Aquí no hacemos nada con ese aviso.</li>
     <li><code>hayCuadro = true;</code><br>Ya se puede dejar el cuadro: el almacén pasa a estar lleno.</li>
-    <li><code>notify();</code><br>«¡Despierta, vendedor, ya hay un cuadro!»</li>
+    <li><code>notify();</code><br>Método de la clase <code>Object</code>: «¡Despierta, vendedor, ya hay un cuadro!»</li>
   </ul>
 </section>
 <section>
@@ -126,7 +126,7 @@
   <ul class="peque">
     <li><code>while (!hayCuadro)</code><br>El <code>!</code> significa «no». Espera mientras <b>no</b> haya cuadro.</li>
     <li><code>hayCuadro = false;</code><br>Saca el cuadro: el almacén queda vacío.</li>
-    <li><code>notify();</code><br>Despierta al pintor: ya hay sitio.</li>
+    <li><code>notify();</code><br>Método de la clase <code>Object</code>. Despierta al pintor: ya hay sitio.</li>
   </ul>
 </section>
 <section>
@@ -243,7 +243,7 @@ vendedor.start();
 <h3>Línea por línea</h3>
   <ul class="peque">
     <li><code>private int cuadro</code><br>Guarda el número del cuadro que hay en el almacén, para mostrarlo al venderlo.</li>
-    <li><code>notifyAll()</code><br>Despierta a <b>todos</b>. Cada uno vuelve a mirar su condición; el que no puede seguir se duerme otra vez.</li>
+    <li><code>notifyAll()</code><br>Método de la clase <code>Object</code>. Despierta a <b>todos</b>. Cada uno vuelve a mirar su condición; el que no puede seguir se duerme otra vez.</li>
     <li><code>public synchronized boolean vender()</code><br>Ahora devuelve <code>true</code> si ha vendido y <code>false</code> si ya no queda nada.</li>
     <li><code>while (!hayCuadro &amp;&amp; !terminado)</code><br><code>&amp;&amp;</code> significa «y». Espera mientras no haya cuadro <b>y</b> el pintor siga pintando.</li>
   </ul>
@@ -253,7 +253,7 @@ vendedor.start();
   <ul class="peque">
     <li><code>if (!hayCuadro) { return false; }</code><br>Si salimos del <code>while</code> y no hay cuadro, es que el pintor terminó. <code>return</code> sale del método y entrega <code>false</code>.</li>
     <li><code>return true;</code><br>Ha vendido un cuadro.</li>
-    <li><code>terminar()</code><br>Lo llama el pintor al acabar: pone <code>terminado</code> a <code>true</code> y despierta a los vendedores que seguían esperando.</li>
+    <li><code>terminar()</code><br>Método de la clase <code>Almacen</code>. Lo llama el pintor al acabar: pone <code>terminado</code> a <code>true</code> y despierta a los vendedores que seguían esperando.</li>
   </ul>
   <p class="aviso">Se mira primero si hay cuadro. Si el pintor deja el último y termina enseguida, ese cuadro <b>se vende igualmente</b>.</p>
 </section>
@@ -276,7 +276,7 @@ vendedor.start();
     }
 }</code></pre>
   <ul class="peque">
-    <li>Repite mientras <code>vender()</code> diga <code>true</code></li>
+    <li>Repite mientras el método <code>vender()</code> de la clase <code>Almacen</code> diga <code>true</code></li>
     <li>Cuando dice <code>false</code>, el <code>while</code> acaba y el hilo termina</li>
     <li>El <code>Pintor</code> es como antes, pero al final del <code>for</code> llama a <code>almacen.terminar()</code></li>
   </ul>

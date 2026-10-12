@@ -9,8 +9,8 @@
   <ul>
     <li>Resolver cinco problemas con hilos que comparten un objeto</li>
     <li>Reconocer el <b>patrón</b> que se repite en todos</li>
-    <li>Simular tiempo con <code>Thread.sleep()</code> y azar con <code>Random</code></li>
-    <li>Esperar a que terminen varios hilos con <code>join()</code></li>
+    <li>Simular tiempo con el método <code>sleep()</code> de la clase <code>Thread</code> y azar con la clase <code>Random</code></li>
+    <li>Esperar a que terminen varios hilos con el método <code>join()</code> de la clase <code>Thread</code></li>
     <li>Leer del teclado con <code>Scanner</code> y escribir en un fichero</li>
   </ul>
 
@@ -32,9 +32,9 @@
 <!-- html -->
   <h3>Herramientas nuevas</h3>
   <ul class="peque">
-    <li><code>Thread.sleep(2000)</code>: duerme el hilo 2 segundos (2000 milisegundos). Simula que algo tarda</li>
+    <li><code>Thread.sleep(2000)</code>: el método <code>sleep()</code> de la clase <code>Thread</code> duerme el hilo 2 segundos (2000 milisegundos). Simula que algo tarda</li>
     <li><code>new Random().nextInt(3)</code>: número al azar entre 0 y 2</li>
-    <li><code>hilo.join()</code>: «espero aquí hasta que ese hilo termine»</li>
+    <li><code>hilo.join()</code>: el método <code>join()</code> de la clase <code>Thread</code>: «espero aquí hasta que ese hilo termine»</li>
     <li><code>new Scanner(System.in).nextInt()</code>: lee un número que escribe el usuario</li>
     <li><code>ArrayList&lt;Thread&gt;</code>: una lista que crece sola</li>
   </ul>
@@ -72,9 +72,9 @@
   <ul class="peque">
     <li><code>synchronized</code>: un solo hilo a la vez dentro del método. Vale para <b>los dos</b> métodos: un lector tampoco entra si hay un escritor dentro</li>
     <li><code>new FileWriter(ruta, true)</code>: abre el fichero. El <code>true</code> significa «añadir al final»; sin él borraría lo anterior</li>
-    <li><code>fw.write(nombre + "\n")</code>: escribe el nombre y un salto de línea</li>
-    <li><code>fw.close()</code>: cierra el fichero y guarda lo escrito</li>
-    <li><code>Files.readAllLines(...)</code>: lee todo el fichero y devuelve una lista con una entrada por línea; <code>size()</code> dice cuántas</li>
+    <li><code>fw.write(nombre + "\n")</code>: el método <code>write()</code> de la clase <code>FileWriter</code> escribe el nombre y un salto de línea</li>
+    <li><code>fw.close()</code>: el método <code>close()</code> de la clase <code>FileWriter</code> cierra el fichero y guarda lo escrito</li>
+    <li><code>Files.readAllLines(...)</code>: el método <code>readAllLines()</code> de la clase <code>Files</code> lee todo el fichero y devuelve una lista con una entrada por línea; <code>size()</code> dice cuántas</li>
     <li><code>try / catch (IOException e)</code>: Java obliga a prever que un fichero puede fallar</li>
   </ul>
 
@@ -113,7 +113,7 @@ for (int i = 1; i &lt;= 10; i++) {
   <ul>
     <li>Es el pintor y el vendedor otra vez, pero con <b>tres productores</b> <span class="fragment">→ <code>notifyAll()</code></span></li>
     <li>El límite de 50 es de <b>todas las máquinas juntas</b> <span class="fragment">→ el contador está en la <code>Cinta</code>, no en cada máquina</span></li>
-    <li>¿Cómo sabe una máquina que debe parar? <span class="fragment">→ <code>poner()</code> devuelve <code>false</code></span></li>
+    <li>¿Cómo sabe una máquina que debe parar? <span class="fragment">→ <code>poner()</code>, método de la clase <code>Cinta</code>, devuelve <code>false</code></span></li>
   </ul>
 
 --
@@ -130,9 +130,9 @@ for (int i = 1; i &lt;= 10; i++) {
     <li><code>while (piezas == 5 &amp;&amp; fabricadas &lt; 50)</code>: espera si la cinta está llena <b>y</b> aún faltan piezas. Si ya se hicieron 50 no tiene sentido esperar</li>
     <li><code>if (fabricadas == 50) return false;</code>: ya no hacen falta más piezas. La máquina recibe <code>false</code> y termina</li>
     <li><code>piezas++; fabricadas++;</code>: <code>++</code> suma uno. Una pieza más en la cinta y una más fabricada</li>
-    <li><code>notifyAll()</code>: despierta a todos. La empaquetadora ya puede retirar; las máquinas comprueban si hay hueco</li>
+    <li><code>notifyAll()</code>: método de la clase <code>Object</code>. Despierta a todos. La empaquetadora ya puede retirar; las máquinas comprueban si hay hueco</li>
   </ul>
-  <p class="peque"><code>retirar()</code> es igual al revés: espera mientras <code>piezas == 0</code>, resta una y avisa.</p>
+  <p class="peque"><code>retirar()</code>, otro método de la clase <code>Cinta</code>, es igual al revés: espera mientras <code>piezas == 0</code>, resta una y avisa.</p>
 
 --
 
@@ -140,7 +140,7 @@ for (int i = 1; i &lt;= 10; i++) {
   <h3>La máquina: sleep y Random</h3>
   {{codigo: FabricaPiezas/Maquina.java :: 12-22 @@ 1|2|6|9}}
   <ul class="peque">
-    <li><code>azar.nextInt(3)</code> da 0, 1 o 2. Con <code>1 + …</code> sale 1, 2 o 3</li>
+    <li><code>azar.nextInt(3)</code>: el método <code>nextInt()</code> de la clase <code>Random</code> da 0, 1 o 2. Con <code>1 + …</code> sale 1, 2 o 3</li>
     <li>Se multiplica por 1000: <code>sleep</code> trabaja en milisegundos</li>
   </ul>
 
@@ -162,7 +162,7 @@ empaquetador.join();
 System.out.println("Fábrica cerrada");
   </code></pre>
   <ul class="peque">
-    <li><code>join()</code>: «espero a que este hilo termine»</li>
+    <li>El método <code>join()</code> de la clase <code>Thread</code>: «espero a que este hilo termine»</li>
     <li>Sin los <code>join()</code>, «Fábrica cerrada» saldría <b>al principio</b>, porque <code>main</code> no espera</li>
     <li><code>main</code> declara <code>throws InterruptedException</code> para no escribir un <code>try/catch</code> en cada <code>join</code></li>
   </ul>
@@ -199,9 +199,9 @@ System.out.println("Fábrica cerrada");
 <!-- html -->
   <h3>El cliente</h3>
   <ul class="peque">
-    <li><code>lavanderia.entrar()</code>: espera si no hay lavadora y coge una</li>
-    <li><code>Thread.sleep(…)</code>: lava entre 5 y 10 segundos. <b>Fuera</b> de <code>synchronized</code>: las otras lavadoras siguen trabajando</li>
-    <li><code>lavanderia.salir()</code>: deja la lavadora libre y avisa con <code>notifyAll()</code></li>
+    <li><code>lavanderia.entrar()</code>: el método <code>entrar()</code> de la clase <code>Lavanderia</code> espera si no hay lavadora y coge una</li>
+    <li><code>Thread.sleep(…)</code>: el método <code>sleep()</code> de la clase <code>Thread</code> lava entre 5 y 10 segundos. <b>Fuera</b> de <code>synchronized</code>: las otras lavadoras siguen trabajando</li>
+    <li><code>lavanderia.salir()</code>: el método <code>salir()</code> de la clase <code>Lavanderia</code> deja la lavadora libre y avisa con el método <code>notifyAll()</code> de la clase <code>Object</code></li>
   </ul>
   <p class="caja">Se usa <code>notifyAll()</code> porque pueden esperar varios clientes y todos buscan lo mismo: el que llegue primero a la lavadora, la coge.</p>
 
@@ -237,7 +237,7 @@ switch (opcion) {
 <!-- html -->
   <h3>Línea por línea</h3>
   <ul class="peque">
-    <li><code>Scanner</code>: lee lo que escribe el usuario. <code>nextInt()</code> lee un número</li>
+    <li><code>Scanner</code>: lee lo que escribe el usuario. el método <code>nextInt()</code> de la clase <code>Scanner</code> lee un número</li>
     <li><code>ArrayList&lt;Thread&gt;</code>: una lista de hilos que crece sola. Aquí no sabemos cuántos clientes llegarán, así que un array de tamaño fijo no sirve</li>
     <li><code>switch</code>: elige qué hacer según la opción. Cada <code>case</code> acaba en <code>break</code></li>
     <li>Cerrar = salir del bucle, y después esperar a todos los clientes:</li>
@@ -286,7 +286,7 @@ for (Thread t : clientes) {
     <li><code>double dinero</code>: <code>double</code> es un número con decimales</li>
     <li><code>while (barras &lt; cuantas)</code>: el cliente espera hasta que haya <b>tantas como pide</b>, no solo «alguna»</li>
     <li><code>1 + 0.75 * (cuantas - 1)</code>: la primera barra 1 €, las demás 0,75 €. Con 3 barras: 1 + 0,75 × 2 = 2,50 €</li>
-    <li><code>reponer(20)</code>: suma las barras y llama a <code>notifyAll()</code>. Los clientes dormidos vuelven a mirar si ya hay suficientes</li>
+    <li><code>reponer(20)</code>: método de la clase <code>Mostrador</code>. Suma las barras y llama a <code>notifyAll()</code>. Los clientes dormidos vuelven a mirar si ya hay suficientes</li>
   </ul>
 
 --
@@ -305,7 +305,7 @@ for (Thread t : clientes) {
   <ol class="peque">
     <li>Salir del menú. No se aceptan más clientes</li>
     <li><code>join()</code> a todos los clientes: los que esperan pan se atienden</li>
-    <li><code>mostrador.cerrar()</code>: avisa al panadero</li>
+    <li><code>mostrador.cerrar()</code>: método de la clase <code>Mostrador</code>. Avisa al panadero</li>
     <li>El panadero sale de su bucle, se lleva lo que queda y hornea el último lote</li>
     <li><code>join()</code> al panadero y resumen final</li>
   </ol>
@@ -354,7 +354,7 @@ for (Thread t : clientes) {
   <ul class="peque">
     <li><code>entrarEspectador()</code> devuelve el número de partida que va a ver (o 0 si ya no habrá más)</li>
     <li><code>ver(n)</code> espera mientras <b>esa</b> partida siga en marcha, y entonces sale</li>
-    <li><code>cerrar()</code> lo llama <code>main</code> al acabar los jugadores: libera a los espectadores que esperaban una partida que ya no llegará</li>
+    <li><code>cerrar()</code>, método de la clase <code>Sala</code>, lo llama <code>main</code> al acabar los jugadores: libera a los espectadores que esperaban una partida que ya no llegará</li>
   </ul>
 
 --

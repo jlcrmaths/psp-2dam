@@ -9,7 +9,7 @@
   <ul>
     <li>Entender qué es un hilo</li>
     <li>Crear un hilo con <code>Runnable</code></li>
-    <li>Ponerlo en marcha con <code>start()</code></li>
+    <li>Ponerlo en marcha con el método <code>start()</code> de la clase <code>Thread</code></li>
     <li>Ver que varios hilos trabajan a la vez</li>
     <li>Lanzar muchos hilos con arrays y un <code>for</code></li>
     <li>Pasar datos a un hilo con el constructor</li>
@@ -43,8 +43,8 @@
     <ul>
       <li><code>Thread</code>: la clase de Java que representa un hilo</li>
       <li><code>Runnable</code>: un contrato para clases que se ejecutan en un hilo</li>
-      <li><code>run()</code>: lo que hace el hilo</li>
-      <li><code>start()</code>: pone el hilo en marcha</li>
+      <li>El método <code>run()</code> de la interfaz <code>Runnable</code>: lo que hace el hilo</li>
+      <li>El método <code>start()</code> de la clase <code>Thread</code>: pone el hilo en marcha</li>
     </ul>
 
 --
@@ -65,7 +65,7 @@
       <li class="fragment">Escribe una clase que <b>implemente</b> <code>Runnable</code></li>
       <li class="fragment">Escribe su método <code>run()</code> con lo que debe hacer el hilo</li>
       <li class="fragment">Crea un <code>Thread</code> y pásale un objeto de esa clase</li>
-      <li class="fragment">Llama a <code>start()</code></li>
+      <li class="fragment">Llama al método <code>start()</code> de la clase <code>Thread</code></li>
     </ol>
 
 ---
@@ -90,7 +90,7 @@ public class Saludo implements Runnable {
       <li><code>public class Saludo implements Runnable</code><br>Creamos la clase <code>Saludo</code> y decimos que es <code>Runnable</code>: promete tener un método <code>run()</code>.</li>
       <li><code>@Override</code><br>Avisa a Java de que <code>run()</code> cumple la promesa. Si lo escribes mal, Java te avisa.</li>
       <li><code>public void run()</code><br>Aquí va lo que hace el hilo.</li>
-      <li><code>System.out.println(...)</code><br>Escribe un texto en pantalla.</li>
+      <li><code>System.out.println(...)</code><br>El método <code>println()</code> de <code>System.out</code> escribe un texto en pantalla.</li>
     </ul>
 
 --
@@ -104,7 +104,7 @@ hilo1.start();
     <ul class="peque">
       <li><code>new Saludo()</code>: crea el objeto con el trabajo</li>
       <li><code>new Thread(..., "Hilo 1")</code>: crea el hilo y le pone nombre</li>
-      <li><code>hilo1.start()</code>: Java crea el hilo y llama a <code>run()</code></li>
+      <li><code>hilo1.start()</code>: el método <code>start()</code> de la clase <code>Thread</code>. Java crea el hilo y llama al método <code>run()</code></li>
     </ul>
 
 --
@@ -152,8 +152,8 @@ hilo1.start();
     <ul class="peque">
       <li><code>implements Runnable</code>: esta clase puede ejecutarse en un hilo</li>
       <li><code>for (int i = 1; i &lt;= 10; i++)</code>: <code>i</code> empieza en 1, sube de uno en uno y para en 10</li>
-      <li><code>Thread.currentThread()</code>: «el hilo que está ejecutando esto ahora mismo»</li>
-      <li><code>.getName()</code>: «dime su nombre»</li>
+      <li>El método <code>currentThread()</code> de la clase <code>Thread</code>: «el hilo que está ejecutando esto ahora mismo»</li>
+      <li>El método <code>getName()</code> de la clase <code>Thread</code>: «dime su nombre»</li>
       <li><code>+ ": " + i</code>: pega los dos puntos y el número. Sale <code>Hilo 2: 7</code></li>
     </ul>
 
@@ -530,10 +530,10 @@ double media = total / notas.length;
   <h3>Resumen</h3>
   <ul>
     <li>Un hilo es un objeto <code>Thread</code></li>
-    <li>Lo que hace va en <code>run()</code></li>
-    <li><code>start()</code> lo pone en marcha. <code>run()</code> solo, no</li>
+    <li>Lo que hace va en el método <code>run()</code> de la interfaz <code>Runnable</code></li>
+    <li>El método <code>start()</code> de la clase <code>Thread</code> lo pone en marcha. <code>run()</code> solo, no</li>
     <li>El orden de la salida no está garantizado</li>
-    <li>El nombre del hilo: <code>Thread.currentThread().getName()</code></li>
+    <li>El nombre del hilo: los métodos <code>currentThread()</code> y <code>getName()</code> de la clase <code>Thread</code></li>
     <li>Varios hilos se guardan en un <b>array</b> (<code>Thread[]</code>) y un <code>for</code> los crea y lanza</li>
     <li>Los datos entran a un hilo por el <b>constructor</b>, no por <code>run()</code></li>
     <li>Máximo y mínimo empiezan en una nota del array; la media necesita <code>double</code></li>
