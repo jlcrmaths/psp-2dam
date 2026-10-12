@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apartado 6.2 – Prioridades de los hilos</title>
+<link rel="stylesheet" href="../../estilo/tema.css">
+<script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t)}catch(e){}</script>
+</head>
+<body class="">
+<header class="cabecera">
+  <a class="marca" href="../../index.html">PSP · 2º DAM</a>
+  <nav><a href="../../glosario/index.html">Glosario</a><button id="tema" type="button" aria-label="Cambiar entre tema claro y oscuro">◐</button></nav>
+</header>
+<main class="contenido">
+<h1>Apartado 6.2 – Prioridades de los hilos</h1>
+<p>Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete <code>prioridades</code>.</p>
+
+<section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
+<h2>Ejercicio 1: quince hilos con tres prioridades (proyecto <code>PrioridadesHilos</code>)</h2>
+<p>Se crean quince hilos que hacen la misma tarea pesada: unir 20000 letras &quot;A&quot; en una cadena. Cinco hilos tienen la prioridad mínima, cinco la normal y cinco la máxima.</p>
+<p>Al empezar se muestra <code>Hilos en marcha, espera...</code>. Cuando un hilo termina, muestra su nombre y su prioridad. Ejemplo: <code>Máximo 3 (prioridad 10) termina</code>.</p>
+<p>Ejecuta el programa varias veces y mira si los hilos de prioridad máxima terminan antes que los demás.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Cada hilo ya tiene una prioridad, que es un número. Java te da tres valores ya preparados para la mínima, la normal y la máxima, y un método para cambiar la prioridad de un hilo antes de arrancarlo. Si no la cambias, el hilo hereda la del hilo que lo crea. Los quince hilos hacen lo mismo, así que basta una clase <code>Runnable</code>; lo que cambia es cómo se configura cada <code>Thread</code>.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Una sola clase <code>Tarea</code> que implementa <code>Runnable</code>. En <code>run()</code>, un <code>for</code> de 20000 vueltas que añade una &quot;A&quot; a una cadena y, en cada vuelta, llama a <code>Thread.yield()</code> para sugerir al planificador que deje pasar a otro hilo. Al terminar, muestra el nombre del hilo y su prioridad con <code>getPriority()</code>. En <code>Principal</code>, crea tres arrays de cinco <code>Thread</code>, uno por prioridad, con nombres como &quot;Mínimo 1&quot;. Con <code>setPriority()</code> y las constantes <code>Thread.MIN_PRIORITY</code> y <code>Thread.MAX_PRIORITY</code> cambia la prioridad de los hilos mínimos y máximos; los normales no necesitan cambio. Arranca todos con <code>start()</code> en un último <code>for</code>.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>PrioridadesHilos</code> y el paquete <code>prioridades</code>.</li>
+<li>Crea la clase <code>Tarea</code> y haz que implemente <code>Runnable</code>.</li>
+<li>En <code>run()</code>, crea una variable <code>String</code> vacía.</li>
+<li>Escribe un <code>for</code> de 20000 vueltas. En cada vuelta, añade una &quot;A&quot; a la cadena y llama a <code>Thread.yield()</code>.</li>
+<li>Al terminar el <code>for</code>, muestra el nombre del hilo, su prioridad (con <code>getPriority()</code>) y la palabra &quot;termina&quot;.</li>
+<li>En <code>Principal</code>, crea tres arrays de cinco <code>Thread</code>: <code>minimos</code>, <code>normales</code> y <code>maximos</code>.</li>
+<li>Con un <code>for</code> de 0 a 4, rellena los tres arrays con <code>new Thread(new Tarea(), &quot;...&quot;)</code>, con nombres como &quot;Mínimo 1&quot;, &quot;Normal 1&quot; y &quot;Máximo 1&quot;.</li>
+<li>En ese mismo <code>for</code>, llama a <code>setPriority(Thread.MIN_PRIORITY)</code> en los mínimos y a <code>setPriority(Thread.MAX_PRIORITY)</code> en los máximos.</li>
+<li>Muestra <code>Hilos en marcha, espera...</code>.</li>
+<li>Con otro <code>for</code>, arranca los quince hilos con <code>start()</code>.</li>
+<li>Ejecuta el programa varias veces y observa si los de prioridad 10 terminan antes que los de prioridad 1.</li>
+</ol>
+</div>
+</section>
+<section class="tarjeta"><h2>Preguntas</h2><ol>
+<li>Ejecuta el ejercicio varias veces. ¿Terminan siempre antes los hilos de prioridad máxima?</li>
+<li>¿Qué crees que pasaría en un ordenador con un solo núcleo? ¿Y si quitas <code>Thread.yield()</code>?</li>
+<li>¿Se puede usar la prioridad para obligar a que un hilo termine antes que otro? ¿Qué usarías en su lugar?</li>
+</ol>
+</section>
+</main>
+<script type="module" src="../../estilo/tema.js"></script>
+<script type="module" src="../../estilo/ayudas.js"></script>
+</body>
+</html>

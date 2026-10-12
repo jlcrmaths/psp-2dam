@@ -57,6 +57,20 @@ hayCuadro = true;
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="condición de carrera">
+<h2><code>condición de carrera</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Error que ocurre cuando varios hilos leen y cambian el mismo dato a la vez y el resultado depende de quién llega antes.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Es un concepto, no una instrucción. Explica por qué <code>cuenta++</code> desde varios hilos puede perder sumas: cada hilo lee el valor, calcula y lo guarda, y otro hilo puede haber guardado entre medias. Se evita con <code>synchronized</code>.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">int temp = cuenta;
+// otro hilo puede cambiar cuenta aquí
+cuenta = temp + 1;
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="constructor">
 <h2><code>constructor</code></h2>
 <dl>
@@ -140,6 +154,18 @@ System.out.println(h.getName());   // Hilo 1
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="getPriority()">
+<h2><code>getPriority()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de <code>Thread</code> que devuelve la prioridad de un hilo, un número del 1 al 10.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Saber con qué prioridad se está ejecutando un hilo, por ejemplo para mostrarla en pantalla.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">System.out.println(Thread.currentThread().getPriority());
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="if">
 <h2><code>if</code></h2>
 <dl>
@@ -208,6 +234,18 @@ System.out.println(numeros.length);   // 10
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">public static void main(String[] args) {
     System.out.println(&quot;Empieza el programa&quot;);
 }
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="MIN_PRIORITY, NORM_PRIORITY y MAX_PRIORITY">
+<h2><code>MIN_PRIORITY, NORM_PRIORITY y MAX_PRIORITY</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Tres constantes de la clase <code>Thread</code> con las prioridades de referencia: <code>MIN_PRIORITY</code> vale 1, <code>NORM_PRIORITY</code> vale 5 y <code>MAX_PRIORITY</code> vale 10.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Dar nombre a los números de las prioridades, para no escribir 1, 5 o 10 a mano. Un hilo nuevo hereda la prioridad del hilo que lo crea; <code>main</code> tiene <code>NORM_PRIORITY</code>.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">h1.setPriority(Thread.MIN_PRIORITY);
 </code></pre>
 </dd>
 </dl>
@@ -366,6 +404,20 @@ int opcion = teclado.nextInt();
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="setPriority()">
+<h2><code>setPriority()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de <code>Thread</code> que cambia la prioridad de un hilo. La prioridad es un número del 1 al 10.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Pedir al planificador que dé más (o menos) tiempo de ejecución a un hilo. Se llama antes de <code>start()</code>. Es una sugerencia: el sistema operativo decide y el orden no queda garantizado.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread h1 = new Thread(new Tarea(), &quot;Hilo 1&quot;);
+h1.setPriority(Thread.MAX_PRIORITY);
+h1.start();
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="start()">
 <h2><code>start()</code></h2>
 <dl>
@@ -472,6 +524,20 @@ System.out.println(actual.getName());
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">try {
     Thread.sleep(2000);
 } catch (InterruptedException e) {
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Thread.yield()">
+<h2><code>Thread.yield()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método que sugiere al planificador de Java que el hilo actual deja pasar a otro hilo.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Dar a los demás hilos la oportunidad de ejecutarse. Es solo una sugerencia: Java puede ignorarla y el hilo seguir. No lo uses para controlar el orden.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">for (int i = 0; i &lt; 20000; i++) {
+    Thread.yield();
 }
 </code></pre>
 </dd>

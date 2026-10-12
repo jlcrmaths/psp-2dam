@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apartado 6.3 – Información compartida entre hilos</title>
+<link rel="stylesheet" href="../../estilo/tema.css">
+<script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t)}catch(e){}</script>
+</head>
+<body class="">
+<header class="cabecera">
+  <a class="marca" href="../../index.html">PSP · 2º DAM</a>
+  <nav><a href="../../glosario/index.html">Glosario</a><button id="tema" type="button" aria-label="Cambiar entre tema claro y oscuro">◐</button></nav>
+</header>
+<main class="contenido">
+<h1>Apartado 6.3 – Información compartida entre hilos</h1>
+<p>Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete <code>jardines</code>.</p>
+
+<section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
+<h2>Ejercicio 1: el problema de los jardines (proyecto <code>ProblemaJardines</code>)</h2>
+<p>Un jardín tiene al principio 100 personas. Entran 10 personas y salen otras 10, todas a la vez, cada una como un hilo distinto. Al final tendría que haber otra vez 100 personas.</p>
+<p>El programa espera a que acaben los 20 hilos y muestra <code>Personas en el jardín: </code> seguido de la cuenta final.</p>
+<p>Ejecuta el programa varias veces y comprueba si siempre sale 100.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El jardín es algo que comparten los 20 hilos, así que necesita su propia clase y todos los hilos reciben el mismo objeto. Hacen falta dos tipos de hilo: uno que suma 1 y otro que resta 1. Para que <code>main</code> muestre el resultado cuando todos han terminado, tiene que esperar a cada hilo. Fíjate en que sumar 1 a una variable no es un solo paso para el ordenador.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>RecursoJardin</code> con un atributo <code>int</code> que empiece en 100 y dos métodos: <code>incrementaCuenta</code> y <code>decrementaCuenta</code>. Cada método guarda el valor actual en una variable temporal, duerme 100 milisegundos con <code>Thread.sleep()</code> y guarda el valor cambiado. El <code>sleep</code> obliga a escribir un <code>try</code> con <code>catch (InterruptedException e)</code>. Las clases <code>EntraJardin</code> y <code>SaleJardin</code> implementan <code>Runnable</code>, reciben el jardín en el constructor y llaman a su método en <code>run()</code>. En <code>Principal</code>, crea un solo jardín y un <code>ArrayList&lt;Thread&gt;</code>. Con un <code>for</code> de 10 vueltas, añade en cada una un hilo que entra y otro que sale. Arranca todos con <code>start()</code> en un segundo bucle y espera a todos con <code>join()</code> en un tercero. Añade <code>throws InterruptedException</code> a <code>main</code>.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>ProblemaJardines</code> y el paquete <code>jardines</code>.</li>
+<li>Crea la clase <code>RecursoJardin</code> con un atributo privado <code>int</code> llamado <code>cuenta</code>, que empiece en 100 en el constructor.</li>
+<li>Añade un método <code>getCuenta</code> que devuelva la cuenta.</li>
+<li>Escribe <code>incrementaCuenta</code>. Guarda <code>cuenta</code> en una variable <code>temp</code>.</li>
+<li>Llama a <code>Thread.sleep(100)</code>, dentro de un <code>try</code> con <code>catch (InterruptedException e)</code>.</li>
+<li>Guarda en <code>cuenta</code> el valor de <code>temp</code> más 1.</li>
+<li>Escribe <code>decrementaCuenta</code> igual, pero guardando <code>temp</code> menos 1.</li>
+<li>Crea la clase <code>EntraJardin</code>, que implementa <code>Runnable</code>, guarda el jardín en un atributo recibido por el constructor y llama a <code>incrementaCuenta()</code> en <code>run()</code>.</li>
+<li>Crea la clase <code>SaleJardin</code> igual, pero llamando a <code>decrementaCuenta()</code>.</li>
+<li>En <code>Principal</code>, crea un solo <code>RecursoJardin</code> y un <code>ArrayList&lt;Thread&gt;</code>.</li>
+<li>Con un <code>for</code> de 1 a 10, añade a la lista un hilo con <code>EntraJardin</code> (&quot;Entra1&quot;...) y otro con <code>SaleJardin</code> (&quot;Sale1&quot;...).</li>
+<li>Con un <code>for</code> de tipo «para cada hilo de la lista», arranca todos con <code>start()</code>.</li>
+<li>Con otro igual, llama a <code>join()</code> en cada hilo. Añade <code>throws InterruptedException</code> a <code>main</code>.</li>
+<li>Muestra <code>Personas en el jardín: </code> y la cuenta. Ejecútalo varias veces.</li>
+</ol>
+</div>
+</section>
+<section class="tarjeta"><h2>Preguntas</h2><ol>
+<li>Ejecuta el ejercicio varias veces. ¿Siempre sale 100? ¿Qué valores salen?</li>
+<li>Quita el <code>sleep</code> y ejecuta otra vez. ¿Sale 100 casi siempre? ¿Significa eso que el programa es correcto?</li>
+<li>Dos hilos leen la cuenta a la vez (100) y los dos guardan 101. ¿Cuántas personas han entrado? ¿Cuántas cuenta el programa?</li>
+<li>¿Cómo evitarías que dos hilos estén a la vez dentro de <code>incrementaCuenta</code>? (Lo veremos en el apartado siguiente.)</li>
+</ol>
+</section>
+</main>
+<script type="module" src="../../estilo/tema.js"></script>
+<script type="module" src="../../estilo/ayudas.js"></script>
+</body>
+</html>
