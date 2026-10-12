@@ -61,7 +61,7 @@
 </section>
 <section>
 <h3>El jardín: RecursoJardin</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="1|3|5-8|10-12|14-21">public class RecursoJardin {
+    <pre><code class="language-java" data-trim data-line-numbers="1|3|5-7|9-11|13-20">public class RecursoJardin {
 
     private int cuenta;
 
@@ -163,7 +163,68 @@ for (Thread t : lista) {
 <h3>Condición de carrera</h3>
     <p>Cuando varios hilos leen y cambian el mismo dato, y el resultado depende de <b>quién llega antes</b>.</p>
     <p class="fragment">Lo peor: el programa no da error. Da un resultado <b>equivocado</b> y distinto cada vez.</p>
-    <p class="fragment caja">La solución: que solo un hilo a la vez pueda estar dentro de <code>incrementaCuenta</code>. Se hace con <code>synchronized</code>, que veremos en el apartado siguiente.</p>
+    <p class="fragment caja">La solución: que solo un hilo a la vez pueda estar dentro de <code>incrementaCuenta</code>. Se hace con <code>synchronized</code>, y es el ejercicio 2.</p>
+</section>
+</section>
+<section>
+<section>
+<h3>Ejercicio 2: jardines sincronizados</h3>
+    <p class="caja"><b>Lo que se pide:</b> el mismo programa, pero con el resultado siempre correcto.</p>
+    <div class="salida">Personas en el jardín: 100</div>
+    <p>En <b>todas</b> las ejecuciones. Solo cambia la clase <code>RecursoJardin</code>.</p>
+    <p class="peque">Proyecto <b>JardinesSincronizado</b></p>
+</section>
+<section>
+<h3>La palabra synchronized</h3>
+    <p>Se escribe en la declaración de un método. Deja entrar a <b>un solo hilo</b> a la vez. Los demás esperan fuera hasta que salga.</p>
+    <p class="fragment">Como una puerta de una sola persona: el que está dentro lee, calcula y guarda <b>sin que nadie se cuele</b>.</p>
+</section>
+<section>
+<h3>El jardín sincronizado</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="13|22|13-20">public class RecursoJardin {
+
+    private int cuenta;
+
+    public RecursoJardin() {
+        cuenta = 100;
+    }
+
+    public int getCuenta() {
+        return cuenta;
+    }
+
+    public synchronized void incrementaCuenta() {
+        int temp = cuenta;
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+        cuenta = temp + 1;
+    }
+
+    public synchronized void decrementaCuenta() {
+        int temp = cuenta;
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+        }
+        cuenta = temp - 1;
+    }
+}</code></pre>
+</section>
+<section>
+<h3>Qué cambia, línea por línea</h3>
+    <ul class="peque">
+      <li><code>public synchronized void incrementaCuenta()</code><br>Solo un hilo a la vez puede ejecutar este método.</li>
+      <li><code>public synchronized void decrementaCuenta()</code><br>Lo mismo aquí. Hace falta en <b>los dos</b>: quien entra y quien sale tocan la misma variable.</li>
+      <li>El resto del código <b>no cambia</b>: ni los hilos, ni <code>Principal</code>.</li>
+    </ul>
+</section>
+<section>
+<h3>¿Qué sale en pantalla?</h3>
+    <div class="salida">Personas en el jardín: 100</div>
+    <p class="aviso">Ahora sale 100 <b>siempre</b>. A cambio, el programa tarda unos 2 segundos: los 20 hilos pasan <b>uno detrás de otro</b>, 100 milisegundos cada uno.</p>
+    <p class="fragment caja">Sincronizar da un resultado correcto, pero quita la ventaja de hacer varias cosas a la vez.</p>
 </section>
 </section>
 <section>
@@ -174,7 +235,8 @@ for (Thread t : lista) {
     <li>Si dos hilos se cuelan entre los pasos, se pierden cambios: <b>condición de carrera</b></li>
     <li>El resultado es incorrecto y cambia en cada ejecución</li>
     <li>El método <code>join()</code> de la clase <code>Thread</code> hace que <code>main</code> espere a todos antes de mostrar el resultado</li>
-    <li>Se arregla permitiendo un solo hilo a la vez: <code>synchronized</code></li>
+    <li>Se arregla con la palabra <code>synchronized</code> en los métodos del jardín: un solo hilo a la vez</li>
+    <li>Sincronizar da el resultado correcto, pero los hilos pasan de uno en uno y tarda más</li>
   </ul>
 </section>
 </div>

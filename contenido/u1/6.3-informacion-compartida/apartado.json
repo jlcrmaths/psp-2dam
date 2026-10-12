@@ -1,5 +1,5 @@
 {
   "titulo": "6.3 Información compartida entre hilos",
   "orden": 3,
-  "resumen": "Veinte hilos usan el mismo jardín: la condición de carrera, por qué el resultado no sale 100 y qué hace falta para arreglarlo."
+  "resumen": "Veinte hilos usan el mismo jardín: la condición de carrera, por qué el resultado no sale 100 y cómo arreglarlo con synchronized."
 }

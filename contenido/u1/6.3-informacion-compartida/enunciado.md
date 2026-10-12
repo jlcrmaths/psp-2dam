@@ -32,9 +32,31 @@ Crea una clase `RecursoJardin` con un atributo `int` que empiece en 100 y dos m�
 13. Con otro igual, llama a `join()` en cada hilo. Añade `throws InterruptedException` a `main`.
 14. Muestra `Personas en el jardín: ` y la cuenta. Ejecútalo varias veces.
 
+## Ejercicio 2: los jardines sincronizados (proyecto `JardinesSincronizado`)
+
+Es el mismo programa del ejercicio 1: 100 personas, 10 entran y 10 salen a la vez. Pero ahora el resultado tiene que ser siempre el correcto.
+
+Al final se muestra `Personas en el jardín: 100`, en todas las ejecuciones.
+
+### Pistas
+No hay que cambiar los hilos ni `Principal`. El problema está dentro del jardín: dos hilos están a la vez en el mismo método. Java tiene una palabra clave que deja entrar a un solo hilo cada vez en un método; los demás esperan fuera. Piensa en qué métodos tienes que ponérsela.
+
+### Más ayuda
+Copia el proyecto del ejercicio 1 y cambia solo `RecursoJardin`. Añade la palabra `synchronized` a la declaración de `incrementaCuenta` y también a la de `decrementaCuenta`. Con una sola no basta: un hilo que entra y otro que sale también se pisarían entre ellos, porque tocan la misma variable. Con los dos métodos `synchronized`, el jardín actúa como una puerta de una sola persona: mientras un hilo está dentro de cualquiera de los dos, los otros 19 esperan.
+
+### Paso a paso
+1. Crea el proyecto `JardinesSincronizado` y el paquete `jardines`.
+2. Copia en él las cuatro clases del ejercicio 1: `RecursoJardin`, `EntraJardin`, `SaleJardin` y `Principal`.
+3. En `RecursoJardin`, añade `synchronized` entre `public` y `void` en `incrementaCuenta`.
+4. Haz lo mismo en `decrementaCuenta`.
+5. Ejecuta el programa varias veces y comprueba que siempre sale 100.
+6. Fíjate en el tiempo: ahora tarda unos dos segundos, porque los 20 hilos pasan uno detrás de otro, con 100 milisegundos cada uno.
+
 ## Preguntas
 
 1. Ejecuta el ejercicio varias veces. ¿Siempre sale 100? ¿Qué valores salen?
 2. Quita el `sleep` y ejecuta otra vez. ¿Sale 100 casi siempre? ¿Significa eso que el programa es correcto?
 3. Dos hilos leen la cuenta a la vez (100) y los dos guardan 101. ¿Cuántas personas han entrado? ¿Cuántas cuenta el programa?
-4. ¿Cómo evitarías que dos hilos estén a la vez dentro de `incrementaCuenta`? (Lo veremos en el apartado siguiente.)
+4. ¿Cómo evitarías que dos hilos estén a la vez dentro de `incrementaCuenta`? (Lo haces en el ejercicio 2.)
+5. En el ejercicio 2, ¿por qué hay que poner `synchronized` también en `decrementaCuenta`?
+6. ¿Por qué ahora el programa tarda más? ¿Qué se ha perdido a cambio de que el resultado sea correcto?

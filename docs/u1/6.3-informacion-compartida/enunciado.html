@@ -45,11 +45,33 @@
 </ol>
 </div>
 </section>
+<section class="ejercicio tarjeta" id="ej-2" data-ejercicio="ej-2">
+<h2>Ejercicio 2: los jardines sincronizados (proyecto <code>JardinesSincronizado</code>)</h2>
+<p>Es el mismo programa del ejercicio 1: 100 personas, 10 entran y 10 salen a la vez. Pero ahora el resultado tiene que ser siempre el correcto.</p>
+<p>Al final se muestra <code>Personas en el jardín: 100</code>, en todas las ejecuciones.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>No hay que cambiar los hilos ni <code>Principal</code>. El problema está dentro del jardín: dos hilos están a la vez en el mismo método. Java tiene una palabra clave que deja entrar a un solo hilo cada vez en un método; los demás esperan fuera. Piensa en qué métodos tienes que ponérsela.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Copia el proyecto del ejercicio 1 y cambia solo <code>RecursoJardin</code>. Añade la palabra <code>synchronized</code> a la declaración de <code>incrementaCuenta</code> y también a la de <code>decrementaCuenta</code>. Con una sola no basta: un hilo que entra y otro que sale también se pisarían entre ellos, porque tocan la misma variable. Con los dos métodos <code>synchronized</code>, el jardín actúa como una puerta de una sola persona: mientras un hilo está dentro de cualquiera de los dos, los otros 19 esperan.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>JardinesSincronizado</code> y el paquete <code>jardines</code>.</li>
+<li>Copia en él las cuatro clases del ejercicio 1: <code>RecursoJardin</code>, <code>EntraJardin</code>, <code>SaleJardin</code> y <code>Principal</code>.</li>
+<li>En <code>RecursoJardin</code>, añade <code>synchronized</code> entre <code>public</code> y <code>void</code> en <code>incrementaCuenta</code>.</li>
+<li>Haz lo mismo en <code>decrementaCuenta</code>.</li>
+<li>Ejecuta el programa varias veces y comprueba que siempre sale 100.</li>
+<li>Fíjate en el tiempo: ahora tarda unos dos segundos, porque los 20 hilos pasan uno detrás de otro, con 100 milisegundos cada uno.</li>
+</ol>
+</div>
+</section>
 <section class="tarjeta"><h2>Preguntas</h2><ol>
 <li>Ejecuta el ejercicio varias veces. ¿Siempre sale 100? ¿Qué valores salen?</li>
 <li>Quita el <code>sleep</code> y ejecuta otra vez. ¿Sale 100 casi siempre? ¿Significa eso que el programa es correcto?</li>
 <li>Dos hilos leen la cuenta a la vez (100) y los dos guardan 101. ¿Cuántas personas han entrado? ¿Cuántas cuenta el programa?</li>
-<li>¿Cómo evitarías que dos hilos estén a la vez dentro de <code>incrementaCuenta</code>? (Lo veremos en el apartado siguiente.)</li>
+<li>¿Cómo evitarías que dos hilos estén a la vez dentro de <code>incrementaCuenta</code>? (Lo haces en el ejercicio 2.)</li>
+<li>En el ejercicio 2, ¿por qué hay que poner <code>synchronized</code> también en <code>decrementaCuenta</code>?</li>
+<li>¿Por qué ahora el programa tarda más? ¿Qué se ha perdido a cambio de que el resultado sea correcto?</li>
 </ol>
 </section>
 </main>
