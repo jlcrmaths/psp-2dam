@@ -1,0 +1,5 @@
+{
+  "titulo": "6.2 Prioridades de los hilos",
+  "orden": 2,
+  "resumen": "Hilos con prioridad mínima, normal y máxima: setPriority, getPriority y yield, y por qué la prioridad no garantiza el orden."
+}
