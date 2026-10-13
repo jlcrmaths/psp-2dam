@@ -63,6 +63,53 @@
 </ol>
 </div>
 </section>
+<section class="ejercicio tarjeta" id="ej-3" data-ejercicio="ej-3">
+<h2>Ejercicio 3: los tornos del museo (proyecto <code>MuseoTornos</code>)</h2>
+<p>Vamos a simular los accesos a un museo por parte de 4 tornos. Cada torno realiza 20 accesos. Por pantalla se muestra el hilo que accede y la cuenta de accesos en ese momento.</p>
+<p>El último mensaje tiene que decir que hay 80 accesos, en todas las ejecuciones.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El museo es lo que comparten los 4 tornos, así que necesita su propia clase y todos los tornos reciben el mismo objeto. Cada torno es un hilo que repite 20 veces lo mismo. Piensa en el ejercicio anterior: varios hilos cambian a la vez la misma cuenta.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>Museo</code> con un atributo <code>int</code> que empiece en 0 y un método <code>accede</code>. El método suma 1 a la cuenta y muestra el nombre del hilo con <code>Thread.currentThread().getName()</code> y la cuenta. Hay varios hilos tocando la misma variable, así que el método debe ser <code>synchronized</code>. Crea una clase <code>Torno</code> que implementa <code>Runnable</code>, recibe el museo en el constructor y en <code>run()</code> llama 20 veces a <code>accede</code> con un <code>for</code>. En <code>Principal</code>, crea un solo museo y, con un <code>for</code> de 4 vueltas, crea y arranca un hilo con <code>new Thread(new Torno(museo), &quot;Torno &quot; + i)</code>.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>MuseoTornos</code> y el paquete <code>museo</code>.</li>
+<li>Crea la clase <code>Museo</code> con un atributo privado <code>int</code> llamado <code>cuenta</code>, que empiece en 0 en el constructor.</li>
+<li>Escribe el método <code>accede</code> con la palabra <code>synchronized</code>.</li>
+<li>Dentro, suma 1 a <code>cuenta</code> con <code>cuenta++</code>.</li>
+<li>Muestra el nombre del hilo, la palabra <code>accede</code> y la cuenta.</li>
+<li>Crea la clase <code>Torno</code>, que implementa <code>Runnable</code>, guarda el museo en un atributo recibido por el constructor y tiene un <code>run()</code>.</li>
+<li>En <code>run()</code>, con un <code>for</code> de 1 a 20, llama a <code>accede()</code> del museo.</li>
+<li>En <code>Principal</code>, crea un solo <code>Museo</code>.</li>
+<li>Con un <code>for</code> de 1 a 4, crea un hilo con <code>Torno</code> (&quot;Torno 1&quot;...) y arráncalo con <code>start()</code> en la misma línea.</li>
+<li>Ejecútalo varias veces y comprueba que el último mensaje siempre dice 80.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-4" data-ejercicio="ej-4">
+<h2>Ejercicio 4: la cocina (proyecto <code>CocinaCuchillos</code>)</h2>
+<p>Vamos a simular el funcionamiento de una cocina con 3 cocineros y 5 cuchillos. Para la receta, cada cocinero necesita coger algún cuchillo durante 3 segundos y después lo suelta. Todos los cocineros necesitan coger algún cuchillo 4 veces.</p>
+<p>Por pantalla se muestra qué cocinero coge o suelta un cuchillo y cuántos cuchillos quedan libres. Al final tienen que quedar los 5 libres, en todas las ejecuciones.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Lo que comparten los 3 cocineros es la cocina, y lo que cambian a la vez es el número de cuchillos libres. Como hay más cuchillos que cocineros, nadie tiene que esperar: lo importante es que la cuenta no se pierda. Para que un cocinero tarde 3 segundos con el cuchillo, el hilo tiene que dormir. Piensa dónde conviene dormir: ¿dentro o fuera del método sincronizado?</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>Cocina</code> con un atributo <code>int</code> para los cuchillos libres, que reciba el total (5) en el constructor, y dos métodos <code>synchronized</code>: <code>coger</code>, que resta 1 y muestra quién coge y cuántos quedan, y <code>soltar</code>, que suma 1 y lo muestra. Crea una clase <code>Cocinero</code> que implementa <code>Runnable</code> y recibe la cocina en el constructor. En <code>run()</code>, un <code>for</code> de 4 vueltas: coger, esperar 3 segundos con <code>Thread.sleep(3000)</code> y soltar. El <code>sleep</code> obliga a escribir un <code>try</code> con <code>catch (InterruptedException e)</code>. La espera va fuera de los métodos sincronizados, para que los demás cocineros puedan coger su cuchillo mientras tanto. En <code>Principal</code>, crea una sola cocina con 5 cuchillos y, con un <code>for</code> de 3 vueltas, crea y arranca un hilo por cocinero con <code>new Thread(new Cocinero(cocina), &quot;Cocinero &quot; + i)</code>.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>CocinaCuchillos</code> y el paquete <code>cocina</code>.</li>
+<li>Crea la clase <code>Cocina</code> con un atributo privado <code>int</code> llamado <code>libres</code>, que reciba su valor inicial por el constructor.</li>
+<li>Escribe el método <code>coger</code> con la palabra <code>synchronized</code>: resta 1 a <code>libres</code> y muestra el nombre del hilo, «coge un cuchillo» y los libres.</li>
+<li>Escribe el método <code>soltar</code> igual, pero sumando 1 y mostrando «suelta el cuchillo».</li>
+<li>Crea la clase <code>Cocinero</code>, que implementa <code>Runnable</code>, guarda la cocina en un atributo recibido por el constructor y tiene un <code>run()</code>.</li>
+<li>En <code>run()</code>, con un <code>for</code> de 1 a 4: llama a <code>coger()</code>, duerme 3000 milisegundos dentro de un <code>try</code> con <code>catch (InterruptedException e)</code> y llama a <code>soltar()</code>.</li>
+<li>En <code>Principal</code>, crea una sola <code>Cocina</code> con 5 cuchillos.</li>
+<li>Con un <code>for</code> de 1 a 3, crea un hilo con <code>Cocinero</code> (&quot;Cocinero 1&quot;...) y arráncalo con <code>start()</code> en la misma línea.</li>
+<li>Ejecútalo y comprueba que el último mensaje dice 5 libres. Tarda unos 12 segundos.</li>
+</ol>
+</div>
+</section>
 <section class="tarjeta"><h2>Preguntas</h2><ol>
 <li>Ejecuta el ejercicio varias veces. ¿Sale 100? ¿Tienen sentido los mensajes de los hilos? ¿Qué números raros ves en <code>en jardín</code>?</li>
 <li>Si hoy ha salido 100, ¿significa que el programa es correcto? ¿Podría fallar en otro ordenador o en otra ejecución?</li>

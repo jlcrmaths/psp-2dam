@@ -279,6 +279,140 @@ for (int i = 1; i &lt;= 1000; i++) {
 ---
 
 <!-- html -->
+    <h3>Ejercicio 3: los tornos del museo</h3>
+    <p class="caja"><b>La tarea:</b> simular los accesos a un museo por parte de <b>4 tornos</b>. Cada torno realiza <b>20 accesos</b>.</p>
+    <p>Por pantalla: el hilo que accede y la cuenta de accesos en ese momento.</p>
+    <div class="salida">Torno 1 accede. Accesos: 1<br>Torno 1 accede. Accesos: 2<br>Torno 3 accede. Accesos: 3<br>…<br>Torno 2 accede. Accesos: 80</div>
+    <p class="peque">Proyecto <b>MuseoTornos</b></p>
+
+--
+
+<!-- html -->
+    <h3>Cómo pensarlo</h3>
+    <ul>
+      <li>¿Qué comparten los 4 tornos? <span class="fragment">El <b>museo</b>: un solo objeto <code>Museo</code>.</span></li>
+      <li>¿Cuántas clases de hilo? <span class="fragment">Una: <code>Torno</code>. Los cuatro hacen lo mismo.</span></li>
+      <li>¿Qué pasa si dos tornos suman a la vez? <span class="fragment">Lo mismo que en el jardín: se pierden accesos.</span></li>
+      <li>¿Cómo lo evitamos? <span class="fragment">Con <code>synchronized</code>, como en el ejercicio 2.</span></li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>El museo: Museo</h3>
+    {{codigo: MuseoTornos/Museo.java @@ 1|3|5-7|9-12}}
+
+--
+
+<!-- html -->
+    <h3>Museo, línea por línea</h3>
+    <ul class="peque">
+      <li><code>private int cuenta;</code><br>Los accesos. Es el dato que comparten los 4 hilos.</li>
+      <li><code>cuenta = 0;</code><br>En el constructor, el museo empieza sin accesos.</li>
+      <li><code>public synchronized void accede()</code><br>Solo un torno a la vez puede estar dentro. Los demás esperan fuera.</li>
+      <li><code>cuenta++;</code><br>Suma 1 acceso.</li>
+      <li><code>System.out.println(...)</code><br>Muestra el nombre del hilo con <code>currentThread()</code> y <code>getName()</code> de la clase <code>Thread</code>, y la cuenta.</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>El torno: Torno</h3>
+    {{codigo: MuseoTornos/Torno.java @@ 3|5-7|9-14|11-13}}
+    <ul class="peque">
+      <li>Recibe el museo por el constructor: los 4 tornos tienen <b>el mismo</b>.</li>
+      <li>El método <code>run()</code> de la interfaz <code>Runnable</code> repite 20 veces la llamada a <code>accede()</code>.</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>Los hilos y Principal</h3>
+    {{codigo: MuseoTornos/Principal.java @@ 4|6-8}}
+    <ul class="peque">
+      <li>Se crea <b>un solo</b> museo. Los 4 tornos reciben ese mismo objeto.</li>
+      <li>El <code>for</code> crea cada hilo con <code>new Thread(...)</code>, le da un nombre ("Torno 1"...) y lo arranca con el método <code>start()</code> de la clase <code>Thread</code>.</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>¿Qué sale en pantalla?</h3>
+    <div class="salida">Torno 1 accede. Accesos: 1<br>Torno 1 accede. Accesos: 2<br>Torno 2 accede. Accesos: 3<br>…<br>Torno 3 accede. Accesos: 80</div>
+    <p class="aviso">Los tornos se <b>turnan</b> y el orden cambia en cada ejecución. Pero el último mensaje dice <b>80</b> siempre.</p>
+    <p class="fragment caja">¿Y si quitamos <code>synchronized</code>? Pruébalo: ¿se nota algo?</p>
+
+---
+
+<!-- html -->
+    <h3>Ejercicio 4: la cocina</h3>
+    <p class="caja"><b>La tarea:</b> simular una cocina con <b>3 cocineros</b> y <b>5 cuchillos</b>. Cada cocinero coge un cuchillo durante <b>3 segundos</b> y lo suelta. Todos lo hacen <b>4 veces</b>.</p>
+    <p>Por pantalla: quién coge o suelta y cuántos cuchillos quedan libres.</p>
+    <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br>Cocinero 2 coge un cuchillo. Libres: 3<br>…<br>Cocinero 2 suelta el cuchillo. Libres: 5</div>
+    <p class="peque">Proyecto <b>CocinaCuchillos</b></p>
+
+--
+
+<!-- html -->
+    <h3>Cómo pensarlo</h3>
+    <ul>
+      <li>¿Qué comparten los cocineros? <span class="fragment">La <b>cocina</b>: un solo objeto <code>Cocina</code> con los cuchillos libres.</span></li>
+      <li>¿Alguien tiene que esperar? <span class="fragment">No: hay 5 cuchillos y solo 3 cocineros. Pero la <b>cuenta</b> de libres sí se puede estropear.</span></li>
+      <li>¿Cómo tarda 3 segundos? <span class="fragment">El hilo <b>duerme</b>.</span></li>
+      <li>¿Dónde dormir? <span class="fragment">Fuera del método <code>synchronized</code>.</span></li>
+    </ul>
+
+--
+
+<!-- html -->
+    <div class="nuevo">
+    <h3>Lo nuevo de hoy</h3>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>sleep(ms)</code> de la clase <code>Thread</code>: duerme el hilo esos milisegundos. <code>Thread.sleep(3000)</code> son 3 segundos. Simula que algo tarda.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Error</span><p><code>InterruptedException</code>: Java lo lanza si despiertan al hilo mientras duerme. Por eso <code>sleep</code> va dentro de un <code>try</code> con <code>catch</code>.</p></div>
+    </div>
+    <p class="fragment aviso">Regla: <code>sleep</code> va <b>fuera</b> de <code>synchronized</code>. Si un hilo duerme dentro, los demás no pueden ni entrar.</p>
+
+--
+
+<!-- html -->
+    <h3>La cocina: Cocina</h3>
+    {{codigo: CocinaCuchillos/Cocina.java @@ 3|5-7|9-12|14-17}}
+    <ul class="peque">
+      <li><code>libres</code> es el dato compartido. El constructor recibe cuántos cuchillos hay.</li>
+      <li><code>coger()</code> resta 1 y <code>soltar()</code> suma 1. Los dos son <code>synchronized</code>: solo un cocinero a la vez cambia la cuenta.</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>El cocinero: Cocinero</h3>
+    {{codigo: CocinaCuchillos/Cocinero.java @@ 3|5-7|11-18|12|13-16|17}}
+    <ul class="peque">
+      <li>El <code>for</code> repite 4 veces: coger, dormir 3 segundos y soltar.</li>
+      <li>El <code>sleep</code> está <b>fuera</b> de <code>coger()</code> y <code>soltar()</code>: mientras uno cocina, los otros pueden coger su cuchillo.</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>Los hilos y Principal</h3>
+    {{codigo: CocinaCuchillos/Principal.java @@ 4|6-8}}
+    <ul class="peque">
+      <li>Se crea <b>una sola</b> cocina con 5 cuchillos. Los 3 cocineros reciben ese mismo objeto.</li>
+      <li>El <code>for</code> crea y arranca un hilo por cocinero con el método <code>start()</code> de la clase <code>Thread</code>.</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>¿Qué sale en pantalla?</h3>
+    <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br>Cocinero 2 coge un cuchillo. Libres: 3<br>Cocinero 3 coge un cuchillo. Libres: 2<br>Cocinero 1 suelta el cuchillo. Libres: 3<br>…<br>Cocinero 2 suelta el cuchillo. Libres: 5</div>
+    <p class="aviso">Los tres cogen a la vez y el programa tarda unos <b>12 segundos</b> (4 vueltas de 3). Al final quedan <b>5</b> libres.</p>
+    <p class="fragment caja">Si el <code>sleep</code> estuviera dentro de <code>coger()</code>, los cocineros irían de uno en uno y tardaría 36 segundos. ¿Por qué?</p>
+
+---
+
+<!-- html -->
   <h3>Resumen</h3>
   <ul>
     <li>Un <b>recurso compartido</b> es un objeto que usan varios hilos a la vez: todos reciben la misma referencia</li>
@@ -287,5 +421,7 @@ for (int i = 1; i &lt;= 1000; i++) {
     <li>El registro sale desordenado y el resultado puede ser incorrecto, aunque a veces salga 100</li>
     <li>Los hilos se crean y se arrancan con <code>new Thread(...).start()</code>: aquí 2000 hilos sobre un solo jardín</li>
     <li>Se arregla con la palabra <code>synchronized</code> en los métodos del jardín: un solo hilo a la vez</li>
+    <li>Los tornos de un museo: 4 hilos suman a la misma cuenta y, con <code>synchronized</code>, salen 80 accesos siempre</li>
+    <li>Una cocina con 3 cocineros y 5 cuchillos: <code>synchronized</code> protege la cuenta y el <code>sleep</code> va fuera</li>
     <li>Sincronizar da el resultado correcto, pero los hilos pasan de uno en uno por esos métodos</li>
   </ul>
