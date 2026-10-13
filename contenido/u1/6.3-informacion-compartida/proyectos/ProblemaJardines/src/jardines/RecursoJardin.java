@@ -14,23 +14,15 @@ public class RecursoJardin {
     }
 
     public void incrementaCuenta() {
-        // Sumar 1 parece una sola operación, pero son tres: leer el valor, calcular y guardarlo.
-        // Con el sleep, otro hilo tiene tiempo de leer el mismo valor antes de que este lo guarde.
-        // Eso es una condición de carrera: el resultado depende de qué hilo llega antes.
-        int temp = cuenta;
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        cuenta = temp + 1;
+        // Muestra qué hilo entra. Thread.currentThread().getName() es el nombre del hilo que ejecuta esto.
+        System.out.println("hilo " + Thread.currentThread().getName() + " ----- Entra en Jardín");
+        cuenta++;
+        System.out.println(cuenta + " en jardín");
     }
 
     public void decrementaCuenta() {
-        int temp = cuenta;
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        cuenta = temp - 1;
+        System.out.println("hilo " + Thread.currentThread().getName() + " ----- Sale de Jardín");
+        cuenta--;
+        System.out.println(cuenta + " en jardín");
     }
 }

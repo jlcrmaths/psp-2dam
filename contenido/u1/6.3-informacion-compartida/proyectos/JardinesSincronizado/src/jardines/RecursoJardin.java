@@ -16,20 +16,14 @@ public class RecursoJardin {
     // synchronized hace que solo un hilo a la vez pueda estar dentro del método.
     // Los demás esperan fuera. Así nadie se cuela entre leer y guardar.
     public synchronized void incrementaCuenta() {
-        int temp = cuenta;
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        cuenta = temp + 1;
+        System.out.println("hilo " + Thread.currentThread().getName() + " ----- Entra en Jardín");
+        cuenta++;
+        System.out.println(cuenta + " en jardín");
     }
 
     public synchronized void decrementaCuenta() {
-        int temp = cuenta;
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        cuenta = temp - 1;
+        System.out.println("hilo " + Thread.currentThread().getName() + " ----- Sale de Jardín");
+        cuenta--;
+        System.out.println(cuenta + " en jardín");
     }
 }
