@@ -9,10 +9,6 @@ public class RecursoJardin {
         cuenta = 100;
     }
 
-    public int getCuenta() {
-        return cuenta;
-    }
-
     public void incrementaCuenta() {
         // Muestra qué hilo entra. Thread.currentThread().getName() es el nombre del hilo que ejecuta esto.
         System.out.println("hilo " + Thread.currentThread().getName() + " ----- Entra en Jardín");

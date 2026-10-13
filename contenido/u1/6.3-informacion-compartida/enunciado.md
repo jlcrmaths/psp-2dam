@@ -4,45 +4,43 @@ Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica.
 
 ## Ejercicio 1: el problema de los jardines (proyecto `ProblemaJardines`)
 
-Un jardín tiene al principio 100 personas. Entran 10 personas y salen otras 10, todas a la vez, cada una como un hilo distinto. Al final tendría que haber otra vez 100 personas.
+Un jardín tiene al principio 100 personas. Entran 1000 personas y salen otras 1000, todas a la vez, cada una como un hilo distinto. Al final tendría que haber otra vez 100 personas.
 
-El programa espera a que acaben los 20 hilos y muestra `Personas en el jardín: ` seguido de la cuenta final.
+Cada hilo muestra su nombre y cuántas personas hay en el jardín. El último mensaje debería decir `100 en jardín`.
 
-Ejecuta el programa varias veces. Mira si sale 100 y fíjate también en los mensajes de cada hilo.
+Ejecuta el programa varias veces. Mira qué dice el último mensaje y fíjate también en el resto del registro.
 
 ### Pistas
-El jardín es algo que comparten los 20 hilos, así que necesita su propia clase y todos los hilos reciben el mismo objeto. Hacen falta dos tipos de hilo: uno que suma 1 y otro que resta 1. Para que `main` muestre el resultado cuando todos han terminado, tiene que esperar a cada hilo. Fíjate en que sumar 1 a una variable no es un solo paso para el ordenador.
+El jardín es algo que comparten los 2000 hilos, así que necesita su propia clase y todos los hilos reciben el mismo objeto. Hacen falta dos tipos de hilo: uno que suma 1 y otro que resta 1. Cada hilo muestra la cuenta, así que el resultado se lee en el registro. Fíjate en que sumar 1 a una variable no es un solo paso para el ordenador.
 
 ### Más ayuda
-Crea una clase `RecursoJardin` con un atributo `int` que empiece en 100 y dos métodos: `incrementaCuenta` y `decrementaCuenta`. Cada método muestra qué hilo entra o sale (con `Thread.currentThread().getName()`), suma o resta 1 a la cuenta con `cuenta++` o `cuenta--` y muestra la cuenta. Las clases `EntraJardin` y `SaleJardin` implementan `Runnable`, reciben el jardín en el constructor y llaman a su método en `run()`. En `Principal`, crea un solo jardín y un `ArrayList<Thread>`. Con un `for` de 10 vueltas, añade en cada una un hilo que entra y otro que sale. Arranca todos con `start()` en un segundo bucle y espera a todos con `join()` en un tercero. Añade `throws InterruptedException` a `main`.
+Crea una clase `RecursoJardin` con un atributo `int` que empiece en 100 y dos métodos: `incrementaCuenta` y `decrementaCuenta`. Cada método muestra qué hilo entra o sale (con `Thread.currentThread().getName()`), suma o resta 1 a la cuenta con `cuenta++` o `cuenta--` y muestra la cuenta. Las clases `EntraJardin` y `SaleJardin` implementan `Runnable`, reciben el jardín en el constructor y llaman a su método en `run()`. En `Principal`, crea un solo jardín. Con un `for` de 1000 vueltas, crea y arranca en cada una un hilo que entra, con `new Thread(new EntraJardin(jardin), "Entra" + i).start()`. Con otro `for` de 1000 vueltas, haz lo mismo con los hilos que salen.
 
 ### Paso a paso
 1. Crea el proyecto `ProblemaJardines` y el paquete `jardines`.
 2. Crea la clase `RecursoJardin` con un atributo privado `int` llamado `cuenta`, que empiece en 100 en el constructor.
-3. Añade un método `getCuenta` que devuelva la cuenta.
-4. Escribe `incrementaCuenta`. Muestra `hilo ` + el nombre del hilo + ` ----- Entra en Jardín`.
-5. Suma 1 con `cuenta++`.
-6. Muestra `cuenta` + ` en jardín`.
-7. Escribe `decrementaCuenta` igual, pero con `Sale de Jardín` y `cuenta--`.
-8. Crea la clase `EntraJardin`, que implementa `Runnable`, guarda el jardín en un atributo recibido por el constructor y llama a `incrementaCuenta()` en `run()`.
-9. Crea la clase `SaleJardin` igual, pero llamando a `decrementaCuenta()`.
-10. En `Principal`, crea un solo `RecursoJardin` y un `ArrayList<Thread>`.
-11. Con un `for` de 1 a 10, añade a la lista un hilo con `EntraJardin` ("Entra1"...) y otro con `SaleJardin` ("Sale1"...).
-12. Con un `for` de tipo «para cada hilo de la lista», arranca todos con `start()`.
-13. Con otro igual, llama a `join()` en cada hilo. Añade `throws InterruptedException` a `main`.
-14. Muestra `Personas en el jardín: ` y la cuenta. Ejecútalo varias veces.
+3. Escribe `incrementaCuenta`. Muestra `hilo ` + el nombre del hilo + ` ----- Entra en Jardín`.
+4. Suma 1 con `cuenta++`.
+5. Muestra `cuenta` + ` en jardín`.
+6. Escribe `decrementaCuenta` igual, pero con `Sale de Jardín` y `cuenta--`.
+7. Crea la clase `EntraJardin`, que implementa `Runnable`, guarda el jardín en un atributo recibido por el constructor y llama a `incrementaCuenta()` en `run()`.
+8. Crea la clase `SaleJardin` igual, pero llamando a `decrementaCuenta()`.
+9. En `Principal`, crea un solo `RecursoJardin`.
+10. Con un `for` de 1 a 1000, crea un hilo con `EntraJardin` ("Entra1"...) y arráncalo con `start()` en la misma línea.
+11. Con otro `for` de 1 a 1000, haz lo mismo con `SaleJardin` ("Sale1"...).
+12. Ejecútalo varias veces y mira el último mensaje.
 
 ## Ejercicio 2: los jardines sincronizados (proyecto `JardinesSincronizado`)
 
 Es el mismo programa del ejercicio 1: 100 personas, 10 entran y 10 salen a la vez. Pero ahora el resultado tiene que ser siempre el correcto.
 
-Al final se muestra `Personas en el jardín: 100`, en todas las ejecuciones.
+El último mensaje es `100 en jardín`, en todas las ejecuciones.
 
 ### Pistas
 No hay que cambiar los hilos ni `Principal`. El problema está dentro del jardín: dos hilos están a la vez en el mismo método. Java tiene una palabra clave que deja entrar a un solo hilo cada vez en un método; los demás esperan fuera. Piensa en qué métodos tienes que ponérsela.
 
 ### Más ayuda
-Copia el proyecto del ejercicio 1 y cambia solo `RecursoJardin`. Añade la palabra `synchronized` a la declaración de `incrementaCuenta` y también a la de `decrementaCuenta`. Con una sola no basta: un hilo que entra y otro que sale también se pisarían entre ellos, porque tocan la misma variable. Con los dos métodos `synchronized`, el jardín actúa como una puerta de una sola persona: mientras un hilo está dentro de cualquiera de los dos, los otros 19 esperan.
+Copia el proyecto del ejercicio 1 y cambia solo `RecursoJardin`. Añade la palabra `synchronized` a la declaración de `incrementaCuenta` y también a la de `decrementaCuenta`. Con una sola no basta: un hilo que entra y otro que sale también se pisarían entre ellos, porque tocan la misma variable. Con los dos métodos `synchronized`, el jardín actúa como una puerta de una sola persona: mientras un hilo está dentro de cualquiera de los dos, los demás esperan.
 
 ### Paso a paso
 1. Crea el proyecto `JardinesSincronizado` y el paquete `jardines`.

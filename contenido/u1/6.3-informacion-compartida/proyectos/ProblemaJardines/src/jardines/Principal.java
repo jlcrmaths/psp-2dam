@@ -1,25 +1,17 @@
 package jardines;
 
-import java.util.ArrayList;
-
 public class Principal {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         // Un solo jardín para todos los hilos: es el recurso compartido.
         RecursoJardin jardin = new RecursoJardin();
-        ArrayList<Thread> lista = new ArrayList<>();
 
         for (int i = 1; i <= 1000; i++) {
-            lista.add(new Thread(new EntraJardin(jardin), "Entra" + i));
-            lista.add(new Thread(new SaleJardin(jardin), "Sale" + i));
+            new Thread(new EntraJardin(jardin), "Entra" + i).start();
         }
 
-        for (Thread t : lista) {
-            t.start();
+        for (int i = 1; i <= 1000; i++) {
+            new Thread(new SaleJardin(jardin), "Sale" + i).start();
         }
-
-       
-
-        System.out.println("Personas en el jardín: " + jardin.getCuenta());
     }
 }

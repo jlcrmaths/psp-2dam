@@ -18,42 +18,40 @@
 
 <section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
 <h2>Ejercicio 1: el problema de los jardines (proyecto <code>ProblemaJardines</code>)</h2>
-<p>Un jardín tiene al principio 100 personas. Entran 10 personas y salen otras 10, todas a la vez, cada una como un hilo distinto. Al final tendría que haber otra vez 100 personas.</p>
-<p>El programa espera a que acaben los 20 hilos y muestra <code>Personas en el jardín: </code> seguido de la cuenta final.</p>
-<p>Ejecuta el programa varias veces. Mira si sale 100 y fíjate también en los mensajes de cada hilo.</p>
+<p>Un jardín tiene al principio 100 personas. Entran 1000 personas y salen otras 1000, todas a la vez, cada una como un hilo distinto. Al final tendría que haber otra vez 100 personas.</p>
+<p>Cada hilo muestra su nombre y cuántas personas hay en el jardín. El último mensaje debería decir <code>100 en jardín</code>.</p>
+<p>Ejecuta el programa varias veces. Mira qué dice el último mensaje y fíjate también en el resto del registro.</p>
 
 <div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
-<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El jardín es algo que comparten los 20 hilos, así que necesita su propia clase y todos los hilos reciben el mismo objeto. Hacen falta dos tipos de hilo: uno que suma 1 y otro que resta 1. Para que <code>main</code> muestre el resultado cuando todos han terminado, tiene que esperar a cada hilo. Fíjate en que sumar 1 a una variable no es un solo paso para el ordenador.</p>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El jardín es algo que comparten los 2000 hilos, así que necesita su propia clase y todos los hilos reciben el mismo objeto. Hacen falta dos tipos de hilo: uno que suma 1 y otro que resta 1. Cada hilo muestra la cuenta, así que el resultado se lee en el registro. Fíjate en que sumar 1 a una variable no es un solo paso para el ordenador.</p>
 </div>
-<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>RecursoJardin</code> con un atributo <code>int</code> que empiece en 100 y dos métodos: <code>incrementaCuenta</code> y <code>decrementaCuenta</code>. Cada método muestra qué hilo entra o sale (con <code>Thread.currentThread().getName()</code>), suma o resta 1 a la cuenta con <code>cuenta++</code> o <code>cuenta--</code> y muestra la cuenta. Las clases <code>EntraJardin</code> y <code>SaleJardin</code> implementan <code>Runnable</code>, reciben el jardín en el constructor y llaman a su método en <code>run()</code>. En <code>Principal</code>, crea un solo jardín y un <code>ArrayList&lt;Thread&gt;</code>. Con un <code>for</code> de 10 vueltas, añade en cada una un hilo que entra y otro que sale. Arranca todos con <code>start()</code> en un segundo bucle y espera a todos con <code>join()</code> en un tercero. Añade <code>throws InterruptedException</code> a <code>main</code>.</p>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>RecursoJardin</code> con un atributo <code>int</code> que empiece en 100 y dos métodos: <code>incrementaCuenta</code> y <code>decrementaCuenta</code>. Cada método muestra qué hilo entra o sale (con <code>Thread.currentThread().getName()</code>), suma o resta 1 a la cuenta con <code>cuenta++</code> o <code>cuenta--</code> y muestra la cuenta. Las clases <code>EntraJardin</code> y <code>SaleJardin</code> implementan <code>Runnable</code>, reciben el jardín en el constructor y llaman a su método en <code>run()</code>. En <code>Principal</code>, crea un solo jardín. Con un <code>for</code> de 1000 vueltas, crea y arranca en cada una un hilo que entra, con <code>new Thread(new EntraJardin(jardin), &quot;Entra&quot; + i).start()</code>. Con otro <code>for</code> de 1000 vueltas, haz lo mismo con los hilos que salen.</p>
 </div>
 <div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
 <li>Crea el proyecto <code>ProblemaJardines</code> y el paquete <code>jardines</code>.</li>
 <li>Crea la clase <code>RecursoJardin</code> con un atributo privado <code>int</code> llamado <code>cuenta</code>, que empiece en 100 en el constructor.</li>
-<li>Añade un método <code>getCuenta</code> que devuelva la cuenta.</li>
 <li>Escribe <code>incrementaCuenta</code>. Muestra <code>hilo </code> + el nombre del hilo + <code> ----- Entra en Jardín</code>.</li>
 <li>Suma 1 con <code>cuenta++</code>.</li>
 <li>Muestra <code>cuenta</code> + <code> en jardín</code>.</li>
 <li>Escribe <code>decrementaCuenta</code> igual, pero con <code>Sale de Jardín</code> y <code>cuenta--</code>.</li>
 <li>Crea la clase <code>EntraJardin</code>, que implementa <code>Runnable</code>, guarda el jardín en un atributo recibido por el constructor y llama a <code>incrementaCuenta()</code> en <code>run()</code>.</li>
 <li>Crea la clase <code>SaleJardin</code> igual, pero llamando a <code>decrementaCuenta()</code>.</li>
-<li>En <code>Principal</code>, crea un solo <code>RecursoJardin</code> y un <code>ArrayList&lt;Thread&gt;</code>.</li>
-<li>Con un <code>for</code> de 1 a 10, añade a la lista un hilo con <code>EntraJardin</code> (&quot;Entra1&quot;...) y otro con <code>SaleJardin</code> (&quot;Sale1&quot;...).</li>
-<li>Con un <code>for</code> de tipo «para cada hilo de la lista», arranca todos con <code>start()</code>.</li>
-<li>Con otro igual, llama a <code>join()</code> en cada hilo. Añade <code>throws InterruptedException</code> a <code>main</code>.</li>
-<li>Muestra <code>Personas en el jardín: </code> y la cuenta. Ejecútalo varias veces.</li>
+<li>En <code>Principal</code>, crea un solo <code>RecursoJardin</code>.</li>
+<li>Con un <code>for</code> de 1 a 1000, crea un hilo con <code>EntraJardin</code> (&quot;Entra1&quot;...) y arráncalo con <code>start()</code> en la misma línea.</li>
+<li>Con otro <code>for</code> de 1 a 1000, haz lo mismo con <code>SaleJardin</code> (&quot;Sale1&quot;...).</li>
+<li>Ejecútalo varias veces y mira el último mensaje.</li>
 </ol>
 </div>
 </section>
 <section class="ejercicio tarjeta" id="ej-2" data-ejercicio="ej-2">
 <h2>Ejercicio 2: los jardines sincronizados (proyecto <code>JardinesSincronizado</code>)</h2>
 <p>Es el mismo programa del ejercicio 1: 100 personas, 10 entran y 10 salen a la vez. Pero ahora el resultado tiene que ser siempre el correcto.</p>
-<p>Al final se muestra <code>Personas en el jardín: 100</code>, en todas las ejecuciones.</p>
+<p>El último mensaje es <code>100 en jardín</code>, en todas las ejecuciones.</p>
 
 <div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
 <div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>No hay que cambiar los hilos ni <code>Principal</code>. El problema está dentro del jardín: dos hilos están a la vez en el mismo método. Java tiene una palabra clave que deja entrar a un solo hilo cada vez en un método; los demás esperan fuera. Piensa en qué métodos tienes que ponérsela.</p>
 </div>
-<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Copia el proyecto del ejercicio 1 y cambia solo <code>RecursoJardin</code>. Añade la palabra <code>synchronized</code> a la declaración de <code>incrementaCuenta</code> y también a la de <code>decrementaCuenta</code>. Con una sola no basta: un hilo que entra y otro que sale también se pisarían entre ellos, porque tocan la misma variable. Con los dos métodos <code>synchronized</code>, el jardín actúa como una puerta de una sola persona: mientras un hilo está dentro de cualquiera de los dos, los otros 19 esperan.</p>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Copia el proyecto del ejercicio 1 y cambia solo <code>RecursoJardin</code>. Añade la palabra <code>synchronized</code> a la declaración de <code>incrementaCuenta</code> y también a la de <code>decrementaCuenta</code>. Con una sola no basta: un hilo que entra y otro que sale también se pisarían entre ellos, porque tocan la misma variable. Con los dos métodos <code>synchronized</code>, el jardín actúa como una puerta de una sola persona: mientras un hilo está dentro de cualquiera de los dos, los demás esperan.</p>
 </div>
 <div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
 <li>Crea el proyecto <code>JardinesSincronizado</code> y el paquete <code>jardines</code>.</li>

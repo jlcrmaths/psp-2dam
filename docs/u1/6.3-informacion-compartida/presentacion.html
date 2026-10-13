@@ -46,14 +46,14 @@
 <section>
 <section>
 <h3>El problema de los jardines</h3>
-    <p>Un jardín tiene <b>100 personas</b>. Entran 10 y salen 10, todas a la vez.</p>
+    <p>Un jardín tiene <b>100 personas</b>. Entran 1000 y salen 1000, todas a la vez.</p>
     <p class="fragment">Al final debería haber <b>100</b> otra vez.</p>
     <p class="fragment aviso">¿Saldrá siempre 100?</p>
 </section>
 <section>
 <h3>Ejercicio 1: los jardines</h3>
-    <p>20 hilos: 10 entran (suman 1) y 10 salen (restan 1). Al acabar todos, <code>main</code> muestra la cuenta.</p>
-    <div class="salida">Personas en el jardín: 100</div>
+    <p>2000 hilos: 1000 entran (suman 1) y 1000 salen (restan 1). Cada hilo muestra su nombre y cuántas personas hay.</p>
+    <div class="salida">hilo Entra1 ----- Entra en Jardín<br>101 en jardín<br>hilo Sale1 ----- Sale de Jardín<br>100 en jardín<br>…</div>
     <p class="caja">Ejecútalo varias veces y apunta qué sale.</p>
     <p class="peque">Proyecto <b>ProblemaJardines</b></p>
 </section>
@@ -62,7 +62,7 @@
     <ul>
       <li>¿Qué comparten los hilos? <span class="fragment">El <b>jardín</b>: un solo objeto <code>RecursoJardin</code>.</span></li>
       <li>¿Cuántas clases de hilo? <span class="fragment">Dos: <code>EntraJardin</code> y <code>SaleJardin</code>.</span></li>
-      <li>¿Cómo espera <code>main</code> a los 20? <span class="fragment">Con el método <code>join()</code> de la clase <code>Thread</code> en cada uno.</span></li>
+      <li>¿Cómo comprobamos el resultado? <span class="fragment">Cada hilo muestra la cuenta. El <b>último mensaje</b> debería decir 100.</span></li>
     </ul>
 </section>
 <section>
@@ -78,13 +78,11 @@
       <rect class="parte" x="28" y="115" width="214" height="290" rx="8"/>
       <text class="suave" x="40" y="143">main</text>
       <text class="cod" x="40" y="185">1 jardín</text>
-      <text class="cod" x="40" y="225">20 hilos</text>
+      <text class="cod" x="40" y="225">2000 hilos</text>
       <text class="cod" x="40" y="265">start()</text>
-      <text class="cod" x="40" y="305">join()</text>
-      <text class="cod" x="40" y="345">resultado</text>
       <!-- EntraJardin -->
       <rect class="clase" x="370" y="20" width="260" height="170" rx="14"/>
-      <text class="tit" x="500" y="52" text-anchor="middle">EntraJardin ×10</text>
+      <text class="tit" x="500" y="52" text-anchor="middle">EntraJardin ×1000</text>
       <text class="cod" x="388" y="88">jardin</text>
       <rect class="clave" x="470" y="68" width="148" height="30" rx="8"/>
       <text class="suave" x="544" y="89" text-anchor="middle">referencia</text>
@@ -94,7 +92,7 @@
       <text class="tit" x="500" y="222" text-anchor="middle" style="fill:var(--suave)">⋮</text>
       <!-- SaleJardin -->
       <rect class="clase" x="370" y="250" width="260" height="170" rx="14"/>
-      <text class="tit" x="500" y="282" text-anchor="middle">SaleJardin ×10</text>
+      <text class="tit" x="500" y="282" text-anchor="middle">SaleJardin ×1000</text>
       <text class="cod" x="388" y="318">jardin</text>
       <rect class="clave" x="470" y="298" width="148" height="30" rx="8"/>
       <text class="suave" x="544" y="319" text-anchor="middle">referencia</text>
@@ -126,16 +124,12 @@
 </section>
 <section>
 <h3>El jardín: RecursoJardin</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="1|3|5-7|9-11|13-22">public class RecursoJardin {
+    <pre><code class="language-java" data-trim data-line-numbers="1|3|5-7|9-13">public class RecursoJardin {
 
     private int cuenta;
 
     public RecursoJardin() {
         cuenta = 100;
-    }
-
-    public int getCuenta() {
-        return cuenta;
     }
 
     public void incrementaCuenta() {
@@ -154,9 +148,8 @@
 <section>
 <h3>RecursoJardin, línea por línea</h3>
     <ul class="peque">
-      <li><code>private int cuenta;</code><br>El número de personas. Es el dato que comparten los 20 hilos.</li>
+      <li><code>private int cuenta;</code><br>El número de personas. Es el dato que comparten los 2000 hilos.</li>
       <li><code>cuenta = 100;</code><br>En el constructor, empieza con 100 personas.</li>
-      <li><code>getCuenta()</code><br>Método de la clase <code>RecursoJardin</code>. Devuelve la cuenta, para mostrarla al final.</li>
       <li><code>System.out.println("hilo " + ...)</code><br>Muestra qué hilo entra. El método <code>getName()</code> de la clase <code>Thread</code> da su nombre, y <code>currentThread()</code> dice cuál es el hilo que ejecuta esta línea.</li>
       <li><code>cuenta++;</code><br>Suma 1 a la cuenta. <code>cuenta--;</code> resta 1 en el método que sale.</li>
       <li><code>System.out.println(cuenta + " en jardín")</code><br>Muestra cuántas personas hay después del cambio.</li>
@@ -164,54 +157,47 @@
 </section>
 <section>
 <h3>Los hilos y Principal</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="1-2|4-7|9-11|13-15">
+    <pre><code class="language-java" data-trim data-line-numbers="1|3-5|7-9">
 RecursoJardin jardin = new RecursoJardin();
-ArrayList&lt;Thread&gt; lista = new ArrayList&lt;&gt;();
 
-for (int i = 1; i &lt;= 10; i++) {
-    lista.add(new Thread(new EntraJardin(jardin), "Entra" + i));
-    lista.add(new Thread(new SaleJardin(jardin), "Sale" + i));
+for (int i = 1; i &lt;= 1000; i++) {
+    new Thread(new EntraJardin(jardin), "Entra" + i).start();
 }
 
-for (Thread t : lista) {
-    t.start();
-}
-
-for (Thread t : lista) {
-    t.join();
+for (int i = 1; i &lt;= 1000; i++) {
+    new Thread(new SaleJardin(jardin), "Sale" + i).start();
 }
     </code></pre>
 </section>
 <section>
 <h3>Principal, línea por línea</h3>
     <ul class="peque">
-      <li>Se crea <b>un solo</b> jardín. Los 20 hilos reciben ese mismo objeto.</li>
-      <li>El primer <code>for</code> crea los hilos y los guarda en la lista con el método <code>add()</code> de la clase <code>ArrayList</code>: uno que entra y otro que sale, diez veces.</li>
-      <li>El segundo recorre la lista y arranca cada hilo con el método <code>start()</code> de la clase <code>Thread</code>.</li>
-      <li>El tercero llama al método <code>join()</code> de la clase <code>Thread</code> en cada uno: <code>main</code> espera a que acaben los 20 antes de mostrar la cuenta.</li>
+      <li>Se crea <b>un solo</b> jardín. Los 2000 hilos reciben ese mismo objeto.</li>
+      <li>El primer <code>for</code> crea 1000 hilos que entran, con <code>new Thread(...)</code>, les da un nombre ("Entra1", "Entra2"...) y los arranca en la misma línea con el método <code>start()</code> de la clase <code>Thread</code>.</li>
+      <li>El segundo <code>for</code> hace lo mismo con los 1000 hilos que salen.</li>
     </ul>
 </section>
 <section>
 <h3>¿Qué sale en pantalla?</h3>
-    <div class="salida">hilo Sale2 ----- Sale de Jardín<br>98 en jardín<br>hilo Entra1 ----- Entra en Jardín<br>99 en jardín<br>99 en jardín<br>…<br>Personas en el jardín: 100</div>
-    <p class="aviso">Al final sale 100. Pero mira el registro: ¿todo tiene sentido? El resultado y el orden <b>cambian</b> de una ejecución a otra.</p>
+    <div class="salida">hilo Sale2 ----- Sale de Jardín<br>98 en jardín<br>hilo Entra1 ----- Entra en Jardín<br>99 en jardín<br>99 en jardín<br>…<br>hilo Sale1000 ----- Sale de Jardín<br>101 en jardín</div>
+    <p class="aviso">Entran 1000 y salen 1000: el último mensaje debería decir 100. Y el registro tiene saltos raros. Todo <b>cambia</b> de una ejecución a otra.</p>
 </section>
 </section>
 <section>
 <section>
 <h3>Reflexionemos</h3>
     <ul>
-      <li>¿Ha salido 100? <span class="fragment">¿Y en todas las ejecuciones?</span></li>
+      <li>¿Qué dice el último mensaje? <span class="fragment">¿Es 100? ¿Y en todas las ejecuciones?</span></li>
       <li class="fragment">Mirad el registro: un hilo que <b>sale</b> y la cuenta muestra 98, otra vez 99... ¿tiene sentido?</li>
       <li class="fragment">Cada hilo suma o resta 1. ¿Cómo puede salir un número que no cuadra?</li>
-      <li class="fragment">Si hoy ha salido 100, ¿estamos seguros de que <b>siempre</b> saldrá?</li>
+      <li class="fragment">Si hoy ha salido 100 al final, ¿estamos seguros de que <b>siempre</b> saldrá?</li>
       <li class="fragment">¿Qué creéis que pasa dentro del método <code>incrementaCuenta</code>?</li>
     </ul>
     <p class="fragment aviso">Pensadlo en parejas antes de seguir.</p>
 </section>
 <section>
 <h3>Una idea para recordarlo</h3>
-    <p>Una pizarra con un número escrito. Veinte personas lo leen, calculan en su cabeza y lo borran para escribir el nuevo.</p>
+    <p>Una pizarra con un número escrito. Muchas personas lo leen, calculan en su cabeza y lo borran para escribir el nuevo.</p>
     <p class="fragment">Si dos leen el mismo número a la vez, las dos escribirán el mismo resultado. Una de las dos <b>se pierde</b>.</p>
 </section>
 <section>
@@ -246,8 +232,8 @@ for (Thread t : lista) {
 <section>
 <h3>Ejercicio 2: jardines sincronizados</h3>
     <p class="caja"><b>Lo que se pide:</b> el mismo programa, pero con el resultado y el registro siempre correctos.</p>
-    <div class="salida">Personas en el jardín: 100</div>
-    <p>En <b>todas</b> las ejecuciones, y con cada hilo mostrando su línea seguida de su cuenta. Solo cambia la clase <code>RecursoJardin</code>.</p>
+    <div class="salida">…<br>hilo Sale1000 ----- Sale de Jardín<br>100 en jardín</div>
+    <p>En <b>todas</b> las ejecuciones el último mensaje dice 100, y cada hilo muestra su línea seguida de su cuenta. Solo cambia la clase <code>RecursoJardin</code>.</p>
     <p class="peque">Proyecto <b>JardinesSincronizado</b></p>
 </section>
 <section>
@@ -269,16 +255,12 @@ for (Thread t : lista) {
 </section>
 <section>
 <h3>El jardín sincronizado</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="13|24|13-22">public class RecursoJardin {
+    <pre><code class="language-java" data-trim data-line-numbers="9|15|9-13">public class RecursoJardin {
 
     private int cuenta;
 
     public RecursoJardin() {
         cuenta = 100;
-    }
-
-    public int getCuenta() {
-        return cuenta;
     }
 
     public synchronized void incrementaCuenta() {
@@ -304,8 +286,8 @@ for (Thread t : lista) {
 </section>
 <section>
 <h3>¿Qué sale en pantalla?</h3>
-    <div class="salida">hilo Entra1 ----- Entra en Jardín<br>101 en jardín<br>hilo Sale1 ----- Sale de Jardín<br>100 en jardín<br>…<br>Personas en el jardín: 100</div>
-    <p class="aviso">Ahora cada hilo muestra su línea y su cuenta <b>seguidas</b>, y el resultado es correcto <b>siempre</b>. Los 20 hilos pasan <b>uno detrás de otro</b> por los métodos del jardín.</p>
+    <div class="salida">hilo Entra1 ----- Entra en Jardín<br>101 en jardín<br>hilo Sale1 ----- Sale de Jardín<br>100 en jardín<br>…<br>hilo Sale1000 ----- Sale de Jardín<br>100 en jardín</div>
+    <p class="aviso">Ahora cada hilo muestra su línea y su cuenta <b>seguidas</b>, y el último mensaje dice 100 <b>siempre</b>. Los 2000 hilos pasan <b>uno detrás de otro</b> por los métodos del jardín.</p>
     <p class="fragment caja">Sincronizar da un resultado correcto, pero quita la ventaja de hacer varias cosas a la vez.</p>
 </section>
 </section>
@@ -316,7 +298,7 @@ for (Thread t : lista) {
     <li>Sumar 1 son tres pasos: leer, calcular y guardar</li>
     <li>Si dos hilos se cuelan entre los pasos, se pierden cambios: <b>condición de carrera</b></li>
     <li>El registro sale desordenado y el resultado puede ser incorrecto, aunque a veces salga 100</li>
-    <li>El método <code>join()</code> de la clase <code>Thread</code> hace que <code>main</code> espere a todos antes de mostrar el resultado</li>
+    <li>Los hilos se crean y se arrancan con <code>new Thread(...).start()</code>: aquí 2000 hilos sobre un solo jardín</li>
     <li>Se arregla con la palabra <code>synchronized</code> en los métodos del jardín: un solo hilo a la vez</li>
     <li>Sincronizar da el resultado correcto, pero los hilos pasan de uno en uno por esos métodos</li>
   </ul>
