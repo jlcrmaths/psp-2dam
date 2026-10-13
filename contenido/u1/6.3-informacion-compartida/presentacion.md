@@ -20,13 +20,6 @@
     <p>En 6.1 y 6.2 cada hilo hacía su trabajo sin tocar lo de los demás.</p>
     <p class="fragment">Ahora varios hilos van a <b>compartir un objeto</b>: todos leen y cambian el mismo dato.</p>
 
---
-
-<!-- html -->
-    <h3>Una idea para recordarlo</h3>
-    <p>Una pizarra con un número escrito. Veinte personas lo leen, calculan en su cabeza y lo borran para escribir el nuevo.</p>
-    <p class="fragment">Si dos leen el mismo número a la vez, las dos escribirán el mismo resultado. Una de las dos <b>se pierde</b>.</p>
-
 ---
 
 <!-- html -->
@@ -41,6 +34,7 @@
     <h3>Ejercicio 1: los jardines</h3>
     <p>20 hilos: 10 entran (suman 1) y 10 salen (restan 1). Al acabar todos, <code>main</code> muestra la cuenta.</p>
     <div class="salida">Personas en el jardín: 100</div>
+    <p class="caja">Hazlo <b>sin sincronizar</b>. Ejecútalo varias veces y apunta qué sale.</p>
     <p class="peque">Proyecto <b>ProblemaJardines</b></p>
 
 --
@@ -68,34 +62,9 @@
       <li><code>cuenta = 100;</code><br>En el constructor, empieza con 100 personas.</li>
       <li><code>getCuenta()</code><br>Método de la clase <code>RecursoJardin</code>. Devuelve la cuenta, para mostrarla al final.</li>
       <li><code>int temp = cuenta;</code><br>Primero <b>lee</b> el valor y lo guarda aparte.</li>
-      <li><code>Thread.sleep(100);</code><br>El método <code>sleep()</code> de la clase <code>Thread</code> espera 100 milisegundos. Aquí otros hilos tienen tiempo de leer el <b>mismo</b> valor.</li>
+      <li><code>Thread.sleep(100);</code><br>El método <code>sleep()</code> de la clase <code>Thread</code> espera 100 milisegundos. Simula un trabajo que tarda.</li>
       <li><code>cuenta = temp + 1;</code><br>Por último <b>guarda</b> el resultado.</li>
     </ul>
-
---
-
-<!-- html -->
-    <h3>Sumar 1 son tres pasos</h3>
-    <p>Aunque se escriba en una línea, para el ordenador son tres pasos:</p>
-    <ol>
-      <li class="fragment"><b>Leer</b> la cuenta</li>
-      <li class="fragment"><b>Calcular</b> el nuevo valor</li>
-      <li class="fragment"><b>Guardar</b> la cuenta</li>
-    </ol>
-    <p class="fragment caja">Otro hilo puede colarse entre dos pasos.</p>
-
---
-
-<!-- html -->
-    <h3>Dos hilos a la vez</h3>
-    <table class="peque">
-      <tr><th>Hilo A (entra)</th><th>Hilo B (entra)</th><th>cuenta</th></tr>
-      <tr><td>lee 100</td><td></td><td>100</td></tr>
-      <tr class="fragment"><td></td><td>lee 100</td><td>100</td></tr>
-      <tr class="fragment"><td>guarda 101</td><td></td><td>101</td></tr>
-      <tr class="fragment"><td></td><td>guarda 101</td><td>101</td></tr>
-    </table>
-    <p class="fragment aviso">Han entrado dos personas, pero la cuenta solo sube una.</p>
 
 --
 
@@ -138,14 +107,57 @@ for (Thread t : lista) {
     <div class="salida">Personas en el jardín: 99</div>
     <p class="aviso">Casi nunca sale 100. Y el valor <b>cambia</b> de una ejecución a otra.</p>
 
+---
+
+<!-- html -->
+    <h3>Reflexionemos</h3>
+    <ul>
+      <li>¿Ha salido 100? <span class="fragment">¿Y en todas las ejecuciones?</span></li>
+      <li class="fragment">¿Ha dado algún error el programa?</li>
+      <li class="fragment">Cada hilo suma o resta 1. ¿Cómo puede salir otro número?</li>
+      <li class="fragment">¿Qué creéis que pasa dentro del método <code>incrementaCuenta</code>?</li>
+    </ul>
+    <p class="fragment aviso">Pensadlo en parejas antes de seguir.</p>
+
+--
+
+<!-- html -->
+    <h3>Una idea para recordarlo</h3>
+    <p>Una pizarra con un número escrito. Veinte personas lo leen, calculan en su cabeza y lo borran para escribir el nuevo.</p>
+    <p class="fragment">Si dos leen el mismo número a la vez, las dos escribirán el mismo resultado. Una de las dos <b>se pierde</b>.</p>
+
+--
+
+<!-- html -->
+    <h3>Sumar 1 son tres pasos</h3>
+    <p>Aunque se escriba en una línea, para el ordenador son tres pasos:</p>
+    <ol>
+      <li class="fragment"><b>Leer</b> la cuenta</li>
+      <li class="fragment"><b>Calcular</b> el nuevo valor</li>
+      <li class="fragment"><b>Guardar</b> la cuenta</li>
+    </ol>
+    <p class="fragment caja">Otro hilo puede colarse entre dos pasos.</p>
+
+--
+
+<!-- html -->
+    <h3>Dos hilos a la vez</h3>
+    <table class="peque">
+      <tr><th>Hilo A (entra)</th><th>Hilo B (entra)</th><th>cuenta</th></tr>
+      <tr><td>lee 100</td><td></td><td>100</td></tr>
+      <tr class="fragment"><td></td><td>lee 100</td><td>100</td></tr>
+      <tr class="fragment"><td>guarda 101</td><td></td><td>101</td></tr>
+      <tr class="fragment"><td></td><td>guarda 101</td><td>101</td></tr>
+    </table>
+    <p class="fragment aviso">Han entrado dos personas, pero la cuenta solo sube una.</p>
+
 --
 
 <!-- html -->
     <h3>Condición de carrera</h3>
     <p>Cuando varios hilos leen y cambian el mismo dato, y el resultado depende de <b>quién llega antes</b>.</p>
     <p class="fragment">Lo peor: el programa no da error. Da un resultado <b>equivocado</b> y distinto cada vez.</p>
-    <p class="fragment caja">La solución: que solo un hilo a la vez pueda estar dentro de <code>incrementaCuenta</code>. Se hace con <code>synchronized</code>, y es el ejercicio 2.</p>
-
+    <p class="fragment caja">Y ahora la pregunta: ¿cómo evitamos que dos hilos estén a la vez dentro de <code>incrementaCuenta</code>? Es el ejercicio 2.</p>
 ---
 
 <!-- html -->
@@ -158,9 +170,23 @@ for (Thread t : lista) {
 --
 
 <!-- html -->
-    <h3>La palabra synchronized</h3>
-    <p>Se escribe en la declaración de un método. Deja entrar a <b>un solo hilo</b> a la vez. Los demás esperan fuera hasta que salga.</p>
-    <p class="fragment">Como una puerta de una sola persona: el que está dentro lee, calcula y guarda <b>sin que nadie se cuele</b>.</p>
+    <h3>Antes de ver la solución</h3>
+    <ul>
+      <li>¿Qué tendría que pasar para que no se cuelen dos hilos?</li>
+      <li class="fragment">¿Qué método hay que proteger: solo uno o los dos?</li>
+      <li class="fragment">¿Qué pierde el programa si los hilos pasan de uno en uno?</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <div class="nuevo">
+    <h3>Lo nuevo de hoy</h3>
+    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>synchronized</code>: se escribe en la cabecera de un método. Solo deja entrar a un hilo a la vez; los demás esperan fuera.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Concepto</span><p><b>Cerrojo</b>: cada objeto tiene uno. El hilo que entra en un método <code>synchronized</code> lo coge y lo suelta al salir.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Concepto</span><p><b>Condición de carrera</b>: el resultado depende de qué hilo llega antes. La has visto en el ejercicio 1.</p></div>
+    </div>
+    <p class="fragment peque">Como una puerta de una sola persona: el que está dentro lee, calcula y guarda <b>sin que nadie se cuele</b>.</p>
 
 --
 

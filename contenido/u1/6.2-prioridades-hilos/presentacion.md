@@ -47,9 +47,13 @@ int p = h1.getPriority();
 --
 
 <!-- html -->
-    <h3>Thread.yield()</h3>
-    <p>El método <code>yield()</code> de la clase <code>Thread</code> dice al planificador: "si quieres, deja pasar a otro hilo". Se escribe <code>Thread.yield()</code>.</p>
-    <p class="fragment aviso">Es solo una <b>sugerencia</b>. Java puede ignorarla.</p>
+    <div class="nuevo">
+    <h3>Lo nuevo de hoy</h3>
+    <div class="nuevo-item"><span class="etiqueta">Constantes</span><p><code>Thread.MIN_PRIORITY</code>, <code>NORM_PRIORITY</code> y <code>MAX_PRIORITY</code>: nombres para los números 1, 5 y 10.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>setPriority(n)</code> de la clase <code>Thread</code>: fija la prioridad antes de <code>start()</code>. <code>getPriority()</code> la devuelve.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>yield()</code> de la clase <code>Thread</code>: el hilo ofrece su turno al planificador. Solo es una sugerencia.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Concepto</span><p><b>Planificador</b>: la parte del sistema que decide qué hilo usa el núcleo en cada momento.</p></div>
+    </div>
 
 ---
 

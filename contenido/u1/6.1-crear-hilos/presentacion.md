@@ -39,13 +39,13 @@
 ---
 
 <!-- html -->
-    <h3>Las piezas que vamos a usar</h3>
-    <ul>
-      <li><code>Thread</code>: la clase de Java que representa un hilo</li>
-      <li><code>Runnable</code>: un contrato para clases que se ejecutan en un hilo</li>
-      <li>El método <code>run()</code> de la interfaz <code>Runnable</code>: lo que hace el hilo</li>
-      <li>El método <code>start()</code> de la clase <code>Thread</code>: pone el hilo en marcha</li>
-    </ul>
+    <div class="nuevo">
+    <h3>Lo nuevo de hoy</h3>
+    <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>Thread</code>: representa un hilo. Se crea con <code>new Thread(tarea)</code>, donde la tarea es lo que debe hacer. Hasta llamar a <code>start()</code> no corre nada.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Interfaz</span><p><code>Runnable</code>: un contrato con un solo método, <code>run()</code>. Si tu clase lo firma con <code>implements</code>, Java sabe que puede ejecutarla en un hilo.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>run()</code> de la interfaz <code>Runnable</code>: aquí escribes lo que hace el hilo. Tú no lo llamas.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>start()</code> de la clase <code>Thread</code>: crea el hilo de verdad y Java llama a <code>run()</code> por ti. Llamar a <code>run()</code> a mano no crea ningún hilo.</p></div>
+    </div>
 
 --
 

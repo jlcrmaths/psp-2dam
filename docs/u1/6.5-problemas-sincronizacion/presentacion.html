@@ -40,15 +40,15 @@
   <p class="fragment caja">Entiende uno y entiendes los cinco.</p>
 </section>
 <section>
-<h3>Herramientas nuevas</h3>
-  <ul class="peque">
-    <li><code>Thread.sleep(2000)</code>: el método <code>sleep()</code> de la clase <code>Thread</code> duerme el hilo 2 segundos (2000 milisegundos). Simula que algo tarda</li>
-    <li><code>new Random().nextInt(3)</code>: número al azar entre 0 y 2</li>
-    <li><code>hilo.join()</code>: el método <code>join()</code> de la clase <code>Thread</code>: «espero aquí hasta que ese hilo termine»</li>
-    <li><code>new Scanner(System.in).nextInt()</code>: lee un número que escribe el usuario</li>
-    <li><code>ArrayList&lt;Thread&gt;</code>: una lista que crece sola</li>
-  </ul>
-  <p class="aviso">Regla: <code>sleep</code> va <b>fuera</b> de <code>synchronized</code>. Si un hilo duerme dentro, los demás no pueden ni entrar a mirar.</p>
+<div class="nuevo">
+    <h3>Lo nuevo de hoy</h3>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>sleep(ms)</code> de la clase <code>Thread</code>: duerme el hilo esos milisegundos (2000 = 2 segundos). Simula que algo tarda.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>Random</code>: <code>nextInt(3)</code> da al azar 0, 1 o 2.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>join()</code> de la clase <code>Thread</code>: «espero aquí hasta que ese hilo termine».</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>Scanner</code>: <code>nextInt()</code> lee un número que escribe el usuario.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>ArrayList</code>: una lista que crece sola. <code>FileWriter</code> y <code>Files</code>: escribir y leer ficheros.</p></div>
+    </div>
+    <p class="aviso">Regla: <code>sleep</code> va <b>fuera</b> de <code>synchronized</code>. Si un hilo duerme dentro, los demás no pueden ni entrar.</p>
 </section>
 </section>
 <section>

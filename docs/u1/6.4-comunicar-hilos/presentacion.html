@@ -43,14 +43,14 @@
   </ul>
 </section>
 <section>
-<h3>Las piezas que vamos a usar</h3>
-  <ul>
-    <li><code>synchronized</code>: solo un hilo a la vez dentro del método</li>
-    <li>El método <code>wait()</code> de la clase <code>Object</code>: «me duermo hasta que me avisen»</li>
-    <li>El método <code>notify()</code> de la clase <code>Object</code>: «despierto a uno de los que esperan»</li>
-    <li>El método <code>notifyAll()</code> de la clase <code>Object</code>: «despierto a todos los que esperan»</li>
-  </ul>
-  <p class="aviso">Los métodos <code>wait()</code>, <code>notify()</code> y <code>notifyAll()</code> de la clase <code>Object</code> solo se pueden llamar <b>dentro</b> de un método <code>synchronized</code>.</p>
+<div class="nuevo">
+    <h3>Lo nuevo de hoy</h3>
+    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>synchronized</code>: solo un hilo a la vez dentro del método.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>wait()</code> de la clase <code>Object</code>: el hilo se duerme y suelta el cerrojo hasta que alguien lo avise.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>notify()</code> de la clase <code>Object</code>: despierta a uno de los hilos que esperan.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>notifyAll()</code> de la clase <code>Object</code>: despierta a todos los que esperan; cada uno vuelve a comprobar su condición.</p></div>
+    </div>
+    <p class="aviso">Los métodos <code>wait()</code>, <code>notify()</code> y <code>notifyAll()</code> solo se pueden llamar <b>dentro</b> de un método <code>synchronized</code>.</p>
 </section>
 </section>
 <section>
