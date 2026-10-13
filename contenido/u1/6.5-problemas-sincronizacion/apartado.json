@@ -1,5 +1,5 @@
 {
   "titulo": "6.5 Problemas de sincronización",
   "orden": 5,
-  "resumen": "Cinco problemas con hilos: lectores y escritores, fábrica, lavandería, panadería y sala de stream."
+  "resumen": "Cinco situaciones de la vida real con hilos que se estorban. ¿Qué puede salir mal en cada una y cómo lo evitarías?"
 }

@@ -1,5 +1,5 @@
 {
   "titulo": "6.4 Comunicación entre hilos",
   "orden": 4,
-  "resumen": "Hilos que comparten un almacén: synchronized, wait, notify y notifyAll con un pintor y sus vendedores."
+  "resumen": "Un pintor produce y varios vendedores venden del mismo almacén. ¿Qué pasa si no hay nada que vender, o si no cabe más? ¿Cómo se avisan entre ellos?"
 }
