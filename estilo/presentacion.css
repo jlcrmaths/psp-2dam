@@ -28,3 +28,15 @@ body.presentacion { background: var(--fondo); }
 .reveal .nuevo-item { display: flex; gap: .8em; align-items: flex-start; background: var(--caja-fondo); border-left: 6px solid var(--acento); border-radius: 6px; padding: .35em .8em; margin: .4em 0; }
 .reveal .nuevo-item .etiqueta { flex: none; min-width: 5.2em; text-align: center; background: var(--acento); color: var(--fondo); font-weight: 700; font-size: .75em; padding: .15em .5em; border-radius: 999px; margin-top: .25em; }
 .reveal .nuevo-item p { margin: 0; line-height: 1.35; }
+.reveal svg.esquema { width: 100%; max-height: 560px; }
+.esquema text { font-family: var(--fuente); fill: var(--texto); font-size: 19px; }
+.esquema .tit { font-weight: 700; font-size: 23px; fill: var(--acento); }
+.esquema .cod { font-family: var(--mono); font-size: 17px; }
+.esquema .suave { fill: var(--suave); font-size: 16px; }
+.esquema .clase { fill: var(--tarjeta); stroke: var(--acento); stroke-width: 3; }
+.esquema .parte { fill: var(--caja-fondo); stroke: var(--borde); stroke-width: 1.5; }
+.esquema .clave { fill: var(--aviso-fondo); stroke: var(--aviso-borde); stroke-width: 2; }
+.esquema .flecha { stroke: var(--acento); stroke-width: 3; fill: none; }
+.esquema .flecha-aviso { stroke: var(--aviso-borde); stroke-width: 3.5; fill: none; }
+.esquema .punta { fill: var(--acento); }
+.esquema .punta-aviso { fill: var(--aviso-borde); }

@@ -9,7 +9,7 @@ public class Principal {
         RecursoJardin jardin = new RecursoJardin();
         ArrayList<Thread> lista = new ArrayList<>();
 
-        for (int i = 1; i <= 10; i++) {
+        for (int i = 1; i <= 1000; i++) {
             lista.add(new Thread(new EntraJardin(jardin), "Entra" + i));
             lista.add(new Thread(new SaleJardin(jardin), "Sale" + i));
         }
@@ -18,10 +18,7 @@ public class Principal {
             t.start();
         }
 
-        // main espera a que acaben los 20 hilos antes de mostrar el resultado.
-        for (Thread t : lista) {
-            t.join();
-        }
+       
 
         System.out.println("Personas en el jardín: " + jardin.getCuenta());
     }
