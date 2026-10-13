@@ -20,6 +20,7 @@
 <section>
 <h3>Objetivo de la clase</h3>
   <ul>
+    <li>Saber qué es un <b>recurso compartido</b></li>
     <li>Ver qué pasa cuando varios hilos usan el <b>mismo objeto</b></li>
     <li>Entender la <b>condición de carrera</b></li>
     <li>Comprobar que lo que parece correcto puede no serlo</li>
@@ -27,9 +28,20 @@
   </ul>
 </section>
 <section>
+<section>
 <h3>Hasta ahora, cada hilo iba a lo suyo</h3>
     <p>En 6.1 y 6.2 cada hilo hacía su trabajo sin tocar lo de los demás.</p>
     <p class="fragment">Ahora varios hilos van a <b>compartir un objeto</b>: todos leen y cambian el mismo dato.</p>
+</section>
+<section>
+<div class="nuevo">
+    <h3>Recurso compartido</h3>
+    <div class="nuevo-item"><span class="etiqueta">Concepto</span><p>Un <b>recurso compartido</b> es un objeto o un dato que usan <b>varios hilos a la vez</b>.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Ejemplos</span><p>Una cuenta bancaria, un fichero, una impresora, un contador, la caja de un supermercado.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">En Java</span><p>Se crea <b>un solo objeto</b> y se pasa <b>la misma referencia</b> a cada hilo, normalmente por el constructor.</p></div>
+    </div>
+    <p class="fragment caja">Hoy el recurso compartido es el jardín: la clase <code>RecursoJardin</code>.</p>
+</section>
 </section>
 <section>
 <section>
@@ -52,6 +64,65 @@
       <li>¿Cuántas clases de hilo? <span class="fragment">Dos: <code>EntraJardin</code> y <code>SaleJardin</code>.</span></li>
       <li>¿Cómo espera <code>main</code> a los 20? <span class="fragment">Con el método <code>join()</code> de la clase <code>Thread</code> en cada uno.</span></li>
     </ul>
+</section>
+<section>
+<h3>El esquema del programa</h3>
+    <svg class="esquema" viewBox="0 0 1000 480" role="img" aria-label="Principal crea los hilos EntraJardin y SaleJardin, que usan el mismo RecursoJardin">
+      <defs>
+        <marker id="p1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="punta" d="M0 0 L10 5 L0 10 z"/></marker>
+        <marker id="p2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="punta-aviso" d="M0 0 L10 5 L0 10 z"/></marker>
+      </defs>
+      <!-- Principal -->
+      <rect class="clase" x="10" y="60" width="250" height="360" rx="14"/>
+      <text class="tit" x="135" y="95" text-anchor="middle">Principal</text>
+      <rect class="parte" x="28" y="115" width="214" height="290" rx="8"/>
+      <text class="suave" x="40" y="143">main</text>
+      <text class="cod" x="40" y="185">1 jardín</text>
+      <text class="cod" x="40" y="225">20 hilos</text>
+      <text class="cod" x="40" y="265">start()</text>
+      <text class="cod" x="40" y="305">join()</text>
+      <text class="cod" x="40" y="345">resultado</text>
+      <!-- EntraJardin -->
+      <rect class="clase" x="370" y="20" width="260" height="170" rx="14"/>
+      <text class="tit" x="500" y="52" text-anchor="middle">EntraJardin ×10</text>
+      <text class="cod" x="388" y="88">jardin</text>
+      <rect class="clave" x="470" y="68" width="148" height="30" rx="8"/>
+      <text class="suave" x="544" y="89" text-anchor="middle">referencia</text>
+      <rect class="parte" x="388" y="112" width="224" height="62" rx="8"/>
+      <text class="suave" x="400" y="132">run()</text>
+      <text class="cod" x="400" y="159">incrementaCuenta()</text>
+      <text class="tit" x="500" y="222" text-anchor="middle" style="fill:var(--suave)">⋮</text>
+      <!-- SaleJardin -->
+      <rect class="clase" x="370" y="250" width="260" height="170" rx="14"/>
+      <text class="tit" x="500" y="282" text-anchor="middle">SaleJardin ×10</text>
+      <text class="cod" x="388" y="318">jardin</text>
+      <rect class="clave" x="470" y="298" width="148" height="30" rx="8"/>
+      <text class="suave" x="544" y="319" text-anchor="middle">referencia</text>
+      <rect class="parte" x="388" y="342" width="224" height="62" rx="8"/>
+      <text class="suave" x="400" y="362">run()</text>
+      <text class="cod" x="400" y="389">decrementaCuenta()</text>
+      <!-- RecursoJardin -->
+      <rect class="clase" x="740" y="60" width="250" height="360" rx="14" style="stroke:var(--aviso-borde)"/>
+      <text class="tit" x="865" y="95" text-anchor="middle" style="fill:var(--aviso-borde)">RecursoJardin</text>
+      <text class="suave" x="758" y="135">recurso compartido</text>
+      <text class="cod" x="758" y="175">cuenta = 100</text>
+      <rect class="parte" x="758" y="205" width="214" height="75" rx="8"/>
+      <text class="suave" x="770" y="230">método</text>
+      <text class="cod" x="770" y="262">incrementaCuenta()</text>
+      <rect class="parte" x="758" y="305" width="214" height="75" rx="8"/>
+      <text class="suave" x="770" y="330">método</text>
+      <text class="cod" x="770" y="362">decrementaCuenta()</text>
+      <!-- flechas: Principal crea los hilos -->
+      <path class="flecha" d="M260 150 C310 150 320 105 366 105" marker-end="url(#p1)"/>
+      <path class="flecha" d="M260 330 C310 330 320 335 366 335" marker-end="url(#p1)"/>
+      <text class="suave" x="312" y="238" text-anchor="middle">crea</text>
+      <text class="suave" x="312" y="258" text-anchor="middle">y arranca</text>
+      <!-- flechas: todos usan el mismo recurso -->
+      <path class="flecha-aviso" d="M630 83 C685 83 690 150 736 150" marker-end="url(#p2)"/>
+      <path class="flecha-aviso" d="M630 313 C685 313 690 250 736 250" marker-end="url(#p2)"/>
+      <text class="suave" x="685" y="196" text-anchor="middle" style="fill:var(--aviso-borde)">el mismo</text>
+      <text class="suave" x="685" y="216" text-anchor="middle" style="fill:var(--aviso-borde)">objeto</text>
+    </svg>
 </section>
 <section>
 <h3>El jardín: RecursoJardin</h3>
@@ -241,7 +312,7 @@ for (Thread t : lista) {
 <section>
 <h3>Resumen</h3>
   <ul>
-    <li>Los hilos pueden compartir un objeto: todos reciben la misma referencia</li>
+    <li>Un <b>recurso compartido</b> es un objeto que usan varios hilos a la vez: todos reciben la misma referencia</li>
     <li>Sumar 1 son tres pasos: leer, calcular y guardar</li>
     <li>Si dos hilos se cuelan entre los pasos, se pierden cambios: <b>condición de carrera</b></li>
     <li>El registro sale desordenado y el resultado puede ser incorrecto, aunque a veces salga 100</li>
