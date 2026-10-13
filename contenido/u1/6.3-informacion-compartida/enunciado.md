@@ -50,6 +50,53 @@ Copia el proyecto del ejercicio 1 y cambia solo `RecursoJardin`. Añade la palab
 5. Ejecuta el programa varias veces y comprueba que siempre sale 100.
 6. Fíjate en el registro: ahora cada hilo muestra su línea y su cuenta seguidas, sin mezclarse con las de otros.
 
+## Ejercicio 3: los tornos del museo (proyecto `MuseoTornos`)
+
+Vamos a simular los accesos a un museo por parte de 4 tornos. Cada torno realiza 20 accesos. Por pantalla se muestra el hilo que accede y la cuenta de accesos en ese momento.
+
+El último mensaje tiene que decir que hay 80 accesos, en todas las ejecuciones.
+
+### Pistas
+El museo es lo que comparten los 4 tornos, así que necesita su propia clase y todos los tornos reciben el mismo objeto. Cada torno es un hilo que repite 20 veces lo mismo. Piensa en el ejercicio anterior: varios hilos cambian a la vez la misma cuenta.
+
+### Más ayuda
+Crea una clase `Museo` con un atributo `int` que empiece en 0 y un método `accede`. El método suma 1 a la cuenta y muestra el nombre del hilo con `Thread.currentThread().getName()` y la cuenta. Hay varios hilos tocando la misma variable, así que el método debe ser `synchronized`. Crea una clase `Torno` que implementa `Runnable`, recibe el museo en el constructor y en `run()` llama 20 veces a `accede` con un `for`. En `Principal`, crea un solo museo y, con un `for` de 4 vueltas, crea y arranca un hilo con `new Thread(new Torno(museo), "Torno " + i)`.
+
+### Paso a paso
+1. Crea el proyecto `MuseoTornos` y el paquete `museo`.
+2. Crea la clase `Museo` con un atributo privado `int` llamado `cuenta`, que empiece en 0 en el constructor.
+3. Escribe el método `accede` con la palabra `synchronized`.
+4. Dentro, suma 1 a `cuenta` con `cuenta++`.
+5. Muestra el nombre del hilo, la palabra `accede` y la cuenta.
+6. Crea la clase `Torno`, que implementa `Runnable`, guarda el museo en un atributo recibido por el constructor y tiene un `run()`.
+7. En `run()`, con un `for` de 1 a 20, llama a `accede()` del museo.
+8. En `Principal`, crea un solo `Museo`.
+9. Con un `for` de 1 a 4, crea un hilo con `Torno` ("Torno 1"...) y arráncalo con `start()` en la misma línea.
+10. Ejecútalo varias veces y comprueba que el último mensaje siempre dice 80.
+
+## Ejercicio 4: la cocina (proyecto `CocinaCuchillos`)
+
+Vamos a simular el funcionamiento de una cocina con 3 cocineros y 5 cuchillos. Para la receta, cada cocinero necesita coger algún cuchillo durante 3 segundos y después lo suelta. Todos los cocineros necesitan coger algún cuchillo 4 veces.
+
+Por pantalla se muestra qué cocinero coge o suelta un cuchillo y cuántos cuchillos quedan libres. Al final tienen que quedar los 5 libres, en todas las ejecuciones.
+
+### Pistas
+Lo que comparten los 3 cocineros es la cocina, y lo que cambian a la vez es el número de cuchillos libres. Como hay más cuchillos que cocineros, nadie tiene que esperar: lo importante es que la cuenta no se pierda. Para que un cocinero tarde 3 segundos con el cuchillo, el hilo tiene que dormir. Piensa dónde conviene dormir: ¿dentro o fuera del método sincronizado?
+
+### Más ayuda
+Crea una clase `Cocina` con un atributo `int` para los cuchillos libres, que reciba el total (5) en el constructor, y dos métodos `synchronized`: `coger`, que resta 1 y muestra quién coge y cuántos quedan, y `soltar`, que suma 1 y lo muestra. Crea una clase `Cocinero` que implementa `Runnable` y recibe la cocina en el constructor. En `run()`, un `for` de 4 vueltas: coger, esperar 3 segundos con `Thread.sleep(3000)` y soltar. El `sleep` obliga a escribir un `try` con `catch (InterruptedException e)`. La espera va fuera de los métodos sincronizados, para que los demás cocineros puedan coger su cuchillo mientras tanto. En `Principal`, crea una sola cocina con 5 cuchillos y, con un `for` de 3 vueltas, crea y arranca un hilo por cocinero con `new Thread(new Cocinero(cocina), "Cocinero " + i)`.
+
+### Paso a paso
+1. Crea el proyecto `CocinaCuchillos` y el paquete `cocina`.
+2. Crea la clase `Cocina` con un atributo privado `int` llamado `libres`, que reciba su valor inicial por el constructor.
+3. Escribe el método `coger` con la palabra `synchronized`: resta 1 a `libres` y muestra el nombre del hilo, «coge un cuchillo» y los libres.
+4. Escribe el método `soltar` igual, pero sumando 1 y mostrando «suelta el cuchillo».
+5. Crea la clase `Cocinero`, que implementa `Runnable`, guarda la cocina en un atributo recibido por el constructor y tiene un `run()`.
+6. En `run()`, con un `for` de 1 a 4: llama a `coger()`, duerme 3000 milisegundos dentro de un `try` con `catch (InterruptedException e)` y llama a `soltar()`.
+7. En `Principal`, crea una sola `Cocina` con 5 cuchillos.
+8. Con un `for` de 1 a 3, crea un hilo con `Cocinero` ("Cocinero 1"...) y arráncalo con `start()` en la misma línea.
+9. Ejecútalo y comprueba que el último mensaje dice 5 libres. Tarda unos 12 segundos.
+
 ## Preguntas
 
 1. Ejecuta el ejercicio varias veces. ¿Sale 100? ¿Tienen sentido los mensajes de los hilos? ¿Qué números raros ves en `en jardín`?
