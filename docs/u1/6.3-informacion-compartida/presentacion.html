@@ -22,7 +22,7 @@
   <ul>
     <li>Ver qué pasa cuando varios hilos usan el <b>mismo objeto</b></li>
     <li>Entender la <b>condición de carrera</b></li>
-    <li>Comprobar que un programa puede dar un resultado distinto cada vez</li>
+    <li>Comprobar que lo que parece correcto puede no serlo</li>
     <li>Saber por qué hace falta sincronizar</li>
   </ul>
 </section>
@@ -42,7 +42,7 @@
 <h3>Ejercicio 1: los jardines</h3>
     <p>20 hilos: 10 entran (suman 1) y 10 salen (restan 1). Al acabar todos, <code>main</code> muestra la cuenta.</p>
     <div class="salida">Personas en el jardín: 100</div>
-    <p class="caja">Hazlo <b>sin sincronizar</b>. Ejecútalo varias veces y apunta qué sale.</p>
+    <p class="caja">Ejecútalo varias veces y apunta qué sale.</p>
     <p class="peque">Proyecto <b>ProblemaJardines</b></p>
 </section>
 <section>
@@ -55,7 +55,7 @@
 </section>
 <section>
 <h3>El jardín: RecursoJardin</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="1|3|5-7|9-11|13-20">public class RecursoJardin {
+    <pre><code class="language-java" data-trim data-line-numbers="1|3|5-7|9-11|13-22">public class RecursoJardin {
 
     private int cuenta;
 
@@ -68,21 +68,15 @@
     }
 
     public void incrementaCuenta() {
-        int temp = cuenta;
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        cuenta = temp + 1;
+        System.out.println(&quot;hilo &quot; + Thread.currentThread().getName() + &quot; ----- Entra en Jardín&quot;);
+        cuenta++;
+        System.out.println(cuenta + &quot; en jardín&quot;);
     }
 
     public void decrementaCuenta() {
-        int temp = cuenta;
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        cuenta = temp - 1;
+        System.out.println(&quot;hilo &quot; + Thread.currentThread().getName() + &quot; ----- Sale de Jardín&quot;);
+        cuenta--;
+        System.out.println(cuenta + &quot; en jardín&quot;);
     }
 }</code></pre>
 </section>
@@ -92,9 +86,9 @@
       <li><code>private int cuenta;</code><br>El número de personas. Es el dato que comparten los 20 hilos.</li>
       <li><code>cuenta = 100;</code><br>En el constructor, empieza con 100 personas.</li>
       <li><code>getCuenta()</code><br>Método de la clase <code>RecursoJardin</code>. Devuelve la cuenta, para mostrarla al final.</li>
-      <li><code>int temp = cuenta;</code><br>Primero <b>lee</b> el valor y lo guarda aparte.</li>
-      <li><code>Thread.sleep(100);</code><br>El método <code>sleep()</code> de la clase <code>Thread</code> espera 100 milisegundos. Simula un trabajo que tarda.</li>
-      <li><code>cuenta = temp + 1;</code><br>Por último <b>guarda</b> el resultado.</li>
+      <li><code>System.out.println("hilo " + ...)</code><br>Muestra qué hilo entra. El método <code>getName()</code> de la clase <code>Thread</code> da su nombre, y <code>currentThread()</code> dice cuál es el hilo que ejecuta esta línea.</li>
+      <li><code>cuenta++;</code><br>Suma 1 a la cuenta. <code>cuenta--;</code> resta 1 en el método que sale.</li>
+      <li><code>System.out.println(cuenta + " en jardín")</code><br>Muestra cuántas personas hay después del cambio.</li>
     </ul>
 </section>
 <section>
@@ -128,9 +122,8 @@ for (Thread t : lista) {
 </section>
 <section>
 <h3>¿Qué sale en pantalla?</h3>
-    <div class="salida">Personas en el jardín: 101</div>
-    <div class="salida">Personas en el jardín: 99</div>
-    <p class="aviso">Casi nunca sale 100. Y el valor <b>cambia</b> de una ejecución a otra.</p>
+    <div class="salida">hilo Sale2 ----- Sale de Jardín<br>98 en jardín<br>hilo Entra1 ----- Entra en Jardín<br>99 en jardín<br>99 en jardín<br>…<br>Personas en el jardín: 100</div>
+    <p class="aviso">Al final sale 100. Pero mira el registro: ¿todo tiene sentido? El resultado y el orden <b>cambian</b> de una ejecución a otra.</p>
 </section>
 </section>
 <section>
@@ -138,8 +131,9 @@ for (Thread t : lista) {
 <h3>Reflexionemos</h3>
     <ul>
       <li>¿Ha salido 100? <span class="fragment">¿Y en todas las ejecuciones?</span></li>
-      <li class="fragment">¿Ha dado algún error el programa?</li>
-      <li class="fragment">Cada hilo suma o resta 1. ¿Cómo puede salir otro número?</li>
+      <li class="fragment">Mirad el registro: un hilo que <b>sale</b> y la cuenta muestra 98, otra vez 99... ¿tiene sentido?</li>
+      <li class="fragment">Cada hilo suma o resta 1. ¿Cómo puede salir un número que no cuadra?</li>
+      <li class="fragment">Si hoy ha salido 100, ¿estamos seguros de que <b>siempre</b> saldrá?</li>
       <li class="fragment">¿Qué creéis que pasa dentro del método <code>incrementaCuenta</code>?</li>
     </ul>
     <p class="fragment aviso">Pensadlo en parejas antes de seguir.</p>
@@ -173,16 +167,16 @@ for (Thread t : lista) {
 <section>
 <h3>Condición de carrera</h3>
     <p>Cuando varios hilos leen y cambian el mismo dato, y el resultado depende de <b>quién llega antes</b>.</p>
-    <p class="fragment">Lo peor: el programa no da error. Da un resultado <b>equivocado</b> y distinto cada vez.</p>
+    <p class="fragment">Lo peor: el programa no da error. A veces sale bien y a veces <b>mal</b>, y no se puede predecir.</p>
     <p class="fragment caja">Y ahora la pregunta: ¿cómo evitamos que dos hilos estén a la vez dentro de <code>incrementaCuenta</code>? Es el ejercicio 2.</p>
 </section>
 </section>
 <section>
 <section>
 <h3>Ejercicio 2: jardines sincronizados</h3>
-    <p class="caja"><b>Lo que se pide:</b> el mismo programa, pero con el resultado siempre correcto.</p>
+    <p class="caja"><b>Lo que se pide:</b> el mismo programa, pero con el resultado y el registro siempre correctos.</p>
     <div class="salida">Personas en el jardín: 100</div>
-    <p>En <b>todas</b> las ejecuciones. Solo cambia la clase <code>RecursoJardin</code>.</p>
+    <p>En <b>todas</b> las ejecuciones, y con cada hilo mostrando su línea seguida de su cuenta. Solo cambia la clase <code>RecursoJardin</code>.</p>
     <p class="peque">Proyecto <b>JardinesSincronizado</b></p>
 </section>
 <section>
@@ -204,7 +198,7 @@ for (Thread t : lista) {
 </section>
 <section>
 <h3>El jardín sincronizado</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="13|22|13-20">public class RecursoJardin {
+    <pre><code class="language-java" data-trim data-line-numbers="13|24|13-22">public class RecursoJardin {
 
     private int cuenta;
 
@@ -217,21 +211,15 @@ for (Thread t : lista) {
     }
 
     public synchronized void incrementaCuenta() {
-        int temp = cuenta;
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        cuenta = temp + 1;
+        System.out.println(&quot;hilo &quot; + Thread.currentThread().getName() + &quot; ----- Entra en Jardín&quot;);
+        cuenta++;
+        System.out.println(cuenta + &quot; en jardín&quot;);
     }
 
     public synchronized void decrementaCuenta() {
-        int temp = cuenta;
-        try {
-            Thread.sleep(100);
-        } catch (InterruptedException e) {
-        }
-        cuenta = temp - 1;
+        System.out.println(&quot;hilo &quot; + Thread.currentThread().getName() + &quot; ----- Sale de Jardín&quot;);
+        cuenta--;
+        System.out.println(cuenta + &quot; en jardín&quot;);
     }
 }</code></pre>
 </section>
@@ -245,8 +233,8 @@ for (Thread t : lista) {
 </section>
 <section>
 <h3>¿Qué sale en pantalla?</h3>
-    <div class="salida">Personas en el jardín: 100</div>
-    <p class="aviso">Ahora sale 100 <b>siempre</b>. A cambio, el programa tarda unos 2 segundos: los 20 hilos pasan <b>uno detrás de otro</b>, 100 milisegundos cada uno.</p>
+    <div class="salida">hilo Entra1 ----- Entra en Jardín<br>101 en jardín<br>hilo Sale1 ----- Sale de Jardín<br>100 en jardín<br>…<br>Personas en el jardín: 100</div>
+    <p class="aviso">Ahora cada hilo muestra su línea y su cuenta <b>seguidas</b>, y el resultado es correcto <b>siempre</b>. Los 20 hilos pasan <b>uno detrás de otro</b> por los métodos del jardín.</p>
     <p class="fragment caja">Sincronizar da un resultado correcto, pero quita la ventaja de hacer varias cosas a la vez.</p>
 </section>
 </section>
@@ -256,10 +244,10 @@ for (Thread t : lista) {
     <li>Los hilos pueden compartir un objeto: todos reciben la misma referencia</li>
     <li>Sumar 1 son tres pasos: leer, calcular y guardar</li>
     <li>Si dos hilos se cuelan entre los pasos, se pierden cambios: <b>condición de carrera</b></li>
-    <li>El resultado es incorrecto y cambia en cada ejecución</li>
+    <li>El registro sale desordenado y el resultado puede ser incorrecto, aunque a veces salga 100</li>
     <li>El método <code>join()</code> de la clase <code>Thread</code> hace que <code>main</code> espere a todos antes de mostrar el resultado</li>
     <li>Se arregla con la palabra <code>synchronized</code> en los métodos del jardín: un solo hilo a la vez</li>
-    <li>Sincronizar da el resultado correcto, pero los hilos pasan de uno en uno y tarda más</li>
+    <li>Sincronizar da el resultado correcto, pero los hilos pasan de uno en uno por esos métodos</li>
   </ul>
 </section>
 </div>

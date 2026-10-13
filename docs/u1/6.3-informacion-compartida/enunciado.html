@@ -20,21 +20,21 @@
 <h2>Ejercicio 1: el problema de los jardines (proyecto <code>ProblemaJardines</code>)</h2>
 <p>Un jardín tiene al principio 100 personas. Entran 10 personas y salen otras 10, todas a la vez, cada una como un hilo distinto. Al final tendría que haber otra vez 100 personas.</p>
 <p>El programa espera a que acaben los 20 hilos y muestra <code>Personas en el jardín: </code> seguido de la cuenta final.</p>
-<p>Ejecuta el programa varias veces y comprueba si siempre sale 100.</p>
+<p>Ejecuta el programa varias veces. Mira si sale 100 y fíjate también en los mensajes de cada hilo.</p>
 
 <div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
 <div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El jardín es algo que comparten los 20 hilos, así que necesita su propia clase y todos los hilos reciben el mismo objeto. Hacen falta dos tipos de hilo: uno que suma 1 y otro que resta 1. Para que <code>main</code> muestre el resultado cuando todos han terminado, tiene que esperar a cada hilo. Fíjate en que sumar 1 a una variable no es un solo paso para el ordenador.</p>
 </div>
-<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>RecursoJardin</code> con un atributo <code>int</code> que empiece en 100 y dos métodos: <code>incrementaCuenta</code> y <code>decrementaCuenta</code>. Cada método guarda el valor actual en una variable temporal, duerme 100 milisegundos con <code>Thread.sleep()</code> y guarda el valor cambiado. El <code>sleep</code> obliga a escribir un <code>try</code> con <code>catch (InterruptedException e)</code>. Las clases <code>EntraJardin</code> y <code>SaleJardin</code> implementan <code>Runnable</code>, reciben el jardín en el constructor y llaman a su método en <code>run()</code>. En <code>Principal</code>, crea un solo jardín y un <code>ArrayList&lt;Thread&gt;</code>. Con un <code>for</code> de 10 vueltas, añade en cada una un hilo que entra y otro que sale. Arranca todos con <code>start()</code> en un segundo bucle y espera a todos con <code>join()</code> en un tercero. Añade <code>throws InterruptedException</code> a <code>main</code>.</p>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>RecursoJardin</code> con un atributo <code>int</code> que empiece en 100 y dos métodos: <code>incrementaCuenta</code> y <code>decrementaCuenta</code>. Cada método muestra qué hilo entra o sale (con <code>Thread.currentThread().getName()</code>), suma o resta 1 a la cuenta con <code>cuenta++</code> o <code>cuenta--</code> y muestra la cuenta. Las clases <code>EntraJardin</code> y <code>SaleJardin</code> implementan <code>Runnable</code>, reciben el jardín en el constructor y llaman a su método en <code>run()</code>. En <code>Principal</code>, crea un solo jardín y un <code>ArrayList&lt;Thread&gt;</code>. Con un <code>for</code> de 10 vueltas, añade en cada una un hilo que entra y otro que sale. Arranca todos con <code>start()</code> en un segundo bucle y espera a todos con <code>join()</code> en un tercero. Añade <code>throws InterruptedException</code> a <code>main</code>.</p>
 </div>
 <div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
 <li>Crea el proyecto <code>ProblemaJardines</code> y el paquete <code>jardines</code>.</li>
 <li>Crea la clase <code>RecursoJardin</code> con un atributo privado <code>int</code> llamado <code>cuenta</code>, que empiece en 100 en el constructor.</li>
 <li>Añade un método <code>getCuenta</code> que devuelva la cuenta.</li>
-<li>Escribe <code>incrementaCuenta</code>. Guarda <code>cuenta</code> en una variable <code>temp</code>.</li>
-<li>Llama a <code>Thread.sleep(100)</code>, dentro de un <code>try</code> con <code>catch (InterruptedException e)</code>.</li>
-<li>Guarda en <code>cuenta</code> el valor de <code>temp</code> más 1.</li>
-<li>Escribe <code>decrementaCuenta</code> igual, pero guardando <code>temp</code> menos 1.</li>
+<li>Escribe <code>incrementaCuenta</code>. Muestra <code>hilo </code> + el nombre del hilo + <code> ----- Entra en Jardín</code>.</li>
+<li>Suma 1 con <code>cuenta++</code>.</li>
+<li>Muestra <code>cuenta</code> + <code> en jardín</code>.</li>
+<li>Escribe <code>decrementaCuenta</code> igual, pero con <code>Sale de Jardín</code> y <code>cuenta--</code>.</li>
 <li>Crea la clase <code>EntraJardin</code>, que implementa <code>Runnable</code>, guarda el jardín en un atributo recibido por el constructor y llama a <code>incrementaCuenta()</code> en <code>run()</code>.</li>
 <li>Crea la clase <code>SaleJardin</code> igual, pero llamando a <code>decrementaCuenta()</code>.</li>
 <li>En <code>Principal</code>, crea un solo <code>RecursoJardin</code> y un <code>ArrayList&lt;Thread&gt;</code>.</li>
@@ -61,17 +61,17 @@
 <li>En <code>RecursoJardin</code>, añade <code>synchronized</code> entre <code>public</code> y <code>void</code> en <code>incrementaCuenta</code>.</li>
 <li>Haz lo mismo en <code>decrementaCuenta</code>.</li>
 <li>Ejecuta el programa varias veces y comprueba que siempre sale 100.</li>
-<li>Fíjate en el tiempo: ahora tarda unos dos segundos, porque los 20 hilos pasan uno detrás de otro, con 100 milisegundos cada uno.</li>
+<li>Fíjate en el registro: ahora cada hilo muestra su línea y su cuenta seguidas, sin mezclarse con las de otros.</li>
 </ol>
 </div>
 </section>
 <section class="tarjeta"><h2>Preguntas</h2><ol>
-<li>Ejecuta el ejercicio varias veces. ¿Siempre sale 100? ¿Qué valores salen?</li>
-<li>Quita el <code>sleep</code> y ejecuta otra vez. ¿Sale 100 casi siempre? ¿Significa eso que el programa es correcto?</li>
+<li>Ejecuta el ejercicio varias veces. ¿Sale 100? ¿Tienen sentido los mensajes de los hilos? ¿Qué números raros ves en <code>en jardín</code>?</li>
+<li>Si hoy ha salido 100, ¿significa que el programa es correcto? ¿Podría fallar en otro ordenador o en otra ejecución?</li>
 <li>Dos hilos leen la cuenta a la vez (100) y los dos guardan 101. ¿Cuántas personas han entrado? ¿Cuántas cuenta el programa?</li>
 <li>¿Cómo evitarías que dos hilos estén a la vez dentro de <code>incrementaCuenta</code>? (Lo haces en el ejercicio 2.)</li>
 <li>En el ejercicio 2, ¿por qué hay que poner <code>synchronized</code> también en <code>decrementaCuenta</code>?</li>
-<li>¿Por qué ahora el programa tarda más? ¿Qué se ha perdido a cambio de que el resultado sea correcto?</li>
+<li>¿Qué se ha perdido a cambio de que el resultado sea correcto? (Pista: los hilos ya no trabajan a la vez dentro del jardín.)</li>
 </ol>
 </section>
 </main>
