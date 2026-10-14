@@ -383,7 +383,7 @@ for (int i = 1; i &lt;= 1000; i++) {
 <section>
 <section>
 <h3>Ejercicio 4: la cocina</h3>
-    <p class="caja"><b>La tarea:</b> simular una cocina con <b>3 cocineros</b> y <b>5 cuchillos</b>. Cada cocinero coge un cuchillo y lo suelta. Todos lo hacen <b>4 veces</b>.</p>
+    <p class="caja"><b>La tarea:</b> simular una cocina con <b>4 cocineros</b> y <b>5 cuchillos</b>. Cada cocinero coge un cuchillo y lo suelta. Todos lo hacen <b>4 veces</b>.</p>
     <p>Por pantalla: quién coge o suelta y cuántos cuchillos quedan libres.</p>
     <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br>Cocinero 2 coge un cuchillo. Libres: 3<br>…<br>Cocinero 2 suelta el cuchillo. Libres: 5</div>
     <p class="peque">Proyecto <b>CocinaCuchillos</b>. Primero sin esperas; después haremos que cocinar tarde.</p>
@@ -401,7 +401,7 @@ for (int i = 1; i &lt;= 1000; i++) {
       <rect class="parte" x="28" y="115" width="214" height="290" rx="8"/>
       <text class="suave" x="40" y="143">main</text>
       <text class="cod" x="40" y="185">1 cocina</text>
-      <text class="cod" x="40" y="225">3 hilos</text>
+      <text class="cod" x="40" y="225">4 hilos</text>
       <text class="cod" x="40" y="265">start()</text>
       <!-- Cocinero 1 -->
       <rect class="clase" x="370" y="10" width="260" height="120" rx="14"/>
@@ -411,17 +411,10 @@ for (int i = 1; i &lt;= 1000; i++) {
       <text class="suave" x="544" y="73" text-anchor="middle">referencia</text>
       <rect class="parte" x="388" y="90" width="224" height="32" rx="8"/>
       <text class="cod" x="400" y="112">run(): coger, soltar</text>
-      <!-- Cocinero 2 -->
-      <rect class="clase" x="370" y="175" width="260" height="120" rx="14"/>
-      <text class="tit" x="500" y="205" text-anchor="middle">Cocinero 2</text>
-      <text class="cod" x="388" y="237">cocina</text>
-      <rect class="clave" x="470" y="217" width="148" height="30" rx="8"/>
-      <text class="suave" x="544" y="238" text-anchor="middle">referencia</text>
-      <rect class="parte" x="388" y="255" width="224" height="32" rx="8"/>
-      <text class="cod" x="400" y="277">run(): coger, soltar</text>
-      <!-- Cocinero 3 -->
+      <text class="tit" x="500" y="248" text-anchor="middle" style="fill:var(--suave)">⋮</text>
+      <!-- Cocinero 4 -->
       <rect class="clase" x="370" y="340" width="260" height="120" rx="14"/>
-      <text class="tit" x="500" y="370" text-anchor="middle">Cocinero 3</text>
+      <text class="tit" x="500" y="370" text-anchor="middle">Cocinero 4</text>
       <text class="cod" x="388" y="402">cocina</text>
       <rect class="clave" x="470" y="382" width="148" height="30" rx="8"/>
       <text class="suave" x="544" y="403" text-anchor="middle">referencia</text>
@@ -440,13 +433,11 @@ for (int i = 1; i &lt;= 1000; i++) {
       <text class="cod" x="770" y="362">soltar()</text>
       <!-- flechas: Principal crea los hilos -->
       <path class="flecha" d="M260 150 C310 150 320 70 366 70" marker-end="url(#c1)"/>
-      <path class="flecha" d="M260 240 L366 235" marker-end="url(#c1)"/>
       <path class="flecha" d="M260 330 C310 330 320 400 366 400" marker-end="url(#c1)"/>
       <text class="suave" x="312" y="188" text-anchor="middle">crea</text>
       <text class="suave" x="312" y="208" text-anchor="middle">y arranca</text>
       <!-- flechas: todos usan la misma cocina -->
       <path class="flecha-aviso" d="M630 70 C685 70 690 150 736 150" marker-end="url(#c2)"/>
-      <path class="flecha-aviso" d="M630 235 L736 240" marker-end="url(#c2)"/>
       <path class="flecha-aviso" d="M630 400 C685 400 690 330 736 330" marker-end="url(#c2)"/>
       <text class="suave" x="685" y="188" text-anchor="middle" style="fill:var(--aviso-borde)">la misma</text>
       <text class="suave" x="685" y="208" text-anchor="middle" style="fill:var(--aviso-borde)">cocina</text>
@@ -456,14 +447,13 @@ for (int i = 1; i &lt;= 1000; i++) {
 <h3>Cómo pensarlo</h3>
     <ul>
       <li>¿Qué comparten los cocineros? <span class="fragment">La <b>cocina</b>: un solo objeto <code>Cocina</code> con los cuchillos libres.</span></li>
-      <li>¿Alguien tiene que esperar? <span class="fragment">No: hay 5 cuchillos y solo 3 cocineros.</span></li>
+      <li>¿Alguien tiene que esperar? <span class="fragment">No: hay 5 cuchillos y solo 4 cocineros.</span></li>
       <li>¿Entonces hace falta <code>synchronized</code>? <span class="fragment">Sí: la <b>cuenta</b> de libres sigue siendo un dato compartido y se puede estropear.</span></li>
     </ul>
 </section>
 <section>
 <h3>La cocina: Cocina</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="1|4|6-8|10-14|16-19">
-// La cocina es el recurso compartido: guarda cuántos cuchillos quedan libres.
+    <pre><code class="language-java" data-trim data-line-numbers="1|3|5-7|9-12|14-17" style="font-size:.6em; white-space:pre-wrap">
 public class Cocina {
 
     private int libres;
@@ -472,7 +462,6 @@ public class Cocina {
         libres = cuchillos;
     }
 
-    // synchronized: solo un cocinero a la vez cambia la cuenta de cuchillos libres.
     public synchronized void coger() {
         libres--;
         System.out.println(Thread.currentThread().getName() + " coge un cuchillo. Libres: " + libres);
@@ -491,8 +480,7 @@ public class Cocina {
 </section>
 <section>
 <h3>El cocinero: Cocinero</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="1|2|4-8|10-17|12|13|14">
-// Un cocinero: coge un cuchillo y lo suelta. Lo repite 4 veces.
+    <pre><code class="language-java" data-trim data-line-numbers="1|3|5-7|9-15|11|12|13">
 public class Cocinero implements Runnable {
 
     private Cocina cocina;
@@ -516,24 +504,26 @@ public class Cocinero implements Runnable {
 </section>
 <section>
 <h3>Los hilos y Principal</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="6|8-10">public class Principal {
+    <pre><code class="language-java" data-trim data-line-numbers="4|6-8" style="font-size:.6em; white-space:pre-wrap">
+public class Principal {
 
     public static void main(String[] args) {
         Cocina cocina = new Cocina(5);
 
-        for (int i = 1; i &lt;= 7; i++) {
-            new Thread(new Cocinero(cocina), &quot;Cocinero &quot; + i).start();
+        for (int i = 1; i &lt;= 4; i++) {
+            new Thread(new Cocinero(cocina), "Cocinero " + i).start();
         }
     }
-}</code></pre>
+}
+    </code></pre>
     <ul class="peque">
-      <li>Se crea <b>una sola</b> cocina con 5 cuchillos. Los 3 cocineros reciben ese mismo objeto.</li>
+      <li>Se crea <b>una sola</b> cocina con 5 cuchillos. Los 4 cocineros reciben ese mismo objeto.</li>
       <li>El <code>for</code> crea y arranca un hilo por cocinero con el método <code>start()</code> de la clase <code>Thread</code>.</li>
     </ul>
 </section>
 <section>
 <h3>¿Qué sale en pantalla?</h3>
-    <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br>Cocinero 1 suelta el cuchillo. Libres: 5<br>Cocinero 2 coge un cuchillo. Libres: 4<br>…<br>Cocinero 3 suelta el cuchillo. Libres: 5</div>
+    <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br>Cocinero 1 suelta el cuchillo. Libres: 5<br>Cocinero 2 coge un cuchillo. Libres: 4<br>…<br>Cocinero 4 suelta el cuchillo. Libres: 5</div>
     <p class="aviso">Termina al instante y al final quedan <b>5</b> libres. Pero cocinar no es instantáneo.</p>
     <p class="fragment caja">Ahora cada cocinero tiene que <b>tardar 3 segundos</b> con el cuchillo. ¿Cómo se hace que un hilo tarde?</p>
 </section>
@@ -576,7 +566,7 @@ public class Cocinero implements Runnable {
 </section>
 <section>
 <h3>Lo que escribe la bombilla</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="1|2|3-4|4">
+    <pre><code class="language-java" data-trim data-line-numbers="1|2|3-4|4" style="font-size:.6em; white-space:pre-wrap">
 try {
     sleep(3000);
 } catch (InterruptedException ex) {
@@ -591,7 +581,7 @@ try {
 </section>
 <section>
 <h3>Primer intento: dormir dentro de coger()</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="1|2-3|4-8|4|5|6-7">
+    <pre><code class="language-java" data-trim data-line-numbers="1|2-3|4-8|4|5|6-7" style="font-size:.6em; white-space:pre-wrap">
 public synchronized void coger() {
     libres--;
     System.out.println(Thread.currentThread().getName() + " coge un cuchillo. Libres: " + libres);
@@ -609,16 +599,15 @@ public synchronized void coger() {
 <section>
 <h3>¿Qué sale en pantalla?</h3>
     <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br><i>(3 segundos)</i><br>Cocinero 1 suelta el cuchillo. Libres: 5<br>Cocinero 2 coge un cuchillo. Libres: 4<br><i>(3 segundos)</i><br>…</div>
-    <p class="aviso">Los cocineros van <b>de uno en uno</b> y el programa tarda unos <b>36 segundos</b> (12 cuchillos cogidos, 3 segundos cada uno).</p>
-    <p class="fragment caja">Hay 5 cuchillos y solo 3 cocineros: ¿por qué esperan unos a otros?</p>
+    <p class="aviso">Los cocineros van <b>de uno en uno</b> y el programa tarda unos <b>48 segundos</b> (16 cuchillos cogidos, 3 segundos cada uno).</p>
+    <p class="fragment caja">Hay 5 cuchillos y solo 4 cocineros: ¿por qué esperan unos a otros?</p>
     <p class="fragment">Porque <code>coger()</code> es <code>synchronized</code> y el cocinero <b>duerme dentro</b>: mientras duerme, los demás no pueden ni entrar al método, aunque queden cuchillos libres.</p>
 </section>
 <section>
 <h3>Segundo intento: dormir en Cocinero</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="1|3|6-10|14|15|16-19|20">
+    <pre><code class="language-java" data-trim data-line-numbers="1|5-9|13|14|15-18|19">
 import static java.lang.Thread.sleep;
 
-// Un cocinero: coge un cuchillo, lo usa 3 segundos y lo suelta. Lo repite 4 veces.
 public class Cocinero implements Runnable {
 
     private Cocina cocina;
@@ -647,9 +636,9 @@ public class Cocinero implements Runnable {
 </section>
 <section>
 <h3>¿Qué sale en pantalla?</h3>
-    <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br>Cocinero 2 coge un cuchillo. Libres: 3<br>Cocinero 3 coge un cuchillo. Libres: 2<br>Cocinero 1 suelta el cuchillo. Libres: 3<br>…<br>Cocinero 2 suelta el cuchillo. Libres: 5</div>
-    <p class="aviso">Ahora los tres cogen a la vez y el programa tarda unos <b>12 segundos</b> (4 vueltas de 3). Al final quedan <b>5</b> libres.</p>
-    <p class="fragment caja">Antes tardaba 36 segundos. Regla: el <code>sleep</code> va <b>fuera</b> de <code>synchronized</code>.</p>
+    <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br>Cocinero 2 coge un cuchillo. Libres: 3<br>Cocinero 3 coge un cuchillo. Libres: 2<br>Cocinero 4 coge un cuchillo. Libres: 1<br>Cocinero 1 suelta el cuchillo. Libres: 2<br>…<br>Cocinero 2 suelta el cuchillo. Libres: 5</div>
+    <p class="aviso">Ahora los cuatro cogen a la vez y el programa tarda unos <b>12 segundos</b> (4 vueltas de 3). Al final quedan <b>5</b> libres.</p>
+    <p class="fragment caja">Antes tardaba 48 segundos. Regla: el <code>sleep</code> va <b>fuera</b> de <code>synchronized</code>.</p>
 </section>
 <section>
 <h3>Una pregunta</h3>
@@ -685,7 +674,7 @@ public class Cocinero implements Runnable {
 </section>
 <section>
 <h3>Cocina: coger() espera</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="1|2|3-7|8|9">
+    <pre><code class="language-java" data-trim data-line-numbers="1|2|3-7|8|9" style="font-size:.6em; white-space:pre-wrap">
 public synchronized void coger() {
     while (libres == 0) {
         try {
@@ -705,7 +694,7 @@ public synchronized void coger() {
 </section>
 <section>
 <h3>Cocina: soltar() avisa</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="1|2-3|4">
+    <pre><code class="language-java" data-trim data-line-numbers="1|2-3|4" style="font-size:.6em; white-space:pre-wrap">
 public synchronized void soltar() {
     libres++;
     System.out.println(Thread.currentThread().getName() + " suelta el cuchillo. Libres: " + libres);
@@ -742,7 +731,7 @@ public synchronized void soltar() {
     <li>Los hilos se crean y se arrancan con <code>new Thread(...).start()</code>: aquí 2000 hilos sobre un solo jardín</li>
     <li>Se arregla con la palabra <code>synchronized</code> en los métodos del jardín: un solo hilo a la vez</li>
     <li>Los tornos de un museo: 4 hilos suman a la misma cuenta y, con <code>synchronized</code>, salen 80 accesos siempre</li>
-    <li>Una cocina con 3 cocineros y 5 cuchillos: dormir dentro de <code>synchronized</code> hace que esperen todos (36 s) y fuera tardan 12 s; con más cocineros que cuchillos, <code>wait()</code> y <code>notifyAll()</code> evitan los cuchillos negativos</li>
+    <li>Una cocina con 4 cocineros y 5 cuchillos: dormir dentro de <code>synchronized</code> hace que esperen todos (48 s) y fuera tardan 12 s; con más cocineros que cuchillos, <code>wait()</code> y <code>notifyAll()</code> evitan los cuchillos negativos</li>
     <li>Sincronizar da el resultado correcto, pero los hilos pasan de uno en uno por esos métodos</li>
   </ul>
 </section>
