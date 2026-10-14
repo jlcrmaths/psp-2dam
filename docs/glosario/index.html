@@ -180,6 +180,20 @@ System.out.println(h.getName());   // Hilo 1
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="import static">
+<h2><code>import static</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Línea que va arriba del fichero, tras <code>package</code>, y permite usar un método estático de otra clase sin escribir el nombre de la clase delante.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Con <code>import static java.lang.Thread.sleep;</code> se escribe <code>sleep(3000);</code> en vez de <code>Thread.sleep(3000);</code>. NetBeans la escribe con la bombilla.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">import static java.lang.Thread.sleep;
+
+sleep(3000);
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="IOException">
 <h2><code>IOException</code></h2>
 <dl>
