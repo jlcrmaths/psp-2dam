@@ -76,15 +76,15 @@ Crea una clase `Museo` con un atributo `int` que empiece en 0 y un método `acce
 
 ## Ejercicio 4: la cocina (proyecto `CocinaCuchillos`)
 
-Vamos a simular el funcionamiento de una cocina con 3 cocineros y 5 cuchillos. Para la receta, cada cocinero necesita coger algún cuchillo durante 3 segundos y después lo suelta. Todos los cocineros necesitan coger algún cuchillo 4 veces.
+Vamos a simular el funcionamiento de una cocina con 7 cocineros y 5 cuchillos. Para la receta, cada cocinero necesita coger un cuchillo durante 3 segundos y después lo suelta. Todos los cocineros necesitan coger un cuchillo 4 veces. Si no queda ningún cuchillo libre, el cocinero espera a que otro suelte uno.
 
-Por pantalla se muestra qué cocinero coge o suelta un cuchillo y cuántos cuchillos quedan libres. Al final tienen que quedar los 5 libres, en todas las ejecuciones.
+Por pantalla se muestra qué cocinero coge o suelta un cuchillo y cuántos cuchillos quedan libres. Los cuchillos libres nunca pueden ser menos de 0 y al final tienen que quedar los 5 libres, en todas las ejecuciones.
 
 ### Pistas
-Lo que comparten los 3 cocineros es la cocina, y lo que cambian a la vez es el número de cuchillos libres. Como hay más cuchillos que cocineros, nadie tiene que esperar: lo importante es que la cuenta no se pierda. Para que un cocinero tarde 3 segundos con el cuchillo, el hilo tiene que dormir. Piensa dónde conviene dormir: ¿dentro o fuera del método sincronizado?
+Lo que comparten los cocineros es la cocina, y lo que cambian a la vez es el número de cuchillos libres. Empieza con 3 cocineros y sin esperas: así nadie se queda sin cuchillo. Después haz que el cocinero tarde 3 segundos con el cuchillo: el hilo tiene que dormir. Piensa dónde conviene dormir: ¿dentro o fuera del método sincronizado? Por último, sube a 7 cocineros y mira qué pasa con los cuchillos libres. Un cocinero que no encuentra cuchillo tiene que esperar, y el que suelta uno tiene que avisar.
 
 ### Más ayuda
-Crea una clase `Cocina` con un atributo `int` para los cuchillos libres, que reciba el total (5) en el constructor, y dos métodos `synchronized`: `coger`, que resta 1 y muestra quién coge y cuántos quedan, y `soltar`, que suma 1 y lo muestra. Crea una clase `Cocinero` que implementa `Runnable` y recibe la cocina en el constructor. En `run()`, un `for` de 4 vueltas: coger, esperar 3 segundos con `Thread.sleep(3000)` y soltar. El `sleep` obliga a escribir un `try` con `catch (InterruptedException e)`. La espera va fuera de los métodos sincronizados, para que los demás cocineros puedan coger su cuchillo mientras tanto. En `Principal`, crea una sola cocina con 5 cuchillos y, con un `for` de 3 vueltas, crea y arranca un hilo por cocinero con `new Thread(new Cocinero(cocina), "Cocinero " + i)`.
+Crea una clase `Cocina` con un atributo `int` para los cuchillos libres, que reciba el total (5) en el constructor, y dos métodos `synchronized`: `coger`, que resta 1 y muestra quién coge y cuántos quedan, y `soltar`, que suma 1 y lo muestra. Crea una clase `Cocinero` que implementa `Runnable` y recibe la cocina en el constructor. En `run()`, un `for` de 4 vueltas: coger, esperar 3 segundos con `sleep(3000)` y soltar. El `sleep` obliga a escribir un `try` con `catch (InterruptedException e)` y un `import static java.lang.Thread.sleep;`: NetBeans los escribe con la bombilla. La espera va fuera de los métodos sincronizados, para que los demás cocineros puedan coger su cuchillo mientras tanto. En `Principal`, crea una sola cocina con 5 cuchillos y, con un `for`, crea y arranca un hilo por cocinero con `new Thread(new Cocinero(cocina), "Cocinero " + i)`. Con 7 cocineros, en `coger` espera con un `while` mientras no haya cuchillos libres, con `wait()` dentro de un `try` y `catch`. En `soltar`, después de sumar, avisa a los que esperan con `notifyAll()`.
 
 ### Paso a paso
 1. Crea el proyecto `CocinaCuchillos` y el paquete `cocina`.
@@ -92,10 +92,15 @@ Crea una clase `Cocina` con un atributo `int` para los cuchillos libres, que rec
 3. Escribe el método `coger` con la palabra `synchronized`: resta 1 a `libres` y muestra el nombre del hilo, «coge un cuchillo» y los libres.
 4. Escribe el método `soltar` igual, pero sumando 1 y mostrando «suelta el cuchillo».
 5. Crea la clase `Cocinero`, que implementa `Runnable`, guarda la cocina en un atributo recibido por el constructor y tiene un `run()`.
-6. En `run()`, con un `for` de 1 a 4: llama a `coger()`, duerme 3000 milisegundos dentro de un `try` con `catch (InterruptedException e)` y llama a `soltar()`.
+6. En `run()`, con un `for` de 1 a 4: llama a `coger()` y a `soltar()`.
 7. En `Principal`, crea una sola `Cocina` con 5 cuchillos.
-8. Con un `for` de 1 a 3, crea un hilo con `Cocinero` ("Cocinero 1"...) y arráncalo con `start()` en la misma línea.
-9. Ejecútalo y comprueba que el último mensaje dice 5 libres. Tarda unos 12 segundos.
+8. Con un `for` de 1 a 3, crea un hilo con `Cocinero` ("Cocinero 1"...) y arráncalo con `start()` en la misma línea. Ejecútalo: termina al instante y quedan 5 libres.
+9. Para que cocinar tarde, escribe `sleep(3000);` primero dentro de `coger()` y acepta con la bombilla el `import static` y el `try` con `catch`. Ejecútalo: tarda unos 36 segundos porque se esperan unos a otros.
+10. Quita ese `sleep` y ponlo en `run()` de `Cocinero`, entre `coger()` y `soltar()`. Ejecútalo: tarda unos 12 segundos.
+11. Cambia el `for` de `Principal` a 7 cocineros y ejecuta: los cuchillos libres salen negativos.
+12. En `coger()`, antes de restar, escribe un `while` que repita mientras `libres` valga 0 y dentro llama a `wait()` con la bombilla para el `try` y `catch`.
+13. En `soltar()`, después de sumar y mostrar, llama a `notifyAll()`.
+14. Ejecútalo: los libres nunca bajan de 0 y el último mensaje dice 5 libres.
 
 ## Preguntas
 
@@ -105,3 +110,7 @@ Crea una clase `Cocina` con un atributo `int` para los cuchillos libres, que rec
 4. ¿Cómo evitarías que dos hilos estén a la vez dentro de `incrementaCuenta`? (Lo haces en el ejercicio 2.)
 5. En el ejercicio 2, ¿por qué hay que poner `synchronized` también en `decrementaCuenta`?
 6. ¿Qué se ha perdido a cambio de que el resultado sea correcto? (Pista: los hilos ya no trabajan a la vez dentro del jardín.)
+7. En la cocina, si el `sleep` está dentro de `coger()`, ¿cuánto tarda con 3 cocineros y por qué? ¿Y si está en `Cocinero`?
+8. Con 7 cocineros y 5 cuchillos y sin `wait()`, ¿qué números raros salen en los cuchillos libres? ¿Por qué?
+9. ¿Por qué `wait()` suelta el cerrojo mientras espera? ¿Qué pasaría si no lo soltara?
+10. ¿Por qué se escribe `while` y no `if` antes del `wait()`?

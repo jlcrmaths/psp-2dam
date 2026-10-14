@@ -346,10 +346,76 @@ for (int i = 1; i &lt;= 1000; i++) {
 
 <!-- html -->
     <h3>Ejercicio 4: la cocina</h3>
-    <p class="caja"><b>La tarea:</b> simular una cocina con <b>3 cocineros</b> y <b>5 cuchillos</b>. Cada cocinero coge un cuchillo durante <b>3 segundos</b> y lo suelta. Todos lo hacen <b>4 veces</b>.</p>
+    <p class="caja"><b>La tarea:</b> simular una cocina con <b>3 cocineros</b> y <b>5 cuchillos</b>. Cada cocinero coge un cuchillo y lo suelta. Todos lo hacen <b>4 veces</b>.</p>
     <p>Por pantalla: quién coge o suelta y cuántos cuchillos quedan libres.</p>
     <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br>Cocinero 2 coge un cuchillo. Libres: 3<br>…<br>Cocinero 2 suelta el cuchillo. Libres: 5</div>
-    <p class="peque">Proyecto <b>CocinaCuchillos</b></p>
+    <p class="peque">Proyecto <b>CocinaCuchillos</b>. Primero sin esperas; después haremos que cocinar tarde.</p>
+
+--
+
+<!-- html -->
+    <h3>El esquema del programa</h3>
+    <svg class="esquema" viewBox="0 0 1000 480" role="img" aria-label="Principal crea los hilos Cocinero, que usan la misma Cocina">
+      <defs>
+        <marker id="c1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="punta" d="M0 0 L10 5 L0 10 z"/></marker>
+        <marker id="c2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path class="punta-aviso" d="M0 0 L10 5 L0 10 z"/></marker>
+      </defs>
+      <!-- Principal -->
+      <rect class="clase" x="10" y="60" width="250" height="360" rx="14"/>
+      <text class="tit" x="135" y="95" text-anchor="middle">Principal</text>
+      <rect class="parte" x="28" y="115" width="214" height="290" rx="8"/>
+      <text class="suave" x="40" y="143">main</text>
+      <text class="cod" x="40" y="185">1 cocina</text>
+      <text class="cod" x="40" y="225">3 hilos</text>
+      <text class="cod" x="40" y="265">start()</text>
+      <!-- Cocinero 1 -->
+      <rect class="clase" x="370" y="10" width="260" height="120" rx="14"/>
+      <text class="tit" x="500" y="40" text-anchor="middle">Cocinero 1</text>
+      <text class="cod" x="388" y="72">cocina</text>
+      <rect class="clave" x="470" y="52" width="148" height="30" rx="8"/>
+      <text class="suave" x="544" y="73" text-anchor="middle">referencia</text>
+      <rect class="parte" x="388" y="90" width="224" height="32" rx="8"/>
+      <text class="cod" x="400" y="112">run(): coger, soltar</text>
+      <!-- Cocinero 2 -->
+      <rect class="clase" x="370" y="175" width="260" height="120" rx="14"/>
+      <text class="tit" x="500" y="205" text-anchor="middle">Cocinero 2</text>
+      <text class="cod" x="388" y="237">cocina</text>
+      <rect class="clave" x="470" y="217" width="148" height="30" rx="8"/>
+      <text class="suave" x="544" y="238" text-anchor="middle">referencia</text>
+      <rect class="parte" x="388" y="255" width="224" height="32" rx="8"/>
+      <text class="cod" x="400" y="277">run(): coger, soltar</text>
+      <!-- Cocinero 3 -->
+      <rect class="clase" x="370" y="340" width="260" height="120" rx="14"/>
+      <text class="tit" x="500" y="370" text-anchor="middle">Cocinero 3</text>
+      <text class="cod" x="388" y="402">cocina</text>
+      <rect class="clave" x="470" y="382" width="148" height="30" rx="8"/>
+      <text class="suave" x="544" y="403" text-anchor="middle">referencia</text>
+      <rect class="parte" x="388" y="420" width="224" height="32" rx="8"/>
+      <text class="cod" x="400" y="442">run(): coger, soltar</text>
+      <!-- Cocina -->
+      <rect class="clase" x="740" y="60" width="250" height="360" rx="14" style="stroke:var(--aviso-borde)"/>
+      <text class="tit" x="865" y="95" text-anchor="middle" style="fill:var(--aviso-borde)">Cocina</text>
+      <text class="suave" x="758" y="135">recurso compartido</text>
+      <text class="cod" x="758" y="175">libres = 5</text>
+      <rect class="parte" x="758" y="205" width="214" height="75" rx="8"/>
+      <text class="suave" x="770" y="230">método</text>
+      <text class="cod" x="770" y="262">coger()</text>
+      <rect class="parte" x="758" y="305" width="214" height="75" rx="8"/>
+      <text class="suave" x="770" y="330">método</text>
+      <text class="cod" x="770" y="362">soltar()</text>
+      <!-- flechas: Principal crea los hilos -->
+      <path class="flecha" d="M260 150 C310 150 320 70 366 70" marker-end="url(#c1)"/>
+      <path class="flecha" d="M260 240 L366 235" marker-end="url(#c1)"/>
+      <path class="flecha" d="M260 330 C310 330 320 400 366 400" marker-end="url(#c1)"/>
+      <text class="suave" x="312" y="188" text-anchor="middle">crea</text>
+      <text class="suave" x="312" y="208" text-anchor="middle">y arranca</text>
+      <!-- flechas: todos usan la misma cocina -->
+      <path class="flecha-aviso" d="M630 70 C685 70 690 150 736 150" marker-end="url(#c2)"/>
+      <path class="flecha-aviso" d="M630 235 L736 240" marker-end="url(#c2)"/>
+      <path class="flecha-aviso" d="M630 400 C685 400 690 330 736 330" marker-end="url(#c2)"/>
+      <text class="suave" x="685" y="188" text-anchor="middle" style="fill:var(--aviso-borde)">la misma</text>
+      <text class="suave" x="685" y="208" text-anchor="middle" style="fill:var(--aviso-borde)">cocina</text>
+    </svg>
 
 --
 
@@ -357,26 +423,36 @@ for (int i = 1; i &lt;= 1000; i++) {
     <h3>Cómo pensarlo</h3>
     <ul>
       <li>¿Qué comparten los cocineros? <span class="fragment">La <b>cocina</b>: un solo objeto <code>Cocina</code> con los cuchillos libres.</span></li>
-      <li>¿Alguien tiene que esperar? <span class="fragment">No: hay 5 cuchillos y solo 3 cocineros. Pero la <b>cuenta</b> de libres sí se puede estropear.</span></li>
-      <li>¿Cómo tarda 3 segundos? <span class="fragment">El hilo <b>duerme</b>.</span></li>
-      <li>¿Dónde dormir? <span class="fragment">Fuera del método <code>synchronized</code>.</span></li>
+      <li>¿Alguien tiene que esperar? <span class="fragment">No: hay 5 cuchillos y solo 3 cocineros.</span></li>
+      <li>¿Entonces hace falta <code>synchronized</code>? <span class="fragment">Sí: la <b>cuenta</b> de libres sigue siendo un dato compartido y se puede estropear.</span></li>
     </ul>
 
 --
 
 <!-- html -->
-    <div class="nuevo">
-    <h3>Lo nuevo de hoy</h3>
-    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>sleep(ms)</code> de la clase <code>Thread</code>: duerme el hilo esos milisegundos. <code>Thread.sleep(3000)</code> son 3 segundos. Simula que algo tarda.</p></div>
-    <div class="nuevo-item"><span class="etiqueta">Error</span><p><code>InterruptedException</code>: Java lo lanza si despiertan al hilo mientras duerme. Por eso <code>sleep</code> va dentro de un <code>try</code> con <code>catch</code>.</p></div>
-    </div>
-    <p class="fragment aviso">Regla: <code>sleep</code> va <b>fuera</b> de <code>synchronized</code>. Si un hilo duerme dentro, los demás no pueden ni entrar.</p>
-
---
-
-<!-- html -->
     <h3>La cocina: Cocina</h3>
-    {{codigo: CocinaCuchillos/Cocina.java @@ 3|5-7|9-12|14-17}}
+    <pre><code class="language-java" data-trim data-line-numbers="1|4|6-8|10-14|16-19">
+// La cocina es el recurso compartido: guarda cuántos cuchillos quedan libres.
+public class Cocina {
+
+    private int libres;
+
+    public Cocina(int cuchillos) {
+        libres = cuchillos;
+    }
+
+    // synchronized: solo un cocinero a la vez cambia la cuenta de cuchillos libres.
+    public synchronized void coger() {
+        libres--;
+        System.out.println(Thread.currentThread().getName() + " coge un cuchillo. Libres: " + libres);
+    }
+
+    public synchronized void soltar() {
+        libres++;
+        System.out.println(Thread.currentThread().getName() + " suelta el cuchillo. Libres: " + libres);
+    }
+}
+    </code></pre>
     <ul class="peque">
       <li><code>libres</code> es el dato compartido. El constructor recibe cuántos cuchillos hay.</li>
       <li><code>coger()</code> resta 1 y <code>soltar()</code> suma 1. Los dos son <code>synchronized</code>: solo un cocinero a la vez cambia la cuenta.</li>
@@ -386,17 +462,34 @@ for (int i = 1; i &lt;= 1000; i++) {
 
 <!-- html -->
     <h3>El cocinero: Cocinero</h3>
-    {{codigo: CocinaCuchillos/Cocinero.java @@ 3|5-7|11-18|12|13-16|17}}
+    <pre><code class="language-java" data-trim data-line-numbers="1|2|4-8|10-17|12|13|14">
+// Un cocinero: coge un cuchillo y lo suelta. Lo repite 4 veces.
+public class Cocinero implements Runnable {
+
+    private Cocina cocina;
+
+    public Cocinero(Cocina cocina) {
+        this.cocina = cocina;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 1; i &lt;= 4; i++) {
+            cocina.coger();
+            cocina.soltar();
+        }
+    }
+}
+    </code></pre>
     <ul class="peque">
-      <li>El <code>for</code> repite 4 veces: coger, dormir 3 segundos y soltar.</li>
-      <li>El <code>sleep</code> está <b>fuera</b> de <code>coger()</code> y <code>soltar()</code>: mientras uno cocina, los otros pueden coger su cuchillo.</li>
+      <li>El <code>for</code> repite 4 veces: coger un cuchillo y soltarlo.</li>
     </ul>
 
 --
 
 <!-- html -->
     <h3>Los hilos y Principal</h3>
-    {{codigo: CocinaCuchillos/Principal.java @@ 4|6-8}}
+    {{codigo: CocinaCuchillos/Principal.java @@ 6|8-10}}
     <ul class="peque">
       <li>Se crea <b>una sola</b> cocina con 5 cuchillos. Los 3 cocineros reciben ese mismo objeto.</li>
       <li>El <code>for</code> crea y arranca un hilo por cocinero con el método <code>start()</code> de la clase <code>Thread</code>.</li>
@@ -406,9 +499,237 @@ for (int i = 1; i &lt;= 1000; i++) {
 
 <!-- html -->
     <h3>¿Qué sale en pantalla?</h3>
+    <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br>Cocinero 1 suelta el cuchillo. Libres: 5<br>Cocinero 2 coge un cuchillo. Libres: 4<br>…<br>Cocinero 3 suelta el cuchillo. Libres: 5</div>
+    <p class="aviso">Termina al instante y al final quedan <b>5</b> libres. Pero cocinar no es instantáneo.</p>
+    <p class="fragment caja">Ahora cada cocinero tiene que <b>tardar 3 segundos</b> con el cuchillo. ¿Cómo se hace que un hilo tarde?</p>
+
+--
+
+<!-- html -->
+    <div class="nuevo">
+    <h3>Lo nuevo de hoy</h3>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>sleep(ms)</code>: duerme el hilo esos milisegundos. <code>sleep(3000)</code> son 3 segundos. Simula que algo tarda.</p></div>
+    </div>
+
+--
+
+<!-- html -->
+    <h3>¿Qué pasa al escribirlo?</h3>
+    <p>Escribimos <code>sleep(3000);</code> en el programa. La línea sale subrayada en rojo, dos veces seguidas por dos motivos distintos.</p>
+    <div class="nuevo fragment">
+    <div class="nuevo-item"><span class="etiqueta">Error 1</span><p><code>cannot find symbol</code>: Java no sabe de dónde sale <code>sleep</code>. Hay que decírselo con un <code>import static</code> arriba del fichero.</p></div>
+    </div>
+    <div class="nuevo fragment">
+    <div class="nuevo-item"><span class="etiqueta">Error 2</span><p><code>InterruptedException</code>: Java lo lanza si despiertan al hilo mientras duerme. Por eso <code>sleep</code> obliga a escribir un <code>try</code> con <code>catch</code>. Si no lo escribes, el editor marca error: <code>unreported exception InterruptedException; must be caught or declared to be thrown</code>.</p></div>
+    </div>
+    <p class="fragment caja">Los dos se arreglan con la <b>bombilla</b> de NetBeans.</p>
+
+--
+
+<!-- html -->
+    <h3>La bombilla: arreglar el error 1</h3>
+    <p>Junto a la línea del <code>sleep</code>, en el margen izquierdo, aparece una <b>bombilla</b>.</p>
+    <ol class="peque">
+      <li class="fragment">Pulsa la bombilla, o pon el cursor en la línea y pulsa <code>Alt+Enter</code>.</li>
+      <li class="fragment">Elige la opción que empieza por <b>Add import for static ... sleep</b>.</li>
+      <li class="fragment">NetBeans escribe arriba del fichero, tras la línea <code>package</code>: <code>import static java.lang.Thread.sleep;</code></li>
+    </ol>
+    <p class="fragment aviso">Con este <code>import</code> se escribe <code>sleep(3000);</code> directamente. Ese error desaparece, pero queda el otro.</p>
+
+--
+
+<!-- html -->
+    <h3>La bombilla: arreglar el error 2</h3>
+    <p>La línea sigue en rojo: falta tratar la <code>InterruptedException</code>.</p>
+    <ol class="peque">
+      <li class="fragment">Pulsa otra vez la bombilla, o <code>Alt+Enter</code>.</li>
+      <li class="fragment">Elige <b>Surround Statement with try-catch</b>.</li>
+      <li class="fragment">NetBeans escribe el <code>try</code> y el <code>catch (InterruptedException ex)</code> y el rojo desaparece.</li>
+    </ol>
+    <p class="fragment aviso">No elijas <b>Add throws clause</b>: el método <code>run()</code> de un <code>Runnable</code> no puede declarar esa excepción.</p>
+
+--
+
+<!-- html -->
+    <h3>Lo que escribe la bombilla</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1|2|3-4|4">
+try {
+    sleep(3000);
+} catch (InterruptedException ex) {
+    Logger.getLogger(Cocina.class.getName()).log(Level.SEVERE, null, ex);
+}
+    </code></pre>
+    <ul class="peque">
+      <li>El <code>try</code> y el <code>catch</code> son los de siempre; la variable se llama <code>ex</code> en vez de <code>e</code>.</li>
+      <li>La línea de <code>Logger</code> apunta el error en el registro de NetBeans. Para este ejercicio se puede <b>borrar</b> y dejar el <code>catch</code> vacío.</li>
+      <li>Al borrarla, los dos <code>import</code> de <code>Logger</code> y <code>Level</code> que añadió NetBeans sobran: también se pueden borrar.</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>Primer intento: dormir dentro de coger()</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1|2-3|4-8|4|5|6-7">
+public synchronized void coger() {
+    libres--;
+    System.out.println(Thread.currentThread().getName() + " coge un cuchillo. Libres: " + libres);
+    try {
+        sleep(3000);
+    } catch (InterruptedException e) {
+    }
+}
+    </code></pre>
+    <ul class="peque">
+      <li><code>try</code> intenta ejecutar lo de dentro. Si el hilo se despierta por la fuerza, Java salta al <code>catch</code>; aquí lo dejamos vacío porque no pasa nada.</li>
+      <li>Con este <code>try</code>/<code>catch</code> el error desaparece.</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>¿Qué sale en pantalla?</h3>
+    <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br><i>(3 segundos)</i><br>Cocinero 1 suelta el cuchillo. Libres: 5<br>Cocinero 2 coge un cuchillo. Libres: 4<br><i>(3 segundos)</i><br>…</div>
+    <p class="aviso">Los cocineros van <b>de uno en uno</b> y el programa tarda unos <b>36 segundos</b> (12 cuchillos cogidos, 3 segundos cada uno).</p>
+    <p class="fragment caja">Hay 5 cuchillos y solo 3 cocineros: ¿por qué esperan unos a otros?</p>
+    <p class="fragment">Porque <code>coger()</code> es <code>synchronized</code> y el cocinero <b>duerme dentro</b>: mientras duerme, los demás no pueden ni entrar al método, aunque queden cuchillos libres.</p>
+
+--
+
+<!-- html -->
+    <h3>Segundo intento: dormir en Cocinero</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1|3|6-10|14|15|16-19|20">
+import static java.lang.Thread.sleep;
+
+// Un cocinero: coge un cuchillo, lo usa 3 segundos y lo suelta. Lo repite 4 veces.
+public class Cocinero implements Runnable {
+
+    private Cocina cocina;
+
+    public Cocinero(Cocina cocina) {
+        this.cocina = cocina;
+    }
+
+    @Override
+    public void run() {
+        for (int i = 1; i &lt;= 4; i++) {
+            cocina.coger();
+            try {
+                sleep(3000);
+            } catch (InterruptedException e) {
+            }
+            cocina.soltar();
+        }
+    }
+}
+    </code></pre>
+    <ul class="peque">
+      <li>Quitamos el <code>sleep</code> de <code>Cocina</code> y lo ponemos en el hilo, entre <code>coger()</code> y <code>soltar()</code>.</li>
+      <li>El <code>sleep</code> queda <b>fuera</b> de los métodos <code>synchronized</code>: mientras uno cocina, los otros pueden coger su cuchillo.</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>¿Qué sale en pantalla?</h3>
     <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br>Cocinero 2 coge un cuchillo. Libres: 3<br>Cocinero 3 coge un cuchillo. Libres: 2<br>Cocinero 1 suelta el cuchillo. Libres: 3<br>…<br>Cocinero 2 suelta el cuchillo. Libres: 5</div>
-    <p class="aviso">Los tres cogen a la vez y el programa tarda unos <b>12 segundos</b> (4 vueltas de 3). Al final quedan <b>5</b> libres.</p>
-    <p class="fragment caja">Si el <code>sleep</code> estuviera dentro de <code>coger()</code>, los cocineros irían de uno en uno y tardaría 36 segundos. ¿Por qué?</p>
+    <p class="aviso">Ahora los tres cogen a la vez y el programa tarda unos <b>12 segundos</b> (4 vueltas de 3). Al final quedan <b>5</b> libres.</p>
+    <p class="fragment caja">Antes tardaba 36 segundos. Regla: el <code>sleep</code> va <b>fuera</b> de <code>synchronized</code>.</p>
+
+--
+
+<!-- html -->
+    <h3>Una pregunta</h3>
+    <p class="caja">Ahora hay <b>7 cocineros</b> y solo <b>5 cuchillos</b>.</p>
+    <ul>
+      <li>¿Qué crees que va a pasar? <span class="fragment">Piénsalo antes de probarlo.</span></li>
+      <li class="fragment">Cambia el <code>for</code> de <code>Principal</code> a 7 cocineros y ejecuta.</li>
+      <li class="fragment">¿Cuántos cuchillos libres dice el programa? ¿Tiene sentido?</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>¿Qué ha pasado?</h3>
+    <div class="salida">Cocinero 6 coge un cuchillo. Libres: -1<br>Cocinero 7 coge un cuchillo. Libres: -2</div>
+    <p class="aviso">Los cocineros 6 y 7 cogen cuchillos que <b>no existen</b>. <code>coger()</code> resta 1 sin mirar si queda alguno.</p>
+    <p class="fragment caja">¿Cómo lo arreglamos? Un cocinero que no encuentra cuchillo tiene que <b>esperar</b> a que otro suelte uno.</p>
+
+--
+
+<!-- html -->
+    <h3>La idea</h3>
+    <ul>
+      <li>Si <code>libres</code> vale 0, el cocinero se <b>queda esperando</b> dentro de <code>coger()</code>.</li>
+      <li class="fragment">Cuando otro cocinero <b>suelta</b> un cuchillo, <b>avisa</b> a los que esperan.</li>
+      <li class="fragment">Los que esperan se despiertan y <b>vuelven a mirar</b> si ya hay un cuchillo.</li>
+    </ul>
+    <p class="fragment peque">Como una cola en la puerta de la cocina: el que no encuentra cuchillo espera, y el que termina avisa.</p>
+
+--
+
+<!-- html -->
+    <div class="nuevo">
+    <h3>Lo nuevo de hoy</h3>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>wait()</code> de la clase <code>Object</code>: el hilo se <b>duerme hasta que lo avisen</b> y suelta el cerrojo mientras espera, así otro hilo puede entrar en el método <code>synchronized</code>. Obliga a escribir <code>try</code> y <code>catch (InterruptedException e)</code>, como <code>sleep</code>.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>notifyAll()</code> de la clase <code>Object</code>: <b>despierta</b> a todos los hilos que esperan con <code>wait()</code> en ese mismo objeto.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Concepto</span><p>Los dos métodos solo se pueden usar dentro de un método <code>synchronized</code>, y todas las clases los tienen. Se escribe <code>wait()</code> a secas, sin nada delante.</p></div>
+    </div>
+
+--
+
+<!-- html -->
+    <h3>Cocina: coger() espera</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1|2|3-7|8|9">
+public synchronized void coger() {
+    while (libres == 0) {
+        try {
+            wait();
+        } catch (InterruptedException e) {
+        }
+    }
+    libres--;
+    System.out.println(Thread.currentThread().getName() + " coge un cuchillo. Libres: " + libres);
+}
+    </code></pre>
+    <ul class="peque">
+      <li><code>while (libres == 0)</code>: mientras no haya cuchillos, el cocinero se queda en el bucle.</li>
+      <li><code>wait()</code> lo duerme y suelta el cerrojo: si no lo soltara, nadie podría entrar en <code>soltar()</code> y esperaría para siempre. El <code>try</code>/<code>catch</code> lo escribe la bombilla.</li>
+      <li>Solo cuando hay algún cuchillo, el bucle termina y <code>libres--</code> lo coge.</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>Cocina: soltar() avisa</h3>
+    <pre><code class="language-java" data-trim data-line-numbers="1|2-3|4">
+public synchronized void soltar() {
+    libres++;
+    System.out.println(Thread.currentThread().getName() + " suelta el cuchillo. Libres: " + libres);
+    notifyAll();
+}
+    </code></pre>
+    <ul class="peque">
+      <li>Suma 1 a <code>libres</code> y lo muestra, como antes.</li>
+      <li><code>notifyAll()</code> despierta a los cocineros que esperan en <code>coger()</code>. Cada uno vuelve a mirar el <code>while</code>: uno encuentra el cuchillo y lo coge; los demás ven <code>libres == 0</code> y vuelven a esperar.</li>
+    </ul>
+
+--
+
+<!-- html -->
+    <h3>¿Por qué while y no if?</h3>
+    <p>Con <code>notifyAll()</code> se despiertan <b>todos</b> los que esperan, pero solo hay <b>un</b> cuchillo nuevo.</p>
+    <ul class="peque">
+      <li class="fragment">Con <code>if</code>, todos pasarían a <code>libres--</code> sin volver a mirar y <code>libres</code> volvería a quedar negativo.</li>
+      <li class="fragment">Con <code>while</code>, cada cocinero que se despierta <b>comprueba otra vez</b> si queda un cuchillo antes de cogerlo.</li>
+    </ul>
+    <p class="fragment caja">Regla: <code>wait()</code> siempre dentro de un <code>while</code> que repite la condición.</p>
+
+--
+
+<!-- html -->
+    <h3>¿Qué sale en pantalla?</h3>
+    <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br>…<br>Cocinero 5 coge un cuchillo. Libres: 0<br>Cocinero 1 suelta el cuchillo. Libres: 1<br>Cocinero 6 coge un cuchillo. Libres: 0<br>…<br>Cocinero 6 suelta el cuchillo. Libres: 5</div>
+    <p class="aviso"><code>libres</code> nunca baja de 0 y al final quedan <b>5</b>. Cada cocinero hace sus 4 vueltas, y el programa tarda más que antes (unos 20 segundos): los dos cocineros que sobran esperan su turno.</p>
 
 ---
 
@@ -422,6 +743,6 @@ for (int i = 1; i &lt;= 1000; i++) {
     <li>Los hilos se crean y se arrancan con <code>new Thread(...).start()</code>: aquí 2000 hilos sobre un solo jardín</li>
     <li>Se arregla con la palabra <code>synchronized</code> en los métodos del jardín: un solo hilo a la vez</li>
     <li>Los tornos de un museo: 4 hilos suman a la misma cuenta y, con <code>synchronized</code>, salen 80 accesos siempre</li>
-    <li>Una cocina con 3 cocineros y 5 cuchillos: <code>synchronized</code> protege la cuenta y el <code>sleep</code> va fuera</li>
+    <li>Una cocina con 3 cocineros y 5 cuchillos: dormir dentro de <code>synchronized</code> hace que esperen todos (36 s) y fuera tardan 12 s; con más cocineros que cuchillos, <code>wait()</code> y <code>notifyAll()</code> evitan los cuchillos negativos</li>
     <li>Sincronizar da el resultado correcto, pero los hilos pasan de uno en uno por esos métodos</li>
   </ul>

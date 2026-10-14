@@ -89,13 +89,13 @@
 </section>
 <section class="ejercicio tarjeta" id="ej-4" data-ejercicio="ej-4">
 <h2>Ejercicio 4: la cocina (proyecto <code>CocinaCuchillos</code>)</h2>
-<p>Vamos a simular el funcionamiento de una cocina con 3 cocineros y 5 cuchillos. Para la receta, cada cocinero necesita coger algún cuchillo durante 3 segundos y después lo suelta. Todos los cocineros necesitan coger algún cuchillo 4 veces.</p>
-<p>Por pantalla se muestra qué cocinero coge o suelta un cuchillo y cuántos cuchillos quedan libres. Al final tienen que quedar los 5 libres, en todas las ejecuciones.</p>
+<p>Vamos a simular el funcionamiento de una cocina con 7 cocineros y 5 cuchillos. Para la receta, cada cocinero necesita coger un cuchillo durante 3 segundos y después lo suelta. Todos los cocineros necesitan coger un cuchillo 4 veces. Si no queda ningún cuchillo libre, el cocinero espera a que otro suelte uno.</p>
+<p>Por pantalla se muestra qué cocinero coge o suelta un cuchillo y cuántos cuchillos quedan libres. Los cuchillos libres nunca pueden ser menos de 0 y al final tienen que quedar los 5 libres, en todas las ejecuciones.</p>
 
 <div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
-<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Lo que comparten los 3 cocineros es la cocina, y lo que cambian a la vez es el número de cuchillos libres. Como hay más cuchillos que cocineros, nadie tiene que esperar: lo importante es que la cuenta no se pierda. Para que un cocinero tarde 3 segundos con el cuchillo, el hilo tiene que dormir. Piensa dónde conviene dormir: ¿dentro o fuera del método sincronizado?</p>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Lo que comparten los cocineros es la cocina, y lo que cambian a la vez es el número de cuchillos libres. Empieza con 3 cocineros y sin esperas: así nadie se queda sin cuchillo. Después haz que el cocinero tarde 3 segundos con el cuchillo: el hilo tiene que dormir. Piensa dónde conviene dormir: ¿dentro o fuera del método sincronizado? Por último, sube a 7 cocineros y mira qué pasa con los cuchillos libres. Un cocinero que no encuentra cuchillo tiene que esperar, y el que suelta uno tiene que avisar.</p>
 </div>
-<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>Cocina</code> con un atributo <code>int</code> para los cuchillos libres, que reciba el total (5) en el constructor, y dos métodos <code>synchronized</code>: <code>coger</code>, que resta 1 y muestra quién coge y cuántos quedan, y <code>soltar</code>, que suma 1 y lo muestra. Crea una clase <code>Cocinero</code> que implementa <code>Runnable</code> y recibe la cocina en el constructor. En <code>run()</code>, un <code>for</code> de 4 vueltas: coger, esperar 3 segundos con <code>Thread.sleep(3000)</code> y soltar. El <code>sleep</code> obliga a escribir un <code>try</code> con <code>catch (InterruptedException e)</code>. La espera va fuera de los métodos sincronizados, para que los demás cocineros puedan coger su cuchillo mientras tanto. En <code>Principal</code>, crea una sola cocina con 5 cuchillos y, con un <code>for</code> de 3 vueltas, crea y arranca un hilo por cocinero con <code>new Thread(new Cocinero(cocina), &quot;Cocinero &quot; + i)</code>.</p>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>Cocina</code> con un atributo <code>int</code> para los cuchillos libres, que reciba el total (5) en el constructor, y dos métodos <code>synchronized</code>: <code>coger</code>, que resta 1 y muestra quién coge y cuántos quedan, y <code>soltar</code>, que suma 1 y lo muestra. Crea una clase <code>Cocinero</code> que implementa <code>Runnable</code> y recibe la cocina en el constructor. En <code>run()</code>, un <code>for</code> de 4 vueltas: coger, esperar 3 segundos con <code>sleep(3000)</code> y soltar. El <code>sleep</code> obliga a escribir un <code>try</code> con <code>catch (InterruptedException e)</code> y un <code>import static java.lang.Thread.sleep;</code>: NetBeans los escribe con la bombilla. La espera va fuera de los métodos sincronizados, para que los demás cocineros puedan coger su cuchillo mientras tanto. En <code>Principal</code>, crea una sola cocina con 5 cuchillos y, con un <code>for</code>, crea y arranca un hilo por cocinero con <code>new Thread(new Cocinero(cocina), &quot;Cocinero &quot; + i)</code>. Con 7 cocineros, en <code>coger</code> espera con un <code>while</code> mientras no haya cuchillos libres, con <code>wait()</code> dentro de un <code>try</code> y <code>catch</code>. En <code>soltar</code>, después de sumar, avisa a los que esperan con <code>notifyAll()</code>.</p>
 </div>
 <div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
 <li>Crea el proyecto <code>CocinaCuchillos</code> y el paquete <code>cocina</code>.</li>
@@ -103,10 +103,15 @@
 <li>Escribe el método <code>coger</code> con la palabra <code>synchronized</code>: resta 1 a <code>libres</code> y muestra el nombre del hilo, «coge un cuchillo» y los libres.</li>
 <li>Escribe el método <code>soltar</code> igual, pero sumando 1 y mostrando «suelta el cuchillo».</li>
 <li>Crea la clase <code>Cocinero</code>, que implementa <code>Runnable</code>, guarda la cocina en un atributo recibido por el constructor y tiene un <code>run()</code>.</li>
-<li>En <code>run()</code>, con un <code>for</code> de 1 a 4: llama a <code>coger()</code>, duerme 3000 milisegundos dentro de un <code>try</code> con <code>catch (InterruptedException e)</code> y llama a <code>soltar()</code>.</li>
+<li>En <code>run()</code>, con un <code>for</code> de 1 a 4: llama a <code>coger()</code> y a <code>soltar()</code>.</li>
 <li>En <code>Principal</code>, crea una sola <code>Cocina</code> con 5 cuchillos.</li>
-<li>Con un <code>for</code> de 1 a 3, crea un hilo con <code>Cocinero</code> (&quot;Cocinero 1&quot;...) y arráncalo con <code>start()</code> en la misma línea.</li>
-<li>Ejecútalo y comprueba que el último mensaje dice 5 libres. Tarda unos 12 segundos.</li>
+<li>Con un <code>for</code> de 1 a 3, crea un hilo con <code>Cocinero</code> (&quot;Cocinero 1&quot;...) y arráncalo con <code>start()</code> en la misma línea. Ejecútalo: termina al instante y quedan 5 libres.</li>
+<li>Para que cocinar tarde, escribe <code>sleep(3000);</code> primero dentro de <code>coger()</code> y acepta con la bombilla el <code>import static</code> y el <code>try</code> con <code>catch</code>. Ejecútalo: tarda unos 36 segundos porque se esperan unos a otros.</li>
+<li>Quita ese <code>sleep</code> y ponlo en <code>run()</code> de <code>Cocinero</code>, entre <code>coger()</code> y <code>soltar()</code>. Ejecútalo: tarda unos 12 segundos.</li>
+<li>Cambia el <code>for</code> de <code>Principal</code> a 7 cocineros y ejecuta: los cuchillos libres salen negativos.</li>
+<li>En <code>coger()</code>, antes de restar, escribe un <code>while</code> que repita mientras <code>libres</code> valga 0 y dentro llama a <code>wait()</code> con la bombilla para el <code>try</code> y <code>catch</code>.</li>
+<li>En <code>soltar()</code>, después de sumar y mostrar, llama a <code>notifyAll()</code>.</li>
+<li>Ejecútalo: los libres nunca bajan de 0 y el último mensaje dice 5 libres.</li>
 </ol>
 </div>
 </section>
@@ -117,6 +122,10 @@
 <li>¿Cómo evitarías que dos hilos estén a la vez dentro de <code>incrementaCuenta</code>? (Lo haces en el ejercicio 2.)</li>
 <li>En el ejercicio 2, ¿por qué hay que poner <code>synchronized</code> también en <code>decrementaCuenta</code>?</li>
 <li>¿Qué se ha perdido a cambio de que el resultado sea correcto? (Pista: los hilos ya no trabajan a la vez dentro del jardín.)</li>
+<li>En la cocina, si el <code>sleep</code> está dentro de <code>coger()</code>, ¿cuánto tarda con 3 cocineros y por qué? ¿Y si está en <code>Cocinero</code>?</li>
+<li>Con 7 cocineros y 5 cuchillos y sin <code>wait()</code>, ¿qué números raros salen en los cuchillos libres? ¿Por qué?</li>
+<li>¿Por qué <code>wait()</code> suelta el cerrojo mientras espera? ¿Qué pasaría si no lo soltara?</li>
+<li>¿Por qué se escribe <code>while</code> y no <code>if</code> antes del <code>wait()</code>?</li>
 </ol>
 </section>
 </main>
