@@ -25,7 +25,7 @@
 <div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
 <div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El jardín es algo que comparten los 2000 hilos, así que necesita su propia clase y todos los hilos reciben el mismo objeto. Hacen falta dos tipos de hilo: uno que suma 1 y otro que resta 1. Cada hilo muestra la cuenta, así que el resultado se lee en el registro. Fíjate en que sumar 1 a una variable no es un solo paso para el ordenador.</p>
 </div>
-<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>RecursoJardin</code> con un atributo <code>int</code> que empiece en 100 y dos métodos: <code>incrementaCuenta</code> y <code>decrementaCuenta</code>. Cada método muestra qué hilo entra o sale (con <code>Thread.currentThread().getName()</code>), suma o resta 1 a la cuenta con <code>cuenta++</code> o <code>cuenta--</code> y muestra la cuenta. Las clases <code>EntraJardin</code> y <code>SaleJardin</code> implementan <code>Runnable</code>, reciben el jardín en el constructor y llaman a su método en <code>run()</code>. En <code>Principal</code>, crea un solo jardín. Con un <code>for</code> de 1000 vueltas, crea y arranca en cada una un hilo que entra, con <code>new Thread(new EntraJardin(jardin), &quot;Entra&quot; + i).start()</code>. Con otro <code>for</code> de 1000 vueltas, haz lo mismo con los hilos que salen.</p>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Hacen falta cuatro clases. <code>RecursoJardin</code> es el jardín: guarda el número de personas, que empieza en 100, y tiene dos métodos, <code>incrementaCuenta</code> y <code>decrementaCuenta</code>. Cada método muestra qué hilo entra o sale (con <code>Thread.currentThread().getName()</code>), cambia la cuenta y la muestra. <code>EntraJardin</code> y <code>SaleJardin</code> son los hilos: implementan <code>Runnable</code>, reciben el jardín en el constructor y llaman a su método en <code>run()</code>. En <code>Principal</code> se crea un solo jardín y se arrancan 1000 hilos de cada tipo, con un <code>for</code> para cada uno. Dales nombre (&quot;Entra1&quot;, &quot;Sale1&quot;...) para leer el registro.</p>
 </div>
 <div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
 <li>Crea el proyecto <code>ProblemaJardines</code> y el paquete <code>jardines</code>.</li>
@@ -45,7 +45,7 @@
 </section>
 <section class="ejercicio tarjeta" id="ej-2" data-ejercicio="ej-2">
 <h2>Ejercicio 2: los jardines sincronizados (proyecto <code>JardinesSincronizado</code>)</h2>
-<p>Es el mismo programa del ejercicio 1: 100 personas, 10 entran y 10 salen a la vez. Pero ahora el resultado tiene que ser siempre el correcto.</p>
+<p>Es el mismo programa del ejercicio 1: 100 personas, 1000 entran y 1000 salen a la vez. Pero ahora el resultado tiene que ser siempre el correcto.</p>
 <p>El último mensaje es <code>100 en jardín</code>, en todas las ejecuciones.</p>
 
 <div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
@@ -93,7 +93,7 @@
 <p>Por pantalla se muestra qué cocinero coge o suelta un cuchillo y cuántos cuchillos quedan libres. Los cuchillos libres nunca pueden ser menos de 0 y al final tienen que quedar los 5 libres, en todas las ejecuciones.</p>
 
 <div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
-<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Lo que comparten los cocineros es la cocina, y lo que cambian a la vez es el número de cuchillos libres. Empieza con 4 cocineros y sin esperas: así nadie se queda sin cuchillo. Después haz que el cocinero tarde 3 segundos con el cuchillo: el hilo tiene que dormir. Piensa dónde conviene dormir: ¿dentro o fuera del método sincronizado? Por último, sube a 7 cocineros y mira qué pasa con los cuchillos libres. Un cocinero que no encuentra cuchillo tiene que esperar, y el que suelta uno tiene que avisar.</p>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Lo que comparten los cocineros es la cocina, y lo que cambian a la vez es el número de cuchillos libres. Empieza con 4 cocineros y sin esperas, y mira qué pasa. Ve añadiendo una cosa cada vez y ejecuta después de cada cambio.</p>
 </div>
 <div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>Cocina</code> con un atributo <code>int</code> para los cuchillos libres, que reciba el total (5) en el constructor, y dos métodos <code>synchronized</code>: <code>coger</code>, que resta 1 y muestra quién coge y cuántos quedan, y <code>soltar</code>, que suma 1 y lo muestra. Crea una clase <code>Cocinero</code> que implementa <code>Runnable</code> y recibe la cocina en el constructor. En <code>run()</code>, un <code>for</code> de 4 vueltas: coger, esperar 3 segundos con <code>sleep(3000)</code> y soltar. El <code>sleep</code> obliga a escribir un <code>try</code> con <code>catch (InterruptedException e)</code> y un <code>import static java.lang.Thread.sleep;</code>: NetBeans los escribe con la bombilla. La espera va fuera de los métodos sincronizados, para que los demás cocineros puedan coger su cuchillo mientras tanto. En <code>Principal</code>, crea una sola cocina con 5 cuchillos y, con un <code>for</code>, crea y arranca un hilo por cocinero con <code>new Thread(new Cocinero(cocina), &quot;Cocinero &quot; + i)</code>. Con 7 cocineros, en <code>coger</code> espera con un <code>while</code> mientras no haya cuchillos libres, con <code>wait()</code> dentro de un <code>try</code> y <code>catch</code>. En <code>soltar</code>, después de sumar, avisa a los que esperan con <code>notifyAll()</code>.</p>
 </div>
@@ -115,6 +115,33 @@
 </ol>
 </div>
 </section>
+<section class="ejercicio tarjeta" id="ej-5" data-ejercicio="ej-5">
+<h2>Ejercicio 5: el parking (proyecto <code>ParkingCoches</code>)</h2>
+<p>Vamos a simular un parking con 3 plazas al que llegan 8 coches. Cada coche entra, aparca durante 2 segundos y sale. Todos los coches hacen esto 3 veces. Si no queda ninguna plaza libre, el coche espera en la puerta hasta que otro salga.</p>
+<p>Por pantalla se muestra qué coche entra o sale y cuántas plazas quedan libres. Las plazas libres nunca pueden ser menos de 0 y al final tienen que quedar las 3 libres, en todas las ejecuciones.</p>
+<p>Este ejercicio lo haces tú solo: es el mismo problema de la cocina con otra historia. Antes de abrir ninguna ayuda, intenta decidir qué es el recurso compartido, qué hace cada hilo y qué pasa cuando no hay plazas.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Lo que comparten los coches es el parking, y lo que cambian a la vez es el número de plazas libres. Compara con la cocina: ¿qué era allí cada cosa? Empieza con 3 coches y sin esperas, y ve añadiendo una cosa cada vez.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>Parking</code> con un atributo <code>int</code> para las plazas libres, que reciba el total (3) en el constructor, y dos métodos: <code>entrar</code> y <code>salir</code>. <code>entrar</code> resta 1 y muestra qué coche entra y cuántas plazas quedan. <code>salir</code> suma 1 y lo muestra. Crea una clase <code>Coche</code> que implementa <code>Runnable</code> y recibe el parking en el constructor. En <code>run()</code>, un <code>for</code> de 3 vueltas: entrar, aparcar 2 segundos y salir. Los coches aparcan fuera de los métodos del parking, para que los demás puedan entrar mientras tanto. Con 8 coches, ¿qué tiene que hacer <code>entrar</code> si no hay plazas? ¿Y qué tiene que hacer <code>salir</code> para que los que esperan se enteren?</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>ParkingCoches</code> y el paquete <code>parking</code>.</li>
+<li>Crea la clase <code>Parking</code> con un atributo privado <code>int</code> llamado <code>libres</code>, que reciba su valor inicial por el constructor.</li>
+<li>Escribe <code>entrar</code> con <code>synchronized</code>: resta 1 a <code>libres</code> y muestra el nombre del hilo, «entra» y las plazas libres.</li>
+<li>Escribe <code>salir</code> igual, pero sumando 1 y mostrando «sale».</li>
+<li>Crea la clase <code>Coche</code>, que implementa <code>Runnable</code>, guarda el parking en un atributo recibido por el constructor y tiene un <code>run()</code>.</li>
+<li>En <code>run()</code>, con un <code>for</code> de 1 a 3: llama a <code>entrar()</code>, aparca con <code>sleep(2000)</code> y llama a <code>salir()</code>.</li>
+<li>En <code>Principal</code>, crea un solo <code>Parking</code> con 3 plazas.</li>
+<li>Con un <code>for</code> de 1 a 3, crea un hilo con <code>Coche</code> (&quot;Coche 1&quot;...) y arráncalo con <code>start()</code> en la misma línea. Ejecútalo: quedan 3 libres.</li>
+<li>Cambia el <code>for</code> a 8 coches y ejecuta: las plazas libres salen negativas.</li>
+<li>En <code>entrar()</code>, antes de restar, escribe un <code>while</code> que repita mientras <code>libres</code> valga 0 y dentro llama a <code>wait()</code>.</li>
+<li>En <code>salir()</code>, después de sumar y mostrar, llama a <code>notifyAll()</code>.</li>
+<li>Ejecútalo: las plazas libres nunca bajan de 0, termina en 3 y tarda unos 18 segundos.</li>
+</ol>
+</div>
+</section>
 <section class="tarjeta"><h2>Preguntas</h2><ol>
 <li>Ejecuta el ejercicio varias veces. ¿Sale 100? ¿Tienen sentido los mensajes de los hilos? ¿Qué números raros ves en <code>en jardín</code>?</li>
 <li>Si hoy ha salido 100, ¿significa que el programa es correcto? ¿Podría fallar en otro ordenador o en otra ejecución?</li>
@@ -126,6 +153,7 @@
 <li>Con 7 cocineros y 5 cuchillos y sin <code>wait()</code>, ¿qué números raros salen en los cuchillos libres? ¿Por qué?</li>
 <li>¿Por qué <code>wait()</code> suelta el cerrojo mientras espera? ¿Qué pasaría si no lo soltara?</li>
 <li>¿Por qué se escribe <code>while</code> y no <code>if</code> antes del <code>wait()</code>?</li>
+<li>En el parking, ¿qué cambia si pones <code>if</code> en vez de <code>while</code> antes del <code>wait()</code>? ¿Y si te olvidas de <code>notifyAll()</code> en <code>salir()</code>?</li>
 </ol>
 </section>
 </main>

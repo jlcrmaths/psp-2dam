@@ -14,7 +14,7 @@ Ejecuta el programa varias veces. Mira qué dice el último mensaje y fíjate ta
 El jardín es algo que comparten los 2000 hilos, así que necesita su propia clase y todos los hilos reciben el mismo objeto. Hacen falta dos tipos de hilo: uno que suma 1 y otro que resta 1. Cada hilo muestra la cuenta, así que el resultado se lee en el registro. Fíjate en que sumar 1 a una variable no es un solo paso para el ordenador.
 
 ### Más ayuda
-Crea una clase `RecursoJardin` con un atributo `int` que empiece en 100 y dos métodos: `incrementaCuenta` y `decrementaCuenta`. Cada método muestra qué hilo entra o sale (con `Thread.currentThread().getName()`), suma o resta 1 a la cuenta con `cuenta++` o `cuenta--` y muestra la cuenta. Las clases `EntraJardin` y `SaleJardin` implementan `Runnable`, reciben el jardín en el constructor y llaman a su método en `run()`. En `Principal`, crea un solo jardín. Con un `for` de 1000 vueltas, crea y arranca en cada una un hilo que entra, con `new Thread(new EntraJardin(jardin), "Entra" + i).start()`. Con otro `for` de 1000 vueltas, haz lo mismo con los hilos que salen.
+Hacen falta cuatro clases. `RecursoJardin` es el jardín: guarda el número de personas, que empieza en 100, y tiene dos métodos, `incrementaCuenta` y `decrementaCuenta`. Cada método muestra qué hilo entra o sale (con `Thread.currentThread().getName()`), cambia la cuenta y la muestra. `EntraJardin` y `SaleJardin` son los hilos: implementan `Runnable`, reciben el jardín en el constructor y llaman a su método en `run()`. En `Principal` se crea un solo jardín y se arrancan 1000 hilos de cada tipo, con un `for` para cada uno. Dales nombre ("Entra1", "Sale1"...) para leer el registro.
 
 ### Paso a paso
 1. Crea el proyecto `ProblemaJardines` y el paquete `jardines`.
@@ -32,7 +32,7 @@ Crea una clase `RecursoJardin` con un atributo `int` que empiece en 100 y dos m�
 
 ## Ejercicio 2: los jardines sincronizados (proyecto `JardinesSincronizado`)
 
-Es el mismo programa del ejercicio 1: 100 personas, 10 entran y 10 salen a la vez. Pero ahora el resultado tiene que ser siempre el correcto.
+Es el mismo programa del ejercicio 1: 100 personas, 1000 entran y 1000 salen a la vez. Pero ahora el resultado tiene que ser siempre el correcto.
 
 El último mensaje es `100 en jardín`, en todas las ejecuciones.
 
@@ -81,7 +81,7 @@ Vamos a simular el funcionamiento de una cocina con 7 cocineros y 5 cuchillos. P
 Por pantalla se muestra qué cocinero coge o suelta un cuchillo y cuántos cuchillos quedan libres. Los cuchillos libres nunca pueden ser menos de 0 y al final tienen que quedar los 5 libres, en todas las ejecuciones.
 
 ### Pistas
-Lo que comparten los cocineros es la cocina, y lo que cambian a la vez es el número de cuchillos libres. Empieza con 4 cocineros y sin esperas: así nadie se queda sin cuchillo. Después haz que el cocinero tarde 3 segundos con el cuchillo: el hilo tiene que dormir. Piensa dónde conviene dormir: ¿dentro o fuera del método sincronizado? Por último, sube a 7 cocineros y mira qué pasa con los cuchillos libres. Un cocinero que no encuentra cuchillo tiene que esperar, y el que suelta uno tiene que avisar.
+Lo que comparten los cocineros es la cocina, y lo que cambian a la vez es el número de cuchillos libres. Empieza con 4 cocineros y sin esperas, y mira qué pasa. Ve añadiendo una cosa cada vez y ejecuta después de cada cambio.
 
 ### Más ayuda
 Crea una clase `Cocina` con un atributo `int` para los cuchillos libres, que reciba el total (5) en el constructor, y dos métodos `synchronized`: `coger`, que resta 1 y muestra quién coge y cuántos quedan, y `soltar`, que suma 1 y lo muestra. Crea una clase `Cocinero` que implementa `Runnable` y recibe la cocina en el constructor. En `run()`, un `for` de 4 vueltas: coger, esperar 3 segundos con `sleep(3000)` y soltar. El `sleep` obliga a escribir un `try` con `catch (InterruptedException e)` y un `import static java.lang.Thread.sleep;`: NetBeans los escribe con la bombilla. La espera va fuera de los métodos sincronizados, para que los demás cocineros puedan coger su cuchillo mientras tanto. En `Principal`, crea una sola cocina con 5 cuchillos y, con un `for`, crea y arranca un hilo por cocinero con `new Thread(new Cocinero(cocina), "Cocinero " + i)`. Con 7 cocineros, en `coger` espera con un `while` mientras no haya cuchillos libres, con `wait()` dentro de un `try` y `catch`. En `soltar`, después de sumar, avisa a los que esperan con `notifyAll()`.
@@ -102,6 +102,34 @@ Crea una clase `Cocina` con un atributo `int` para los cuchillos libres, que rec
 13. En `soltar()`, después de sumar y mostrar, llama a `notifyAll()`.
 14. Ejecútalo: los libres nunca bajan de 0 y el último mensaje dice 5 libres.
 
+## Ejercicio 5: el parking (proyecto `ParkingCoches`)
+
+Vamos a simular un parking con 3 plazas al que llegan 8 coches. Cada coche entra, aparca durante 2 segundos y sale. Todos los coches hacen esto 3 veces. Si no queda ninguna plaza libre, el coche espera en la puerta hasta que otro salga.
+
+Por pantalla se muestra qué coche entra o sale y cuántas plazas quedan libres. Las plazas libres nunca pueden ser menos de 0 y al final tienen que quedar las 3 libres, en todas las ejecuciones.
+
+Este ejercicio lo haces tú solo: es el mismo problema de la cocina con otra historia. Antes de abrir ninguna ayuda, intenta decidir qué es el recurso compartido, qué hace cada hilo y qué pasa cuando no hay plazas.
+
+### Pistas
+Lo que comparten los coches es el parking, y lo que cambian a la vez es el número de plazas libres. Compara con la cocina: ¿qué era allí cada cosa? Empieza con 3 coches y sin esperas, y ve añadiendo una cosa cada vez.
+
+### Más ayuda
+Crea una clase `Parking` con un atributo `int` para las plazas libres, que reciba el total (3) en el constructor, y dos métodos: `entrar` y `salir`. `entrar` resta 1 y muestra qué coche entra y cuántas plazas quedan. `salir` suma 1 y lo muestra. Crea una clase `Coche` que implementa `Runnable` y recibe el parking en el constructor. En `run()`, un `for` de 3 vueltas: entrar, aparcar 2 segundos y salir. Los coches aparcan fuera de los métodos del parking, para que los demás puedan entrar mientras tanto. Con 8 coches, ¿qué tiene que hacer `entrar` si no hay plazas? ¿Y qué tiene que hacer `salir` para que los que esperan se enteren?
+
+### Paso a paso
+1. Crea el proyecto `ParkingCoches` y el paquete `parking`.
+2. Crea la clase `Parking` con un atributo privado `int` llamado `libres`, que reciba su valor inicial por el constructor.
+3. Escribe `entrar` con `synchronized`: resta 1 a `libres` y muestra el nombre del hilo, «entra» y las plazas libres.
+4. Escribe `salir` igual, pero sumando 1 y mostrando «sale».
+5. Crea la clase `Coche`, que implementa `Runnable`, guarda el parking en un atributo recibido por el constructor y tiene un `run()`.
+6. En `run()`, con un `for` de 1 a 3: llama a `entrar()`, aparca con `sleep(2000)` y llama a `salir()`.
+7. En `Principal`, crea un solo `Parking` con 3 plazas.
+8. Con un `for` de 1 a 3, crea un hilo con `Coche` ("Coche 1"...) y arráncalo con `start()` en la misma línea. Ejecútalo: quedan 3 libres.
+9. Cambia el `for` a 8 coches y ejecuta: las plazas libres salen negativas.
+10. En `entrar()`, antes de restar, escribe un `while` que repita mientras `libres` valga 0 y dentro llama a `wait()`.
+11. En `salir()`, después de sumar y mostrar, llama a `notifyAll()`.
+12. Ejecútalo: las plazas libres nunca bajan de 0, termina en 3 y tarda unos 18 segundos.
+
 ## Preguntas
 
 1. Ejecuta el ejercicio varias veces. ¿Sale 100? ¿Tienen sentido los mensajes de los hilos? ¿Qué números raros ves en `en jardín`?
@@ -114,3 +142,4 @@ Crea una clase `Cocina` con un atributo `int` para los cuchillos libres, que rec
 8. Con 7 cocineros y 5 cuchillos y sin `wait()`, ¿qué números raros salen en los cuchillos libres? ¿Por qué?
 9. ¿Por qué `wait()` suelta el cerrojo mientras espera? ¿Qué pasaría si no lo soltara?
 10. ¿Por qué se escribe `while` y no `if` antes del `wait()`?
+11. En el parking, ¿qué cambia si pones `if` en vez de `while` antes del `wait()`? ¿Y si te olvidas de `notifyAll()` en `salir()`?
