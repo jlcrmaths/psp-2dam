@@ -7,19 +7,18 @@
 <!-- html -->
   <h3>Objetivo de la clase</h3>
   <ul>
-    <li>Entender qué pasa cuando dos hilos <b>comparten</b> un objeto</li>
-    <li>Hacer que un hilo <b>espere</b> a otro con el método <code>wait()</code> de la clase <code>Object</code></li>
-    <li>Avisar con los métodos <code>notify()</code> y <code>notifyAll()</code> de la clase <code>Object</code></li>
-    <li>Proteger el objeto con <code>synchronized</code></li>
+    <li>Hilos con <b>papeles distintos</b> que se esperan entre sí</li>
+    <li>Cuándo basta <code>notify()</code> y cuándo hace falta <code>notifyAll()</code></li>
+    <li>Cómo avisar a los que esperan de que <b>ya no habrá más</b></li>
     <li>Resolver el problema del pintor y los vendedores</li>
   </ul>
 
 ---
 
 <!-- html -->
-  <h3>Hasta ahora, hilos que no se hablan</h3>
-  <p>En 6.1 cada hilo hacía lo suyo. No compartían nada.</p>
-  <p class="fragment">Hoy los hilos <b>comparten un objeto</b> y tienen que <b>ponerse de acuerdo</b>: uno espera a que el otro haga algo.</p>
+  <h3>De la cocina al almacén</h3>
+  <p>En la cocina de 6.3, todos los cocineros hacían <b>lo mismo</b> y esperaban un cuchillo.</p>
+  <p class="fragment">Hoy cada hilo tiene un <b>papel distinto</b>: uno espera a que el otro haga algo antes de poder seguir.</p>
 
 --
 
@@ -37,12 +36,10 @@
 <!-- html -->
     <div class="nuevo">
     <h3>Lo nuevo de hoy</h3>
-    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>synchronized</code>: solo un hilo a la vez dentro del método.</p></div>
-    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>wait()</code> de la clase <code>Object</code>: el hilo se duerme y suelta el cerrojo hasta que alguien lo avise.</p></div>
-    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>notify()</code> de la clase <code>Object</code>: despierta a uno de los hilos que esperan.</p></div>
-    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>notifyAll()</code> de la clase <code>Object</code>: despierta a todos los que esperan; cada uno vuelve a comprobar su condición.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>notify()</code> de la clase <code>Object</code>: despierta a <b>uno</b> de los hilos que esperan. Con <code>notifyAll()</code>, de la cocina, se despertaba a todos.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Idea</span><p>Una <b>señal de fin</b>: un dato compartido que avisa a los que esperan de que ya no habrá más.</p></div>
     </div>
-    <p class="aviso">Los métodos <code>wait()</code>, <code>notify()</code> y <code>notifyAll()</code> solo se pueden llamar <b>dentro</b> de un método <code>synchronized</code>.</p>
+    <p class="aviso">Repaso de 6.3: <code>synchronized</code>, <code>wait()</code> y <code>notifyAll()</code> funcionan igual que en la cocina.</p>
 
 ---
 
@@ -64,7 +61,7 @@
   <ul>
     <li>¿Quién es el objeto que comparten? <span class="fragment">El almacén. Será una clase: <code>Almacen</code>.</span></li>
     <li>¿Cómo sabe el almacén si está lleno? <span class="fragment">Un <code>boolean</code>: <code>hayCuadro</code>.</span></li>
-    <li>¿Cómo saben pintor y vendedor que usan el <b>mismo</b> almacén? <span class="fragment">Reciben el mismo objeto por el constructor.</span></li>
+    <li>¿Qué es distinto de la cocina? <span class="fragment">Aquí hay <b>dos papeles</b>: el pintor espera si está lleno y el vendedor espera si está vacío.</span></li>
   </ul>
 
 --
@@ -89,7 +86,7 @@
   <h3>Línea por línea (2)</h3>
   <ul class="peque">
     <li><code>wait();</code><br>El pintor se <b>duerme</b> y <b>suelta el almacén</b>, para que el vendedor pueda entrar a sacar el cuadro.</li>
-    <li><code>try { … } catch (InterruptedException e) { }</code><br>Java obliga a escribirlo con el método <code>wait()</code>, por si alguien interrumpe la espera. Aquí no hacemos nada con ese aviso.</li>
+    <li><code>try { … } catch (InterruptedException e) { }</code><br>Igual que con el <code>wait()</code> de la cocina.</li>
     <li><code>hayCuadro = true;</code><br>Ya se puede dejar el cuadro: el almacén pasa a estar lleno.</li>
     <li><code>notify();</code><br>Método de la clase <code>Object</code>: «¡Despierta, vendedor, ya hay un cuadro!»</li>
   </ul>
@@ -107,9 +104,8 @@
 --
 
 <!-- html -->
-  <h3>¿Por qué <code>while</code> y no <code>if</code>?</h3>
-  <p>Un hilo despertado <b>no tiene garantizado</b> que ya se pueda continuar. Puede que otro se le haya adelantado.</p>
-  <p class="caja">Con <code>while</code> el hilo, al despertar, <b>vuelve a mirar</b> la condición. Si no se cumple, se duerme otra vez.</p>
+  <h3>Repaso: <code>while</code> y no <code>if</code></h3>
+  <p class="caja">Como en la cocina: al despertar, el hilo <b>vuelve a mirar</b> la condición. Aquí importa más cuando hay dos vendedores.</p>
 
 --
 
@@ -161,10 +157,10 @@ vendedor.start();
 --
 
 <!-- html -->
-  <h3>Dos problemas nuevos</h3>
+  <h3>Un problema nuevo y uno conocido</h3>
   <ol>
-    <li><b>Hay tres hilos esperando.</b> <code>notify()</code> despierta a <b>uno cualquiera</b>. Si despierta al vendedor equivocado, el pintor se queda dormido para siempre.<br><span class="fragment">Solución: <code>notifyAll()</code>.</span></li>
-    <li class="fragment"><b>¿Cuándo dejan de esperar los vendedores?</b> Ninguno sabe cuántos cuadros le tocan.<br><span class="fragment">Solución: el almacén apunta si el pintor ha <code>terminado</code>.</span></li>
+    <li><b>Hay tres hilos esperando.</b> Con <code>notify()</code> despierta uno cualquiera: puede ser el equivocado y el pintor se queda dormido para siempre.<br><span class="fragment">Como en la cocina: <code>notifyAll()</code>.</span></li>
+    <li class="fragment"><b>¿Cuándo dejan de esperar los vendedores?</b> Ninguno sabe cuántos cuadros le tocan. <b>Esto es nuevo.</b><br><span class="fragment">Solución: el almacén apunta si el pintor ha <code>terminado</code>.</span></li>
   </ol>
 
 --
@@ -235,11 +231,10 @@ v2.start();
 <!-- html -->
   <h3>Errores típicos</h3>
   <ul>
-    <li>Olvidar <code>notify()</code>: el otro hilo duerme para siempre y el programa <b>no termina</b></li>
-    <li>Crear un almacén por hilo: nadie se comunica</li>
-    <li>Llamar a <code>wait()</code> fuera de <code>synchronized</code>: <code>IllegalMonitorStateException</code></li>
-    <li><code>if</code> en vez de <code>while</code>: un vendedor vende un cuadro que ya no está</li>
     <li>Usar <code>notify()</code> con dos vendedores: a veces funciona y a veces se cuelga</li>
+    <li>Olvidar <code>terminar()</code>: los vendedores esperan para siempre y el programa <b>no termina</b></li>
+    <li>Mirar <code>terminado</code> antes que <code>hayCuadro</code>: se pierde el último cuadro</li>
+    <li>Crear un almacén por hilo: nadie se comunica</li>
   </ul>
 
 --
@@ -248,7 +243,7 @@ v2.start();
   <h3>Para pensar</h3>
   <ol>
     <li>Quita el <code>wait()</code> del vendedor del ejercicio 1. ¿Qué pasa?</li>
-    <li>¿Por qué <code>while</code> y no <code>if</code>?</li>
     <li>En el ejercicio 2, ¿se reparten los cuadros por igual?</li>
     <li>¿Qué pasa si el pintor no llama a <code>terminar()</code>?</li>
+    <li>Con un pintor y un vendedor, ¿vale <code>notify()</code>? ¿Y con tres hilos?</li>
   </ol>
