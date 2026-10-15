@@ -132,14 +132,24 @@ Crea una clase `Parking` con un atributo `int` para las plazas libres, que recib
 
 ## Preguntas
 
+### Sobre el ejercicio 1
 1. Ejecuta el ejercicio varias veces. ¿Sale 100? ¿Tienen sentido los mensajes de los hilos? ¿Qué números raros ves en `en jardín`?
 2. Si hoy ha salido 100, ¿significa que el programa es correcto? ¿Podría fallar en otro ordenador o en otra ejecución?
 3. Dos hilos leen la cuenta a la vez (100) y los dos guardan 101. ¿Cuántas personas han entrado? ¿Cuántas cuenta el programa?
-4. ¿Cómo evitarías que dos hilos estén a la vez dentro de `incrementaCuenta`? (Lo haces en el ejercicio 2.)
-5. En el ejercicio 2, ¿por qué hay que poner `synchronized` también en `decrementaCuenta`?
+
+### Sobre el ejercicio 2
+4. ¿Cómo evitarías que dos hilos estén a la vez dentro de `incrementaCuenta`?
+5. ¿Por qué hay que poner `synchronized` también en `decrementaCuenta`?
 6. ¿Qué se ha perdido a cambio de que el resultado sea correcto? (Pista: los hilos ya no trabajan a la vez dentro del jardín.)
-7. En la cocina, si el `sleep` está dentro de `coger()`, ¿cuánto tarda con 4 cocineros y por qué? ¿Y si está en `Cocinero`?
-8. Con 7 cocineros y 5 cuchillos y sin `wait()`, ¿qué números raros salen en los cuchillos libres? ¿Por qué?
-9. ¿Por qué `wait()` suelta el cerrojo mientras espera? ¿Qué pasaría si no lo soltara?
-10. ¿Por qué se escribe `while` y no `if` antes del `wait()`?
-11. En el parking, ¿qué cambia si pones `if` en vez de `while` antes del `wait()`? ¿Y si te olvidas de `notifyAll()` en `salir()`?
+
+### Sobre el ejercicio 3
+7. Quita `synchronized` de `accede` y ejecuta varias veces. Si el total sale 80, ¿significa que no hace falta? ¿Por qué?
+
+### Sobre el ejercicio 4
+8. Si el `sleep` está dentro de `coger()`, ¿cuánto tarda con 4 cocineros y por qué? ¿Y si está en `Cocinero`?
+9. Con 7 cocineros y 5 cuchillos y sin `wait()`, ¿qué números raros salen en los cuchillos libres? ¿Por qué?
+10. ¿Por qué `wait()` suelta el cerrojo mientras espera? ¿Qué pasaría si no lo soltara?
+11. ¿Por qué se escribe `while` y no `if` antes del `wait()`?
+
+### Sobre el ejercicio 5
+12. En el parking, ¿qué cambia si pones `if` en vez de `while` antes del `wait()`? ¿Y si te olvidas de `notifyAll()` en `salir()`?
