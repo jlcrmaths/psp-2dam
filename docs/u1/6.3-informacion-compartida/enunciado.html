@@ -142,17 +142,31 @@
 </ol>
 </div>
 </section>
-<section class="tarjeta"><h2>Preguntas</h2><ol>
+<section class="tarjeta"><h2>Preguntas</h2><h3>Sobre el ejercicio 1</h3>
+<ol>
 <li>Ejecuta el ejercicio varias veces. ¿Sale 100? ¿Tienen sentido los mensajes de los hilos? ¿Qué números raros ves en <code>en jardín</code>?</li>
 <li>Si hoy ha salido 100, ¿significa que el programa es correcto? ¿Podría fallar en otro ordenador o en otra ejecución?</li>
 <li>Dos hilos leen la cuenta a la vez (100) y los dos guardan 101. ¿Cuántas personas han entrado? ¿Cuántas cuenta el programa?</li>
-<li>¿Cómo evitarías que dos hilos estén a la vez dentro de <code>incrementaCuenta</code>? (Lo haces en el ejercicio 2.)</li>
-<li>En el ejercicio 2, ¿por qué hay que poner <code>synchronized</code> también en <code>decrementaCuenta</code>?</li>
+</ol>
+<h3>Sobre el ejercicio 2</h3>
+<ol start="4">
+<li>¿Cómo evitarías que dos hilos estén a la vez dentro de <code>incrementaCuenta</code>?</li>
+<li>¿Por qué hay que poner <code>synchronized</code> también en <code>decrementaCuenta</code>?</li>
 <li>¿Qué se ha perdido a cambio de que el resultado sea correcto? (Pista: los hilos ya no trabajan a la vez dentro del jardín.)</li>
-<li>En la cocina, si el <code>sleep</code> está dentro de <code>coger()</code>, ¿cuánto tarda con 4 cocineros y por qué? ¿Y si está en <code>Cocinero</code>?</li>
+</ol>
+<h3>Sobre el ejercicio 3</h3>
+<ol start="7">
+<li>Quita <code>synchronized</code> de <code>accede</code> y ejecuta varias veces. Si el total sale 80, ¿significa que no hace falta? ¿Por qué?</li>
+</ol>
+<h3>Sobre el ejercicio 4</h3>
+<ol start="8">
+<li>Si el <code>sleep</code> está dentro de <code>coger()</code>, ¿cuánto tarda con 4 cocineros y por qué? ¿Y si está en <code>Cocinero</code>?</li>
 <li>Con 7 cocineros y 5 cuchillos y sin <code>wait()</code>, ¿qué números raros salen en los cuchillos libres? ¿Por qué?</li>
 <li>¿Por qué <code>wait()</code> suelta el cerrojo mientras espera? ¿Qué pasaría si no lo soltara?</li>
 <li>¿Por qué se escribe <code>while</code> y no <code>if</code> antes del <code>wait()</code>?</li>
+</ol>
+<h3>Sobre el ejercicio 5</h3>
+<ol start="12">
 <li>En el parking, ¿qué cambia si pones <code>if</code> en vez de <code>while</code> antes del <code>wait()</code>? ¿Y si te olvidas de <code>notifyAll()</code> en <code>salir()</code>?</li>
 </ol>
 </section>
