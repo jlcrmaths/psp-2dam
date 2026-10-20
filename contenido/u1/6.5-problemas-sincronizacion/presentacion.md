@@ -380,6 +380,18 @@ for (Thread t : clientes) {
 --
 
 <!-- html -->
+  <h3>Probarlo en el simulador</h3>
+  <p>La fábrica de piezas es un productor y consumidor con <b>varios productores</b> y un tope de piezas entre todos.</p>
+  <ul>
+    <li>Escribe <code>poner()</code> y <code>retirar()</code> con las piezas del simulador</li>
+    <li>Quita el <code>if</code> con <code>return false</code>, o cambia <code>notifyAll()</code> por <code>notify()</code>, y mira <b>qué falla</b></li>
+    <li>El panel <b>Experimentos</b> te propone situaciones para ejecutar y te dice si lo que has visto es lo esperado</li>
+  </ul>
+  <p class="aviso"><a href="../../simulador/index.html#fabrica&experimentos" target="_blank" rel="noopener">Abrir el simulador de hilos</a> (se abre en otra pestaña).</p>
+
+---
+
+<!-- html -->
   <h3>Para pensar</h3>
   <ol>
     <li>¿Qué pasa si <code>contarLineas</code> no es <code>synchronized</code>?</li>
