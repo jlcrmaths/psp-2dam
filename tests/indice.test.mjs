@@ -43,3 +43,8 @@ test('paginaIndice enlaza solo lo que existe y marca las notas con candado', () 
   assert.doesNotMatch(html, /6\.2-b\/enunciado\.html/);
   assert.match(html, /href="glosario\/index\.html"/);
 });
+
+test('la portada enlaza el simulador de hilos', () => {
+  const html = paginaIndice([]);
+  assert.match(html, /href="simulador\/index\.html"/);
+});
