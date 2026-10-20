@@ -737,9 +737,10 @@ public synchronized void soltar() {
   <ul>
     <li>Arrastra o pulsa las piezas para escribir <code>synchronized</code>, <code>while</code>, <code>wait()</code> y <code>notifyAll()</code></li>
     <li>Quita el <code>while</code> o el <code>notifyAll()</code> y mira <b>qué falla</b></li>
+    <li>El panel <b>Experimentos</b> te propone situaciones para ejecutar (y alguna para completar tú) y te dice si lo que has visto es lo esperado</li>
     <li>Cambia los contadores (cocineros, cuchillos, <code>sleep</code>) y ejecuta varias veces: el orden cambia, el resultado correcto no</li>
   </ul>
-  <p class="aviso"><a href="../../simulador/index.html#cocina" target="_blank" rel="noopener">Abrir el simulador de hilos</a> (se abre en otra pestaña).</p>
+  <p class="aviso"><a href="../../simulador/index.html#cocina&experimentos" target="_blank" rel="noopener">Abrir el simulador de hilos</a> (se abre en otra pestaña).</p>
 
 ---
 

@@ -119,6 +119,19 @@ h2{font-size:.95rem;margin:0 0 8px;color:var(--mute);text-transform:uppercase;le
 .piece{padding:2px 8px;border:1px solid var(--line);border-radius:7px;font:700 .72em ui-monospace,Menlo,Consolas,monospace;cursor:grab;user-select:none;background:var(--bg)}
 .piece:hover{border-color:var(--acc)}
 .hint{color:var(--mute);font-size:.8em;margin:8px 0 0}
+.exps summary{cursor:pointer;font-size:.95rem;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.exps #exps{margin-top:8px}
+.exps .eh{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--mute);font-size:.85em;margin-bottom:6px}
+.exps .et{font-weight:700;margin:2px 0 6px}
+.exps .ebtns{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
+.exps .ebtns button{padding:4px 12px;font-size:.9em}
+.exps .res{padding:6px 10px;border-radius:8px;border:2px solid var(--line);font-size:.9em;margin-bottom:8px}
+.exps .q{margin:6px 0 4px;font-weight:700}
+.exps .opt{display:block;width:100%;text-align:left;margin:4px 0;padding:6px 12px;font-size:.92em}
+.exps .opt.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--panel))}
+.exps .opt.ko{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 14%,var(--panel))}
+.exps .why{margin:8px 0 0;padding:8px 10px;border-radius:8px;background:color-mix(in srgb,var(--acc) 12%,var(--panel));font-size:.92em}
+.exps .fin{font-weight:700}
 .tabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
 .tabs button{padding:4px 14px;border-radius:8px 8px 0 0;font-weight:700;font-size:.85em;border-bottom-width:3px;color:var(--mute)}
 .tabs button.on{border-color:var(--acc);color:var(--ink);background:color-mix(in srgb,var(--acc) 16%,var(--panel))}
@@ -157,6 +170,10 @@ h2{font-size:.95rem;margin:0 0 8px;color:var(--mute);text-transform:uppercase;le
     <details class="panel enun" id="enunPanel" open>
       <summary>Enunciado</summary>
       <div id="enun"></div>
+    </details>
+    <details class="panel exps" id="expPanel">
+      <summary>Experimentos</summary>
+      <div id="exps"></div>
     </details>
     <div class="panel">
       <h2>La escena</h2>
@@ -198,6 +215,7 @@ h2{font-size:.95rem;margin:0 0 8px;color:var(--mute);text-transform:uppercase;le
 <script>
 /* ===SIM=== */
 const TICK_CAP = 900;
+let QUIET = false;   /* true = sin dibujar (para repetir muchas veces) */
 const ORDEN_LLEGADA = false;   /* false = como Java (sin orden garantizado); true = cola por orden de llegada */
 const $ = id => document.getElementById(id);
 let nid = 1;
@@ -208,7 +226,7 @@ const blk = (kind, cond, body) => mk(kind, {cond, body});
 /* instrucciones comunes a todos los ejemplos */
 const SPECIAL = {
   wait:'wait();', notify:'notify();', notifyAll:'notifyAll();', sleep:'Thread.sleep(500);',
-  retT:'return true;', retF:'return false;', cerrarCall:'estante.cerrar();'
+  retT:'return true;', retF:'return false;', cerrarCall:'estante.cerrar();', terminarCall:'almacen.terminar();'
 };
 
 /* ----- ejemplos ----- */
@@ -399,7 +417,8 @@ const BUILD = {
       {t:'p1', n:1, name:'Pintor', emoji:'🎨', extra:a => ' · cuadros: ' + a.done + '/' + p.total,
        proc:function*(a){
          for (let i = 0; i < p.total; i++){ yield* invoke(a, 'depositar'); a.done++; }
-         yield* invoke(a, 'terminar');
+         yield* execBlock(a, prog.fin.body);
+         if (!prog.fin.body.some(n => n.kind === 'stmt' && n.op === 'terminarCall')) log('Pintor: no llama a terminar()', true);
          a.state = 'fin'; a.cur = null;
        }},
       {t:'v1', n:p.vendedores, name:'Vendedor', emoji:'💰', extra:a => ' · vendidos: ' + a.done,
@@ -421,8 +440,11 @@ const BUILD = {
     okMsg:S => '✔ Termina bien. Pintados ' + S.dep + ', vendidos ' + S.ven,
     summary:S => 'pintados ' + S.dep + ', vendidos ' + S.ven,
     mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen();', '    new Thread(new Pintor(almacen), "Pintor").start();', '    // ' + p.vendedores + ' hilos Vendedor, cada uno con su new Thread(...).start()', '}'],
-    hiloLines:['// Pintor.run(): for 1..' + p.total + ' → depositar(i); luego almacen.terminar()', '// Vendedor.run(): while (almacen.vender()) { }'],
+    hasFin:true,
+    finPre:['// Pintor.run(): for 1..' + p.total + ' → depositar(i); después:'],
+    hiloLines:['// Vendedor.run(): while (almacen.vender()) { }'],
     solution:() => ({
+      fin:{body:[st('terminarCall')]},
       m:{depositar:{mod:'synchronized', body:[blk('while', 'cuadros == capacidad', [st('wait')]), st('inc'), st('notifyAll')]},
          vender:{mod:'synchronized', body:[blk('while', 'cuadros == 0 && !terminado', [st('wait')]), blk('if', 'cuadros == 0', [st('retF')]), st('dec'), st('notifyAll'), st('retT')]},
          terminar:{mod:'synchronized', body:[st('term'), st('notifyAll')]}},
@@ -469,7 +491,7 @@ ORDER.forEach(id => { cfg[id] = {}; PARAMS[id].forEach(q => { cfg[id][q.k] = q.d
 const build = id => BUILD[id](cfg[id]);
 let cur = 'cocina', sc = build('cocina');
 const emptyProg = s => {
-  const p = {m:{}, principal:{body:[]}};
+  const p = {m:{}, principal:{body:[]}, fin:{body:[]}};
   s.methods.forEach(m => { p.m[m.name] = {mod:'', body:[]}; });
   return p;
 };
@@ -508,6 +530,10 @@ function checkList(list, where, add, isBool){
       if (n.kind !== 'stmt' || n.op !== 'cerrarCall') add(where, 'en Principal solo cabe estante.cerrar();', n.id);
       continue;
     }
+    if (where === 'Pintor.run'){
+      if (n.kind !== 'stmt' || n.op !== 'terminarCall') add(where, 'aquí solo cabe almacen.terminar();', n.id);
+      continue;
+    }
     if (n.kind === 'while' || n.kind === 'if'){
       const e = checkCond(n.cond);
       if (e) add(where + '()', e, n.id);
@@ -515,6 +541,7 @@ function checkList(list, where, add, isBool){
     } else {
       const spec = sc.ops.find(o => o.key === n.op);
       if (n.op === 'cerrarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "estante"; eso se llama desde Principal', n.id);
+      if (n.op === 'terminarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "almacen"; eso se llama desde Pintor.run()', n.id);
       if (spec && spec.err) add(where + '()', spec.err, n.id);
       if ((n.op === 'retT' || n.op === 'retF') && !isBool) add(where + '()', 'return con valor en un método void', n.id);
       if (n.op === 'retT' || n.op === 'retF') ret = true;
@@ -535,6 +562,7 @@ function compile(){
     }
   }
   if (sc.hasPrincipal) checkList(prog.principal.body, 'Principal', add, false);
+  if (sc.hasFin) checkList(prog.fin.body, 'Pintor.run', add, false);
   return errs;
 }
 
@@ -593,6 +621,7 @@ function* execNode(a, n){
     case 'retT': return {v:true};
     case 'retF': return {v:false};
     case 'cerrarCall': log(a.n + ': llama a cerrar()'); yield* invoke(a, 'cerrar'); a.cur = n.id; return;
+    case 'terminarCall': log(a.n + ': llama a terminar()'); yield* invoke(a, 'terminar'); a.cur = n.id; return;
     case 'wait': {
       if (S.lock !== a) throw imse('wait()');
       S.lock = null; a.state = 'espera'; a.woken = false; a.ticket = S.qn++;
@@ -620,6 +649,7 @@ function* execNode(a, n){
       const spec = sc.ops.find(o => o.key === n.op);
       if (spec){
         S.cnt[n.op] = (S.cnt[n.op] || 0) + 1;
+        if (spec.key === 'dec') S.entradas.push(a.n);
         const f0 = sc.filled(S);
         const msg = spec.fx(S);
         const f1 = sc.filled(S);
@@ -638,7 +668,7 @@ function* execNode(a, n){
   yield;
 }
 function resetSim(){
-  S = {v:Object.assign({}, sc.vars), dep:0, ven:0, pend:null, anim:[], cnt:{}, lockQ:[], qn:0, anomalia:false, lock:null, log:[], fin:false, ticks:0, idle:0};
+  S = {v:Object.assign({}, sc.vars), dep:0, ven:0, pend:null, anim:[], cnt:{}, lockQ:[], qn:0, entradas:[], result:null, anomalia:false, lock:null, log:[], fin:false, ticks:0, idle:0};
   agents = [];
   sc.groups.forEach(g => {
     for (let i = 1; i <= g.n; i++)
@@ -679,6 +709,7 @@ function tick(){
     msg = '∞ Demasiados pasos: parece un bucle infinito.';
   }
   if (msg){
+    S.result = ok ? 'bien' : /^⏳/.test(msg) || /colgado/.test(msg) ? 'colgado' : /^💥/.test(msg) ? 'murio' : /^∞/.test(msg) ? 'infinito' : 'mal';
     S.fin = true; stop();
     const b = $('banner'); b.className = ok ? 'ok' : 'ko'; b.textContent = msg;
   }
@@ -700,6 +731,7 @@ function agentHTML(a, compact){
     '</span></span><div class="st">' + STATE_TXT[a.state] + extra + '</div></div>';
 }
 function render(){
+  if (QUIET) return;
   const vis = agents.filter(a => a.t !== 'p');
   const compact = vis.length > 6;
   let left, right;
@@ -817,7 +849,7 @@ function updateMarks(){
 /* ---------- editor ---------- */
 let armed = null;
 const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
-const allLists = () => sc.methods.map(m => prog.m[m.name].body).concat(sc.hasPrincipal ? [prog.principal.body] : []);
+const allLists = () => sc.methods.map(m => prog.m[m.name].body).concat(sc.hasPrincipal ? [prog.principal.body] : []).concat(sc.hasFin ? [prog.fin.body] : []);
 
 function findLoc(id, list){
   const lists = list ? [list] : allLists();
@@ -847,6 +879,7 @@ function pieceList(){
     p.push({g:'Salida', key:'retF', label:'return false;', make:() => st('retF')});
   }
   if (sc.hasPrincipal) p.push({g:'Otra clase', key:'cerrarCall', label:'estante.cerrar();', make:() => st('cerrarCall')});
+  if (sc.hasFin) p.push({g:'Otra clase', key:'terminarCall', label:'almacen.terminar();', make:() => st('terminarCall')});
   return p;
 }
 function dropOnEmpty(emptyId, payload){
@@ -955,7 +988,7 @@ const statBox = (box, lines) => { lines.forEach(t => box.append(h('div', 'line s
 let tabSel = 0;
 function renderTabs(){
   const runs = [];
-  sc.hiloLines.join('\n').replace(/\/\/ (\w+)\.run/g, (m, c) => runs.push(c + '.run()'));
+  (sc.finPre || []).concat(sc.hiloLines).join('\n').replace(/\/\/ (\w+)\.run/g, (m, c) => runs.push(c + '.run()'));
   const names = [sc.clase, 'Principal', runs.join(' · ') || 'Hilos'];
   ['edRecurso', 'edPrincipal', 'edHilo'].forEach((id, i) => { $(id).style.display = i === tabSel ? '' : 'none'; });
   const box = $('tabs');
@@ -991,6 +1024,10 @@ function renderCode(){
 
   const hi = $('edHilo');
   hi.innerHTML = '';
+  if (sc.hasFin){
+    statBox(hi, sc.finPre);
+    hi.append(listEl(prog.fin.body));
+  }
   statBox(hi, sc.hiloLines);
   renderTabs();
   refreshCompile();
@@ -1047,6 +1084,7 @@ function load(){
       const p = d.progs[k], base = emptyProg(build(k));
       build(k).methods.forEach(me => { if (p.m && p.m[me.name]) base.m[me.name] = p.m[me.name]; });
       if (p.principal) base.principal = p.principal;
+      if (p.fin) base.fin = p.fin;
       progs[k] = base;
     });
     nid = d.nid || 1;
@@ -1061,6 +1099,7 @@ function setScenario(id){
   $('enun').innerHTML = ENUN[id](cfg[id]);
   document.title = 'Simulador de hilos: ' + sc.clase;
   renderParams(); renderPieces(); renderCode(); resetSim(); save();
+  if ($('expPanel') && ex && ex.id !== id){ ex = null; if ($('expPanel').open) exRender(); }
 }
 function renderParams(){
   const box = $('params');
@@ -1095,6 +1134,7 @@ function setProg(p){
   const base = emptyProg(sc);
   sc.methods.forEach(me => { if (p.m[me.name]) base.m[me.name] = p.m[me.name]; });
   base.principal = p.principal || {body:[]};
+  base.fin = p.fin || {body:[]};
   progs[cur] = base; prog = base;
   armed = null; changed();
 }
@@ -1119,11 +1159,259 @@ document.addEventListener('dragover', e => {
   else if (e.clientY > r.bottom - zone) scr.scrollTop += 6 + 30 * (1 - (r.bottom - e.clientY) / zone);
 });
 
+
+/* ===== EXPERIMENTOS: el alumno ejecuta una situación y comprueba la teoría ===== */
+const randInt = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const walk = (list, fn) => { list.forEach((n, i) => { fn(n, list, i); if (n.body) walk(n.body, fn); }); };
+const bodies = pr => Object.keys(pr.m).map(k => pr.m[k].body);
+const MUT = {
+  /* cambia una instrucción por otra: swap(pr, 'notifyAll', 'notify') */
+  swap:(pr, a, b) => { bodies(pr).forEach(l => walk(l, n => { if (n.kind === 'stmt' && n.op === a) n.op = b; })); return pr; },
+  quita:(pr, a) => { bodies(pr).forEach(l => { for (let i = l.length - 1; i >= 0; i--) if (l[i].kind === 'stmt' && l[i].op === a) l.splice(i, 1); }); return pr; },
+  ifPorWhile:pr => { bodies(pr).forEach(l => walk(l, n => { if (n.kind === 'while') n.kind = 'if'; })); return pr; },
+  sinSync:pr => { Object.keys(pr.m).forEach(k => { pr.m[k].mod = ''; }); return pr; },
+  sinFin:pr => { pr.fin = {body:[]}; return pr; },
+  sinCerrar:pr => { pr.principal = {body:[]}; return pr; }
+};
+const SOL = () => sc.solution();
+
+/* resultado que ve el alumno al repetir */
+const VEREDICTOS = ['Siempre termina bien', 'A veces se cuelga', 'Siempre se cuelga', 'Termina, pero con un resultado incorrecto', 'Se rompe con un error'];
+function veredicto(r){
+  if (r.murio > 0) return 4;
+  if (r.mal > 0) return 3;
+  if (r.colgado === r.n) return 2;
+  if (r.colgado > 0) return 1;
+  return 0;
+}
+const textoRes = r => {
+  const partes = [];
+  if (r.bien) partes.push('✔ ' + r.bien + ' bien');
+  if (r.mal) partes.push('✘ ' + r.mal + ' con resultado incorrecto');
+  if (r.colgado) partes.push('⏳ ' + r.colgado + ' colgadas');
+  if (r.murio) partes.push('💥 ' + r.murio + ' con error');
+  if (r.infinito) partes.push('∞ ' + r.infinito + ' sin terminar');
+  return 'De ' + r.n + ' ejecuciones: ' + partes.join(' · ') + '.';
+};
+const qResultado = (txt, why) => r => ({txt, ops:VEREDICTOS.slice(), ok:veredicto(r), why});
+const qOrden = (nombre, why) => r => ({
+  txt:'Mira cómo se turnan los ' + nombre + ' al entrar en las ' + r.n + ' ejecuciones. ¿Entran siempre en el mismo orden?',
+  ops:['Sí, siempre en el mismo orden', 'No, el orden cambia de una ejecución a otra'], ok:r.ordenes > 1 ? 1 : 0, why});
+
+const EXPS = {
+  cocina:[
+    {id:'orden', tipo:'ver', titulo:'¿Siempre el mismo orden?',
+     cfg:() => ({cocineros:randInt(5, 8), cuchillos:randInt(2, 3), sleep:pick([500, 1000])}),
+     instr:c => 'Ejecuta la solución con ' + c.cocineros + ' cocineros y ' + c.cuchillos + ' cuchillos. Fíjate en quién coge cada cuchillo.',
+     prog:SOL, q:qOrden('cocineros', 'Java no garantiza ningún orden: el que se lleva el cuchillo lo decide el azar de cada ejecución. Lo que sí es siempre igual es el resultado: al final quedan todos los cuchillos libres.')},
+    {id:'if', tipo:'ver', titulo:'if en vez de while',
+     cfg:() => ({cocineros:randInt(5, 8), cuchillos:randInt(2, 3), sleep:500}),
+     instr:c => 'Aquí el programa tiene un if en lugar del while antes del wait(). Hay ' + c.cocineros + ' cocineros para ' + c.cuchillos + ' cuchillos.',
+     prog:() => MUT.ifPorWhile(SOL()),
+     q:qResultado('¿Qué ocurre al repetirlo?', 'Con if, el hilo que despierta no vuelve a mirar si hay cuchillo: sigue y resta. Si otro se lo llevó antes, los libres bajan de 0. El while obliga a comprobar la condición otra vez después de despertar.')},
+    {id:'notify', tipo:'ver', titulo:'Solo notify()',
+     cfg:() => ({cocineros:randInt(5, 7), cuchillos:randInt(2, 3), sleep:500}),
+     instr:c => 'Aquí soltar() usa notify() y no notifyAll(). Hay ' + c.cocineros + ' cocineros y ' + c.cuchillos + ' cuchillos.',
+     prog:() => MUT.swap(SOL(), 'notifyAll', 'notify'),
+     q:qResultado('¿Funciona siempre?', 'Aquí sí: todos los cocineros esperan lo mismo (un cuchillo libre), así que despertar a uno cualquiera basta. Con papeles distintos, como pintor y vendedores, notify() puede despertar al equivocado.')},
+    {id:'sinNotify', tipo:'ver', titulo:'Sin avisar',
+     cfg:() => ({cocineros:randInt(5, 7), cuchillos:randInt(2, 3), sleep:500}),
+     instr:c => 'Aquí soltar() no avisa a nadie: falta el notifyAll(). Hay ' + c.cocineros + ' cocineros y ' + c.cuchillos + ' cuchillos.',
+     prog:() => MUT.quita(SOL(), 'notifyAll'),
+     q:qResultado('¿Qué ocurre?', 'Los cocineros que esperan en wait() solo se despiertan si alguien los avisa. Sin notifyAll() nadie los despierta y el programa se queda colgado.')},
+    {id:'sinSync', tipo:'ver', titulo:'Sin synchronized',
+     cfg:() => ({cocineros:randInt(4, 6), cuchillos:randInt(2, 3), sleep:500}),
+     instr:c => 'Aquí se han quitado los synchronized de coger() y soltar(). Hay ' + c.cocineros + ' cocineros.',
+     prog:() => MUT.sinSync(SOL()),
+     q:qResultado('¿Qué ocurre?', 'wait() y notifyAll() solo se pueden llamar con la llave del objeto, y la llave solo se tiene dentro de un método synchronized. Sin él, Java lanza IllegalMonitorStateException.')},
+    {id:'montar', tipo:'montar', titulo:'Móntalo tú',
+     cfg:() => ({cocineros:randInt(5, 8), cuchillos:randInt(2, 3), sleep:500}),
+     instr:c => 'Escribe coger() y soltar() para ' + c.cocineros + ' cocineros y ' + c.cuchillos + ' cuchillos, sin que los cuchillos libres bajen de 0. Cuando creas que está, pulsa «Comprobar».',
+     prog:null, why:'Hacen falta: synchronized en los dos métodos, un while (libres == 0) con wait() en coger(), y notifyAll() en soltar().'}
+  ],
+  parking:[
+    {id:'orden', tipo:'ver', titulo:'¿Siempre el mismo orden?',
+     cfg:() => ({coches:randInt(6, 9), plazas:randInt(2, 4), sleep:pick([500, 1000])}),
+     instr:c => 'Ejecuta la solución con ' + c.coches + ' coches y ' + c.plazas + ' plazas. Mira qué coche entra en cada plaza que queda libre.',
+     prog:SOL, q:qOrden('coches', 'No hay orden garantizado: el coche que entra cuando queda una plaza libre es distinto cada vez. Lo que se mantiene es el resultado: al final están todas las plazas libres.')},
+    {id:'if', tipo:'ver', titulo:'if en vez de while',
+     cfg:() => ({coches:randInt(6, 9), plazas:randInt(2, 3), sleep:500}),
+     instr:c => 'Aquí entrar() tiene un if en lugar del while. Hay ' + c.coches + ' coches para ' + c.plazas + ' plazas.',
+     prog:() => MUT.ifPorWhile(SOL()),
+     q:qResultado('¿Qué ocurre al repetirlo?', 'El coche que despierta no vuelve a comprobar que haya plaza. Si otro coche entró antes, las plazas libres bajan de 0 y hay un coche aparcado donde no cabe.')},
+    {id:'sinNotify', tipo:'ver', titulo:'Sin avisar al salir',
+     cfg:() => ({coches:randInt(6, 9), plazas:randInt(2, 3), sleep:500}),
+     instr:c => 'Aquí salir() no avisa: falta el notifyAll(). Hay ' + c.coches + ' coches y ' + c.plazas + ' plazas.',
+     prog:() => MUT.quita(SOL(), 'notifyAll'),
+     q:qResultado('¿Qué ocurre?', 'Los coches que esperan en la puerta no saben que se ha quedado una plaza libre. Sin notifyAll() se quedan esperando para siempre.')},
+    {id:'montar', tipo:'montar', titulo:'Móntalo tú',
+     cfg:() => ({coches:randInt(6, 9), plazas:randInt(2, 3), sleep:500}),
+     instr:c => 'Escribe entrar() y salir() para ' + c.coches + ' coches y ' + c.plazas + ' plazas. Pulsa «Comprobar» cuando creas que está.',
+     prog:null, why:'Igual que la cocina: synchronized en los dos métodos, while (libres == 0) con wait() en entrar() y notifyAll() en salir().'}
+  ],
+  bicis:[
+    {id:'total', tipo:'ver', titulo:'¿Cuántas se venden?',
+     cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
+     instr:c => 'Ejecuta la solución: ' + c.mecanicos + ' mecánicos montan 4 bicis cada uno.',
+     prog:SOL,
+     q:(r, c) => { const n = c.mecanicos * 4, ops = [n - 4, n, n + 4, n + 2].filter((v, i, a) => v > 0 && a.indexOf(v) === i).sort((a, b) => a - b);
+       return {txt:'¿Cuántas bicis se han vendido en total al acabar?', ops:ops.map(v => v + ' bicis'), ok:ops.indexOf(n), why:'Cada mecánico monta 4, así que ' + c.mecanicos + ' × 4 = ' + n + '. Los clientes no cuentan sus bicis: compran mientras haya bicis o la tienda siga abierta, y por eso el estante necesita cerrar().'}; }},
+    {id:'sinCerrar', tipo:'ver', titulo:'Sin cerrar la tienda',
+     cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
+     instr:c => 'Aquí Principal no llama a cerrar(). Hay ' + c.mecanicos + ' mecánicos y ' + c.clientes + ' clientes.',
+     prog:() => MUT.sinCerrar(SOL()),
+     q:qResultado('¿Qué ocurre?', 'Cuando los mecánicos terminan, los clientes siguen esperando una bici que ya no llegará. Nadie les avisa de que la tienda cierra, así que se quedan en wait() para siempre.')},
+    {id:'cerrar', tipo:'montar', titulo:'Rellena Principal',
+     cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
+     instr:c => 'Todo está escrito menos la llamada que cierra la tienda. Ve a la pestaña Principal, coloca la línea que falta y pulsa «Comprobar».',
+     prog:() => MUT.sinCerrar(SOL()), tab:1,
+     why:'Principal espera con join() a los mecánicos y después llama a estante.cerrar(): así los clientes sacan las bicis que quedan y terminan.'}
+  ],
+  pintor:[
+    {id:'solucion', tipo:'ver', titulo:'Los dos hilos se turnan',
+     cfg:() => ({total:randInt(6, 12), capacidad:randInt(1, 3)}),
+     instr:c => 'Ejecuta la solución con un almacén de ' + c.capacidad + ' y ' + c.total + ' cuadros. Mira cómo se esperan pintor y vendedor.',
+     prog:SOL,
+     q:(r, c) => ({txt:'¿Cuántos cuadros quedan en el almacén al terminar?', ops:['0', '1', String(c.capacidad)], ok:0, why:'Se venden todos los que se pintan: ' + c.total + ' pintados y ' + c.total + ' vendidos, así que el almacén acaba vacío.'})},
+    {id:'if', tipo:'ver', titulo:'if en vez de while',
+     cfg:() => ({total:randInt(6, 12), capacidad:randInt(1, 3)}),
+     instr:c => 'Aquí depositar() y vender() usan if en lugar de while. Hay un solo pintor y un solo vendedor.',
+     prog:() => MUT.ifPorWhile(SOL()),
+     q:qResultado('¿Falla?', 'Con solo dos hilos, cada wait() lo despierta siempre el otro, justo cuando ya puede continuar. Por eso if parece funcionar. Con más vendedores deja de ser cierto: pruébalo en el ejemplo de dos vendedores.')},
+    {id:'montar', tipo:'montar', titulo:'Móntalo tú',
+     cfg:() => ({total:randInt(6, 12), capacidad:randInt(1, 3)}),
+     instr:c => 'Escribe depositar() y vender() para un almacén de ' + c.capacidad + ' y ' + c.total + ' cuadros. Pulsa «Comprobar» cuando creas que está.',
+     prog:null, why:'depositar() espera mientras el almacén está lleno y vender() mientras está vacío; los dos con synchronized, while y wait(), y avisando al terminar.'}
+  ],
+  pintor2:[
+    {id:'notify', tipo:'ver', titulo:'notify() con dos papeles',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:1, }),
+     instr:c => 'Aquí todos los métodos usan notify() en vez de notifyAll(). Hay ' + c.vendedores + ' vendedores y un almacén de ' + c.capacidad + '.',
+     prog:() => MUT.swap(SOL(), 'notifyAll', 'notify'), reps:20,
+     q:qResultado('¿Funciona siempre?', 'Puede colgarse (a veces, o casi siempre según el almacén): notify() despierta a uno cualquiera, que puede ser otro vendedor y no el pintor. Si ese hilo no puede avanzar vuelve a dormirse y la señal se pierde. Con notifyAll() despiertan todos y cada uno comprueba si le toca.')},
+    {id:'sinFin', tipo:'ver', titulo:'Sin terminar()',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3)}),
+     instr:c => 'Aquí el pintor no llama a terminar() cuando acaba. Hay ' + c.vendedores + ' vendedores.',
+     prog:() => MUT.sinFin(SOL()),
+     q:qResultado('¿Qué ocurre?', 'Los vendedores no saben que ya no habrá más cuadros y esperan en wait() para siempre. terminar() pone terminado = true y avisa a todos para que salgan.')},
+    {id:'if', tipo:'ver', titulo:'if en vez de while',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 2)}),
+     instr:c => 'Aquí hay if en lugar de while. Ahora son ' + c.vendedores + ' vendedores.',
+     prog:() => MUT.ifPorWhile(SOL()), reps:20,
+     q:qResultado('¿Falla?', 'Con varios vendedores, notifyAll() despierta a todos pero solo hay un cuadro. El primero lo vende y los demás, sin volver a mirar, intentan vender otro que ya no existe. El while obliga a comprobarlo de nuevo.')},
+    {id:'terminar', tipo:'montar', titulo:'Rellena Pintor.run()',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3)}),
+     instr:c => 'Todo está escrito menos lo que hace el pintor al acabar. Ve a la pestaña Pintor.run(), coloca la línea que falta y pulsa «Comprobar».',
+     prog:() => MUT.sinFin(SOL()), tab:2,
+     why:'Al acabar sus cuadros el pintor llama a almacen.terminar(): pone terminado = true y avisa a todos los vendedores.'}
+  ]
+};
+
+let ex = null;   /* estado del cuestionario de este ejemplo */
+const exCreate = id => {
+  const bank = EXPS[id].slice().sort(() => Math.random() - .5);
+  const montar = bank.filter(e => e.tipo === 'montar'), ver = bank.filter(e => e.tipo === 'ver');
+  const lista = ver.slice(0, Math.min(3, ver.length)).concat(montar.slice(0, 1)).sort(() => Math.random() - .5);
+  ex = {id, lista, i:0, aciertos:0, respondidas:0, r:null, q:null, hecho:false, cargado:false, cfg:null};
+};
+function exCargar(){
+  const e = ex.lista[ex.i];
+  ex.cfg = e.cfg();
+  Object.assign(cfg[cur], ex.cfg);
+  PARAMS[cur].forEach(q => { cfg[cur][q.k] = Math.max(q.min, Math.min(q.max, cfg[cur][q.k])); });
+  stop(); sc = build(cur); $('titulo').textContent = '🧵 ' + sc.titulo; $('enun').innerHTML = ENUN[cur](cfg[cur]);
+  const o = $('escenario').querySelector('option[value="' + cur + '"]'); if (o) o.textContent = sc.titulo;
+  renderParams();
+  const pr = e.prog ? e.prog() : emptyProg(sc);
+  if (!pr.fin) pr.fin = {body:[]};
+  setProg(pr);
+  if (e.tab != null){ tabSel = e.tab; renderTabs(); }
+  ex.cargado = true; ex.r = null; ex.q = null; ex.hecho = false;
+  exRender();
+}
+function exRepetir(n){
+  if (refreshCompile().length){ ex.aviso = 'El código tiene errores: revisa las líneas marcadas en rojo antes de ejecutar.'; ex.r = null; exRender(); return; }
+  stop(); ex.aviso = null;
+  const r = {n, bien:0, mal:0, colgado:0, murio:0, infinito:0, ordenes:0};
+  const firmas = new Set();
+  QUIET = true;
+  try {
+    for (let k = 0; k < n; k++){
+      resetSim();
+      for (let t = 0; t < 4000 && !S.fin; t++) tick();
+      const res = S.result || 'infinito';
+      r[res] = (r[res] || 0) + 1;
+      firmas.add(S.entradas.slice(0, 8).join(','));
+    }
+  } finally { QUIET = false; }
+  r.ordenes = firmas.size;
+  resetSim();
+  ex.r = r;
+  const e = ex.lista[ex.i];
+  if (e.tipo === 'ver') ex.q = e.q(r, ex.cfg);
+  else { ex.hecho = true; ex.respondidas++; if (r.bien === r.n) ex.aciertos++; ex.okMontar = r.bien === r.n; }
+  exRender();
+}
+function exSiguiente(){ ex.i++; ex.cargado = false; ex.r = null; ex.q = null; ex.hecho = false; ex.aviso = null; if (ex.i < ex.lista.length) exCargar(); else exRender(); }
+function exRender(){
+  const box = $('exps');
+  if (!ex || ex.id !== cur) exCreate(cur);
+  box.innerHTML = '';
+  if (ex.i >= ex.lista.length){
+    box.append(h('p', 'fin', 'Has terminado: ' + ex.aciertos + ' de ' + ex.respondidas + ' bien.'));
+    const b = h('button', null, 'Nuevo cuestionario'); b.onclick = () => { exCreate(cur); exCargar(); }; box.append(b);
+    return;
+  }
+  const e = ex.lista[ex.i];
+  const head = h('div', 'eh');
+  head.append(h('span', null, 'Experimento ' + (ex.i + 1) + ' de ' + ex.lista.length + ' · ' + ex.aciertos + ' bien'));
+  const nuevo = h('button', null, 'Nuevo cuestionario'); nuevo.onclick = () => { exCreate(cur); exCargar(); };
+  head.append(nuevo);
+  box.append(head, h('div', 'et', e.titulo));
+  if (!ex.cargado){
+    box.append(h('p', null, 'Pulsa «Cargar experimento»: el simulador se prepara con el programa y los números de este experimento.'));
+    const b = h('button', 'main', 'Cargar experimento'); b.onclick = exCargar; box.append(b);
+    return;
+  }
+  box.append(h('p', null, e.instr(ex.cfg)));
+  const bt = h('div', 'ebtns');
+  const run10 = h('button', e.tipo === 'montar' ? 'main' : null, e.tipo === 'montar' ? 'Comprobar' : 'Repetir ' + (e.reps || 10) + ' veces');
+  run10.onclick = () => exRepetir(e.tipo === 'montar' ? 10 : (e.reps || 10));
+  const recarga = h('button', null, 'Volver a cargar'); recarga.onclick = exCargar;
+  bt.append(run10, recarga); box.append(bt);
+  if (ex.aviso) box.append(h('div', 'res', ex.aviso));
+  if (ex.r) box.append(h('div', 'res', textoRes(ex.r)));
+  if (e.tipo === 'montar' && ex.hecho){
+    box.append(h('div', 'why', (ex.okMontar ? '✔ Correcto: las ' + ex.r.n + ' ejecuciones salen bien. ' : '✘ Todavía no: no salen bien todas las ejecuciones. ') + e.why));
+    const s = h('button', null, ex.i + 1 < ex.lista.length ? 'Siguiente experimento' : 'Ver resultado'); s.onclick = exSiguiente; box.append(s);
+  }
+  if (e.tipo === 'ver' && ex.q){
+    const q = ex.q;
+    box.append(h('div', 'q', q.txt));
+    const orden = q.ops.map((txt, k) => ({txt, k})).sort(() => Math.random() - .5);
+    orden.forEach(o => {
+      const b = h('button', 'opt', o.txt);
+      b.onclick = () => {
+        if (ex.hecho) return;
+        ex.hecho = true; ex.respondidas++;
+        if (o.k === q.ok) ex.aciertos++;
+        box.querySelectorAll('.opt').forEach((x, i) => { x.disabled = true; if (orden[i].k === q.ok) x.classList.add('ok'); else if (x === b) x.classList.add('ko'); });
+        box.append(h('div', 'why', (o.k === q.ok ? '✔ Correcto. ' : '✘ Mira lo que ha salido arriba. ') + q.why));
+        const s = h('button', null, ex.i + 1 < ex.lista.length ? 'Siguiente experimento' : 'Ver resultado'); s.onclick = exSiguiente; box.append(s);
+      };
+      box.append(b);
+    });
+  }
+}
+$('expPanel').addEventListener('toggle', () => { if ($('expPanel').open) exRender(); });
+
 ORDER.forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = build(k).titulo; $('escenario').append(o); });
 load();
 /* enlace directo a un ejemplo: simulador/index.html#parking */
-{ const k = location.hash.slice(1); if (BUILD[k]) cur = k; }
+{ const hs = location.hash.slice(1).split('&'); if (BUILD[hs[0]]) cur = hs[0]; if (hs.includes('experimentos')) $('expPanel').open = true; }
 setScenario(cur);
+if ($('expPanel').open) exRender();
 </script>
 </body>
 </html>
