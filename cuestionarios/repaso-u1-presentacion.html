@@ -1,0 +1,937 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Repaso Unidad 1 – PSP</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/theme/white.css">
+<style>
+:root{--azul:#1f4e8c;--ok:#1b7a3d;--no:#b3261e;--fondo:#ffffff;--texto:#1d2733;--suave:#5a6775;--caja:#eef3fa}
+.reveal{font-size:30px;color:var(--texto)}
+.reveal .slides section{text-align:left;font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.reveal h2,.reveal h3{color:var(--azul);text-transform:none;letter-spacing:0}
+.reveal h3{font-size:1.1em;margin:.1em 0 .5em}
+.reveal code{background:var(--caja);padding:.05em .3em;border-radius:.25em;font-size:.9em}
+.reveal pre{width:100%;box-shadow:none;font-size:.62em;line-height:1.35;background:#f5f7fa;border:1px solid #d6dde6;border-radius:.4em;padding:.5em .7em;margin:.5em 0}
+.reveal pre code{background:none;padding:0;font-size:1em}
+.reveal pre{white-space:pre-wrap}
+.cab{display:flex;justify-content:space-between;font-size:.55em;color:var(--suave);border-bottom:1px solid #d6dde6;padding-bottom:.3em;margin-bottom:.4em}
+.tipo{background:var(--caja);padding:.1em .7em;border-radius:1em;color:var(--azul)}
+.respuesta .cab .tipo{background:#e3f3e8;color:var(--ok)}
+.portada{text-align:center!important}
+.peque{font-size:.7em;color:var(--suave)}
+.op{margin:.3em 0 0 1.2em;font-size:.9em;list-style:lower-alpha}.op li{margin:.35em 0;padding:.1em .4em;border-radius:.3em}
+.op li.ok{background:#e3f3e8;color:var(--ok);font-weight:600}.op li.no{color:var(--suave)}
+.sol{font-size:1.5em;font-weight:700;text-align:center;margin:.8em 0}.sol.ok{color:var(--ok)}.sol.no{color:var(--no)}
+mark{background:#fff3b0;color:#1d2733;font-weight:700;padding:0 .2em;border-radius:.2em}
+.hueco{display:inline-block;min-width:2.6em;text-align:center;border-bottom:3px solid var(--azul);color:var(--azul);font-weight:700;margin:0 .15em}
+.chip{display:inline-block;background:var(--caja);border:1px solid #c5d2e4;border-radius:.4em;padding:.05em .5em;margin:.15em .1em;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.75em}
+.porque{margin-top:.6em;padding:.5em .8em;background:var(--caja);border-left:5px solid var(--azul);border-radius:.3em;font-size:.8em}
+.porque p{margin:0}
+/* colores de hueco: cada número y sus opciones comparten color */
+.c1{--c:#2563eb}.c2{--c:#d97706}.c3{--c:#16a34a}.c4{--c:#9333ea}.c5{--c:#dc2626}.c6{--c:#0891b2}.c7{--c:#be185d}.c8{--c:#65a30d}
+.hueco[class*=" c"]{background:color-mix(in srgb,var(--c) 18%,#fff);border-bottom-color:var(--c);color:var(--c);padding:0 .35em;border-radius:.25em .25em 0 0}
+.grupo{display:inline-block;padding:.1em .5em;margin:.15em 0;border-radius:.4em;border:2px solid var(--c);background:color-mix(in srgb,var(--c) 12%,#fff)}
+.grupo .chip.num{background:var(--c);color:#fff;font-weight:700;border-color:var(--c)}
+.grupo code{background:#fff}
+mark[class^="c"]{background:color-mix(in srgb,var(--c) 22%,#fff);box-shadow:inset 0 -3px 0 var(--c)}
+table.par{border-collapse:collapse;font-size:.85em}table.par td{padding:.25em .6em}
+ul.par{font-size:.85em}
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+<section>
+<h2>Repaso de la Unidad 1</h2>
+<p>PSP · 2º DAM · 109 preguntas</p>
+<p class="peque">Cada pregunta tiene una diapositiva de pregunta y la siguiente con la respuesta. Pulsa <b>→</b> para avanzar, <b>←</b> para volver y <b>O</b> para ver el índice.</p>
+</section>
+<section class="portada"><h2>6.1 Crear hilos</h2><p>24 preguntas</p></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 1 de 24</span><span class="tipo">Verdadero o falso</span></div><h3>El hilo main</h3><p>Cuando un programa Java arranca, ya hay un hilo funcionando: se llama <code>main</code>.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 1 de 24</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol ok">VERDADERO</p><div class="porque"><p>Verdadero. Los hilos que creas se suman a <code>main</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 2 de 24</span><span class="tipo">Test</span></div><h3>start() crea el hilo</h3><p>Tienes una clase <code>Contador</code> que implementa <code>Runnable</code> y escribes <code>Thread h = new Thread(new Contador(), "Hilo 1");</code>. ¿Qué ocurre exactamente al ejecutar <code>h.start();</code>?</p><ol class="op" type="a"><li class="">Java crea un hilo nuevo y llama a <code>run()</code> dentro de ese hilo.</li><li class="">El hilo <code>main</code> se queda esperando hasta que <code>run()</code> termina.</li><li class="">Java llama a <code>run()</code> dentro del hilo <code>main</code>, como cualquier otro método.</li><li class="">No pasa nada hasta que además llamas a <code>run()</code>.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 2 de 24</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Java crea un hilo nuevo y llama a <code>run()</code> dentro de ese hilo. <b>✔</b></li><li class="no">El hilo <code>main</code> se queda esperando hasta que <code>run()</code> termina.</li><li class="no">Java llama a <code>run()</code> dentro del hilo <code>main</code>, como cualquier otro método.</li><li class="no">No pasa nada hasta que además llamas a <code>run()</code>.</li></ol><div class="porque"><p><code>start()</code> crea el hilo de verdad y Java llama a <code>run()</code> por ti. Hasta llamar a <code>start()</code> no corre nada.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 3 de 24</span><span class="tipo">Verdadero o falso</span></div><h3>run() directo no crea hilo</h3><p>Si en lugar de <code>h.start()</code> escribes <code>h.run()</code>, el código de <code>run()</code> se ejecuta en un hilo nuevo.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 3 de 24</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol no">FALSO</p><div class="porque"><p>Falso. <code>h.run()</code> no crea ningún hilo: ejecuta el código en el hilo <code>main</code>, como una llamada normal. Para crear el hilo, siempre <code>start()</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 4 de 24</span><span class="tipo">Varias correctas</span></div><h3>Qué es Runnable</h3><p>Marca las afirmaciones <b>correctas</b> sobre <code>Runnable</code>:</p><ol class="op" type="a"><li class="">Si tu clase lo firma con <code>implements</code>, Java sabe que puede ejecutarla en un hilo.</li><li class="">Es una interfaz: un contrato con un solo método, <code>run()</code>.</li><li class="">El método <code>run()</code> lo escribes tú, pero no lo llamas tú: lo llama Java después de <code>start()</code>.</li><li class="">Al hacer <code>new Contador()</code> Java crea el hilo automáticamente.</li><li class="">Una clase que implementa <code>Runnable</code> ya tiene su propio método <code>start()</code>.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 4 de 24</span><span class="tipo">Varias correctas</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Si tu clase lo firma con <code>implements</code>, Java sabe que puede ejecutarla en un hilo. <b>✔</b></li><li class="ok">Es una interfaz: un contrato con un solo método, <code>run()</code>. <b>✔</b></li><li class="ok">El método <code>run()</code> lo escribes tú, pero no lo llamas tú: lo llama Java después de <code>start()</code>. <b>✔</b></li><li class="no">Al hacer <code>new Contador()</code> Java crea el hilo automáticamente.</li><li class="no">Una clase que implementa <code>Runnable</code> ya tiene su propio método <code>start()</code>.</li></ol><div class="porque"><p>Es el contrato con un único método, <code>run()</code>. El hilo lo crea <code>Thread</code> y se arranca con <code>start()</code> sobre el <code>Thread</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 5 de 24</span><span class="tipo">Test</span></div><h3>Por qué Runnable</h3><p>Hay dos formas de crear un hilo: heredar de <code>Thread</code> o implementar <code>Runnable</code>. ¿Por qué usamos <code>Runnable</code>?</p><ol class="op" type="a"><li class="">Porque con <code>Runnable</code> los hilos se ejecutan más rápido.</li><li class="">Porque <code>Runnable</code> crea el hilo sin llamar a <code>start()</code>.</li><li class="">Porque heredar de <code>Thread</code> no está permitido.</li><li class="">Funciona siempre, aunque la clase ya herede de otra: Java no permite heredar de dos clases.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 5 de 24</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Porque con <code>Runnable</code> los hilos se ejecutan más rápido.</li><li class="no">Porque <code>Runnable</code> crea el hilo sin llamar a <code>start()</code>.</li><li class="no">Porque heredar de <code>Thread</code> no está permitido.</li><li class="ok">Funciona siempre, aunque la clase ya herede de otra: Java no permite heredar de dos clases. <b>✔</b></li></ol><div class="porque"><p>Una clase solo puede heredar de otra, pero puede implementar <code>Runnable</code> aunque ya herede de alguien.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 6 de 24</span><span class="tipo">Numérica</span></div><h3>Cuántos hilos hay</h3><p>Con este <code>main</code>, justo después de lanzar los tres hilos con <code>start()</code>, ¿cuántos hilos como máximo pueden estar ejecutándose a la vez? <b>Cuenta también el hilo <code>main</code>.</b></p><pre>class Contador implements Runnable {
+    @Override
+    public void run() {
+        for (int i = 1; i &lt;= 10; i++) {
+            System.out.println(Thread.currentThread().getName() + ": " + i);
+        }
+    }
+}
+
+class Principal {
+    public static void main(String[] args) {
+        Thread h1 = new Thread(new Contador(), "Hilo 1");
+        Thread h2 = new Thread(new Contador(), "Hilo 2");
+        Thread h3 = new Thread(new Contador(), "Hilo 3");
+        h1.start();
+        h2.start();
+        h3.start();
+    }
+}</pre></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 6 de 24</span><span class="tipo">Numérica</span></div><h3>Respuesta</h3><p class="sol">4</p><div class="porque"><p>3 hilos contadores + el hilo <code>main</code> que sigue vivo = 4.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 7 de 24</span><span class="tipo">Emparejar</span></div><h3>Piezas de un hilo</h3><p>Une cada pieza con lo que hace:</p><ul class="par"><li><code>run()</code></li><li><code>start()</code></li><li><code>new Thread(objeto, "Hilo 1")</code></li><li><code>Thread.currentThread()</code></li><li><code>getName()</code></li></ul><p><span class="chip">Crea el hilo y le pone nombre, pero todavía no corre</span> <span class="chip">El hilo que está ejecutando esto ahora mismo</span> <span class="chip">Crea el hilo de verdad y Java llama a run() por ti</span> <span class="chip">Aquí escribes lo que hace el hilo; tú no lo llamas</span> <span class="chip">Dime el nombre del hilo</span></p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 7 de 24</span><span class="tipo">Emparejar</span></div><h3>Respuesta</h3><table class="par"><tr><td><code>run()</code></td><td>→</td><td><mark>Aquí escribes lo que hace el hilo; tú no lo llamas</mark></td></tr><tr><td><code>start()</code></td><td>→</td><td><mark>Crea el hilo de verdad y Java llama a run() por ti</mark></td></tr><tr><td><code>new Thread(objeto, "Hilo 1")</code></td><td>→</td><td><mark>Crea el hilo y le pone nombre, pero todavía no corre</mark></td></tr><tr><td><code>Thread.currentThread()</code></td><td>→</td><td><mark>El hilo que está ejecutando esto ahora mismo</mark></td></tr><tr><td><code>getName()</code></td><td>→</td><td><mark>Dime el nombre del hilo</mark></td></tr></table><div class="porque"><p>Con la misma clase <code>Runnable</code> se pueden crear varios hilos; se distinguen por el nombre.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 8 de 24</span><span class="tipo">Ordenar</span></div><h3>Ordena los 4 pasos</h3><p>Ordena los <b>4 pasos</b> para crear un hilo con <code>Runnable</code>.</p><p>1. <span class="hueco">1</span><br>2. <span class="hueco">2</span><br>3. <span class="hueco">3</span><br>4. <span class="hueco">4</span></p><p class="peque">Palabras (algunas sobran):</p><p><span class="chip">Llama al método start() de la clase Thread</span> <span class="chip">Escribe su método run() con lo que debe hacer el hilo</span> <span class="chip">Escribe una clase que implemente Runnable</span> <span class="chip">Crea un Thread y pásale un objeto de esa clase</span></p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 8 de 24</span><span class="tipo">Ordenar</span></div><h3>Respuesta</h3><p>1. <mark class="">Escribe una clase que implemente Runnable</mark><br>2. <mark class="">Escribe su método run() con lo que debe hacer el hilo</mark><br>3. <mark class="">Crea un Thread y pásale un objeto de esa clase</mark><br>4. <mark class="">Llama al método start() de la clase Thread</mark></p><div class="porque"><p>Primero la clase, luego su <code>run()</code>, después el <code>Thread</code> y por último <code>start()</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 9 de 24</span><span class="tipo">Respuesta corta</span></div><h3>Qué imprime run() directo</h3><p>Se ejecuta el programa de abajo. ¿Qué texto imprime por pantalla? (una palabra)</p><pre>class Saluda implements Runnable {
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName());
+    }
+}
+
+class Principal {
+    public static void main(String[] args) {
+        Thread h = new Thread(new Saluda(), "Hilo 1");
+        h.run();
+    }
+}</pre></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 9 de 24</span><span class="tipo">Respuesta corta</span></div><h3>Respuesta</h3><p class="sol"><code>main</code></p><div class="porque"><p>Imprime <code>main</code>: al llamar a <code>h.run()</code> no hay hilo nuevo, así que <code>currentThread().getName()</code> es el del hilo <code>main</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 10 de 24</span><span class="tipo">Completar código</span></div><h3>Escribe la clase Contador</h3><p>Completa el código escribiendo (o eligiendo) lo que falta. Respeta mayúsculas y minúsculas y <b>no pongas paréntesis</b> salvo que se indique.</p><pre>class Contador <span class="hueco c1">1</span> <span class="hueco c2">2</span> {
+    <span class="hueco c3">3</span>
+    public void <span class="hueco c4">4</span>() {
+        for (int i = 1; i &lt;= 10; i++) {
+            System.out.println(Thread.currentThread().<span class="hueco c5">5</span>() + ": " + i);
+        }
+    }
+}
+
+class Principal {
+    public static void main(String[] args) {
+        Thread h1 = new <span class="hueco c6">6</span>(new Contador(), "Hilo 1");
+        h1.<span class="hueco c7">7</span>();
+    }
+}</pre><p class="peque">Desplegables: <span class="grupo c1"><span class="chip num">1</span> <code>import</code> · <code>extends</code> · <code>implements</code> · <code>instanceof</code></span></p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 10 de 24</span><span class="tipo">Completar código</span></div><h3>Respuesta</h3><pre>class Contador <mark class="c1">implements</mark> <mark class="c2">Runnable</mark> {
+    <mark class="c3">@Override</mark>
+    public void <mark class="c4">run</mark>() {
+        for (int i = 1; i &lt;= 10; i++) {
+            System.out.println(Thread.currentThread().<mark class="c5">getName</mark>() + ": " + i);
+        }
+    }
+}
+
+class Principal {
+    public static void main(String[] args) {
+        Thread h1 = new <mark class="c6">Thread</mark>(new Contador(), "Hilo 1");
+        h1.<mark class="c7">start</mark>();
+    }
+}</pre><div class="porque"><p><code>Contador</code> implementa <code>Runnable</code>, su método obligatorio es <code>run()</code>, <code>getName()</code> devuelve el nombre del hilo y <code>start()</code> lo pone en marcha.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 11 de 24</span><span class="tipo">Varias correctas</span></div><h3>Salidas mezcladas</h3><p>Este programa crea tres hilos con la misma clase <code>Contador</code> (cada uno muestra su nombre y los números del 1 al 10) y los arranca uno tras otro. Lo ejecutas varias veces. Marca lo que es <b>cierto</b>:</p><pre>class Contador implements Runnable {
+    @Override
+    public void run() {
+        for (int i = 1; i &lt;= 10; i++) {
+            System.out.println(Thread.currentThread().getName() + ": " + i);
+        }
+    }
+}
+
+class Principal {
+    public static void main(String[] args) {
+        Thread h1 = new Thread(new Contador(), "Hilo 1");
+        Thread h2 = new Thread(new Contador(), "Hilo 2");
+        Thread h3 = new Thread(new Contador(), "Hilo 3");
+        h1.start();
+        h2.start();
+        h3.start();
+    }
+}</pre><ol class="op" type="a"><li class="">Siempre termina primero el «Hilo 1» porque se lanzó primero.</li><li class="">El orden de salida cambia de una ejecución a otra: el sistema decide quién avanza.</li><li class="">Las líneas de los tres hilos pueden salir mezcladas.</li><li class="">El orden de salida es siempre el mismo si lanzas los hilos en el mismo orden.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 11 de 24</span><span class="tipo">Varias correctas</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Siempre termina primero el «Hilo 1» porque se lanzó primero.</li><li class="ok">El orden de salida cambia de una ejecución a otra: el sistema decide quién avanza. <b>✔</b></li><li class="ok">Las líneas de los tres hilos pueden salir mezcladas. <b>✔</b></li><li class="no">El orden de salida es siempre el mismo si lanzas los hilos en el mismo orden.</li></ol><div class="porque"><p>Nadie decide quién termina antes: el orden no está garantizado. Eso es lo normal con varios hilos.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 12 de 24</span><span class="tipo">Verdadero o falso</span></div><h3>Miau siempre primero</h3><p>Tienes dos hilos: uno (<code>hGato</code>) muestra <code>Miau!</code> y otro (<code>hPerro</code>) muestra <code>Guau!</code>. Los arrancas con <code>hGato.start();</code> y justo después <code>hPerro.start();</code>. Entonces <code>Miau!</code> siempre sale antes que <code>Guau!</code>.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 12 de 24</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol no">FALSO</p><div class="porque"><p>Falso. Se lanzan en orden, pero no tienen por qué terminar en orden. Ejecútalo varias veces y cambia.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 13 de 24</span><span class="tipo">Completar</span></div><h3>Posiciones de un array</h3><p>Con <code>Thread[] gatos = new Thread[5];</code> el array tiene <span class="hueco c1">1</span> cajas. La primera es <code>gatos[<span class="hueco c2">2</span>]</code> y la última es <code>gatos[<span class="hueco c3">3</span>]</code>.</p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 13 de 24</span><span class="tipo">Completar</span></div><h3>Respuesta</h3><p>Con <code>Thread[] gatos = new Thread[5];</code> el array tiene <mark class="c1">5</mark> cajas. La primera es <code>gatos[<mark class="c2">0</mark>]</code> y la última es <code>gatos[<mark class="c3">4</mark>]</code>.</p><div class="porque"><p>Se empieza a contar en 0, no en 1. Un array de 5 tiene posiciones del 0 al 4.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 14 de 24</span><span class="tipo">Test</span></div><h3>for con &lt;= 5</h3><p>La clase <code>Gato</code> implementa <code>Runnable</code>. El array <code>gatos</code> tiene 5 posiciones. ¿Qué ocurre con este <code>for</code>?</p><pre>Thread[] gatos = new Thread[5];
+
+for (int i = 0; i &lt;= 5; i++) {
+    gatos[i] = new Thread(new Gato(), "Gato " + (i + 1));
+    gatos[i].start();
+}</pre><ol class="op" type="a"><li class="">Crea un hilo de más sin ningún error.</li><li class="">Funciona bien: da 5 vueltas.</li><li class="">En la sexta vuelta, <code>gatos[5]</code> no existe y Java lanza <code>ArrayIndexOutOfBoundsException</code>.</li><li class="">No compila.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 14 de 24</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Crea un hilo de más sin ningún error.</li><li class="no">Funciona bien: da 5 vueltas.</li><li class="ok">En la sexta vuelta, <code>gatos[5]</code> no existe y Java lanza <code>ArrayIndexOutOfBoundsException</code>. <b>✔</b></li><li class="no">No compila.</li></ol><div class="porque"><p><code>i &lt;= 5</code> da 6 vueltas (0, 1, 2, 3, 4, 5). Un array de 5 tiene posiciones del 0 al 4.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 15 de 24</span><span class="tipo">Completar con desplegables</span></div><h3>El for de los gatos</h3><p>Completa con los desplegables el <code>for</code> que crea y lanza los 5 hilos Gato. El primer gato debe llamarse «Gato 1».</p><pre>class Gato implements Runnable {
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName() + ": Miau!");
+    }
+}
+
+class Principal {
+    public static void main(String[] args) {
+        Thread[] gatos = new Thread[5];
+
+        for (int i = <span class="hueco c1">1</span>; i <span class="hueco c2">2</span> 5; i++) {
+            gatos[i] = new Thread(new Gato(), "Gato " + (i + <span class="hueco c3">3</span>));
+            gatos[i].start();
+        }
+    }
+}</pre><p class="peque">Desplegables: <span class="grupo c1"><span class="chip num">1</span> <code>1</code> · <code>0</code></span> &nbsp; <span class="grupo c2"><span class="chip num">2</span> <code>&lt;=</code> · <code>&lt;</code></span> &nbsp; <span class="grupo c3"><span class="chip num">3</span> <code>0</code> · <code>1</code></span></p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 15 de 24</span><span class="tipo">Completar con desplegables</span></div><h3>Respuesta</h3><pre>class Gato implements Runnable {
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName() + ": Miau!");
+    }
+}
+
+class Principal {
+    public static void main(String[] args) {
+        Thread[] gatos = new Thread[5];
+
+        for (int i = <mark class="c1">0</mark>; i <mark class="c2">&lt;</mark> 5; i++) {
+            gatos[i] = new Thread(new Gato(), "Gato " + (i + <mark class="c3">1</mark>));
+            gatos[i].start();
+        }
+    }
+}</pre><div class="porque"><p><code>i</code> empieza en 0 (primera caja), sigue mientras <code>i &lt; 5</code> y al nombre se le suma 1 para que el primero sea «Gato 1».</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 16 de 24</span><span class="tipo">Test</span></div><h3>Cómo entra el array</h3><p>Quieres que un hilo sume los elementos de un array de enteros. El método <code>run()</code> no tiene parámetros. ¿Cómo recibe el hilo el array?</p><ol class="op" type="a"><li class="">Por el constructor de la clase del hilo: la clase lo guarda en un atributo y <code>run()</code> lo usa después.</li><li class="">Como parámetro de <code>start()</code>.</li><li class="">Java se lo pasa solo al crear el hilo.</li><li class="">Como parámetro de <code>run(int[] numeros)</code>.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 16 de 24</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Por el constructor de la clase del hilo: la clase lo guarda en un atributo y <code>run()</code> lo usa después. <b>✔</b></li><li class="no">Como parámetro de <code>start()</code>.</li><li class="no">Java se lo pasa solo al crear el hilo.</li><li class="no">Como parámetro de <code>run(int[] numeros)</code>.</li></ol><div class="porque"><p>Orden: <code>new HiloSuma(numeros)</code> guarda el array; más tarde <code>start()</code> llama a <code>run()</code>, que lo usa.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 17 de 24</span><span class="tipo">Completar código</span></div><h3>HiloSuma</h3><p>Un hilo debe sumar los elementos de un array de enteros que recibe por el constructor. Completa la clase <code>HiloSuma</code>. Respeta mayúsculas y minúsculas.</p><pre>class HiloSuma implements Runnable {
+    private int[] numeros;
+
+    public HiloSuma(int[] numeros) {
+        this.<span class="hueco c1">1</span> = numeros;
+    }
+
+    @Override
+    public void run() {
+        int total = <span class="hueco c2">2</span>;
+        for (int i = 0; i &lt; numeros.<span class="hueco c3">3</span>; i++) {
+            total = total + numeros[i];
+        }
+        System.out.println(Thread.currentThread().getName() + ": suma = " + total);
+    }
+}</pre></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 17 de 24</span><span class="tipo">Completar código</span></div><h3>Respuesta</h3><pre>class HiloSuma implements Runnable {
+    private int[] numeros;
+
+    public HiloSuma(int[] numeros) {
+        this.<mark class="c1">numeros</mark> = numeros;
+    }
+
+    @Override
+    public void run() {
+        int total = <mark class="c2">0</mark>;
+        for (int i = 0; i &lt; numeros.<mark class="c3">length</mark>; i++) {
+            total = total + numeros[i];
+        }
+        System.out.println(Thread.currentThread().getName() + ": suma = " + total);
+    }
+}</pre><div class="porque"><p><code>this.numeros</code> es la caja de la clase; <code>numeros</code> a secas es lo que llega. <code>length</code> dice cuántos elementos tiene el array. La suma empieza en 0 porque sumar 0 no cambia nada.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 18 de 24</span><span class="tipo">Completar</span></div><h3>Valores iniciales y resultados</h3><p>Tres hilos recorren el mismo array {1, 2, ..., 10}: uno <b>suma</b> todos los elementos, otro los <b>multiplica</b> y otro <b>resta</b> (al primer elemento le resta todos los demás). La suma empieza en <span class="hueco c1">1</span> y da <span class="hueco c2">2</span>. La multiplicación empieza en <span class="hueco c3">3</span> y da <span class="hueco c4">4</span>. La resta empieza con el elemento <code>numeros[<span class="hueco c5">5</span>]</code>, su <code>for</code> empieza en <code>i = <span class="hueco c6">6</span></code> y da <span class="hueco c7">7</span>.</p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 18 de 24</span><span class="tipo">Completar</span></div><h3>Respuesta</h3><p>Tres hilos recorren el mismo array {1, 2, ..., 10}: uno <b>suma</b> todos los elementos, otro los <b>multiplica</b> y otro <b>resta</b> (al primer elemento le resta todos los demás). La suma empieza en <mark class="c1">0</mark> y da <mark class="c2">55</mark>. La multiplicación empieza en <mark class="c3">1</mark> y da <mark class="c4">3628800</mark>. La resta empieza con el elemento <code>numeros[<mark class="c5">0</mark>]</code>, su <code>for</code> empieza en <code>i = <mark class="c6">1</mark></code> y da <mark class="c7">-53</mark>.</p><div class="porque"><p>La multiplicación empieza en 1 (con 0 todo daría 0). La resta empieza con el primer número y resta los demás: 1 − 2 − … − 10 = −53.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 19 de 24</span><span class="tipo">Verdadero o falso</span></div><h3>Tres hilos, un array</h3><p>Tres hilos reciben el <b>mismo</b> array de enteros: uno lo suma, otro lo multiplica y otro lo resta. Los tres solo <b>leen</b> el array; ninguno lo modifica. Entonces no hay ningún problema de sincronización.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 19 de 24</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol ok">VERDADERO</p><div class="porque"><p>Verdadero. Leer a la vez no estropea nada; el problema aparece cuando alguien <b>modifica</b> el dato compartido (6.3).</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 20 de 24</span><span class="tipo">Test</span></div><h3>switch y break</h3><p>¿Qué hace <code>break</code> dentro de un <code>switch</code>?</p><ol class="op" type="a"><li class="">Evita seguir con el <code>case</code> siguiente.</li><li class="">Salta al primer <code>case</code>.</li><li class="">Detiene el hilo que lo ejecuta.</li><li class="">Detiene el programa entero.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 20 de 24</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Evita seguir con el <code>case</code> siguiente. <b>✔</b></li><li class="no">Salta al primer <code>case</code>.</li><li class="no">Detiene el hilo que lo ejecuta.</li><li class="no">Detiene el programa entero.</li></ol><div class="porque"><p><code>switch</code> mira el valor y salta al <code>case</code> que coincide. <code>break</code> evita seguir con el siguiente.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 21 de 24</span><span class="tipo">Completar código</span></div><h3>HiloMaximo</h3><p>Completa el hilo que calcula la nota máxima. Respeta mayúsculas y minúsculas.</p><pre>class HiloMaximo implements Runnable {
+    private int[] notas;
+
+    public HiloMaximo(int[] notas) {
+        this.notas = notas;
+    }
+
+    @Override
+    public void run() {
+        int maximo = notas[<span class="hueco c1">1</span>];
+        for (int i = 1; i &lt; notas.length; i++) {
+            <span class="hueco c2">2</span> (notas[i] &gt; maximo) {
+                maximo = <span class="hueco c3">3</span>;
+            }
+        }
+        System.out.println(Thread.currentThread().getName() + ": máximo = " + maximo);
+    }
+}</pre><p class="peque">Desplegables: <span class="grupo c2"><span class="chip num">2</span> <code>if</code> · <code>while</code> · <code>switch</code> · <code>for</code></span></p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 21 de 24</span><span class="tipo">Completar código</span></div><h3>Respuesta</h3><pre>class HiloMaximo implements Runnable {
+    private int[] notas;
+
+    public HiloMaximo(int[] notas) {
+        this.notas = notas;
+    }
+
+    @Override
+    public void run() {
+        int maximo = notas[<mark class="c1">0</mark>];
+        for (int i = 1; i &lt; notas.length; i++) {
+            <mark class="c2">if</mark> (notas[i] &gt; maximo) {
+                maximo = <mark class="c3">notas[i]</mark>;
+            }
+        }
+        System.out.println(Thread.currentThread().getName() + ": máximo = " + maximo);
+    }
+}</pre><div class="porque"><p>El máximo provisional es la primera nota. El <code>for</code> empieza en 1 porque la posición 0 ya está guardada. Si la nota es mayor, pasa a ser el máximo.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 22 de 24</span><span class="tipo">Test</span></div><h3>Mínimo empezando en 0</h3><p>Un hilo calcula la nota <b>mínima</b> de un array <code>notas</code> con notas de 0 a 10 (de 3 a 10 en este caso). ¿Qué pasa si <code>minimo</code> empieza en <code>0</code> en lugar de <code>notas[0]</code>?</p><pre>int minimo = 0;
+for (int i = 1; i &lt; notas.length; i++) {
+    if (notas[i] &lt; minimo) {
+        minimo = notas[i];
+    }
+}</pre><ol class="op" type="a"><li class="">Siempre saldría 0, porque ninguna nota es menor que 0.</li><li class="">Funciona igual de bien.</li><li class="">Java lanza una excepción.</li><li class="">Siempre saldría 10.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 22 de 24</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Siempre saldría 0, porque ninguna nota es menor que 0. <b>✔</b></li><li class="no">Funciona igual de bien.</li><li class="no">Java lanza una excepción.</li><li class="no">Siempre saldría 10.</li></ol><div class="porque"><p>Máximo y mínimo empiezan siempre en <b>una nota del array</b>, no en un número inventado.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 23 de 24</span><span class="tipo">Completar</span></div><h3>Media con int y con double</h3><p>Las 10 notas suman 65. Con <code>int</code>, la división 65 / 10 da <span class="hueco c1">1</span> (se descartan los decimales). Con <code>double</code> da <span class="hueco c2">2</span>.</p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 23 de 24</span><span class="tipo">Completar</span></div><h3>Respuesta</h3><p>Las 10 notas suman 65. Con <code>int</code>, la división 65 / 10 da <mark class="c1">6</mark> (se descartan los decimales). Con <code>double</code> da <mark class="c2">6.5</mark>.</p><div class="porque"><p>La división entre enteros descarta los decimales. Por eso el total de la media es <code>double</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.1 Crear hilos · pregunta 24 de 24</span><span class="tipo">Redacción</span></div><h3>Programa tus hilos</h3><p>Escribe el código completo (dos clases) de un programa que lance <b>2 hilos</b> llamados «Hilo 1» y «Hilo 2». Cada hilo debe mostrar 5 veces <code>Hola desde &lt;nombre del hilo&gt;</code>. Usa <code>Runnable</code> y la clase <code>Principal</code>.</p></section>
+<section class="respuesta"><div class="cab"><span>6.1 Crear hilos · pregunta 24 de 24</span><span class="tipo">Redacción</span></div><h3>Respuesta</h3><pre>public class Saludo implements Runnable {
+    @Override
+    public void run() {
+        for (int i = 1; i &lt;= 5; i++) {
+            System.out.println("Hola desde " + Thread.currentThread().getName());
+        }
+    }
+}
+
+public class Principal {
+    public static void main(String[] args) {
+        Thread h1 = new Thread(new Saludo(), "Hilo 1");
+        Thread h2 = new Thread(new Saludo(), "Hilo 2");
+        h1.start();
+        h2.start();
+    }
+}</pre></section>
+<section class="portada"><h2>6.2 Prioridades</h2><p>11 preguntas</p></section>
+<section class="pregunta"><div class="cab"><span>6.2 Prioridades · pregunta 1 de 11</span><span class="tipo">Completar</span></div><h3>Valores de prioridad</h3><p><code>Thread.MIN_PRIORITY</code> vale <span class="hueco c1">1</span>, <code>Thread.NORM_PRIORITY</code> vale <span class="hueco c2">2</span> y <code>Thread.MAX_PRIORITY</code> vale <span class="hueco c3">3</span>.</p></section>
+<section class="respuesta"><div class="cab"><span>6.2 Prioridades · pregunta 1 de 11</span><span class="tipo">Completar</span></div><h3>Respuesta</h3><p><code>Thread.MIN_PRIORITY</code> vale <mark class="c1">1</mark>, <code>Thread.NORM_PRIORITY</code> vale <mark class="c2">5</mark> y <code>Thread.MAX_PRIORITY</code> vale <mark class="c3">10</mark>.</p><div class="porque"><p>Las prioridades van del 1 al 10 y la normal es 5.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.2 Prioridades · pregunta 2 de 11</span><span class="tipo">Emparejar</span></div><h3>Constante y valor</h3><p>Une cada constante con su valor:</p><ul class="par"><li><code>Thread.MIN_PRIORITY</code></li><li><code>Thread.NORM_PRIORITY</code></li><li><code>Thread.MAX_PRIORITY</code></li></ul><p><span class="chip">5</span> <span class="chip">1</span> <span class="chip">10</span></p></section>
+<section class="respuesta"><div class="cab"><span>6.2 Prioridades · pregunta 2 de 11</span><span class="tipo">Emparejar</span></div><h3>Respuesta</h3><table class="par"><tr><td><code>Thread.MIN_PRIORITY</code></td><td>→</td><td><mark>1</mark></td></tr><tr><td><code>Thread.NORM_PRIORITY</code></td><td>→</td><td><mark>5</mark></td></tr><tr><td><code>Thread.MAX_PRIORITY</code></td><td>→</td><td><mark>10</mark></td></tr></table><div class="porque"><p>Mínima 1, normal 5, máxima 10.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.2 Prioridades · pregunta 3 de 11</span><span class="tipo">Test</span></div><h3>Qué es el planificador</h3><p>¿Qué es el <b>planificador</b>?</p><ol class="op" type="a"><li class="">La parte del sistema que decide qué hilo usa el núcleo en cada momento.</li><li class="">El método que pone en marcha un hilo.</li><li class="">Una clase de Java que crea los hilos.</li><li class="">El hilo <code>main</code>.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.2 Prioridades · pregunta 3 de 11</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">La parte del sistema que decide qué hilo usa el núcleo en cada momento. <b>✔</b></li><li class="no">El método que pone en marcha un hilo.</li><li class="no">Una clase de Java que crea los hilos.</li><li class="no">El hilo <code>main</code>.</li></ol><div class="porque"><p>Con muchos hilos y pocos núcleos, el planificador decide quién se ejecuta. La prioridad es un consejo para esa decisión.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.2 Prioridades · pregunta 4 de 11</span><span class="tipo">Test</span></div><h3>Prioridad por defecto</h3><p>Creas un hilo desde <code>main</code> y <b>no</b> llamas a <code>setPriority</code>. ¿Qué prioridad tiene?</p><ol class="op" type="a"><li class="">0: no tiene prioridad hasta que se arranca.</li><li class="">5: la hereda del hilo que lo crea (<code>main</code>).</li><li class="">1: los hilos nuevos empiezan con la mínima.</li><li class="">10: los hilos nuevos empiezan con la máxima.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.2 Prioridades · pregunta 4 de 11</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">0: no tiene prioridad hasta que se arranca.</li><li class="ok">5: la hereda del hilo que lo crea (<code>main</code>). <b>✔</b></li><li class="no">1: los hilos nuevos empiezan con la mínima.</li><li class="no">10: los hilos nuevos empiezan con la máxima.</li></ol><div class="porque"><p>Un hilo nuevo hereda la prioridad del hilo que lo crea. Como <code>main</code> tiene 5, los hilos nacen con 5.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.2 Prioridades · pregunta 5 de 11</span><span class="tipo">Verdadero o falso</span></div><h3>setPriority antes de start</h3><p>La prioridad se cambia con <code>setPriority(...)</code> <b>antes</b> de llamar a <code>start()</code>.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="respuesta"><div class="cab"><span>6.2 Prioridades · pregunta 5 de 11</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol ok">VERDADERO</p><div class="porque"><p>Verdadero. Primero se fija la prioridad y después se arranca el hilo.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.2 Prioridades · pregunta 6 de 11</span><span class="tipo">Test</span></div><h3>Qué hace yield</h3><p>¿Qué hace <code>Thread.yield()</code>?</p><ol class="op" type="a"><li class="">El hilo ofrece su turno al planificador. Es solo una sugerencia.</li><li class="">Espera a que otro hilo termine.</li><li class="">Baja la prioridad del hilo a 1.</li><li class="">Detiene el hilo durante un segundo.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.2 Prioridades · pregunta 6 de 11</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">El hilo ofrece su turno al planificador. Es solo una sugerencia. <b>✔</b></li><li class="no">Espera a que otro hilo termine.</li><li class="no">Baja la prioridad del hilo a 1.</li><li class="no">Detiene el hilo durante un segundo.</li></ol><div class="porque"><p><code>yield()</code> es solo una sugerencia: Java puede ignorarla.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.2 Prioridades · pregunta 7 de 11</span><span class="tipo">Verdadero o falso</span></div><h3>Prioridad 10 gana siempre</h3><p>Un hilo con prioridad 10 siempre termina antes que un hilo con prioridad 1.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="respuesta"><div class="cab"><span>6.2 Prioridades · pregunta 7 de 11</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol no">FALSO</p><div class="porque"><p>Falso. Los hilos de prioridad 10 no siempre terminan los primeros; a veces ni siquiera terminan antes que los de prioridad 1.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.2 Prioridades · pregunta 8 de 11</span><span class="tipo">Varias correctas</span></div><h3>Por qué no garantiza el orden</h3><p>Marca las razones <b>correctas</b> por las que la prioridad no garantiza el orden:</p><ol class="op" type="a"><li class="">Los hilos de prioridad 1 nunca llegan a ejecutarse.</li><li class="">Con varios núcleos todos los hilos avanzan a la vez y la prioridad pesa poco.</li><li class="">Java no gestiona las prioridades: se las pasa al sistema operativo.</li><li class="">Cada sistema las trata a su manera y algunos casi las ignoran.</li><li class="">Java las ignora siempre y las deja en 5.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.2 Prioridades · pregunta 8 de 11</span><span class="tipo">Varias correctas</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Los hilos de prioridad 1 nunca llegan a ejecutarse.</li><li class="ok">Con varios núcleos todos los hilos avanzan a la vez y la prioridad pesa poco. <b>✔</b></li><li class="ok">Java no gestiona las prioridades: se las pasa al sistema operativo. <b>✔</b></li><li class="ok">Cada sistema las trata a su manera y algunos casi las ignoran. <b>✔</b></li><li class="no">Java las ignora siempre y las deja en 5.</li></ol><div class="porque"><p>La prioridad es un consejo, no una orden.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.2 Prioridades · pregunta 9 de 11</span><span class="tipo">Test</span></div><h3>Obligar a un orden</h3><p>Quieres que un hilo termine <b>antes</b> que otro. ¿Qué usas?</p><ol class="op" type="a"><li class=""><code>Thread.yield()</code> en los dos hilos.</li><li class="">Dar prioridad 1 al otro.</li><li class="">Dar prioridad 10 al que debe terminar antes.</li><li class=""><code>join()</code> o <code>wait()</code>/<code>notify()</code>, no las prioridades.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.2 Prioridades · pregunta 9 de 11</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no"><code>Thread.yield()</code> en los dos hilos.</li><li class="no">Dar prioridad 1 al otro.</li><li class="no">Dar prioridad 10 al que debe terminar antes.</li><li class="ok"><code>join()</code> o <code>wait()</code>/<code>notify()</code>, no las prioridades. <b>✔</b></li></ol><div class="porque"><p>Para obligar a un orden no se usan prioridades: se usa <code>join()</code> o <code>wait()</code>/<code>notify()</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.2 Prioridades · pregunta 10 de 11</span><span class="tipo">Completar con desplegables</span></div><h3>Cambiar y leer la prioridad</h3><p>Completa el código con los desplegables: el hilo debe tener la prioridad máxima y luego se muestra su prioridad.</p><pre>class Tarea implements Runnable {
+    @Override
+    public void run() {
+    }
+}
+
+class Principal {
+    public static void main(String[] args) {
+        Thread h = new Thread(new Tarea(), "Rápido");
+        h.<span class="hueco c1">1</span>(<span class="hueco c2">2</span>);
+        h.start();
+        System.out.println(h.<span class="hueco c3">3</span>());
+    }
+}</pre><p class="peque">Desplegables: <span class="grupo c1"><span class="chip num">1</span> <code>setName</code> · <code>setPriority</code></span> &nbsp; <span class="grupo c2"><span class="chip num">2</span> <code>Thread.MAX_VALUE</code> · <code>Thread.MAX_PRIORITY</code></span> &nbsp; <span class="grupo c3"><span class="chip num">3</span> <code>getName</code> · <code>getPriority</code></span></p></section>
+<section class="respuesta"><div class="cab"><span>6.2 Prioridades · pregunta 10 de 11</span><span class="tipo">Completar con desplegables</span></div><h3>Respuesta</h3><pre>class Tarea implements Runnable {
+    @Override
+    public void run() {
+    }
+}
+
+class Principal {
+    public static void main(String[] args) {
+        Thread h = new Thread(new Tarea(), "Rápido");
+        h.<mark class="c1">setPriority</mark>(<mark class="c2">Thread.MAX_PRIORITY</mark>);
+        h.start();
+        System.out.println(h.<mark class="c3">getPriority</mark>());
+    }
+}</pre><div class="porque"><p><code>setPriority(Thread.MAX_PRIORITY)</code> fija la prioridad en 10 y <code>getPriority()</code> la devuelve.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.2 Prioridades · pregunta 11 de 11</span><span class="tipo">Numérica</span></div><h3>Cuántos hilos se crean</h3><p>Este programa crea hilos en un bucle: en cada vuelta, un hilo con prioridad mínima, uno normal y uno máxima. ¿Cuántos hilos se crean <b>sin contar <code>main</code></b>?</p><pre>class Tarea implements Runnable {
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName() + " termina");
+    }
+}
+
+class Principal {
+    public static void main(String[] args) {
+        int n = 5;
+        for (int i = 0; i &lt; n; i++) {
+            Thread minimo = new Thread(new Tarea(), "Mínimo " + (i + 1));
+            Thread normal = new Thread(new Tarea(), "Normal " + (i + 1));
+            Thread maximo = new Thread(new Tarea(), "Máximo " + (i + 1));
+            minimo.setPriority(Thread.MIN_PRIORITY);
+            maximo.setPriority(Thread.MAX_PRIORITY);
+            minimo.start();
+            normal.start();
+            maximo.start();
+        }
+    }
+}</pre></section>
+<section class="respuesta"><div class="cab"><span>6.2 Prioridades · pregunta 11 de 11</span><span class="tipo">Numérica</span></div><h3>Respuesta</h3><p class="sol">15</p><div class="porque"><p>5 vueltas × 3 hilos por vuelta = 15.</p></div></section>
+<section class="portada"><h2>6.3 Información compartida</h2><p>28 preguntas</p></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 1 de 28</span><span class="tipo">Test</span></div><h3>Recurso compartido</h3><p>¿Qué es un <b>recurso compartido</b>?</p><ol class="op" type="a"><li class="">Un objeto o dato que usan varios hilos a la vez.</li><li class="">Un método con <code>synchronized</code>.</li><li class="">Un hilo que ejecuta código de otro.</li><li class="">Una clase que implementa <code>Runnable</code>.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 1 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Un objeto o dato que usan varios hilos a la vez. <b>✔</b></li><li class="no">Un método con <code>synchronized</code>.</li><li class="no">Un hilo que ejecuta código de otro.</li><li class="no">Una clase que implementa <code>Runnable</code>.</li></ol><div class="porque"><p>Ejemplos: una cuenta bancaria, un fichero, una impresora, un contador...</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 2 de 28</span><span class="tipo">Test</span></div><h3>Cómo se comparte en Java</h3><p>¿Cómo se comparte un recurso entre varios hilos en Java?</p><ol class="op" type="a"><li class="">Se declara el objeto como <code>private</code> en cada hilo.</li><li class="">Se crea <b>un solo objeto</b> y se pasa la misma referencia a cada hilo, normalmente por el constructor.</li><li class="">Cada hilo crea su propio objeto con <code>new</code>.</li><li class="">Java comparte automáticamente todos los objetos entre los hilos.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 2 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Se declara el objeto como <code>private</code> en cada hilo.</li><li class="ok">Se crea <b>un solo objeto</b> y se pasa la misma referencia a cada hilo, normalmente por el constructor. <b>✔</b></li><li class="no">Cada hilo crea su propio objeto con <code>new</code>.</li><li class="no">Java comparte automáticamente todos los objetos entre los hilos.</li></ol><div class="porque"><p>Si cada hilo tuviera su objeto, ya no se compartiría nada.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 3 de 28</span><span class="tipo">Test</span></div><h3>Condición de carrera</h3><p>¿Qué es una <b>condición de carrera</b>?</p><ol class="op" type="a"><li class="">Varios hilos leen y cambian el mismo dato y el resultado depende de quién llega antes.</li><li class="">Una competición entre hilos para ver cuál termina antes, que es lo que se busca.</li><li class="">Un error de compilación por tener dos hilos en la misma clase.</li><li class="">La prioridad más alta que puede tener un hilo.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 3 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Varios hilos leen y cambian el mismo dato y el resultado depende de quién llega antes. <b>✔</b></li><li class="no">Una competición entre hilos para ver cuál termina antes, que es lo que se busca.</li><li class="no">Un error de compilación por tener dos hilos en la misma clase.</li><li class="no">La prioridad más alta que puede tener un hilo.</li></ol><div class="porque"><p>Lo peor: el programa no da error. A veces sale bien y a veces mal, y no se puede predecir.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 4 de 28</span><span class="tipo">Ordenar</span></div><h3>Sumar 1 son tres pasos</h3><p>Aunque <code>cuenta++</code> se escribe en una línea, para el ordenador son tres pasos. Ordénalos.</p><p>1. <span class="hueco">1</span><br>2. <span class="hueco">2</span><br>3. <span class="hueco">3</span></p><p class="peque">Palabras (algunas sobran):</p><p><span class="chip">Leer la cuenta</span> <span class="chip">Guardar la cuenta</span> <span class="chip">Calcular el nuevo valor</span></p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 4 de 28</span><span class="tipo">Ordenar</span></div><h3>Respuesta</h3><p>1. <mark class="">Leer la cuenta</mark><br>2. <mark class="">Calcular el nuevo valor</mark><br>3. <mark class="">Guardar la cuenta</mark></p><div class="porque"><p>Otro hilo puede colarse entre dos pasos: ahí se produce la condición de carrera.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 5 de 28</span><span class="tipo">Completar</span></div><h3>Traza de una carrera</h3><p>Una variable compartida <code>cuenta</code> vale 100. Dos hilos ejecutan a la vez <code>cuenta++</code>, que son tres pasos: leer, calcular y guardar. Ocurre este orden: A lee 100, B lee 100, A guarda 101 y B guarda 101. Se han ejecutado <span class="hueco c1">1</span> incrementos, pero <code>cuenta</code> vale <span class="hueco c2">2</span>. Debería valer <span class="hueco c3">3</span>.</p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 5 de 28</span><span class="tipo">Completar</span></div><h3>Respuesta</h3><p>Una variable compartida <code>cuenta</code> vale 100. Dos hilos ejecutan a la vez <code>cuenta++</code>, que son tres pasos: leer, calcular y guardar. Ocurre este orden: A lee 100, B lee 100, A guarda 101 y B guarda 101. Se han ejecutado <mark class="c1">2</mark> incrementos, pero <code>cuenta</code> vale <mark class="c2">101</mark>. Debería valer <mark class="c3">102</mark>.</p><div class="porque"><p>B guarda el mismo resultado que A: uno de los dos incrementos <b>se pierde</b>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 6 de 28</span><span class="tipo">Verdadero o falso</span></div><h3>Si hoy sale 100</h3><p>Un programa tiene 2000 hilos que comparten una variable <code>cuenta</code> que empieza en 100: 1000 hilos le suman 1 y 1000 hilos le restan 1, <b>sin sincronizar</b>. Hoy, al ejecutarlo, el valor final es 100. Entonces el programa es correcto.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 6 de 28</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol no">FALSO</p><div class="porque"><p>Falso. Con una condición de carrera a veces sale bien y a veces mal. Que hoy salga bien no demuestra nada.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 7 de 28</span><span class="tipo">Completar</span></div><h3>Los hilos y el valor final</h3><p>Una variable compartida empieza en 100. Se lanzan 1000 hilos que le suman 1 y 1000 hilos que le restan 1. En total hay <span class="hueco c1">1</span> hilos y, si todo funciona bien, el valor final es <span class="hueco c2">2</span>.</p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 7 de 28</span><span class="tipo">Completar</span></div><h3>Respuesta</h3><p>Una variable compartida empieza en 100. Se lanzan 1000 hilos que le suman 1 y 1000 hilos que le restan 1. En total hay <mark class="c1">2000</mark> hilos y, si todo funciona bien, el valor final es <mark class="c2">100</mark>.</p><div class="porque"><p>1000 + 1000 = 2000 hilos; 100 + 1000 − 1000 = 100.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 8 de 28</span><span class="tipo">Completar código</span></div><h3>Recurso sincronizado</h3><p>Una clase guarda un contador que usan muchos hilos a la vez. Completa la clase para que los dos métodos sean seguros entre hilos.</p><pre>class Contador {
+    private int cuenta = 100;
+
+    public <span class="hueco c1">1</span> void sumar() {
+        cuenta++;
+    }
+
+    public <span class="hueco c2">2</span> void restar() {
+        cuenta--;
+    }
+}</pre><p class="peque">Desplegables: <span class="grupo c1"><span class="chip num">1</span> <code>static</code> · <code>final</code> · <code>synchronized</code> · <code>abstract</code></span> &nbsp; <span class="grupo c2"><span class="chip num">2</span> <code>abstract</code> · <code>final</code> · <code>static</code> · <code>synchronized</code></span></p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 8 de 28</span><span class="tipo">Completar código</span></div><h3>Respuesta</h3><pre>class Contador {
+    private int cuenta = 100;
+
+    public <mark class="c1">synchronized</mark> void sumar() {
+        cuenta++;
+    }
+
+    public <mark class="c2">synchronized</mark> void restar() {
+        cuenta--;
+    }
+}</pre><div class="porque"><p><code>synchronized</code> en la cabecera del método: solo deja entrar a un hilo a la vez; los demás esperan fuera.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 9 de 28</span><span class="tipo">Test</span></div><h3>Qué es el cerrojo</h3><p>¿Qué es el <b>cerrojo</b> de un objeto?</p><ol class="op" type="a"><li class="">Un método que bloquea el programa para siempre.</li><li class="">Una palabra reservada que se escribe en la cabecera del método.</li><li class="">Cada objeto tiene uno: el hilo que entra en un método <code>synchronized</code> lo coge y lo suelta al salir.</li><li class="">Un tipo especial de hilo.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 9 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Un método que bloquea el programa para siempre.</li><li class="no">Una palabra reservada que se escribe en la cabecera del método.</li><li class="ok">Cada objeto tiene uno: el hilo que entra en un método <code>synchronized</code> lo coge y lo suelta al salir. <b>✔</b></li><li class="no">Un tipo especial de hilo.</li></ol><div class="porque"><p>Es como una puerta de una sola persona: el que está dentro lee, calcula y guarda sin que nadie se cuele.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 10 de 28</span><span class="tipo">Verdadero o falso</span></div><h3>Dos objetos, dos cerrojos</h3><p>La clase <code>Contador</code> tiene un método <code>synchronized void sumar()</code>. Dos hilos usan dos objetos <code>Contador</code> <b>distintos</b> (cada hilo con el suyo). Entonces uno puede estar dentro de <code>sumar()</code> mientras el otro también lo está en su objeto.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 10 de 28</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol ok">VERDADERO</p><div class="porque"><p>Verdadero. Cada objeto tiene su cerrojo. Para que se excluyan, los hilos deben compartir <b>el mismo objeto</b>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 11 de 28</span><span class="tipo">Test</span></div><h3>Synchronized en los dos métodos</h3><p>Una clase tiene un contador con dos métodos: <code>sumar()</code> (hace <code>cuenta++</code>) y <code>restar()</code> (hace <code>cuenta--</code>). Muchos hilos los usan a la vez. ¿Por qué hay que poner <code>synchronized</code> en <b>los dos</b>?</p><ol class="op" type="a"><li class="">Porque así el método va más rápido.</li><li class="">Porque los dos tocan la misma variable: si solo uno estuviera sincronizado, el otro podría colarse entre sus tres pasos.</li><li class="">Porque si no, <code>restar()</code> no compila.</li><li class="">Porque Java obliga a que todos los métodos de una clase sean <code>synchronized</code>.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 11 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Porque así el método va más rápido.</li><li class="ok">Porque los dos tocan la misma variable: si solo uno estuviera sincronizado, el otro podría colarse entre sus tres pasos. <b>✔</b></li><li class="no">Porque si no, <code>restar()</code> no compila.</li><li class="no">Porque Java obliga a que todos los métodos de una clase sean <code>synchronized</code>.</li></ol><div class="porque"><p>Quien suma y quien resta modifican la misma variable: los dos métodos deben usar el mismo cerrojo.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 12 de 28</span><span class="tipo">Test</span></div><h3>Dónde va synchronized</h3><p>Un programa tiene dos clases de hilos, <code>Suma</code> y <code>Resta</code> (<code>Runnable</code>), que comparten un objeto <code>Contador</code> y modifican su variable <code>cuenta</code>. Para evitar la condición de carrera, ¿qué hay que cambiar?</p><ol class="op" type="a"><li class="">Solo la clase <code>Contador</code>: sus métodos pasan a ser <code>synchronized</code>.</li><li class="">El método <code>run()</code> de cada hilo.</li><li class="">Hay que reescribir las tres clases.</li><li class="">El método <code>main</code>.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 12 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Solo la clase <code>Contador</code>: sus métodos pasan a ser <code>synchronized</code>. <b>✔</b></li><li class="no">El método <code>run()</code> de cada hilo.</li><li class="no">Hay que reescribir las tres clases.</li><li class="no">El método <code>main</code>.</li></ol><div class="porque"><p>Se protege el dato compartido, no a los hilos.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 13 de 28</span><span class="tipo">Test</span></div><h3>Qué se pierde al sincronizar</h3><p>¿Qué se pierde a cambio de que el resultado sea correcto al sincronizar?</p><ol class="op" type="a"><li class="">Los hilos pasan de uno en uno por esos métodos: se pierde trabajar a la vez dentro de ellos.</li><li class="">No se pierde nada.</li><li class="">Se pierde la prioridad de los hilos.</li><li class="">Se pierde el nombre de los hilos.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 13 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Los hilos pasan de uno en uno por esos métodos: se pierde trabajar a la vez dentro de ellos. <b>✔</b></li><li class="no">No se pierde nada.</li><li class="no">Se pierde la prioridad de los hilos.</li><li class="no">Se pierde el nombre de los hilos.</li></ol><div class="porque"><p>Sincronizar da un resultado correcto, pero quita la ventaja de hacer varias cosas a la vez.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 14 de 28</span><span class="tipo">Test</span></div><h3>Sale el valor esperado sin synchronized</h3><p>Cuatro hilos suman 1 a un contador compartido, 20 veces cada uno (el valor correcto es 80). Quitas <code>synchronized</code> del método que suma y en una ejecución sale 80. ¿Significa que no hace falta?</p><ol class="op" type="a"><li class="">Sí: si sale 80, el programa es correcto.</li><li class="">No, porque sin <code>synchronized</code> el programa no compila.</li><li class="">No: la condición de carrera es impredecible; que salga 80 hoy no demuestra que sea seguro.</li><li class="">Sí, porque 80 es el valor correcto.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 14 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Sí: si sale 80, el programa es correcto.</li><li class="no">No, porque sin <code>synchronized</code> el programa no compila.</li><li class="ok">No: la condición de carrera es impredecible; que salga 80 hoy no demuestra que sea seguro. <b>✔</b></li><li class="no">Sí, porque 80 es el valor correcto.</li></ol><div class="porque"><p>Con varios hilos puede salir 80 y fallar en otra ejecución o en otro ordenador.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 15 de 28</span><span class="tipo">Numérica</span></div><h3>Valor final con synchronized</h3><p>Cuatro hilos suman 1 a un contador compartido que empieza en 0, 20 veces cada uno. El método que suma es <code>synchronized</code>. ¿Qué valor tiene el contador al terminar?</p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 15 de 28</span><span class="tipo">Numérica</span></div><h3>Respuesta</h3><p class="sol">80</p><div class="porque"><p>4 × 20 = 80, y con <code>synchronized</code> sale siempre.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 16 de 28</span><span class="tipo">Completar</span></div><h3>Cocina y sleep</h3><p>Una cocina tiene 5 cuchillos compartidos y 4 cocineros (hilos). Cada cocinero repite 4 veces: coge un cuchillo con el método <code>coger()</code> (que es <code>synchronized</code>), cocina durante 3 segundos y lo suelta. En total se llama a <code>coger()</code> <span class="hueco c1">1</span> veces. Si el <code>sleep(3000)</code> está <b>dentro</b> de <code>coger()</code>, el programa tarda unos <span class="hueco c2">2</span> segundos. Si el <code>sleep</code> está <b>fuera</b>, en el hilo del cocinero, tarda unos <span class="hueco c3">3</span>.</p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 16 de 28</span><span class="tipo">Completar</span></div><h3>Respuesta</h3><p>Una cocina tiene 5 cuchillos compartidos y 4 cocineros (hilos). Cada cocinero repite 4 veces: coge un cuchillo con el método <code>coger()</code> (que es <code>synchronized</code>), cocina durante 3 segundos y lo suelta. En total se llama a <code>coger()</code> <mark class="c1">16</mark> veces. Si el <code>sleep(3000)</code> está <b>dentro</b> de <code>coger()</code>, el programa tarda unos <mark class="c2">48</mark> segundos. Si el <code>sleep</code> está <b>fuera</b>, en el hilo del cocinero, tarda unos <mark class="c3">12</mark>.</p><div class="porque"><p>16 × 3 = 48 s si van de uno en uno; 4 vueltas × 3 s = 12 s si cocinan a la vez.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 17 de 28</span><span class="tipo">Test</span></div><h3>sleep dentro de synchronized</h3><p>Una cocina tiene 5 cuchillos y 4 cocineros (hilos). Cada cocinero llama a un método <code>synchronized coger()</code> que descuenta un cuchillo y después <b>duerme 3 segundos dentro del propio método</b>. Aunque quedan cuchillos libres, los cocineros van de uno en uno. ¿Por qué?</p><ol class="op" type="a"><li class="">Porque <code>coger()</code> es más lento que <code>soltar()</code>.</li><li class="">Porque solo hay un cuchillo bueno.</li><li class="">Porque el cocinero duerme <b>dentro</b> de un método <code>synchronized</code>: tiene el cerrojo y los demás no pueden ni entrar.</li><li class="">Porque <code>sleep</code> bloquea todos los hilos del programa.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 17 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Porque <code>coger()</code> es más lento que <code>soltar()</code>.</li><li class="no">Porque solo hay un cuchillo bueno.</li><li class="ok">Porque el cocinero duerme <b>dentro</b> de un método <code>synchronized</code>: tiene el cerrojo y los demás no pueden ni entrar. <b>✔</b></li><li class="no">Porque <code>sleep</code> bloquea todos los hilos del programa.</li></ol><div class="porque"><p>Regla: el <code>sleep</code> va <b>fuera</b> de <code>synchronized</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 18 de 28</span><span class="tipo">Test</span></div><h3>Error cannot find symbol</h3><p>Escribes <code>sleep(3000);</code> y NetBeans marca <code>cannot find symbol</code>. ¿Qué arregla ese error?</p><ol class="op" type="a"><li class="">Declarar <code>throws InterruptedException</code> en <code>run()</code>.</li><li class="">Un <code>import static java.lang.Thread.sleep;</code> arriba del fichero (la bombilla lo escribe).</li><li class="">Escribir <code>try</code> y <code>catch</code>.</li><li class="">Cambiar <code>sleep</code> por <code>wait</code>.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 18 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Declarar <code>throws InterruptedException</code> en <code>run()</code>.</li><li class="ok">Un <code>import static java.lang.Thread.sleep;</code> arriba del fichero (la bombilla lo escribe). <b>✔</b></li><li class="no">Escribir <code>try</code> y <code>catch</code>.</li><li class="no">Cambiar <code>sleep</code> por <code>wait</code>.</li></ol><div class="porque"><p>Hay dos errores distintos: <code>cannot find symbol</code> (falta el import) e <code>InterruptedException</code> (falta el <code>try/catch</code>).</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 19 de 28</span><span class="tipo">Test</span></div><h3>InterruptedException en run()</h3><p><code>sleep(3000)</code> obliga a tratar la <code>InterruptedException</code>. En <code>run()</code> de un <code>Runnable</code>, ¿cuál es la opción correcta de la bombilla?</p><ol class="op" type="a"><li class="">Borrar el <code>sleep</code>.</li><li class=""><b>Surround Statement with try-catch</b>.</li><li class="">Cambiar <code>run()</code> por <code>start()</code>.</li><li class=""><b>Add throws clause</b>: el método <code>run()</code> declara <code>throws InterruptedException</code>.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 19 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Borrar el <code>sleep</code>.</li><li class="ok"><b>Surround Statement with try-catch</b>. <b>✔</b></li><li class="no">Cambiar <code>run()</code> por <code>start()</code>.</li><li class="no"><b>Add throws clause</b>: el método <code>run()</code> declara <code>throws InterruptedException</code>.</li></ol><div class="porque"><p>El método <code>run()</code> de un <code>Runnable</code> no puede declarar esa excepción: hay que usar <code>try/catch</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 20 de 28</span><span class="tipo">Completar con desplegables</span></div><h3>Pausa con sleep</h3><p>Elige en cada desplegable la palabra que falta para pausar el hilo 1 segundo.</p><pre>class Pausa implements Runnable {
+    @Override
+    public void run() {
+        <span class="hueco c1">1</span> {
+            Thread.<span class="hueco c2">2</span>(1000);
+        } <span class="hueco c3">3</span> (InterruptedException e) {
+        }
+    }
+}</pre><p class="peque">Desplegables: <span class="grupo c1"><span class="chip num">1</span> <code>try</code> · <code>throw</code></span> &nbsp; <span class="grupo c2"><span class="chip num">2</span> <code>sleep</code> · <code>wait</code></span> &nbsp; <span class="grupo c3"><span class="chip num">3</span> <code>catch</code> · <code>finally</code></span></p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 20 de 28</span><span class="tipo">Completar con desplegables</span></div><h3>Respuesta</h3><pre>class Pausa implements Runnable {
+    @Override
+    public void run() {
+        <mark class="c1">try</mark> {
+            Thread.<mark class="c2">sleep</mark>(1000);
+        } <mark class="c3">catch</mark> (InterruptedException e) {
+        }
+    }
+}</pre><div class="porque"><p><code>sleep</code> puede lanzar <code>InterruptedException</code> si despiertan al hilo mientras duerme, así que va dentro de un <code>try</code> con su <code>catch</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 21 de 28</span><span class="tipo">Completar</span></div><h3>Cocina sin wait</h3><p>Una cocina tiene 5 cuchillos. Su método <code>coger()</code> resta 1 a <code>libres</code> <b>sin comprobar</b> si queda alguno, y 7 cocineros lo llaman sin soltar ningún cuchillo. El cocinero 6 muestra «Libres: <span class="hueco c1">1</span>» y el cocinero 7 muestra «Libres: <span class="hueco c2">2</span>».</p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 21 de 28</span><span class="tipo">Completar</span></div><h3>Respuesta</h3><p>Una cocina tiene 5 cuchillos. Su método <code>coger()</code> resta 1 a <code>libres</code> <b>sin comprobar</b> si queda alguno, y 7 cocineros lo llaman sin soltar ningún cuchillo. El cocinero 6 muestra «Libres: <mark class="c1">-1</mark>» y el cocinero 7 muestra «Libres: <mark class="c2">-2</mark>».</p><div class="porque"><p><code>coger()</code> resta 1 sin mirar si queda alguno: coge cuchillos que no existen.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 22 de 28</span><span class="tipo">Test</span></div><h3>wait suelta el cerrojo</h3><p>Un hilo está dentro de un método <code>synchronized coger()</code> y espera con <code>wait()</code> porque no quedan cuchillos. Otro hilo tiene que entrar en el método <code>synchronized soltar()</code> para avisarle. ¿Por qué <code>wait()</code> <b>suelta el cerrojo</b> mientras espera?</p><ol class="op" type="a"><li class="">Si no lo soltara, nadie podría entrar en <code>soltar()</code> y el hilo esperaría para siempre.</li><li class="">Porque <code>wait()</code> termina el programa.</li><li class="">Para que el hilo se despierte antes.</li><li class="">No lo suelta: sigue con el cerrojo mientras espera.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 22 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Si no lo soltara, nadie podría entrar en <code>soltar()</code> y el hilo esperaría para siempre. <b>✔</b></li><li class="no">Porque <code>wait()</code> termina el programa.</li><li class="no">Para que el hilo se despierte antes.</li><li class="no">No lo suelta: sigue con el cerrojo mientras espera.</li></ol><div class="porque"><p>Al soltar el cerrojo, otro hilo puede entrar en el método <code>synchronized</code> y avisar.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 23 de 28</span><span class="tipo">Test</span></div><h3>Dónde se usan wait y notifyAll</h3><p>¿Dónde se pueden usar <code>wait()</code> y <code>notifyAll()</code>?</p><ol class="op" type="a"><li class="">Solo dentro de un método <code>synchronized</code>.</li><li class="">Solo en <code>main</code>.</li><li class="">Solo en métodos <code>static</code>.</li><li class="">En cualquier método de cualquier clase.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 23 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Solo dentro de un método <code>synchronized</code>. <b>✔</b></li><li class="no">Solo en <code>main</code>.</li><li class="no">Solo en métodos <code>static</code>.</li><li class="no">En cualquier método de cualquier clase.</li></ol><div class="porque"><p>Todas las clases los tienen. Se escribe <code>wait()</code> a secas, sin nada delante, y siempre dentro de código <code>synchronized</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 24 de 28</span><span class="tipo">Arrastrar código</span></div><h3>Parking: arrastra las palabras</h3><p>Arrastra las palabras a los huecos para que el parking espere cuando no haya plazas y avise cuando se libere una. Algunas palabras sobran.</p><pre>class Parking {
+    private int libres = 3;
+
+    public <span class="hueco">1</span> void entrar() {
+        <span class="hueco">2</span> (libres == 0) {
+            try {
+                <span class="hueco">3</span>();
+            } catch (InterruptedException ex) {
+            }
+        }
+        libres--;
+    }
+
+    public <span class="hueco">1</span> void salir() {
+        libres++;
+        <span class="hueco">4</span>();
+    }
+}</pre><p class="peque">Palabras (algunas sobran): Algunas se usan más de una vez.</p><p><span class="chip">join</span> <span class="chip">while</span> <span class="chip">if</span> <span class="chip">sleep</span> <span class="chip">notifyAll</span> <span class="chip">synchronized</span> <span class="chip">wait</span></p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 24 de 28</span><span class="tipo">Arrastrar código</span></div><h3>Respuesta</h3><pre>class Parking {
+    private int libres = 3;
+
+    public <mark class="">synchronized</mark> void entrar() {
+        <mark class="">while</mark> (libres == 0) {
+            try {
+                <mark class="">wait</mark>();
+            } catch (InterruptedException ex) {
+            }
+        }
+        libres--;
+    }
+
+    public <mark class="">synchronized</mark> void salir() {
+        libres++;
+        <mark class="">notifyAll</mark>();
+    }
+}</pre><div class="porque"><p>Los dos métodos son <code>synchronized</code>; <code>entrar()</code> espera con <code>while</code> + <code>wait()</code> y <code>salir()</code> avisa con <code>notifyAll()</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 25 de 28</span><span class="tipo">Test</span></div><h3>Por qué while y no if</h3><p>Varios hilos esperan con <code>wait()</code> dentro de un método <code>synchronized</code> porque no queda ningún recurso libre. Otro hilo libera <b>un</b> recurso y llama a <code>notifyAll()</code>: se despiertan todos. ¿Por qué la espera se escribe con <code>while</code> y no con <code>if</code>?</p><ol class="op" type="a"><li class="">Porque <code>if</code> no se puede combinar con <code>wait()</code>.</li><li class="">Porque <code>while</code> hace que el hilo espere más tiempo.</li><li class="">Con <code>while</code>, cada hilo que se despierta comprueba otra vez si queda un recurso antes de cogerlo.</li><li class="">Es solo cuestión de estilo: da igual uno que otro.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 25 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Porque <code>if</code> no se puede combinar con <code>wait()</code>.</li><li class="no">Porque <code>while</code> hace que el hilo espere más tiempo.</li><li class="ok">Con <code>while</code>, cada hilo que se despierta comprueba otra vez si queda un recurso antes de cogerlo. <b>✔</b></li><li class="no">Es solo cuestión de estilo: da igual uno que otro.</li></ol><div class="porque"><p>Con <code>if</code>, todos pasarían a coger el recurso sin volver a mirar y el contador quedaría negativo. Regla: <code>wait()</code> siempre dentro de un <code>while</code> que repite la condición.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 26 de 28</span><span class="tipo">Test</span></div><h3>Parking sin notifyAll</h3><p>Un parking tiene un método <code>synchronized entrar()</code> (si no hay plazas libres, el coche espera con <code>while</code> + <code>wait()</code>) y un método <code>synchronized salir()</code> (suma una plaza libre). Si <code>salir()</code> <b>no</b> llama a <code>notifyAll()</code>, ¿qué pasa?</p><ol class="op" type="a"><li class="">El programa no compila.</li><li class="">Nada: los coches vuelven a mirar solos cada segundo.</li><li class="">Las plazas libres salen negativas.</li><li class="">Los coches que esperan nunca se enteran de que hay plaza y se quedan colgados.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 26 de 28</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">El programa no compila.</li><li class="no">Nada: los coches vuelven a mirar solos cada segundo.</li><li class="no">Las plazas libres salen negativas.</li><li class="ok">Los coches que esperan nunca se enteran de que hay plaza y se quedan colgados. <b>✔</b></li></ol><div class="porque"><p><code>wait()</code> duerme hasta que lo avisen. Sin <code>notifyAll()</code> nadie despierta a los que esperan.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 27 de 28</span><span class="tipo">Arrastrar código</span></div><h3>Ordena el método coger()</h3><p>Una cocina comparte un contador de cuchillos libres entre varios cocineros. Ordena las líneas del método <code>coger()</code>. Reglas: primero esperar mientras no haya cuchillos; después coger uno y por último mostrar el mensaje.</p><pre>class Cocina {
+    private int libres = 5;
+
+    public synchronized void coger() throws InterruptedException {
+        <span class="hueco">1</span>
+            <span class="hueco">2</span>
+        <span class="hueco">3</span>
+        <span class="hueco">4</span>
+        <span class="hueco">5</span>
+    }
+}</pre><p class="peque">Palabras (algunas sobran):</p><p><span class="chip">wait();</span> <span class="chip">}</span> <span class="chip">libres--;</span> <span class="chip">System.out.println("coge un cuchillo");</span> <span class="chip">while (libres == 0) {</span></p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 27 de 28</span><span class="tipo">Arrastrar código</span></div><h3>Respuesta</h3><pre>class Cocina {
+    private int libres = 5;
+
+    public synchronized void coger() throws InterruptedException {
+        <mark class="">while (libres == 0) {</mark>
+            <mark class="">wait();</mark>
+        <mark class="">}</mark>
+        <mark class="">libres--;</mark>
+        <mark class="">System.out.println("coge un cuchillo");</mark>
+    }
+}</pre><div class="porque"><p>Se espera con <code>while</code> + <code>wait()</code>, se cierra el bucle y solo entonces se coge el cuchillo.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.3 Información compartida · pregunta 28 de 28</span><span class="tipo">Redacción</span></div><h3>Escribe tu propio recurso</h3><p>Escribe la clase <code>Taquilla</code>: empieza con 5 entradas disponibles. El método <code>comprar()</code> debe <b>esperar</b> si no quedan entradas y restar una cuando ya hay. El método <code>devolver()</code> suma una entrada y <b>avisa</b> a los que esperan. Debe ser seguro entre hilos.</p></section>
+<section class="respuesta"><div class="cab"><span>6.3 Información compartida · pregunta 28 de 28</span><span class="tipo">Redacción</span></div><h3>Respuesta</h3><pre>public class Taquilla {
+    private int entradas = 5;
+
+    public synchronized void comprar() {
+        while (entradas == 0) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+            }
+        }
+        entradas--;
+    }
+
+    public synchronized void devolver() {
+        entradas++;
+        notifyAll();
+    }
+}</pre></section>
+<section class="portada"><h2>6.4 Comunicar hilos</h2><p>14 preguntas</p></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 1 de 14</span><span class="tipo">Emparejar</span></div><h3>wait, notify y compañía</h3><p>Une cada elemento con su función:</p><ul class="par"><li><code>wait()</code></li><li><code>notify()</code></li><li><code>notifyAll()</code></li><li><code>synchronized</code></li></ul><p><span class="chip">El hilo se duerme hasta que lo avisen y suelta el cerrojo</span> <span class="chip">Solo deja entrar a un hilo a la vez</span> <span class="chip">Despierta a uno de los hilos que esperan</span> <span class="chip">Despierta a todos los hilos que esperan</span></p></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 1 de 14</span><span class="tipo">Emparejar</span></div><h3>Respuesta</h3><table class="par"><tr><td><code>wait()</code></td><td>→</td><td><mark>El hilo se duerme hasta que lo avisen y suelta el cerrojo</mark></td></tr><tr><td><code>notify()</code></td><td>→</td><td><mark>Despierta a uno de los hilos que esperan</mark></td></tr><tr><td><code>notifyAll()</code></td><td>→</td><td><mark>Despierta a todos los hilos que esperan</mark></td></tr><tr><td><code>synchronized</code></td><td>→</td><td><mark>Solo deja entrar a un hilo a la vez</mark></td></tr></table><div class="porque"><p><code>notify()</code> despierta a uno; <code>notifyAll()</code>, a todos. Los dos son métodos de la clase <code>Object</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 2 de 14</span><span class="tipo">Varias correctas</span></div><h3>Los dos papeles</h3><p>Un pintor (hilo) deja cuadros en un almacén donde caben <b>3 cuadros</b> (el almacén guarda cuántos hay y su capacidad), y un vendedor (hilo) los saca para venderlos. El almacén es un objeto compartido con métodos <code>synchronized</code>. Marca lo que es <b>correcto</b>:</p><ol class="op" type="a"><li class="">Cada hilo debe tener su propio almacén.</li><li class="">Cuando uno termina, avisa al otro con <code>notify()</code>.</li><li class="">Solo el pintor necesita esperar; el vendedor nunca espera.</li><li class="">El vendedor espera si el almacén está vacío.</li><li class="">El pintor espera si el almacén está lleno.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 2 de 14</span><span class="tipo">Varias correctas</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Cada hilo debe tener su propio almacén.</li><li class="ok">Cuando uno termina, avisa al otro con <code>notify()</code>. <b>✔</b></li><li class="no">Solo el pintor necesita esperar; el vendedor nunca espera.</li><li class="ok">El vendedor espera si el almacén está vacío. <b>✔</b></li><li class="ok">El pintor espera si el almacén está lleno. <b>✔</b></li></ol><div class="porque"><p>Cada hilo tiene un papel distinto: uno espera a que el otro haga algo. Se crea <b>un solo</b> almacén; si cada hilo tuviera el suyo, no se comunicarían.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 3 de 14</span><span class="tipo">Test</span></div><h3>notify con 2 hilos</h3><p>Un pintor y <b>un</b> vendedor comparten un almacén de capacidad 3 y con ellos basta <code>notify()</code>. ¿Y si hubiera un pintor y <b>dos</b> vendedores?</p><ol class="op" type="a"><li class="">Sigue valiendo <code>notify()</code> igual.</li><li class="">Hay tres hilos que pueden esperar: <code>notify()</code> despierta a uno cualquiera y puede ser el equivocado; hace falta <code>notifyAll()</code>.</li><li class="">No se puede usar <code>notify()</code> nunca.</li><li class="">Hay que usar <code>sleep()</code> en lugar de avisar.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 3 de 14</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Sigue valiendo <code>notify()</code> igual.</li><li class="ok">Hay tres hilos que pueden esperar: <code>notify()</code> despierta a uno cualquiera y puede ser el equivocado; hace falta <code>notifyAll()</code>. <b>✔</b></li><li class="no">No se puede usar <code>notify()</code> nunca.</li><li class="no">Hay que usar <code>sleep()</code> en lugar de avisar.</li></ol><div class="porque"><p>Si despierta al que no puede avanzar, el pintor se queda dormido para siempre. Con <code>notify()</code> a veces funciona y a veces se cuelga.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 4 de 14</span><span class="tipo">Verdadero o falso</span></div><h3>notify elige al más antiguo</h3><p><code>notify()</code> despierta siempre al hilo que lleva más tiempo esperando.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 4 de 14</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol no">FALSO</p><div class="porque"><p>Falso. Despierta a uno cualquiera de los que esperan.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 5 de 14</span><span class="tipo">Test</span></div><h3>Qué es la señal de fin</h3><p>Varios vendedores sacan cuadros de un almacén compartido y un pintor los va dejando, pero los vendedores <b>no saben cuántos cuadros</b> se van a pintar. ¿Cómo saben que ya no habrá más?</p><ol class="op" type="a"><li class="">Java termina los hilos vendedores automáticamente.</li><li class="">Cada vendedor cuenta hasta 10 por su cuenta.</li><li class="">El almacén guarda un dato compartido (<code>terminado</code>) que el pintor activa al acabar: una señal de fin.</li><li class="">Esperan 20 segundos y salen.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 5 de 14</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Java termina los hilos vendedores automáticamente.</li><li class="no">Cada vendedor cuenta hasta 10 por su cuenta.</li><li class="ok">El almacén guarda un dato compartido (<code>terminado</code>) que el pintor activa al acabar: una señal de fin. <b>✔</b></li><li class="no">Esperan 20 segundos y salen.</li></ol><div class="porque"><p>La señal de fin es un dato compartido que avisa a los que esperan de que ya no habrá más.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 6 de 14</span><span class="tipo">Test</span></div><h3>Pintor sin terminar()</h3><p>Un almacén tiene un <code>boolean terminado</code> que el pintor pone a <code>true</code> llamando a <code>terminar()</code> cuando acaba de pintar. Los vendedores esperan con <code>while (cuadros == 0 &amp;&amp; !terminado) wait();</code>. El pintor pinta sus 10 cuadros pero <b>olvida</b> llamar a <code>terminar()</code>. ¿Qué ocurre?</p><ol class="op" type="a"><li class="">El almacén se vacía y el programa termina normalmente.</li><li class="">Los vendedores se quedan esperando para siempre y el programa no termina.</li><li class="">Los vendedores terminan solos cuando se acaban los cuadros.</li><li class="">Java lanza una excepción en el pintor.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 6 de 14</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">El almacén se vacía y el programa termina normalmente.</li><li class="ok">Los vendedores se quedan esperando para siempre y el programa no termina. <b>✔</b></li><li class="no">Los vendedores terminan solos cuando se acaban los cuadros.</li><li class="no">Java lanza una excepción en el pintor.</li></ol><div class="porque"><p><code>terminado</code> es la señal de fin: sin ella, los vendedores no saben que ya no vendrán más cuadros.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 7 de 14</span><span class="tipo">Test</span></div><h3>terminado antes que cuadros</h3><p>En un almacén de cuadros, el método <code>vender()</code> de los vendedores comprueba <b>primero</b> si el pintor ha terminado (<code>terminado</code>) y, si es así, devuelve <code>false</code> y el vendedor se marcha; solo <b>después</b> mira si hay cuadro. ¿Qué problema puede ocurrir?</p><ol class="op" type="a"><li class="">No pasa nada: da igual el orden.</li><li class="">Se pierde el último cuadro: el pintor lo deja y termina enseguida, y nadie lo vende.</li><li class="">Se venden dos cuadros a la vez.</li><li class="">El programa no compila.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 7 de 14</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">No pasa nada: da igual el orden.</li><li class="ok">Se pierde el último cuadro: el pintor lo deja y termina enseguida, y nadie lo vende. <b>✔</b></li><li class="no">Se venden dos cuadros a la vez.</li><li class="no">El programa no compila.</li></ol><div class="porque"><p>Hay que mirar primero si hay cuadro: si el pintor deja el último y termina enseguida, ese cuadro se vende igualmente.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 8 de 14</span><span class="tipo">Completar código</span></div><h3>Almacén: vender()</h3><p>Un almacén de cuadros lo comparten un pintor y varios vendedores. Completa <code>vender()</code>: los vendedores esperan mientras <b>no haya cuadro y el pintor no haya terminado</b>.</p><pre>class Almacen {
+    private int cuadros = 0;
+    private boolean terminado = false;
+
+    public synchronized boolean vender() {
+        while (<span class="hueco c1">1</span> &amp;&amp; <span class="hueco c2">2</span>) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+            }
+        }
+        if (<span class="hueco c3">3</span>) {
+            return <span class="hueco c4">4</span>;
+        }
+        cuadros--;
+        <span class="hueco c5">5</span>();
+        return true;
+    }
+
+    public synchronized void terminar() {
+        terminado = <span class="hueco c6">6</span>;
+        notifyAll();
+    }
+}</pre><p class="peque">Desplegables: <span class="grupo c1"><span class="chip num">1</span> <code>terminado</code> · <code>cuadros == 0</code> · <code>cuadros &amp;gt; 0</code></span> &nbsp; <span class="grupo c2"><span class="chip num">2</span> <code>terminado</code> · <code>cuadros == 0</code> · <code>!terminado</code></span> &nbsp; <span class="grupo c3"><span class="chip num">3</span> <code>terminado</code> · <code>!terminado</code> · <code>cuadros == 0</code> · <code>cuadros &amp;gt; 0</code></span> &nbsp; <span class="grupo c4"><span class="chip num">4</span> <code>true</code> · <code>false</code></span> &nbsp; <span class="grupo c6"><span class="chip num">6</span> <code>false</code> · <code>true</code></span></p></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 8 de 14</span><span class="tipo">Completar código</span></div><h3>Respuesta</h3><pre>class Almacen {
+    private int cuadros = 0;
+    private boolean terminado = false;
+
+    public synchronized boolean vender() {
+        while (<mark class="c1">cuadros == 0</mark> &amp;&amp; <mark class="c2">!terminado</mark>) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+            }
+        }
+        if (<mark class="c3">cuadros == 0</mark>) {
+            return <mark class="c4">false</mark>;
+        }
+        cuadros--;
+        <mark class="c5">notifyAll</mark>();
+        return true;
+    }
+
+    public synchronized void terminar() {
+        terminado = <mark class="c6">true</mark>;
+        notifyAll();
+    }
+}</pre><div class="porque"><p>Esperan si no hay cuadro <b>y</b> el pintor sigue pintando. Si salen del <code>while</code> sin cuadro, es que el pintor terminó: devuelve <code>false</code>. Al vender, avisa con <code>notifyAll()</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 9 de 14</span><span class="tipo">Arrastrar código</span></div><h3>Ordena depositar()</h3><p>Ordena las líneas de <code>depositar()</code>. Reglas: primero esperar si el almacén está lleno; después actualizar el estado; luego escribir el mensaje y <b>por último</b> avisar a los demás.</p><pre>class Almacen {
+    private int cuadros = 0;
+    private int capacidad = 3;
+
+    public synchronized void depositar(int numero) throws InterruptedException {
+        <span class="hueco">1</span>
+            <span class="hueco">2</span>
+        <span class="hueco">3</span>
+        <span class="hueco">4</span>
+        <span class="hueco">5</span>
+        <span class="hueco">6</span>
+    }
+}</pre><p class="peque">Palabras (algunas sobran):</p><p><span class="chip">}</span> <span class="chip">notifyAll();</span> <span class="chip">System.out.println("deja el cuadro " + numero);</span> <span class="chip">while (cuadros == capacidad) {</span> <span class="chip">wait();</span> <span class="chip">cuadros++;</span></p></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 9 de 14</span><span class="tipo">Arrastrar código</span></div><h3>Respuesta</h3><pre>class Almacen {
+    private int cuadros = 0;
+    private int capacidad = 3;
+
+    public synchronized void depositar(int numero) throws InterruptedException {
+        <mark class="">while (cuadros == capacidad) {</mark>
+            <mark class="">wait();</mark>
+        <mark class="">}</mark>
+        <mark class="">cuadros++;</mark>
+        <mark class="">System.out.println("deja el cuadro " + numero);</mark>
+        <mark class="">notifyAll();</mark>
+    }
+}</pre><div class="porque"><p>Esperar, cambiar el estado, mostrar y avisar.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 10 de 14</span><span class="tipo">Ordenar</span></div><h3>Ordena el aviso</h3><p>Ordena los pasos de lo que ocurre cuando un hilo A espera algo que otro hilo B va a proporcionar.</p><p>1. <span class="hueco">1</span><br>2. <span class="hueco">2</span><br>3. <span class="hueco">3</span><br>4. <span class="hueco">4</span><br>5. <span class="hueco">5</span><br>6. <span class="hueco">6</span></p><p class="peque">Palabras (algunas sobran):</p><p><span class="chip">A se despierta y vuelve a comprobar la condición en el while</span> <span class="chip">B entra en el método y cambia el estado</span> <span class="chip">Ahora se cumple: A sigue ejecutando</span> <span class="chip">B llama a notifyAll()</span> <span class="chip">A entra en un método synchronized y comprueba la condición</span> <span class="chip">No se cumple: A llama a wait() y suelta el cerrojo</span></p></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 10 de 14</span><span class="tipo">Ordenar</span></div><h3>Respuesta</h3><p>1. <mark class="">A entra en un método synchronized y comprueba la condición</mark><br>2. <mark class="">No se cumple: A llama a wait() y suelta el cerrojo</mark><br>3. <mark class="">B entra en el método y cambia el estado</mark><br>4. <mark class="">B llama a notifyAll()</mark><br>5. <mark class="">A se despierta y vuelve a comprobar la condición en el while</mark><br>6. <mark class="">Ahora se cumple: A sigue ejecutando</mark></p><div class="porque"><p>Es el ciclo completo del patrón <code>while + wait</code> / cambiar estado + <code>notifyAll</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 11 de 14</span><span class="tipo">Verdadero o falso</span></div><h3>Salida con un pintor y un vendedor</h3><p>Un pintor deja 10 cuadros en un almacén donde caben 3 y un vendedor los vende. Los mensajes («deja el cuadro 1», «vende el cuadro 1», «deja el cuadro 2»...) salen <b>siempre en el mismo orden</b> en todas las ejecuciones.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 11 de 14</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol no">FALSO</p><div class="porque"><p>Falso. Los cuadros salen del 1 al 10 y el almacén nunca pasa de 3 ni baja de 0, pero el pintor puede dejar hasta 3 antes de que el vendedor venda, y el orden de los mensajes cambia de una ejecución a otra.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 12 de 14</span><span class="tipo">Varias correctas</span></div><h3>Salida con un pintor y dos vendedores</h3><p>Un pintor deja 10 cuadros en un almacén de capacidad 3 y <b>dos</b> vendedores compiten por venderlos (cada cuadro lo vende uno solo). Marca lo que es <b>cierto</b>:</p><ol class="op" type="a"><li class="">A veces un solo vendedor vende todos y también es correcto.</li><li class="">El mismo cuadro se vende dos veces.</li><li class="">Cada cuadro del 1 al 10 se vende una sola vez.</li><li class="">Los dos vendedores venden siempre 5 cuadros cada uno.</li><li class="">Quién vende cada cuadro cambia entre ejecuciones.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 12 de 14</span><span class="tipo">Varias correctas</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">A veces un solo vendedor vende todos y también es correcto. <b>✔</b></li><li class="no">El mismo cuadro se vende dos veces.</li><li class="ok">Cada cuadro del 1 al 10 se vende una sola vez. <b>✔</b></li><li class="no">Los dos vendedores venden siempre 5 cuadros cada uno.</li><li class="ok">Quién vende cada cuadro cambia entre ejecuciones. <b>✔</b></li></ol><div class="porque"><p>Se reparten los cuadros sin que se sepa cuántos vende cada uno.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 13 de 14</span><span class="tipo">Completar</span></div><h3>Cuántos cuadros</h3><p>El pintor pinta 10 cuadros y hay 2 vendedores. Entre los dos venden <span class="hueco c1">1</span> cuadros. El mensaje «deja el cuadro» sale <span class="hueco c2">2</span> veces.</p></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 13 de 14</span><span class="tipo">Completar</span></div><h3>Respuesta</h3><p>El pintor pinta 10 cuadros y hay 2 vendedores. Entre los dos venden <mark class="c1">10</mark> cuadros. El mensaje «deja el cuadro» sale <mark class="c2">10</mark> veces.</p><div class="porque"><p>Cada cuadro se deposita una vez y se vende una vez.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 14 de 14</span><span class="tipo">Test</span></div><h3>Error: if en lugar de while</h3><p>Este <code>vender()</code> usa <code>if</code> en lugar de <code>while</code>. Con <b>dos vendedores</b>, ¿qué problema puede ocurrir?</p><pre>class Almacen {
+    private int cuadros = 0;
+
+    public synchronized void vender() throws InterruptedException {
+        if (cuadros == 0) {
+            wait();
+        }
+        cuadros--;
+        System.out.println("vende el cuadro");
+        notifyAll();
+    }
+}</pre><ol class="op" type="a"><li class="">Ninguno: <code>if</code> y <code>while</code> hacen lo mismo aquí.</li><li class="">El pintor nunca puede depositar.</li><li class="">El programa no compila.</li><li class="">Un vendedor despierta, pero otro ya vendió el cuadro: vendería un cuadro que no existe.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 14 de 14</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Ninguno: <code>if</code> y <code>while</code> hacen lo mismo aquí.</li><li class="no">El pintor nunca puede depositar.</li><li class="no">El programa no compila.</li><li class="ok">Un vendedor despierta, pero otro ya vendió el cuadro: vendería un cuadro que no existe. <b>✔</b></li></ol><div class="porque"><p>Tras <code>wait()</code> el hilo debe volver a mirar la condición: cuando se despierta, el estado pudo cambiar.</p></div></section>
+<section class="portada"><h2>6.5 Problemas de sincronización</h2><p>25 preguntas</p></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 1 de 25</span><span class="tipo">Completar código</span></div><h3>El patrón de un objeto compartido</h3><p>Casi todos los problemas de sincronización siguen el mismo esquema: un objeto compartido con métodos <code>synchronized</code>. Completa el esquema de uno de sus métodos (las palabras <code>no puedo continuar</code> son solo una descripción).</p><pre>public <span class="hueco c1">1</span> void metodo() {
+    <span class="hueco c2">2</span> (no puedo continuar) {
+        <span class="hueco c3">3</span>();
+    }
+    // cambio el estado
+    <span class="hueco c4">4</span>();
+}</pre></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 1 de 25</span><span class="tipo">Completar código</span></div><h3>Respuesta</h3><pre>public <mark class="c1">synchronized</mark> void metodo() {
+    <mark class="c2">while</mark> (no puedo continuar) {
+        <mark class="c3">wait</mark>();
+    }
+    // cambio el estado
+    <mark class="c4">notifyAll</mark>();
+}</pre><div class="porque"><p>Un objeto compartido con métodos <code>synchronized</code>; si el hilo no puede continuar, <code>while (no puedo) wait();</code>; cuando cambia el estado, <code>notifyAll();</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 2 de 25</span><span class="tipo">Varias correctas</span></div><h3>Qué hacen los hilos</h3><p>En un problema de sincronización típico (varios hilos comparten un objeto con métodos <code>synchronized</code>), los hilos solo... Marca lo <b>correcto</b>:</p><ol class="op" type="a"><li class="">Duermen (simulan que algo tarda).</li><li class="">Guardan cada uno su propia copia del estado.</li><li class="">Llaman a los métodos del objeto compartido.</li><li class="">Hacen ellos mismos el <code>wait()</code> y el <code>notifyAll()</code>.</li><li class="">Repiten.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 2 de 25</span><span class="tipo">Varias correctas</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Duermen (simulan que algo tarda). <b>✔</b></li><li class="no">Guardan cada uno su propia copia del estado.</li><li class="ok">Llaman a los métodos del objeto compartido. <b>✔</b></li><li class="no">Hacen ellos mismos el <code>wait()</code> y el <code>notifyAll()</code>.</li><li class="ok">Repiten. <b>✔</b></li></ol><div class="porque"><p>El <code>wait()</code>, el <code>notifyAll()</code> y los datos viven en el objeto compartido.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 3 de 25</span><span class="tipo">Test</span></div><h3>sleep fuera de synchronized</h3><p>Una lavandería tiene varias lavadoras compartidas. Cada cliente (hilo) llama a <code>entrar()</code> (coge una lavadora), lava durante 5 a 10 segundos con <code>sleep</code> y llama a <code>salir()</code>. ¿Por qué el <code>sleep</code> va <b>fuera</b> de los métodos <code>synchronized</code> <code>entrar()</code> y <code>salir()</code>?</p><ol class="op" type="a"><li class="">Porque <code>sleep</code> no se puede usar dentro de <code>synchronized</code>.</li><li class="">Para que los clientes lleguen antes.</li><li class="">Si un hilo duerme dentro, los demás no pueden ni entrar; fuera, las otras lavadoras siguen trabajando.</li><li class="">Porque así el cliente no paga.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 3 de 25</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Porque <code>sleep</code> no se puede usar dentro de <code>synchronized</code>.</li><li class="no">Para que los clientes lleguen antes.</li><li class="ok">Si un hilo duerme dentro, los demás no pueden ni entrar; fuera, las otras lavadoras siguen trabajando. <b>✔</b></li><li class="no">Porque así el cliente no paga.</li></ol><div class="porque"><p>Regla: <code>sleep</code> va fuera de <code>synchronized</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 4 de 25</span><span class="tipo">Completar</span></div><h3>Random y sleep</h3><p><code>azar.nextInt(3)</code> da <span class="hueco c1">1</span>, 1 o 2. Con <code>(1 + azar.nextInt(3)) * 1000</code> la máquina duerme como mínimo <span class="hueco c2">2</span> milisegundos y como máximo <span class="hueco c3">3</span>.</p></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 4 de 25</span><span class="tipo">Completar</span></div><h3>Respuesta</h3><p><code>azar.nextInt(3)</code> da <mark class="c1">0</mark>, 1 o 2. Con <code>(1 + azar.nextInt(3)) * 1000</code> la máquina duerme como mínimo <mark class="c2">1000</mark> milisegundos y como máximo <mark class="c3">3000</mark>.</p><div class="porque"><p><code>sleep</code> trabaja en milisegundos: por eso se multiplica por 1000.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 5 de 25</span><span class="tipo">Emparejar</span></div><h3>Clases nuevas de 6.5</h3><p>Une cada clase o método con lo que hace:</p><ul class="par"><li><code>Random</code> y <code>nextInt(3)</code></li><li><code>Scanner</code> y <code>nextInt()</code></li><li><code>ArrayList&lt;Thread&gt;</code></li><li><code>FileWriter</code></li><li><code>Files.readAllLines(...)</code></li></ul><p><span class="chip">Da al azar 0, 1 o 2</span> <span class="chip">Lee un fichero y devuelve una lista con una entrada por línea</span> <span class="chip">Lee un número que escribe el usuario</span> <span class="chip">Escribe en un fichero</span> <span class="chip">Una lista de hilos que crece sola</span></p></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 5 de 25</span><span class="tipo">Emparejar</span></div><h3>Respuesta</h3><table class="par"><tr><td><code>Random</code> y <code>nextInt(3)</code></td><td>→</td><td><mark>Da al azar 0, 1 o 2</mark></td></tr><tr><td><code>Scanner</code> y <code>nextInt()</code></td><td>→</td><td><mark>Lee un número que escribe el usuario</mark></td></tr><tr><td><code>ArrayList&lt;Thread&gt;</code></td><td>→</td><td><mark>Una lista de hilos que crece sola</mark></td></tr><tr><td><code>FileWriter</code></td><td>→</td><td><mark>Escribe en un fichero</mark></td></tr><tr><td><code>Files.readAllLines(...)</code></td><td>→</td><td><mark>Lee un fichero y devuelve una lista con una entrada por línea</mark></td></tr></table><div class="porque"><p>Son las clases nuevas del apartado 6.5.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 6 de 25</span><span class="tipo">Test</span></div><h3>Lectores: hace falta wait</h3><p>Varios hilos <b>escritores</b> añaden su nombre a un fichero de texto compartido y varios hilos <b>lectores</b> cuentan cuántas líneas tiene. Los métodos <code>escribir()</code> y <code>contarLineas()</code> del objeto que representa el fichero son <code>synchronized</code>. ¿Hace falta usar <code>wait()</code>?</p><ol class="op" type="a"><li class="">No: nadie tiene que esperar a que ocurra nada concreto. Solo no pisarse.</li><li class="">Sí, porque los ficheros siempre requieren <code>wait()</code>.</li><li class="">Sí, los lectores esperan a que haya escritores.</li><li class="">Sí, los escritores esperan a los lectores.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 6 de 25</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">No: nadie tiene que esperar a que ocurra nada concreto. Solo no pisarse. <b>✔</b></li><li class="no">Sí, porque los ficheros siempre requieren <code>wait()</code>.</li><li class="no">Sí, los lectores esperan a que haya escritores.</li><li class="no">Sí, los escritores esperan a los lectores.</li></ol><div class="porque"><p>Con <code>synchronized</code> basta: mientras uno trabaja, los demás esperan fuera.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 7 de 25</span><span class="tipo">Test</span></div><h3>contarLineas synchronized</h3><p>Varios escritores añaden líneas a un fichero compartido con un método <code>synchronized escribir()</code>. Los lectores cuentan sus líneas con <code>contarLineas()</code>, un método que <b>solo lee</b> pero que también es <code>synchronized</code>. ¿Por qué?</p><ol class="op" type="a"><li class="">Para que los lectores escriban más rápido.</li><li class="">Para que un lector no lea datos a medias mientras un escritor escribe.</li><li class="">Porque leer un fichero siempre exige <code>synchronized</code>.</li><li class="">Porque si no, no compila.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 7 de 25</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Para que los lectores escriban más rápido.</li><li class="ok">Para que un lector no lea datos a medias mientras un escritor escribe. <b>✔</b></li><li class="no">Porque leer un fichero siempre exige <code>synchronized</code>.</li><li class="no">Porque si no, no compila.</li></ol><div class="porque"><p>Un lector tampoco entra si hay un escritor dentro: los dos métodos comparten el cerrojo.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 8 de 25</span><span class="tipo">Test</span></div><h3>FileWriter con true</h3><p>¿Qué significa el segundo argumento <code>true</code> en <code>new FileWriter(ruta, true)</code>?</p><ol class="op" type="a"><li class="">Crea un fichero nuevo y falla si ya existe.</li><li class="">Añadir al final del fichero.</li><li class="">Abre el fichero solo para leer.</li><li class="">Borra el fichero y empieza de cero.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 8 de 25</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Crea un fichero nuevo y falla si ya existe.</li><li class="ok">Añadir al final del fichero. <b>✔</b></li><li class="no">Abre el fichero solo para leer.</li><li class="no">Borra el fichero y empieza de cero.</li></ol><div class="porque"><p>Sin el <code>true</code> borraría lo anterior.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 9 de 25</span><span class="tipo">Completar código</span></div><h3>Fichero.escribir()</h3><p>Completa el método que escribe un nombre al final del fichero compartido.</p><pre>import java.io.FileWriter;
+import java.io.IOException;
+
+class Fichero {
+    private String ruta = "salida.txt";
+
+    public <span class="hueco c1">1</span> void escribir(String nombre) {
+        try {
+            FileWriter fw = new FileWriter(ruta, <span class="hueco c2">2</span>);
+            fw.write(nombre + "\n");
+            fw.<span class="hueco c3">3</span>();
+        } catch (<span class="hueco c4">4</span> e) {
+            System.out.println("No se ha podido escribir");
+        }
+    }
+}</pre><p class="peque">Desplegables: <span class="grupo c2"><span class="chip num">2</span> <code>true</code> · <code>false</code></span></p></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 9 de 25</span><span class="tipo">Completar código</span></div><h3>Respuesta</h3><pre>import java.io.FileWriter;
+import java.io.IOException;
+
+class Fichero {
+    private String ruta = "salida.txt";
+
+    public <mark class="c1">synchronized</mark> void escribir(String nombre) {
+        try {
+            FileWriter fw = new FileWriter(ruta, <mark class="c2">true</mark>);
+            fw.write(nombre + "\n");
+            fw.<mark class="c3">close</mark>();
+        } catch (<mark class="c4">IOException</mark> e) {
+            System.out.println("No se ha podido escribir");
+        }
+    }
+}</pre><div class="porque"><p><code>synchronized</code> para que no se mezclen escrituras, <code>true</code> para añadir, <code>close()</code> para guardar y <code>IOException</code> porque Java obliga a prever que un fichero puede fallar.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 10 de 25</span><span class="tipo">Emparejar</span></div><h3>Qué hace esperar a cada hilo</h3><p>Une cada situación con la condición que hace <b>esperar</b> al hilo:</p><ul class="par"><li>Una cinta con capacidad para 5 piezas: un hilo quiere poner una pieza</li><li>La misma cinta: otro hilo quiere retirar una pieza</li><li>Hay 4 lavadoras compartidas: un cliente quiere usar una</li><li>Un cliente de una panadería pide 7 barras de pan</li><li>Una sala admite un solo jugador y los espectadores solo ven partidas en marcha: un espectador quiere entrar</li></ul><p><span class="chip">Espera mientras la cinta esté llena</span> <span class="chip">Espera mientras no haya ninguna libre</span> <span class="chip">Espera hasta que haya al menos 7 barras</span> <span class="chip">Espera mientras no haya una partida en marcha</span> <span class="chip">Espera mientras la cinta esté vacía</span></p></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 10 de 25</span><span class="tipo">Emparejar</span></div><h3>Respuesta</h3><table class="par"><tr><td>Una cinta con capacidad para 5 piezas: un hilo quiere poner una pieza</td><td>→</td><td><mark>Espera mientras la cinta esté llena</mark></td></tr><tr><td>La misma cinta: otro hilo quiere retirar una pieza</td><td>→</td><td><mark>Espera mientras la cinta esté vacía</mark></td></tr><tr><td>Hay 4 lavadoras compartidas: un cliente quiere usar una</td><td>→</td><td><mark>Espera mientras no haya ninguna libre</mark></td></tr><tr><td>Un cliente de una panadería pide 7 barras de pan</td><td>→</td><td><mark>Espera hasta que haya al menos 7 barras</mark></td></tr><tr><td>Una sala admite un solo jugador y los espectadores solo ven partidas en marcha: un espectador quiere entrar</td><td>→</td><td><mark>Espera mientras no haya una partida en marcha</mark></td></tr></table><div class="porque"><p>En todos el hilo espera con <code>while (no puedo) wait();</code> y se le avisa con <code>notifyAll()</code> cuando cambia el estado.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 11 de 25</span><span class="tipo">Test</span></div><h3>El contador de 50 piezas</h3><p>Tres máquinas (hilos) ponen piezas en una cinta compartida y la fábrica debe parar al llegar a 50 piezas fabricadas <b>entre las tres</b>. ¿Dónde se cuenta?</p><ol class="op" type="a"><li class="">En la cinta (objeto compartido), no en cada máquina.</li><li class="">En cada máquina, y cada una para a las 50.</li><li class="">En <code>Principal</code>, con un <code>for</code>.</li><li class="">En el empaquetador.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 11 de 25</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">En la cinta (objeto compartido), no en cada máquina. <b>✔</b></li><li class="no">En cada máquina, y cada una para a las 50.</li><li class="no">En <code>Principal</code>, con un <code>for</code>.</li><li class="no">En el empaquetador.</li></ol><div class="porque"><p>El límite de 50 es de todas las máquinas juntas. Contar el límite en cada hilo en vez de en el objeto compartido es un error típico.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 12 de 25</span><span class="tipo">Completar código</span></div><h3>Cinta: poner()</h3><p>Completa <code>poner()</code> de la cinta (capacidad 5; la fábrica para al llegar a 50 piezas).</p><pre>class Cinta {
+    private int piezas = 0;
+    private int fabricadas = 0;
+
+    public synchronized boolean poner() {
+        while (piezas == <span class="hueco c1">1</span> &amp;&amp; fabricadas &lt; <span class="hueco c2">2</span>) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+            }
+        }
+        if (fabricadas == 50) {
+            return false;
+        }
+        piezas++;
+        fabricadas++;
+        <span class="hueco c3">3</span>();
+        return true;
+    }
+}</pre></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 12 de 25</span><span class="tipo">Completar código</span></div><h3>Respuesta</h3><pre>class Cinta {
+    private int piezas = 0;
+    private int fabricadas = 0;
+
+    public synchronized boolean poner() {
+        while (piezas == <mark class="c1">5</mark> &amp;&amp; fabricadas &lt; <mark class="c2">50</mark>) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+            }
+        }
+        if (fabricadas == 50) {
+            return false;
+        }
+        piezas++;
+        fabricadas++;
+        <mark class="c3">notifyAll</mark>();
+        return true;
+    }
+}</pre><div class="porque"><p>La máquina espera si la cinta está llena <b>y</b> aún faltan piezas. Si ya se hicieron 50 devuelve <code>false</code> y la máquina termina.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 13 de 25</span><span class="tipo">Test</span></div><h3>notifyAll en la fábrica</h3><p>Tres hilos que ponen piezas en una cinta y un hilo que las retira esperan con <code>wait()</code> sobre la <b>misma cinta</b>. ¿Qué pasa si al cambiar el estado se usa <code>notify()</code> en vez de <code>notifyAll()</code>?</p><ol class="op" type="a"><li class="">Solo se despierta al hilo que retira, siempre.</li><li class="">Podría despertarse un hilo que no puede avanzar y dejar sin avisar al que sí; a veces funciona y a veces se cuelga.</li><li class="">La cinta se rompe y Java lanza una excepción.</li><li class="">Nada: es exactamente igual.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 13 de 25</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Solo se despierta al hilo que retira, siempre.</li><li class="ok">Podría despertarse un hilo que no puede avanzar y dejar sin avisar al que sí; a veces funciona y a veces se cuelga. <b>✔</b></li><li class="no">La cinta se rompe y Java lanza una excepción.</li><li class="no">Nada: es exactamente igual.</li></ol><div class="porque"><p>Con <code>notifyAll()</code> se despiertan todos y cada uno mira su condición.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 14 de 25</span><span class="tipo">Test</span></div><h3>Fábrica cerrada y join</h3><p>¿Cuándo aparece «Fábrica cerrada»?</p><pre>class Maquina implements Runnable {
+    @Override
+    public void run() {
+        System.out.println(Thread.currentThread().getName() + " fabrica");
+    }
+}
+
+class Principal {
+    public static void main(String[] args) throws InterruptedException {
+        Thread m1 = new Thread(new Maquina(), "M1");
+        m1.start();
+        m1.join();
+        System.out.println("Fábrica cerrada");
+    }
+}</pre><ol class="op" type="a"><li class="">Siempre la última línea, porque <code>join()</code> hace que <code>main</code> espere al hilo.</li><li class="">Siempre la primera línea, porque <code>main</code> va antes que los hilos.</li><li class="">Nunca: <code>join()</code> impide que <code>main</code> imprima.</li><li class="">En cualquier posición: <code>join()</code> no influye en el orden.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 14 de 25</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">Siempre la última línea, porque <code>join()</code> hace que <code>main</code> espere al hilo. <b>✔</b></li><li class="no">Siempre la primera línea, porque <code>main</code> va antes que los hilos.</li><li class="no">Nunca: <code>join()</code> impide que <code>main</code> imprima.</li><li class="no">En cualquier posición: <code>join()</code> no influye en el orden.</li></ol><div class="porque"><p>«Espero aquí hasta que ese hilo termine». Sin los <code>join()</code>, «Fábrica cerrada» saldría al principio, porque <code>main</code> no espera.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 15 de 25</span><span class="tipo">Verdadero o falso</span></div><h3>throws en main</h3><p><code>main</code> declara <code>throws InterruptedException</code> para no escribir un <code>try/catch</code> en cada <code>join</code>.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 15 de 25</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol ok">VERDADERO</p><div class="porque"><p>Verdadero.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 16 de 25</span><span class="tipo">Numérica</span></div><h3>Qué línea los serializa</h3><p><code>Contador</code> es un <code>Runnable</code> que cuenta del 1 al 10. Con este código, los dos contadores salen <b>uno detrás de otro</b>, sin mezclarse. ¿Qué número de línea lo provoca?</p><pre>1  Thread h1 = new Thread(new Contador(), "Hilo 1");
+2  Thread h2 = new Thread(new Contador(), "Hilo 2");
+3  h1.start();
+4  h1.join();
+5  h2.start();</pre></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 16 de 25</span><span class="tipo">Numérica</span></div><h3>Respuesta</h3><p class="sol">4</p><div class="porque"><p>La línea 4: <code>h1.join()</code> hace que <code>main</code> espere a que <code>h1</code> termine <b>antes</b> de llegar a <code>h2.start()</code> en la línea 5.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 17 de 25</span><span class="tipo">Test</span></div><h3>Atendido tras el while</h3><p>En una lavandería con lavadoras compartidas, un cliente solo debe contarse como <b>atendido</b> cuando consigue una lavadora (no mientras espera). ¿Dónde se incrementa <code>atendidos</code> en <code>entrar()</code>?</p><pre>public synchronized void entrar() {
+    // ¿aquí?
+    while (libres == 0) {
+        try {
+            wait();
+        } catch (InterruptedException e) {
+        }
+    }
+    // ¿o aquí?
+    libres--;
+}</pre><ol class="op" type="a"><li class="">Cuando paga al salir.</li><li class="">Nada más llegar, antes del <code>while</code>.</li><li class="">Justo después del <code>while</code>, cuando ya tiene lavadora.</li><li class="">Cuando termina de lavar.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 17 de 25</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Cuando paga al salir.</li><li class="no">Nada más llegar, antes del <code>while</code>.</li><li class="ok">Justo después del <code>while</code>, cuando ya tiene lavadora. <b>✔</b></li><li class="no">Cuando termina de lavar.</li></ol><div class="porque"><p>Después del <code>while</code> el cliente ya ha conseguido lavadora; antes, todavía puede estar esperando.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 18 de 25</span><span class="tipo">Test</span></div><h3>ArrayList de clientes</h3><p>Un menú permite que lleguen grupos de clientes (cada cliente es un hilo) sin saber cuántos llegarán en total. Quieres guardar los hilos para hacerles <code>join()</code> al cerrar. ¿Por qué usar un <code>ArrayList&lt;Thread&gt;</code> y no un array <code>Thread[]</code>?</p><ol class="op" type="a"><li class="">Porque los arrays no pueden guardar hilos.</li><li class="">Porque <code>join()</code> solo funciona con <code>ArrayList</code>.</li><li class="">No sabemos cuántos clientes llegarán, así que un array de tamaño fijo no sirve: la lista crece sola.</li><li class="">Porque <code>ArrayList</code> hace que los hilos vayan más rápido.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 18 de 25</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Porque los arrays no pueden guardar hilos.</li><li class="no">Porque <code>join()</code> solo funciona con <code>ArrayList</code>.</li><li class="ok">No sabemos cuántos clientes llegarán, así que un array de tamaño fijo no sirve: la lista crece sola. <b>✔</b></li><li class="no">Porque <code>ArrayList</code> hace que los hilos vayan más rápido.</li></ol><div class="porque"><p>Después, <code>for (Thread t : clientes) { t.join(); }</code> espera a todos.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 19 de 25</span><span class="tipo">Completar</span></div><h3>Lavandería</h3><p>La lavandería tiene 4 lavadoras y llegan 10 clientes a la vez. Al principio esperan en la cola <span class="hueco c1">1</span> clientes. Cada uno paga 3 €: cuando se han atendido los 10, la ganancia total es de <span class="hueco c2">2</span> €.</p></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 19 de 25</span><span class="tipo">Completar</span></div><h3>Respuesta</h3><p>La lavandería tiene 4 lavadoras y llegan 10 clientes a la vez. Al principio esperan en la cola <mark class="c1">6</mark> clientes. Cada uno paga 3 €: cuando se han atendido los 10, la ganancia total es de <mark class="c2">30</mark> €.</p><div class="porque"><p>10 − 4 = 6 esperan; 10 × 3 = 30 €.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 20 de 25</span><span class="tipo">Test</span></div><h3>Hornear fuera de synchronized</h3><p>Un panadero hornea 20 barras (tarda 20 segundos, con <code>sleep</code>) y luego las añade a un mostrador compartido con un método <code>synchronized reponer()</code>. Los clientes compran con otro método <code>synchronized comprar()</code>. ¿Por qué el panadero hornea <b>fuera</b> de los métodos <code>synchronized</code>?</p><ol class="op" type="a"><li class="">Porque <code>sleep</code> no se puede usar dentro de <code>synchronized</code>.</li><li class="">Para que el panadero termine antes.</li><li class="">Porque los clientes nunca compran mientras el panadero hornea.</li><li class="">Para que los clientes puedan seguir comprando mientras se hornea.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 20 de 25</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Porque <code>sleep</code> no se puede usar dentro de <code>synchronized</code>.</li><li class="no">Para que el panadero termine antes.</li><li class="no">Porque los clientes nunca compran mientras el panadero hornea.</li><li class="ok">Para que los clientes puedan seguir comprando mientras se hornea. <b>✔</b></li></ol><div class="porque"><p>Hornear tarda 20 s: dentro de <code>synchronized</code>, los clientes no podrían comprar mientras tanto.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 21 de 25</span><span class="tipo">Numérica</span></div><h3>Precio panadería</h3><p>Una panadería cobra la primera barra a 1 € y cada una de las demás a 0,75 €. Un cliente compra <b>4 barras</b>. ¿Cuántos euros paga? (usa punto o coma decimal)</p></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 21 de 25</span><span class="tipo">Numérica</span></div><h3>Respuesta</h3><p class="sol">3.25</p><div class="porque"><p>1 + 0,75 × 3 = 3,25 €. (Con 3 barras serían 1 + 0,75 × 2 = 2,50 €.)</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 22 de 25</span><span class="tipo">Test</span></div><h3>Cliente espera tantas como pide</h3><p>En una panadería, un cliente pide <code>cuantas</code> barras (de 1 a 10) al mostrador compartido y debe <b>esperar</b> si no hay suficientes. ¿Qué condición usa el <code>while</code> de <code>comprar(int cuantas)</code>?</p><ol class="op" type="a"><li class="">No usa <code>while</code>: usa <code>if</code>.</li><li class=""><code>while (barras == 0)</code>: espera hasta que haya alguna.</li><li class=""><code>while (barras &lt; cuantas)</code>: espera hasta que haya tantas como pide, no solo «alguna».</li><li class=""><code>while (barras &gt; cuantas)</code>.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 22 de 25</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">No usa <code>while</code>: usa <code>if</code>.</li><li class="no"><code>while (barras == 0)</code>: espera hasta que haya alguna.</li><li class="ok"><code>while (barras &lt; cuantas)</code>: espera hasta que haya tantas como pide, no solo «alguna». <b>✔</b></li><li class="no"><code>while (barras &gt; cuantas)</code>.</li></ol><div class="porque"><p>Un cliente que pide 7 barras espera hasta que haya 7.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 23 de 25</span><span class="tipo">Ordenar</span></div><h3>Cerrar la panadería</h3><p>En una panadería, un hilo panadero hornea sin parar y vigila el mostrador; los clientes son hilos. Algunos clientes siguen esperando pan cuando se decide cerrar. Ordena los pasos para <b>cerrar</b> la panadería.</p><p>1. <span class="hueco">1</span><br>2. <span class="hueco">2</span><br>3. <span class="hueco">3</span><br>4. <span class="hueco">4</span><br>5. <span class="hueco">5</span></p><p class="peque">Palabras (algunas sobran):</p><p><span class="chip">Salir del menú: no se aceptan más clientes</span> <span class="chip">join() al panadero y resumen final</span> <span class="chip">join() a todos los clientes: los que esperan pan se atienden</span> <span class="chip">mostrador.cerrar(): avisa al panadero</span> <span class="chip">El panadero sale de su bucle, se lleva lo que queda y hornea el último lote</span></p></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 23 de 25</span><span class="tipo">Ordenar</span></div><h3>Respuesta</h3><p>1. <mark class="">Salir del menú: no se aceptan más clientes</mark><br>2. <mark class="">join() a todos los clientes: los que esperan pan se atienden</mark><br>3. <mark class="">mostrador.cerrar(): avisa al panadero</mark><br>4. <mark class="">El panadero sale de su bucle, se lleva lo que queda y hornea el último lote</mark><br>5. <mark class="">join() al panadero y resumen final</mark></p><div class="porque"><p>El orden importa: si se avisara al panadero <b>antes</b>, vaciaría el mostrador y los clientes que esperan se quedarían colgados.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 24 de 25</span><span class="tipo">Test</span></div><h3>Espectador sin número de partida</h3><p>En una sala de stream juega un solo jugador a la vez y cada partida tiene un <b>número</b>. Un espectador entra a ver una partida y debe irse cuando termine <b>esa</b> partida, aunque ya haya empezado otra. ¿Qué pasa si el espectador no apunta el número de su partida y solo comprueba si hay alguna en marcha?</p><ol class="op" type="a"><li class="">No pasa nada: se comporta igual.</li><li class="">No podría entrar a la sala.</li><li class="">Se quedaría a ver la siguiente partida sin darse cuenta, en vez de irse cuando acaba la suya.</li><li class="">Saldría antes de que empiece la partida.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 24 de 25</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">No pasa nada: se comporta igual.</li><li class="no">No podría entrar a la sala.</li><li class="ok">Se quedaría a ver la siguiente partida sin darse cuenta, en vez de irse cuando acaba la suya. <b>✔</b></li><li class="no">Saldría antes de que empiece la partida.</li></ol><div class="porque"><p>Se queda mientras <code>jugando &amp;&amp; partida == mi número</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 25 de 25</span><span class="tipo">Redacción</span></div><h3>Diseña tu propio problema</h3><p>Una biblioteca tiene <b>3 ordenadores</b>. Muchos alumnos (hilos) los usan. Escribe la clase <code>Biblioteca</code> con los métodos <code>entrar()</code> (espera si no hay ordenador libre y ocupa uno) y <code>salir()</code> (libera uno y avisa). Debe ser segura entre hilos.</p></section>
+<section class="respuesta"><div class="cab"><span>6.5 Problemas de sincronización · pregunta 25 de 25</span><span class="tipo">Redacción</span></div><h3>Respuesta</h3><pre>public class Biblioteca {
+    private int libres = 3;
+
+    public synchronized void entrar() {
+        while (libres == 0) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+            }
+        }
+        libres--;
+    }
+
+    public synchronized void salir() {
+        libres++;
+        notifyAll();
+    }
+}</pre></section>
+<section class="portada"><h2>Simulacro de examen (mezcla)</h2><p>7 preguntas</p></section>
+<section class="pregunta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 1 de 7</span><span class="tipo">Varias correctas</span></div><h3>Encuentra los fallos</h3><p>Este buzón debería permitir que un hilo deje un mensaje y otro lo recoja, con <b>varios</b> hilos usándolo. Marca los fallos <b>reales</b>:</p><pre>class Buzon {
+    private String mensaje = null;
+
+    public void dejar(String m) throws InterruptedException {
+        if (mensaje != null) {
+            wait();
+        }
+        mensaje = m;
+        notify();
+    }
+}</pre><ol class="op" type="a"><li class="">Falta un bucle <code>for</code> en el método.</li><li class=""><code>mensaje</code> debería ser de tipo <code>int</code>.</li><li class=""><code>dejar()</code> no es <code>synchronized</code>, pero usa <code>wait()</code> y <code>notify()</code>.</li><li class="">Usa <code>if</code> en lugar de <code>while</code> para volver a comprobar la condición.</li><li class="">Usa <code>notify()</code> en lugar de <code>notifyAll()</code>, y con varios hilos puede avisar al que no toca.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 1 de 7</span><span class="tipo">Varias correctas</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Falta un bucle <code>for</code> en el método.</li><li class="no"><code>mensaje</code> debería ser de tipo <code>int</code>.</li><li class="ok"><code>dejar()</code> no es <code>synchronized</code>, pero usa <code>wait()</code> y <code>notify()</code>. <b>✔</b></li><li class="ok">Usa <code>if</code> en lugar de <code>while</code> para volver a comprobar la condición. <b>✔</b></li><li class="ok">Usa <code>notify()</code> en lugar de <code>notifyAll()</code>, y con varios hilos puede avisar al que no toca. <b>✔</b></li></ol><div class="porque"><p>Los tres fallos clásicos: falta <code>synchronized</code>, <code>if</code> en vez de <code>while</code> y <code>notify()</code> donde hace falta <code>notifyAll()</code>.</p></div></section>
+<section class="pregunta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 2 de 7</span><span class="tipo">Arrastrar código</span></div><h3>Buzón completo</h3><p>Completa el buzón (productor/consumidor) arrastrando las palabras. Algunas se usan <b>varias veces</b> y algunas sobran.</p><pre>class Buzon {
+    private String mensaje = null;
+
+    public <span class="hueco">1</span> void dejar(String m) throws InterruptedException {
+        <span class="hueco">2</span> (mensaje != null) {
+            <span class="hueco">3</span>();
+        }
+        mensaje = m;
+        <span class="hueco">4</span>();
+    }
+
+    public <span class="hueco">1</span> String coger() throws InterruptedException {
+        while (mensaje == null) {
+            wait();
+        }
+        String m = mensaje;
+        mensaje = null;
+        <span class="hueco">4</span>();
+        return m;
+    }
+}</pre><p class="peque">Palabras (algunas sobran): Algunas se usan más de una vez.</p><p><span class="chip">join</span> <span class="chip">notify</span> <span class="chip">wait</span> <span class="chip">sleep</span> <span class="chip">synchronized</span> <span class="chip">notifyAll</span> <span class="chip">while</span> <span class="chip">if</span></p></section>
+<section class="respuesta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 2 de 7</span><span class="tipo">Arrastrar código</span></div><h3>Respuesta</h3><pre>class Buzon {
+    private String mensaje = null;
+
+    public <mark class="">synchronized</mark> void dejar(String m) throws InterruptedException {
+        <mark class="">while</mark> (mensaje != null) {
+            <mark class="">wait</mark>();
+        }
+        mensaje = m;
+        <mark class="">notifyAll</mark>();
+    }
+
+    public <mark class="">synchronized</mark> String coger() throws InterruptedException {
+        while (mensaje == null) {
+            wait();
+        }
+        String m = mensaje;
+        mensaje = null;
+        <mark class="">notifyAll</mark>();
+        return m;
+    }
+}</pre><div class="porque"><p>Mismo patrón de siempre: <code>synchronized</code> + <code>while</code> + <code>wait</code> para esperar, y <code>notifyAll</code> tras cambiar el estado.</p></div></section>
+<section class="pregunta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 3 de 7</span><span class="tipo">Test</span></div><h3>Al despertar con notifyAll</h3><p>Varios hilos esperan en <code>wait()</code> y otro llama a <code>notifyAll()</code>. ¿Qué hace cada hilo al despertar?</p><ol class="op" type="a"><li class="">Siguen todos, sin mirar nada.</li><li class="">Vuelve a mirar su condición: el que puede seguir sigue y el que no vuelve a esperar.</li><li class="">Sigue solo el que lleva más tiempo esperando.</li><li class="">Terminan todos.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 3 de 7</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Siguen todos, sin mirar nada.</li><li class="ok">Vuelve a mirar su condición: el que puede seguir sigue y el que no vuelve a esperar. <b>✔</b></li><li class="no">Sigue solo el que lleva más tiempo esperando.</li><li class="no">Terminan todos.</li></ol><div class="porque"><p>Por eso <code>wait()</code> va dentro de un <code>while</code>: cada hilo comprueba otra vez la condición.</p></div></section>
+<section class="pregunta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 4 de 7</span><span class="tipo">Verdadero o falso</span></div><h3>Dos métodos synchronized a la vez</h3><p>Dos hilos pueden estar a la vez dentro de dos métodos <code>synchronized</code> <b>distintos</b> del mismo objeto.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="respuesta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 4 de 7</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol no">FALSO</p><div class="porque"><p>Falso. El cerrojo es del objeto, no del método: mientras uno está dentro de cualquier método <code>synchronized</code>, el otro espera.</p></div></section>
+<section class="pregunta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 5 de 7</span><span class="tipo">Numérica</span></div><h3>Entradas al parking</h3><p>Un parking tiene 3 plazas. Lanzas 8 coches (hilos) y cada uno entra al parking 3 veces, llamando a un método <code>entrar()</code>. ¿Cuántas veces se ejecuta <code>entrar()</code> en total?</p></section>
+<section class="respuesta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 5 de 7</span><span class="tipo">Numérica</span></div><h3>Respuesta</h3><p class="sol">24</p><div class="porque"><p>8 coches × 3 entradas = 24. (Con <code>wait()</code> y <code>notifyAll()</code>, las plazas libres nunca bajan de 0 y al final quedan 3.)</p></div></section>
+<section class="pregunta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 6 de 7</span><span class="tipo">Emparejar</span></div><h3>Síntoma y causa</h3><p>Une cada síntoma con su causa más probable:</p><ul class="par"><li>El resultado cambia y a veces se pierden cambios</li><li>El programa se queda colgado con hilos esperando para siempre</li><li>Las plazas libres salen negativas</li><li>El mensaje final sale al principio</li><li>El código de run() se ejecuta en el hilo main</li><li>ArrayIndexOutOfBoundsException</li></ul><p><span class="chip">Falta synchronized (condición de carrera)</span> <span class="chip">Falta esperar con while y wait()</span> <span class="chip">Faltan los join()</span> <span class="chip">Falta notifyAll() o la señal de fin</span> <span class="chip">for con &lt;= en lugar de &lt; en un array</span> <span class="chip">Se llamó a run() en vez de start()</span></p></section>
+<section class="respuesta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 6 de 7</span><span class="tipo">Emparejar</span></div><h3>Respuesta</h3><table class="par"><tr><td>El resultado cambia y a veces se pierden cambios</td><td>→</td><td><mark>Falta synchronized (condición de carrera)</mark></td></tr><tr><td>El programa se queda colgado con hilos esperando para siempre</td><td>→</td><td><mark>Falta notifyAll() o la señal de fin</mark></td></tr><tr><td>Las plazas libres salen negativas</td><td>→</td><td><mark>Falta esperar con while y wait()</mark></td></tr><tr><td>El mensaje final sale al principio</td><td>→</td><td><mark>Faltan los join()</mark></td></tr><tr><td>El código de run() se ejecuta en el hilo main</td><td>→</td><td><mark>Se llamó a run() en vez de start()</mark></td></tr><tr><td>ArrayIndexOutOfBoundsException</td><td>→</td><td><mark>for con &lt;= en lugar de &lt; en un array</mark></td></tr></table><div class="porque"><p>Reconocer el síntoma ahorra mucho tiempo al depurar.</p></div></section>
+<section class="pregunta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 7 de 7</span><span class="tipo">Redacción</span></div><h3>Problema completo de examen</h3><p>Un gimnasio tiene <b>4 máquinas</b> de pesas. Llegan 10 socios (hilos). Cada socio usa una máquina 2 segundos (con <code>sleep</code>) y la deja. Escribe las 3 clases: <code>Gimnasio</code> (recurso compartido con <code>usar()</code> y <code>dejar()</code>), <code>Socio</code> (<code>Runnable</code>) y <code>Principal</code> (crea los 10 hilos con nombre «Socio 1»…«Socio 10»).</p></section>
+<section class="respuesta"><div class="cab"><span>Simulacro de examen (mezcla) · pregunta 7 de 7</span><span class="tipo">Redacción</span></div><h3>Respuesta</h3><pre>public class Gimnasio {
+    private int libres = 4;
+
+    public synchronized void usar() {
+        while (libres == 0) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+            }
+        }
+        libres--;
+        System.out.println(Thread.currentThread().getName() + " usa una máquina");
+    }
+
+    public synchronized void dejar() {
+        libres++;
+        System.out.println(Thread.currentThread().getName() + " deja la máquina");
+        notifyAll();
+    }
+}
+
+public class Socio implements Runnable {
+    private Gimnasio gimnasio;
+
+    public Socio(Gimnasio gimnasio) {
+        this.gimnasio = gimnasio;
+    }
+
+    @Override
+    public void run() {
+        gimnasio.usar();
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+        }
+        gimnasio.dejar();
+    }
+}
+
+public class Principal {
+    public static void main(String[] args) {
+        Gimnasio gimnasio = new Gimnasio();
+        for (int i = 1; i &lt;= 10; i++) {
+            new Thread(new Socio(gimnasio), "Socio " + i).start();
+        }
+    }
+}</pre></section>
+</div></div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+<script>
+// Si una diapositiva no cabe, se reduce hasta que quepa.
+function ajusta(sl){ if(!sl) return; sl.style.zoom=''; var h=sl.offsetHeight; if(h>740) sl.style.zoom=Math.max(0.5,740/h); }
+Reveal.initialize({hash:true,slideNumber:'c/t',width:1280,height:760,margin:0.04,center:false,transition:'none',controls:true,progress:true})
+  .then(function(){ ajusta(Reveal.getCurrentSlide()); Reveal.on('slidechanged', function(e){ ajusta(e.currentSlide); }); });
+</script>
+</body>
+</html>
