@@ -732,6 +732,18 @@ public synchronized void soltar() {
 ---
 
 <!-- html -->
+  <h3>Probarlo en el simulador</h3>
+  <p>Con la cocina y el parking puedes ver los hilos funcionando: cuchillos que se cogen y se sueltan, hilos que esperan y se despiertan.</p>
+  <ul>
+    <li>Arrastra o pulsa las piezas para escribir <code>synchronized</code>, <code>while</code>, <code>wait()</code> y <code>notifyAll()</code></li>
+    <li>Quita el <code>while</code> o el <code>notifyAll()</code> y mira <b>qué falla</b></li>
+    <li>Cambia los contadores (cocineros, cuchillos, <code>sleep</code>) y ejecuta varias veces: el orden cambia, el resultado correcto no</li>
+  </ul>
+  <p class="aviso"><a href="../../simulador/index.html#cocina" target="_blank" rel="noopener">Abrir el simulador de hilos</a> (se abre en otra pestaña).</p>
+
+---
+
+<!-- html -->
   <h3>Resumen</h3>
   <ul>
     <li>Un <b>recurso compartido</b> es un objeto que usan varios hilos a la vez: todos reciben la misma referencia</li>

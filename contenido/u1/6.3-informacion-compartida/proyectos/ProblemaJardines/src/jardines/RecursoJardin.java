@@ -9,14 +9,14 @@ public class RecursoJardin {
         cuenta = 100;
     }
 
-    public void incrementaCuenta() {
+    public synchronized void incrementaCuenta() {
         // Muestra qué hilo entra. Thread.currentThread().getName() es el nombre del hilo que ejecuta esto.
         System.out.println("hilo " + Thread.currentThread().getName() + " ----- Entra en Jardín");
         cuenta++;
         System.out.println(cuenta + " en jardín");
     }
 
-    public void decrementaCuenta() {
+    public synchronized void decrementaCuenta() {
         System.out.println("hilo " + Thread.currentThread().getName() + " ----- Sale de Jardín");
         cuenta--;
         System.out.println(cuenta + " en jardín");

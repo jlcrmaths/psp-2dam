@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador de hilos</title>
+<style>
+:root{
+  --bg:#f6f4ef; --panel:#ffffff; --ink:#1d2433; --mute:#5d6678; --line:#d9d4c7;
+  --acc:#2563eb; --bad:#dc2626; --ok:#16a34a; --warn:#d97706; --lock:#9333ea;
+  --code:#10151f; --codeink:#e6e9f0; --csize:17px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141821; --panel:#1d2330; --ink:#eef0f5; --mute:#a3acbf; --line:#323a4d;
+    --acc:#60a5fa; --bad:#f87171; --ok:#4ade80; --warn:#fbbf24; --lock:#c084fc;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;padding:12px 20px;border-bottom:2px solid var(--line)}
+h1{font-size:1.4rem;margin:0;flex:1 1 300px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,select{font:inherit;padding:6px 14px;border-radius:10px;border:2px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+select#escenario{font-weight:700;border-color:var(--acc)}
+button.main{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:700}
+button:hover{filter:brightness(.95)}
+main{display:grid;grid-template-columns:1fr;gap:16px;padding:16px 20px;align-items:start}
+@media (min-width:1100px){main{grid-template-columns:minmax(380px,.8fr) 1.2fr} .sticky{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow-y:auto}}
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:14px}
+h2{font-size:.95rem;margin:0 0 8px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+
+/* enunciado */
+.enun summary{cursor:pointer;font-size:.95rem;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.enun #enun{margin-top:8px;max-height:26vh;overflow-y:auto}
+.enun p{margin:0 0 8px}
+.enun ul{margin:0 0 8px;padding-left:1.3em}
+.enun code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--line);padding:0 5px;border-radius:4px;font-size:.9em}
+
+/* escena */
+.scene{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:10px;align-items:start}
+.col{display:flex;flex-direction:column;gap:8px}
+.agent{border:3px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--bg);transition:all .2s}
+.agent .nm{font-weight:700}
+.agent .em{font-size:1.7rem;line-height:1}
+.agent .st{font-size:.8em;color:var(--mute)}
+.params{display:flex;flex-wrap:wrap;gap:8px 20px;margin-bottom:10px;align-items:center}
+.params .pp{display:flex;align-items:center;gap:6px}
+.params button{padding:0 11px;font-weight:700;line-height:1.5}
+.params b{min-width:1.6em;text-align:center}
+.ico{display:inline-block}
+.hide-icon .ico{visibility:hidden}
+.em.ausente{opacity:.25}
+.carry{font-size:1.2rem;margin-left:4px}
+.alert-ring{width:46px;height:46px;border:4px solid var(--warn);border-radius:50%;font-size:0}
+.fly{position:fixed;z-index:60;font-size:1.9rem;line-height:1;pointer-events:none;will-change:transform}
+.compact{padding:4px 8px}
+.compact .em{font-size:1.2rem}
+.compact .nm{font-size:.85em}
+.compact .st{font-size:.7em}
+.agent.trabaja{border-color:var(--ok)}
+.agent.dentro{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,var(--bg))}
+.agent.espera{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 16%,var(--bg))}
+.agent.despierto{border-color:var(--warn)}
+.agent.bloqueado{border-color:var(--lock)}
+.agent.join{border-style:dashed}
+.agent.fin{opacity:.55}
+.agent.muerto{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 16%,var(--bg))}
+.shelf{border:3px solid var(--line);border-radius:12px;padding:10px;text-align:center;background:var(--bg)}
+.shelf .slots{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:8px 0}
+.shelf .hole{width:54px;height:54px;border:3px dashed var(--line);border-radius:10px;display:grid;place-items:center;font-size:1.9rem}
+.shelf .hole.full{border-style:solid;border-color:var(--ok)}
+.shelf .extra{min-height:34px;font-size:1.5rem}
+.badge{display:inline-block;padding:1px 10px;border-radius:999px;font-weight:700;font-size:.85em;color:#fff}
+.badge.open{background:var(--ok)} .badge.closed{background:var(--bad)}
+.key{margin-top:6px;color:var(--mute);font-size:.85em}
+.stats{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:10px;font-weight:700}
+.bad{color:var(--bad)}
+#banner{margin-top:10px;padding:8px 12px;border-radius:12px;font-weight:700;display:none}
+#banner.ok{display:block;background:color-mix(in srgb,var(--ok) 20%,var(--panel));border:2px solid var(--ok)}
+#banner.ko{display:block;background:color-mix(in srgb,var(--bad) 18%,var(--panel));border:2px solid var(--bad)}
+#log{font:.78em/1.5 ui-monospace,Menlo,Consolas,monospace;max-height:190px;overflow:auto;margin:0;padding:0;list-style:none}
+#log li{padding:1px 0;border-bottom:1px dotted var(--line)}
+#log li.err{color:var(--bad);font-weight:700}
+
+/* editor de código */
+.code{background:var(--code);color:var(--codeink);border-radius:12px;padding:12px 14px;margin-bottom:10px;font:var(--csize)/1.5 ui-monospace,Menlo,Consolas,monospace;overflow-x:auto}
+.code .stat{color:#8b93a7}
+.line{display:flex;align-items:center;gap:6px;min-height:1.9em;white-space:pre}
+.line .marks{margin-left:auto;padding-left:12px;font-size:.85em;white-space:nowrap}
+.blk{padding-left:1.8em}
+.meth{margin:6px 0}
+.grip{cursor:grab;color:#7f8aa3;user-select:none}
+.del{cursor:pointer;color:#7f8aa3;background:none;border:none;padding:0 6px;font:inherit}
+.del:hover{color:#ff8a8a}
+.line.empty{border:2px dashed #7f8aa3;border-radius:8px;color:#9aa3b8;padding:2px 10px;margin:2px 0;cursor:pointer}
+.line.empty.armed{border-color:#fff;color:#fff;background:#ffffff1c}
+.line.empty.over{background:#ffffff33}
+.gap{display:block;background:none;border:none;color:#7f8aa3;cursor:pointer;font:inherit;font-size:.7em;padding:0 8px;opacity:.55;line-height:1.1}
+.gap:hover{opacity:1;color:#fff}
+.gap.last{font-size:.85em;opacity:1;color:#cdd3e1;border:1px dashed #5b6580;border-radius:6px;padding:1px 10px;margin:3px 0}
+.gap.over{background:#ffffff33;opacity:1}
+.code input{background:#0b0f17;color:#fff;border:2px solid #5b6580;border-radius:6px;font:inherit;padding:0 6px}
+.code input.mod{width:10.5em}
+.code input.cond{width:15em}
+.code input.bad{border-color:#ff6b6b}
+.errmsg{color:#ff8a8a;font-size:.8em;margin-left:8px;white-space:normal}
+#compiler{padding:8px 12px;border-radius:10px;font-size:.9em;border:2px solid var(--line)}
+#compiler.ok{border-color:var(--ok)} #compiler.ko{border-color:var(--bad)}
+#compiler ul{margin:4px 0 0;padding-left:20px}
+.pieces{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pieces .gname{color:var(--mute);font-size:.75em;text-transform:uppercase;letter-spacing:.05em;margin-left:8px}
+.pieces .gname:first-child{margin-left:0}
+.pieces{gap:4px}
+.piecepanel{padding:8px 12px}
+.piecepanel h2{display:none}
+.piecepanel .hint{margin:4px 0 0}
+.piecepanel summary{cursor:pointer;color:var(--mute);font-size:.8em}
+.piece{padding:2px 8px;border:1px solid var(--line);border-radius:7px;font:700 .72em ui-monospace,Menlo,Consolas,monospace;cursor:grab;user-select:none;background:var(--bg)}
+.piece:hover{border-color:var(--acc)}
+.hint{color:var(--mute);font-size:.8em;margin:8px 0 0}
+.tabs{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap}
+.tabs button{padding:4px 14px;border-radius:8px 8px 0 0;font-weight:700;font-size:.85em;border-bottom-width:3px;color:var(--mute)}
+.tabs button.on{border-color:var(--acc);color:var(--ink);background:color-mix(in srgb,var(--acc) 16%,var(--panel))}
+.scroll{overflow-y:auto;max-height:70vh;padding-right:4px;margin-bottom:8px}
+@media (min-width:1100px){
+  .right{display:flex;flex-direction:column;height:calc(100vh - 100px);position:sticky;top:12px}
+  .right .codepanel{flex:1;min-height:0;display:flex;flex-direction:column;margin-bottom:0}
+  .right .scroll{flex:1;min-height:0;max-height:none}
+}
+@media (max-width:700px){.scene{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="titulo">Simulador de hilos</h1>
+  <div class="controls">
+    <select id="escenario" aria-label="Ejemplo"></select>
+    <button class="main" id="bRun">▶ Ejecutar</button>
+    <button id="bStep">Paso</button>
+    <button id="bReset">↺ Reiniciar</button>
+    <button id="bSol">Solución</button>
+    <button id="bClear">Vaciar</button>
+    <select id="speed" aria-label="Velocidad">
+      <option value="800">Lento</option>
+      <option value="300" selected>Normal</option>
+      <option value="120">Rápido</option>
+      <option value="30">Muy rápido</option>
+    </select>
+    <button id="fMenos" aria-label="Letra más pequeña">A−</button>
+    <button id="fMas" aria-label="Letra más grande">A+</button>
+  </div>
+</header>
+
+<main>
+  <section class="sticky">
+    <details class="panel enun" id="enunPanel" open>
+      <summary>Enunciado</summary>
+      <div id="enun"></div>
+    </details>
+    <div class="panel">
+      <h2>La escena</h2>
+      <div class="params" id="params"></div>
+      <div class="scene">
+        <div class="col" id="izq"></div>
+        <div class="shelf" id="recurso"></div>
+        <div class="col" id="der"></div>
+      </div>
+      <div class="col" id="princ" style="margin-top:8px"></div>
+      <div class="stats" id="stats"></div>
+      <div id="banner"></div>
+    </div>
+    <div class="panel">
+      <h2>Qué va pasando</h2>
+      <ul id="log"></ul>
+    </div>
+  </section>
+
+  <section class="right">
+    <div class="panel piecepanel">
+      <h2>Piezas</h2>
+      <div class="pieces" id="pieces"></div>
+      <details><summary>Cómo se usa</summary><p class="hint">1) Pulsa «＋ insertar línea» donde quieras una instrucción. 2) Pulsa la pieza (o arrástrala al hueco). 3) Rellena a mano lo que falte. Arrastra con ⠿ para mover una línea; ✕ la borra. Se omiten los try/catch de wait() y sleep().</p></details>
+    </div>
+    <div class="panel codepanel">
+      <h2>Código</h2>
+      <div class="tabs" id="tabs"></div>
+      <div class="scroll" id="scrollCode">
+        <div class="code" id="edRecurso"></div>
+        <div class="code" id="edPrincipal"></div>
+        <div class="code" id="edHilo"></div>
+      </div>
+      <div id="compiler"></div>
+    </div>
+  </section>
+</main>
+
+<script>
+/* ===SIM=== */
+const TICK_CAP = 900;
+const ORDEN_LLEGADA = false;   /* false = como Java (sin orden garantizado); true = cola por orden de llegada */
+const $ = id => document.getElementById(id);
+let nid = 1;
+const mk = (kind, extra) => Object.assign({id:nid++, kind, body:[]}, extra);
+const st = op => mk('stmt', {op});
+const blk = (kind, cond, body) => mk(kind, {cond, body});
+
+/* instrucciones comunes a todos los ejemplos */
+const SPECIAL = {
+  wait:'wait();', notify:'notify();', notifyAll:'notifyAll();', sleep:'Thread.sleep(500);',
+  retT:'return true;', retF:'return false;', cerrarCall:'estante.cerrar();'
+};
+
+/* ----- ejemplos ----- */
+function* usoRecurso(a, entrar, salir, vueltas, dormir){
+  for (let i = 0; i < vueltas; i++){
+    yield* invoke(a, entrar);
+    yield* sleepTicks(a, dormir);
+    yield* invoke(a, salir);
+    a.done++;
+  }
+  a.state = 'fin'; a.cur = null;
+}
+const BUILD = {
+  cocina:p => ({
+    titulo:'Cocina: ' + p.cocineros + ' cocineros y ' + p.cuchillos + ' cuchillos',
+    clase:'Cocina', recurso:'Cuchillos', icono:'🔪', max:p.cuchillos,
+    vars:{libres:p.cuchillos}, consts:{},
+    fields:['private int libres;   // el constructor lo pone a ' + p.cuchillos],
+    methods:[{name:'coger', ret:'void'}, {name:'soltar', ret:'void'}],
+    ops:[
+      {g:'Datos', key:'dec',  label:'libres--;',   anim:{emoji:'🔪', hold:'carry'}, fx:S => { S.v.libres--; return 'libres-- → ' + S.v.libres; }},
+      {g:'Datos', key:'inc',  label:'libres++;',   anim:{emoji:'🔪', hold:'carry'}, fx:S => { S.v.libres++; return 'libres++ → ' + S.v.libres; }},
+      {g:'Datos', key:'zero', label:'libres = 0;', fx:S => { S.v.libres = 0; S.anomalia = true; return 'libres = 0 (¡se pierden cuchillos!)'; }}
+    ],
+    groups:[{t:'c', n:p.cocineros, name:'Cocinero', emoji:'👨‍🍳', extra:a => ' · veces: ' + a.done + '/4',
+             proc:function*(a){ yield* usoRecurso(a, 'coger', 'soltar', 4, ticksDe(p.sleep)); }}],
+    filled:S => S.v.libres,
+    anomaly:S => S.v.libres < 0 ? '¡libres es ' + S.v.libres + '!' : S.v.libres > p.cuchillos ? '¡hay más cuchillos de los que existen (' + S.v.libres + ')!' : null,
+    stats:S => 'Cuchillos libres: <span class="' + ((S.v.libres < 0 || S.v.libres > p.cuchillos) ? 'bad' : '') + '">' + S.v.libres + '</span> / ' + p.cuchillos,
+    ok:S => S.v.libres === p.cuchillos && !S.anomalia && (S.cnt.dec || 0) === p.cocineros * 4 && (S.cnt.inc || 0) === p.cocineros * 4,
+    okMsg:S => '✔ Termina bien. Cuchillos libres: ' + S.v.libres,
+    summary:S => 'libres = ' + S.v.libres + ((S.cnt.dec || 0) !== p.cocineros * 4 || (S.cnt.inc || 0) !== p.cocineros * 4 ? ' (hacían falta ' + p.cocineros * 4 + ' libres-- y ' + p.cocineros * 4 + ' libres++, hubo ' + (S.cnt.dec || 0) + ' y ' + (S.cnt.inc || 0) + ')' : ''),
+    mainLines:['public static void main(String[] args) {', '    Cocina cocina = new Cocina(' + p.cuchillos + ');', '    for (int i = 1; i <= ' + p.cocineros + '; i++) {', '        new Thread(new Cocinero(cocina), "Cocinero " + i).start();', '    }', '}'],
+    hiloLines:['// Cocinero.run() (ya escrito)', 'for (int i = 1; i <= 4; i++) {', '    cocina.coger();', '    sleep(' + p.sleep + ');', '    cocina.soltar();', '}'],
+    solution:() => ({
+      m:{coger:{mod:'synchronized', body:[blk('while', 'libres == 0', [st('wait')]), st('dec')]},
+         soltar:{mod:'synchronized', body:[st('inc'), st('notifyAll')]}},
+      principal:{body:[]}
+    })
+  }),
+  parking:p => ({
+    titulo:'Parking: ' + p.coches + ' coches y ' + p.plazas + ' plazas',
+    clase:'Parking', recurso:'Plazas', icono:'🚗', max:p.plazas,
+    vars:{libres:p.plazas}, consts:{},
+    fields:['private int libres;   // el constructor lo pone a ' + p.plazas],
+    methods:[{name:'entrar', ret:'void'}, {name:'salir', ret:'void'}],
+    ops:[
+      {g:'Datos', key:'dec',  label:'libres--;',   anim:{emoji:'🚗', hold:'inside'}, fx:S => { S.v.libres--; return 'libres-- → ' + S.v.libres; }},
+      {g:'Datos', key:'inc',  label:'libres++;',   anim:{emoji:'🚗', hold:'inside'}, fx:S => { S.v.libres++; return 'libres++ → ' + S.v.libres; }},
+      {g:'Datos', key:'zero', label:'libres = 0;', fx:S => { S.v.libres = 0; S.anomalia = true; return 'libres = 0 (¡se pierden plazas!)'; }}
+    ],
+    groups:[{t:'c', n:p.coches, name:'Coche', emoji:'🚗', extra:a => ' · vueltas: ' + a.done + '/3' + (a.inside ? ' · 🅿️ aparcado' : ''),
+             proc:function*(a){ yield* usoRecurso(a, 'entrar', 'salir', 3, ticksDe(p.sleep)); }}],
+    filled:S => p.plazas - S.v.libres,
+    anomaly:S => S.v.libres < 0 ? '¡' + (-S.v.libres) + ' coche(s) de más: libres es ' + S.v.libres + '!' : S.v.libres > p.plazas ? '¡hay más plazas libres que plazas (' + S.v.libres + ')!' : null,
+    stats:S => 'Plazas libres: <span class="' + ((S.v.libres < 0 || S.v.libres > p.plazas) ? 'bad' : '') + '">' + S.v.libres + '</span> / ' + p.plazas,
+    ok:S => S.v.libres === p.plazas && !S.anomalia && (S.cnt.dec || 0) === p.coches * 3 && (S.cnt.inc || 0) === p.coches * 3,
+    okMsg:S => '✔ Termina bien. Plazas libres: ' + S.v.libres,
+    summary:S => 'libres = ' + S.v.libres + ((S.cnt.dec || 0) !== p.coches * 3 || (S.cnt.inc || 0) !== p.coches * 3 ? ' (hacían falta ' + p.coches * 3 + ' libres-- y ' + p.coches * 3 + ' libres++, hubo ' + (S.cnt.dec || 0) + ' y ' + (S.cnt.inc || 0) + ')' : ''),
+    mainLines:['public static void main(String[] args) {', '    Parking parking = new Parking(' + p.plazas + ');', '    for (int i = 1; i <= ' + p.coches + '; i++) {', '        new Thread(new Coche(parking), "Coche " + i).start();', '    }', '}'],
+    hiloLines:['// Coche.run() (ya escrito)', 'for (int i = 1; i <= 3; i++) {', '    parking.entrar();', '    sleep(' + p.sleep + ');', '    parking.salir();', '}'],
+    solution:() => ({
+      m:{entrar:{mod:'synchronized', body:[blk('while', 'libres == 0', [st('wait')]), st('dec')]},
+         salir:{mod:'synchronized', body:[st('inc'), st('notifyAll')]}},
+      principal:{body:[]}
+    })
+  }),
+  bicis:p => ({
+    titulo:'Tienda de bicis: ' + p.mecanicos + ' mecánicos y ' + p.clientes + ' clientes',
+    clase:'Estante', recurso:'Estante', icono:'🚲', max:p.capacidad,
+    vars:{bicis:0, vendidas:0, cerrada:false}, consts:{maximo:p.capacidad},
+    fields:['private int bicis = 0;', 'private final int maximo = ' + p.capacidad + ';', 'private int vendidas = 0;', 'private boolean cerrada = false;'],
+    methods:[{name:'montar', ret:'void'}, {name:'vender', ret:'boolean'}, {name:'cerrar', ret:'void'}],
+    hasPrincipal:true,
+    ops:[
+      {g:'Datos', key:'inc',    label:'bicis++;',        anim:{emoji:'🚲', hold:'none'}, fx:S => { S.v.bicis++; return 'bicis++ → ' + S.v.bicis; }},
+      {g:'Datos', key:'dec',    label:'bicis--;',        anim:{emoji:'🚲', hold:'none'}, fx:S => { S.v.bicis--; return 'bicis-- → ' + S.v.bicis; }},
+      {g:'Datos', key:'vend',   label:'vendidas++;',     fx:S => { S.v.vendidas++; return 'vendidas++ → ' + S.v.vendidas; }},
+      {g:'Datos', key:'cerr',   label:'cerrada = true;', fx:S => { S.v.cerrada = true; return 'cerrada = true'; }},
+      {g:'Datos', key:'zero',   label:'bicis = 0;',      fx:S => { S.v.bicis = 0; S.anomalia = true; return 'bicis = 0 (¡se pierden bicis!)'; }},
+      {g:'Datos', key:'maxinc', label:'maximo++;',       err:'maximo es final: no se puede cambiar', fx:() => ''}
+    ],
+    groups:[
+      {t:'m', n:p.mecanicos, name:'Mecánico', emoji:'🔧', extra:a => ' · bicis: ' + a.done + '/4',
+       proc:function*(a){
+         for (let i = 0; i < 4; i++){ yield* invoke(a, 'montar'); a.done++; yield* sleepTicks(a, ticksDe(p.sleepM)); }
+         a.state = 'fin'; a.cur = null;
+       }},
+      {t:'c', n:p.clientes, name:'Cliente', emoji:'🧑', extra:a => ' · compras: ' + a.done,
+       proc:function*(a){
+         for (;;){
+           const r = yield* invoke(a, 'vender');
+           if (r === true){ a.done++; yield* sleepTicks(a, ticksDe(p.sleepC)); continue; }
+           if (S.v.cerrada) log(a.n + ': vender() devolvió false, tienda cerrada, se va');
+           else { S.anomalia = true; log(a.n + ': vender() devolvió false con la tienda abierta, se va', true); }
+           break;
+         }
+         a.state = 'fin'; a.cur = null;
+       }}
+    ],
+    principalProc:function*(a){
+      const mecs = agents.filter(x => x.t === 'm'), clis = agents.filter(x => x.t === 'c');
+      const fin = x => x.state === 'fin' || x.state === 'muerto';
+      a.state = 'join';
+      while (!mecs.every(fin)) yield;
+      a.state = 'dentro';
+      yield* execBlock(a, prog.principal.body);
+      if (!prog.principal.body.some(n => n.kind === 'stmt' && n.op === 'cerrarCall')) log('Principal: no llama a cerrar()', true);
+      a.cur = null; a.state = 'join';
+      while (!clis.every(fin)) yield;
+      log('Total vendidas: ' + S.v.vendidas);
+      a.state = 'fin';
+    },
+    filled:S => S.v.bicis,
+    badge:S => S.v.cerrada ? {text:'cerrada', cls:'closed'} : {text:'abierta', cls:'open'},
+    anomaly:S => S.v.bicis > p.capacidad ? '¡hay ' + S.v.bicis + ' bicis en un estante de ' + p.capacidad + '!' : S.v.bicis < 0 ? '¡' + S.v.bicis + ' bicis!' : null,
+    stats:S => 'En el estante: <span class="' + ((S.v.bicis > p.capacidad || S.v.bicis < 0) ? 'bad' : '') + '">' + S.v.bicis + '</span> / ' + p.capacidad + ' · Vendidas: ' + S.v.vendidas + ' / ' + p.mecanicos * 4,
+    ok:S => S.v.vendidas === p.mecanicos * 4 && S.v.bicis === 0 && !S.anomalia,
+    okMsg:S => '✔ Termina bien. Total vendidas: ' + S.v.vendidas,
+    summary:S => 'vendidas ' + S.v.vendidas + ' de ' + p.mecanicos * 4 + ', estante con ' + S.v.bicis,
+    mainLines:null,
+    principalPre:['// crea el Estante, arranca ' + p.mecanicos + ' mecánicos y ' + p.clientes + ' clientes', '// join de los ' + p.mecanicos + ' mecánicos'],
+    principalPost:['// join de los ' + p.clientes + ' clientes', 'System.out.println("Total vendidas: " + estante.getVendidas());'],
+    hiloLines:['// Mecanico.run(): 4 veces montar() y sleep(' + p.sleepM + ')', '// Cliente.run(): mientras vender() sea true, sleep(' + p.sleepC + ')'],
+    solution:() => ({
+      m:{montar:{mod:'synchronized', body:[blk('while', 'bicis == maximo', [st('wait')]), st('inc'), st('notifyAll')]},
+         vender:{mod:'synchronized', body:[blk('while', 'bicis == 0 && !cerrada', [st('wait')]), blk('if', 'bicis == 0', [st('retF')]), st('dec'), st('vend'), st('notifyAll'), st('retT')]},
+         cerrar:{mod:'synchronized', body:[st('cerr'), st('notifyAll')]}},
+      principal:{body:[st('cerrarCall')]}
+    })
+  }),
+  pintor:p => ({
+    titulo:'6.4 Pintor y vendedor: ' + p.total + ' cuadros, almacén de ' + p.capacidad,
+    clase:'Almacen', recurso:'Almacén', icono:'🖼️', max:p.capacidad,
+    vars:{cuadros:0}, consts:{capacidad:p.capacidad},
+    fields:['private int cuadros = 0;', 'private int capacidad;   // el constructor lo pone a ' + p.capacidad],
+    methods:[{name:'depositar', ret:'void', params:'int numero'}, {name:'vender', ret:'void', params:'int numero'}],
+    ops:[
+      {g:'Datos', key:'inc', label:'cuadros++;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
+        if (S.v.cuadros >= p.capacidad) S.pend = '¡no cabe: ' + (S.v.cuadros + 1) + ' cuadros en un almacén de ' + p.capacidad + '!';
+        S.v.cuadros++; S.dep++; return 'cuadros++ → ' + S.v.cuadros; }},
+      {g:'Datos', key:'dec', label:'cuadros--;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
+        if (S.v.cuadros <= 0) S.pend = '¡vende un cuadro que no existe!'; else S.ven++;
+        S.v.cuadros--; return 'cuadros-- → ' + S.v.cuadros; }}
+    ],
+    groups:[
+      {t:'p1', n:1, name:'Pintor', emoji:'🎨', extra:a => ' · cuadros: ' + a.done + '/' + p.total,
+       proc:function*(a){
+         for (let i = 0; i < p.total; i++){ yield* invoke(a, 'depositar'); a.done++; }
+         a.state = 'fin'; a.cur = null;
+       }},
+      {t:'v1', n:1, name:'Vendedor', emoji:'💰', extra:a => ' · cuadros: ' + a.done + '/' + p.total,
+       proc:function*(a){
+         for (let i = 0; i < p.total; i++){ yield* invoke(a, 'vender'); a.done++; }
+         a.state = 'fin'; a.cur = null;
+       }}
+    ],
+    filled:S => S.v.cuadros,
+    anomaly:S => { const m = S.pend; S.pend = null; return m; },
+    stats:S => 'Pintados: ' + S.dep + ' / ' + p.total + ' · Vendidos: ' + S.ven + ' / ' + p.total,
+    ok:S => S.dep === p.total && S.ven === p.total && S.v.cuadros === 0 && !S.anomalia,
+    okMsg:S => '✔ Termina bien. Pintados ' + S.dep + ', vendidos ' + S.ven,
+    summary:S => 'pintados ' + S.dep + ', vendidos ' + S.ven,
+    mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen();', '    new Thread(new Pintor(almacen), "Pintor").start();', '    new Thread(new Vendedor(almacen), "Vendedor").start();', '}'],
+    hiloLines:['// Pintor.run(): for 1..' + p.total + ' → almacen.depositar(i)', '// Vendedor.run(): for 1..' + p.total + ' → almacen.vender(i)'],
+    solution:() => ({
+      m:{depositar:{mod:'synchronized', body:[blk('while', 'cuadros == capacidad', [st('wait')]), st('inc'), st('notify')]},
+         vender:{mod:'synchronized', body:[blk('while', 'cuadros == 0', [st('wait')]), st('dec'), st('notify')]}},
+      principal:{body:[]}
+    })
+  }),
+  pintor2:p => ({
+    titulo:'6.4 Pintor y ' + p.vendedores + ' vendedores: ' + p.total + ' cuadros, almacén de ' + p.capacidad,
+    clase:'Almacen', recurso:'Almacén', icono:'🖼️', max:p.capacidad,
+    vars:{cuadros:0, terminado:false}, consts:{capacidad:p.capacidad},
+    fields:['private int cuadros = 0;', 'private int capacidad;   // el constructor lo pone a ' + p.capacidad, 'private boolean terminado = false;'],
+    methods:[{name:'depositar', ret:'void', params:'int numero'}, {name:'vender', ret:'boolean'}, {name:'terminar', ret:'void'}],
+    ops:[
+      {g:'Datos', key:'inc', label:'cuadros++;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
+        if (S.v.cuadros >= p.capacidad) S.pend = '¡no cabe: ' + (S.v.cuadros + 1) + ' cuadros en un almacén de ' + p.capacidad + '!';
+        S.v.cuadros++; S.dep++; return 'cuadros++ → ' + S.v.cuadros; }},
+      {g:'Datos', key:'dec', label:'cuadros--;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
+        if (S.v.cuadros <= 0) S.pend = '¡vende un cuadro que no existe!'; else S.ven++;
+        S.v.cuadros--; return 'cuadros-- → ' + S.v.cuadros; }},
+      {g:'Datos', key:'term', label:'terminado = true;',  fx:S => { S.v.terminado = true; return 'terminado = true'; }}
+    ],
+    groups:[
+      {t:'p1', n:1, name:'Pintor', emoji:'🎨', extra:a => ' · cuadros: ' + a.done + '/' + p.total,
+       proc:function*(a){
+         for (let i = 0; i < p.total; i++){ yield* invoke(a, 'depositar'); a.done++; }
+         yield* invoke(a, 'terminar');
+         a.state = 'fin'; a.cur = null;
+       }},
+      {t:'v1', n:p.vendedores, name:'Vendedor', emoji:'💰', extra:a => ' · vendidos: ' + a.done,
+       proc:function*(a){
+         for (;;){
+           const r = yield* invoke(a, 'vender');
+           if (r === true){ a.done++; continue; }
+           if (S.v.terminado) log(a.n + ': vender() devolvió false, ya no hay más, termina');
+           else { S.anomalia = true; log(a.n + ': vender() devolvió false con el pintor trabajando, se va', true); }
+           break;
+         }
+         a.state = 'fin'; a.cur = null;
+       }}
+    ],
+    filled:S => S.v.cuadros,
+    anomaly:S => { const m = S.pend; S.pend = null; return m; },
+    stats:S => 'Pintados: ' + S.dep + ' / ' + p.total + ' · Vendidos: ' + S.ven + ' / ' + p.total,
+    ok:S => S.dep === p.total && S.ven === p.total && S.v.cuadros === 0 && !S.anomalia,
+    okMsg:S => '✔ Termina bien. Pintados ' + S.dep + ', vendidos ' + S.ven,
+    summary:S => 'pintados ' + S.dep + ', vendidos ' + S.ven,
+    mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen();', '    new Thread(new Pintor(almacen), "Pintor").start();', '    // ' + p.vendedores + ' hilos Vendedor, cada uno con su new Thread(...).start()', '}'],
+    hiloLines:['// Pintor.run(): for 1..' + p.total + ' → depositar(i); luego almacen.terminar()', '// Vendedor.run(): while (almacen.vender()) { }'],
+    solution:() => ({
+      m:{depositar:{mod:'synchronized', body:[blk('while', 'cuadros == capacidad', [st('wait')]), st('inc'), st('notifyAll')]},
+         vender:{mod:'synchronized', body:[blk('while', 'cuadros == 0 && !terminado', [st('wait')]), blk('if', 'cuadros == 0', [st('retF')]), st('dec'), st('notifyAll'), st('retT')]},
+         terminar:{mod:'synchronized', body:[st('term'), st('notifyAll')]}},
+      principal:{body:[]}
+    })
+  })
+};
+/* enunciado de cada problema (depende de los contadores) */
+const ENUN = {
+  cocina:p => '<p>Una cocina con <b>' + p.cocineros + ' cocineros</b> y <b>' + p.cuchillos + ' cuchillos</b>. Cada cocinero coge un cuchillo, corta durante ' + p.sleep + ' ms y lo suelta. Lo hace 4 veces.</p>' +
+    '<ul><li>Si no queda ningún cuchillo libre, el cocinero espera a que otro suelte uno.</li>' +
+    '<li>Los cuchillos libres nunca pueden ser menos de 0.</li>' +
+    '<li>Al final tienen que quedar los <b>' + p.cuchillos + '</b> libres, en todas las ejecuciones.</li></ul>',
+  parking:p => '<p>Un parking con <b>' + p.plazas + ' plazas</b> al que llegan <b>' + p.coches + ' coches</b>. Cada coche entra, aparca ' + p.sleep + ' ms y sale. Lo hace 3 veces.</p>' +
+    '<ul><li>Si no queda ninguna plaza libre, el coche espera en la puerta hasta que otro salga.</li>' +
+    '<li>Las plazas libres nunca pueden ser menos de 0.</li>' +
+    '<li>Al final tienen que quedar las <b>' + p.plazas + '</b> libres, en todas las ejecuciones.</li></ul>',
+  bicis:p => '<p>Los <b>' + p.mecanicos + ' mecánicos</b> montan 4 bicis cada uno y las dejan en un estante donde caben como máximo <b>' + p.capacidad + '</b>. Los <b>' + p.clientes + ' clientes</b> las cogen para llevárselas. Montar una bici tarda ' + p.sleepM + ' ms y cada compra ' + p.sleepC + ' ms.</p>' +
+    '<ul><li>Un mecánico que ve el estante lleno espera.</li>' +
+    '<li>Un cliente que ve el estante vacío espera, mientras la tienda siga abierta.</li>' +
+    '<li>Los clientes no cuentan sus bicis: compran mientras haya bicis o la tienda esté abierta.</li>' +
+    '<li>Cuando los mecánicos terminan, <code>Principal</code> cierra la tienda. Los clientes se llevan las que queden y terminan.</li>' +
+    '<li>Debe acabar solo, con el estante en 0 y <b>' + (p.mecanicos * 4) + '</b> bicis vendidas.</li></ul>',
+  pintor:p => '<p>Un pintor y un vendedor comparten un almacén donde caben <b>' + p.capacidad + ' cuadros</b>.</p>' +
+    '<ul><li>El pintor espera si el almacén está lleno para dejar un cuadro.</li>' +
+    '<li>El vendedor espera si el almacén está vacío para poder vender.</li>' +
+    '<li>El programa termina cuando se han vendido los <b>' + p.total + '</b> cuadros.</li></ul>',
+  pintor2:p => '<p>Un pintor y <b>' + p.vendedores + ' vendedores</b> comparten un almacén donde caben <b>' + p.capacidad + ' cuadros</b>.</p>' +
+    '<ul><li>El pintor espera si el almacén está lleno para dejar un cuadro.</li>' +
+    '<li>Los vendedores esperan si el almacén está vacío para poder vender.</li>' +
+    '<li>Cada cuadro lo vende un solo vendedor.</li>' +
+    '<li>El programa termina cuando se han pintado <b>' + p.total + '</b> cuadros y se han vendido todos. Los vendedores no saben cuántos les tocan: el almacén tiene que avisarles de que no hay más.</li></ul>'
+};
+const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2'];
+const PARAMS = {
+  cocina:[{k:'cocineros', label:'Cocineros', min:1, max:12, def:9}, {k:'cuchillos', label:'Cuchillos', min:1, max:6, def:2}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:3000}],
+  parking:[{k:'coches', label:'Coches', min:1, max:12, def:8}, {k:'plazas', label:'Plazas', min:1, max:6, def:3}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:2000}],
+  bicis:[{k:'mecanicos', label:'Mecánicos', min:1, max:5, def:3}, {k:'clientes', label:'Clientes', min:1, max:5, def:2}, {k:'capacidad', label:'Capacidad del estante', min:1, max:6, def:3}, {k:'sleepM', label:'sleep mecánico', unit:' ms', step:100, min:0, max:5000, def:700}, {k:'sleepC', label:'sleep cliente', unit:' ms', step:100, min:0, max:5000, def:1200}],
+  pintor:[{k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:3}],
+  pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:3}]
+};
+const cfg = {};
+ORDER.forEach(id => { cfg[id] = {}; PARAMS[id].forEach(q => { cfg[id][q.k] = q.def; }); });
+const build = id => BUILD[id](cfg[id]);
+let cur = 'cocina', sc = build('cocina');
+const emptyProg = s => {
+  const p = {m:{}, principal:{body:[]}};
+  s.methods.forEach(m => { p.m[m.name] = {mod:'', body:[]}; });
+  return p;
+};
+const progs = {};
+ORDER.forEach(k => { progs[k] = emptyProg(build(k)); });
+let prog = progs[cur];
+
+function opLabel(key){ return SPECIAL[key] || (sc.ops.find(o => o.key === key) || {label:key}).label; }
+
+/* ----- compilador ----- */
+const idsOf = () => Object.keys(sc.vars).concat(Object.keys(sc.consts), ['true', 'false']);
+function condFn(txt){
+  const names = Object.keys(sc.vars).concat(Object.keys(sc.consts));
+  return {names, fn:new Function(...names, '"use strict";return (' + txt + ')')};
+}
+function checkCond(txt){
+  const t = (txt || '').trim();
+  if (!t) return 'falta la condición';
+  if (/===|!==/.test(t) || !/^[A-Za-z0-9_\s!=<>&|()+\-]*$/.test(t)) return 'símbolo no permitido';
+  const ids = idsOf();
+  for (const id of (t.match(/[A-Za-z_]\w*/g) || [])) if (!ids.includes(id)) return 'no encuentro el símbolo "' + id + '"';
+  if (/(^|[^=!<>])=($|[^=])/.test(t)) return 'para comparar se usa ==, no =';
+  try {
+    const {names, fn} = condFn(t);
+    const sample = names.map(k => typeof (k in sc.vars ? sc.vars[k] : sc.consts[k]) === 'boolean' ? false : 1);
+    if (typeof fn(...sample) !== 'boolean') return 'la condición debe ser true o false';
+  } catch (e) { return 'condición mal escrita'; }
+  return null;
+}
+function checkList(list, where, add, isBool){
+  let ret = false;
+  for (const n of list){
+    if (n.kind === 'empty') continue;
+    if (ret) add(where, 'instrucción inalcanzable después de return', n.id);
+    if (where === 'Principal'){
+      if (n.kind !== 'stmt' || n.op !== 'cerrarCall') add(where, 'en Principal solo cabe estante.cerrar();', n.id);
+      continue;
+    }
+    if (n.kind === 'while' || n.kind === 'if'){
+      const e = checkCond(n.cond);
+      if (e) add(where + '()', e, n.id);
+      checkList(n.body, where, add, isBool);
+    } else {
+      const spec = sc.ops.find(o => o.key === n.op);
+      if (n.op === 'cerrarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "estante"; eso se llama desde Principal', n.id);
+      if (spec && spec.err) add(where + '()', spec.err, n.id);
+      if ((n.op === 'retT' || n.op === 'retF') && !isBool) add(where + '()', 'return con valor en un método void', n.id);
+      if (n.op === 'retT' || n.op === 'retF') ret = true;
+    }
+  }
+}
+function compile(){
+  const errs = [];
+  const add = (where, msg, id) => errs.push({where, msg, id});
+  for (const me of sc.methods){
+    const m = prog.m[me.name], t = m.mod.trim(), isBool = me.ret === 'boolean';
+    if (t !== '' && t !== 'synchronized')
+      add(me.name + '()', t === 'static' ? 'static: no puede usar las variables ni wait() (no son static)' : 'modificador "' + t + '" no válido', null);
+    checkList(m.body, me.name, add, isBool);
+    if (isBool){
+      const real = m.body.filter(n => n.kind !== 'empty'), last = real[real.length - 1];
+      if (!last || last.kind !== 'stmt' || (last.op !== 'retT' && last.op !== 'retF')) add(me.name + '()', 'falta un return al final', null);
+    }
+  }
+  if (sc.hasPrincipal) checkList(prog.principal.body, 'Principal', add, false);
+  return errs;
+}
+
+/* ----- simulación (cada instrucción = un paso de un hilo) ----- */
+let agents = [], S = {}, timer = null;
+function log(msg, err){ S.log.unshift({msg, err:!!err}); if (S.log.length > 80) S.log.pop(); }
+function shuffle(a){ a = a.slice(); for (let i = a.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function imse(what){ const e = new Error(what); e.imse = true; return e; }
+function evalCond(n){
+  if (!n.fn){ const c = condFn(n.cond); n.fnNames = c.names; n.fn = c.fn; }
+  return n.fn(...n.fnNames.map(k => k in S.v ? S.v[k] : sc.consts[k]));
+}
+const ticksDe = ms => Math.max(0, Math.round(ms / 400));   /* 1 paso del simulador = 400 ms de sleep */
+function* sleepTicks(a, k){ a.cur = null; a.state = 'trabaja'; for (let i = 0; i < k; i++) yield; }
+function* invoke(a, name){
+  const m = prog.m[name], sync = m.mod.trim() === 'synchronized';
+  if (sync){
+    S.lockQ.push(a);
+    while (S.lock || (ORDEN_LLEGADA && S.lockQ[0] !== a)){ a.state = 'bloqueado'; yield; }
+    S.lockQ = S.lockQ.filter(x => x !== a);
+    S.lock = a;
+  }
+  a.state = 'dentro';
+  let r;
+  try { r = yield* execBlock(a, m.body); }
+  finally { if (S.lock === a) S.lock = null; a.cur = null; }
+  return r && r.v;
+}
+function* execBlock(a, list){
+  for (const n of list){
+    if (n.kind === 'empty') continue;
+    const r = yield* execNode(a, n);
+    if (r) return r;
+  }
+}
+function* execNode(a, n){
+  a.cur = n.id;
+  if (n.kind === 'while'){
+    for (;;){
+      a.cur = n.id;
+      const c = evalCond(n);
+      yield;
+      if (!c) return;
+      const r = yield* execBlock(a, n.body);
+      if (r) return r;
+    }
+  }
+  if (n.kind === 'if'){
+    const c = evalCond(n);
+    yield;
+    if (c){ const r = yield* execBlock(a, n.body); if (r) return r; }
+    return;
+  }
+  switch (n.op){
+    case 'sleep': log(a.n + ': sleep(500)' + (S.lock === a ? ' con la llave puesta' : '')); yield; break;
+    case 'retT': return {v:true};
+    case 'retF': return {v:false};
+    case 'cerrarCall': log(a.n + ': llama a cerrar()'); yield* invoke(a, 'cerrar'); a.cur = n.id; return;
+    case 'wait': {
+      if (S.lock !== a) throw imse('wait()');
+      S.lock = null; a.state = 'espera'; a.woken = false; a.ticket = S.qn++;
+      log(a.n + ': wait() → duerme y suelta la llave');
+      yield;
+      while (!a.woken) yield;
+      a.state = 'despierto';
+      while (S.lock || (ORDEN_LLEGADA && S.lockQ[0] !== a)) yield;
+      S.lockQ = S.lockQ.filter(x => x !== a);
+      S.lock = a; a.state = 'dentro'; a.cur = n.id;
+      log(a.n + ': despierta y recupera la llave');
+      break;
+    }
+    case 'notify': case 'notifyAll': {
+      if (S.lock !== a) throw imse(SPECIAL[n.op]);
+      /* Java no garantiza orden: notify() despierta a uno cualquiera. Con ORDEN_LLEGADA = true, al que lleva más tiempo esperando */
+      const w = agents.filter(x => x.state === 'espera' && !x.woken).sort((x, y) => x.ticket - y.ticket);
+      const hit = n.op === 'notifyAll' ? w : (ORDEN_LLEGADA || !w.length ? w.slice(0, 1) : [w[Math.floor(Math.random() * w.length)]]);
+      hit.forEach(x => { x.woken = true; S.lockQ.push(x); });
+      S.anim.push({kind:'alert', all:n.op === 'notifyAll', aid:agents.indexOf(a), targets:hit.map(x => agents.indexOf(x))});
+      log(a.n + ': ' + SPECIAL[n.op] + ' → despierta a ' + (n.op === 'notifyAll' ? w.length : Math.min(1, w.length)));
+      break;
+    }
+    default: {
+      const spec = sc.ops.find(o => o.key === n.op);
+      if (spec){
+        S.cnt[n.op] = (S.cnt[n.op] || 0) + 1;
+        const f0 = sc.filled(S);
+        const msg = spec.fx(S);
+        const f1 = sc.filled(S);
+        if (spec.anim && f1 !== f0){
+          const up = f1 > f0;
+          S.anim.push({aid:agents.indexOf(a), emoji:spec.anim.emoji, to:up ? 'res' : 'agent', idx:up ? f1 - 1 : f1, hold:spec.anim.hold});
+          if (spec.anim.hold === 'carry') a.carry = up ? null : spec.anim.emoji;
+          if (spec.anim.hold === 'inside') a.inside = up;
+        }
+        const an = sc.anomaly(S);
+        if (an){ S.anomalia = true; log(a.n + ': ' + msg + ' ' + an, true); }
+        else log(a.n + ': ' + msg);
+      }
+    }
+  }
+  yield;
+}
+function resetSim(){
+  S = {v:Object.assign({}, sc.vars), dep:0, ven:0, pend:null, anim:[], cnt:{}, lockQ:[], qn:0, anomalia:false, lock:null, log:[], fin:false, ticks:0, idle:0};
+  agents = [];
+  sc.groups.forEach(g => {
+    for (let i = 1; i <= g.n; i++)
+      agents.push({t:g.t, g, n:g.name + ' ' + i, tag:g.emoji + i, state:'trabaja', done:0, cur:null, woken:false});
+  });
+  if (sc.hasPrincipal) agents.push({t:'p', n:'Principal', tag:'🧭', state:'join', done:0, cur:null, woken:false});
+  agents.forEach(a => { a.gen = (a.t === 'p' ? sc.principalProc : a.g.proc)(a); });
+  const b = $('banner'); b.className = ''; b.textContent = '';
+  render();
+}
+function die(a, e){
+  a.state = 'muerto'; a.cur = null;
+  if (S.lock === a) S.lock = null;
+  S.lockQ = S.lockQ.filter(x => x !== a);
+  log(a.n + ': IllegalMonitorStateException en ' + e.message + ' (no tiene la llave: falta synchronized)', true);
+}
+function tick(){
+  if (S.fin) return;
+  S.ticks++;
+  for (const a of shuffle(agents)){
+    if (a.state === 'fin' || a.state === 'muerto') continue;
+    try { a.gen.next(); }
+    catch (e) { if (e.imse) die(a, e); else throw e; }
+  }
+  const vivos = agents.filter(a => a.state !== 'fin' && a.state !== 'muerto');
+  const progreso = vivos.some(a => ['trabaja','dentro','despierto','bloqueado'].includes(a.state) || (a.state === 'espera' && a.woken));
+  S.idle = progreso ? 0 : S.idle + 1;
+  let msg = null, ok = false;
+  const muertos = agents.filter(a => a.state === 'muerto').length;
+  if (!vivos.length){
+    if (muertos) msg = '💥 Un hilo murió con IllegalMonitorStateException. wait() y notify() exigen synchronized.';
+    else if (sc.ok(S)){ ok = true; msg = sc.okMsg(S); }
+    else msg = 'Termina, pero mal: ' + sc.summary(S) + (S.anomalia ? ', y hubo errores en el camino' : '') + '.';
+  } else if (S.idle >= 2){
+    const esp = vivos.filter(a => a.state === 'espera').length;
+    msg = (muertos ? '💥 Un hilo murió con IllegalMonitorStateException y ' : '⏳ ') + 'Programa colgado: ' + esp + ' hilo(s) en wait() y nadie los despierta.';
+  } else if (S.ticks >= TICK_CAP){
+    msg = '∞ Demasiados pasos: parece un bucle infinito.';
+  }
+  if (msg){
+    S.fin = true; stop();
+    const b = $('banner'); b.className = ok ? 'ok' : 'ko'; b.textContent = msg;
+  }
+  render();
+}
+/* ===END SIM=== */
+
+/* ---------- dibujo de la escena ---------- */
+const STATE_TXT = {
+  trabaja:'trabajando', bloqueado:'🔒 esperando la llave', espera:'⏳ en wait()',
+  despierto:'despertado, quiere la llave', dentro:'✅ dentro del método', join:'esperando (join)',
+  fin:'🏁 terminó', muerto:'💥 murió'
+};
+function agentHTML(a, compact){
+  const em = a.t === 'p' ? '🧭' : a.g.emoji;
+  const extra = a.t === 'p' ? '' : a.g.extra(a);
+  return '<div class="agent ' + a.state + (compact ? ' compact' : '') + '" data-aid="' + agents.indexOf(a) + '"><span class="em' + (a.inside ? ' ausente' : '') +
+    '"><span class="ico">' + em + '</span></span> <span class="nm">' + a.n + '</span><span class="carry"><span class="ico">' + (a.carry || '') +
+    '</span></span><div class="st">' + STATE_TXT[a.state] + extra + '</div></div>';
+}
+function render(){
+  const vis = agents.filter(a => a.t !== 'p');
+  const compact = vis.length > 6;
+  let left, right;
+  if (sc.groups.length === 1){ const mid = Math.ceil(vis.length / 2); left = vis.slice(0, mid); right = vis.slice(mid); }
+  else { left = vis.filter(a => a.g === sc.groups[0]); right = vis.filter(a => a.g !== sc.groups[0]); }
+  $('izq').innerHTML = left.map(a => agentHTML(a, compact)).join('');
+  $('der').innerHTML = right.map(a => agentHTML(a, compact)).join('');
+  $('princ').innerHTML = agents.filter(a => a.t === 'p').map(a => agentHTML(a, false)).join('');
+
+  const f = sc.filled(S), max = sc.max;
+  let html = '<div><b>' + sc.recurso + '</b>';
+  if (sc.badge){ const b = sc.badge(S); html += ' <span class="badge ' + b.cls + '">' + b.text + '</span>'; }
+  html += '</div><div class="slots">';
+  for (let i = 0; i < max; i++){
+    const full = i < f;
+    html += '<div class="hole' + (full ? ' full' : '') + '"><span class="ico">' + (full ? sc.icono : '') + '</span></div>';
+  }
+  html += '</div><div class="extra">';
+  if (f > max) html += '<span class="bad">' + sc.icono.repeat(f - max) + ' ¡de más!</span>';
+  else if (f < 0) html += '<span class="bad">' + f + ' (¡negativo!)</span>';
+  html += '</div><div class="key">' + (S.lock ? '🔑 llave: ' + S.lock.n : '🔑 llave libre') + '</div>';
+  $('recurso').innerHTML = html;
+  $('stats').innerHTML = '<span>' + sc.stats(S) + '</span>';
+  $('log').innerHTML = S.log.slice(0, 40).map(l => '<li' + (l.err ? ' class="err"' : '') + '>' + l.msg + '</li>').join('');
+  updateMarks();
+  playAnims();
+}
+function playAnims(){
+  const evs = S.anim || [];
+  S.anim = [];
+  if (!evs.length || typeof Element.prototype.animate !== 'function') return;
+  const tick = timer ? +$('speed').value : 600;
+  if (tick < 80) return;
+  const dur = Math.max(160, Math.min(900, tick * 0.85));
+  const holes = document.querySelectorAll('#recurso .hole');
+  evs.forEach(ev => {
+    if (ev.kind === 'alert') return alertAnim(ev, dur);
+    const card = document.querySelector('.agent[data-aid="' + ev.aid + '"]');
+    if (!card) return;
+    const src = card.querySelector('.em');
+    const hole = holes[ev.idx] || $('recurso');
+    const agentEl = ev.hold === 'carry' ? card.querySelector('.carry') : src;
+    const centre = el => { const r = el.getBoundingClientRect(); return {x:r.left + r.width / 2, y:r.top + r.height / 2}; };
+    const aPos = centre(src), hPos = centre(hole), toRes = ev.to === 'res';
+    const from = toRes ? aPos : hPos, to = toRes ? hPos : centre(agentEl);
+    const fl = document.createElement('div');
+    fl.className = 'fly'; fl.textContent = ev.emoji;
+    fl.style.left = from.x + 'px'; fl.style.top = from.y + 'px';
+    document.body.append(fl);
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const at = (px, py) => 'translate(calc(' + px + 'px - 50%), calc(' + py + 'px - 50%))';
+    const fade = !toRes && ev.hold === 'none';
+    const frames = fade
+      ? [{transform:at(0, 0), opacity:1}, {transform:at(dx, dy), opacity:1, offset:.75}, {transform:at(dx, dy), opacity:0}]
+      : [{transform:at(0, 0)}, {transform:at(dx, dy)}];
+    const hideEl = toRes ? hole : (ev.hold === 'carry' ? card.querySelector('.carry') : (ev.hold === 'inside' ? src : null));
+    if (hideEl) hideEl.classList.add('hide-icon');
+    const an = fl.animate(frames, {duration:dur, easing:'ease-in-out', fill:'forwards'});
+    const done = () => { fl.remove(); if (hideEl) hideEl.classList.remove('hide-icon'); };
+    an.onfinish = done; an.oncancel = done;
+  });
+}
+/* notify: una campana viaja a un solo hilo. notifyAll: onda de alerta y una campana a cada hilo que espera */
+function alertAnim(ev, dur){
+  const src = document.querySelector('.agent[data-aid="' + ev.aid + '"] .em');
+  if (!src) return;
+  const centre = el => { const r = el.getBoundingClientRect(); return {x:r.left + r.width / 2, y:r.top + r.height / 2}; };
+  const from = centre(src);
+  const at = (px, py, s) => 'translate(calc(' + px + 'px - 50%), calc(' + py + 'px - 50%)) scale(' + (s || 1) + ')';
+  const spawn = (txt, x, y) => {
+    const el = document.createElement('div');
+    el.className = 'fly'; el.textContent = txt;
+    el.style.left = x + 'px'; el.style.top = y + 'px';
+    document.body.append(el);
+    return el;
+  };
+  if (ev.all){
+    [0, 1].forEach(i => {
+      const ring = document.createElement('div');
+      ring.className = 'fly alert-ring';
+      ring.style.left = from.x + 'px'; ring.style.top = from.y + 'px';
+      document.body.append(ring);
+      const an = ring.animate([{transform:at(0, 0, .2), opacity:.9}, {transform:at(0, 0, 9), opacity:0}], {duration:dur * 1.3, delay:i * dur * .3, easing:'ease-out', fill:'both'});
+      an.onfinish = an.oncancel = () => ring.remove();
+    });
+  }
+  const bell = ev.all ? '📢' : '🔔';
+  if (!ev.targets.length){
+    const el = spawn(bell, from.x, from.y - 30);
+    const an = el.animate([{transform:at(0, 0), opacity:1}, {transform:at(0, -24), opacity:0}], {duration:dur, fill:'forwards'});
+    an.onfinish = an.oncancel = () => el.remove();
+    return;
+  }
+  ev.targets.forEach(aid => {
+    const card = document.querySelector('.agent[data-aid="' + aid + '"]');
+    if (!card) return;
+    const to = centre(card.querySelector('.em'));
+    const el = spawn(bell, from.x, from.y);
+    const dx = to.x - from.x, dy = to.y - from.y;
+    const an = el.animate([{transform:at(0, 0, 1)}, {transform:at(dx, dy, 1.4), opacity:1, offset:.8}, {transform:at(dx, dy, 1.8), opacity:0}], {duration:dur, easing:'ease-in-out', fill:'forwards'});
+    an.onfinish = an.oncancel = () => el.remove();
+    card.animate([{outlineColor:'transparent', outlineWidth:'0px'}, {outlineColor:'var(--warn)', outlineWidth:'6px', offset:.7}, {outlineColor:'transparent', outlineWidth:'0px'}], {duration:dur * 1.2, delay:dur * .6});
+    card.style.outlineStyle = 'solid';
+  });
+}
+function updateMarks(){
+  document.querySelectorAll('.marks').forEach(m => { m.textContent = ''; });
+  agents.forEach(a => {
+    if (a.cur == null || a.state === 'fin' || a.state === 'muerto') return;
+    const m = document.querySelector('.line[data-nid="' + a.cur + '"] .marks');
+    if (m) m.textContent += (m.textContent ? ' ' : '') + a.tag;
+  });
+}
+
+/* ---------- editor ---------- */
+let armed = null;
+const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
+const allLists = () => sc.methods.map(m => prog.m[m.name].body).concat(sc.hasPrincipal ? [prog.principal.body] : []);
+
+function findLoc(id, list){
+  const lists = list ? [list] : allLists();
+  for (const l of lists){
+    for (let i = 0; i < l.length; i++){
+      if (l[i].id === id) return {list:l, i};
+      const r = findLoc(id, l[i].body);
+      if (r) return r;
+    }
+  }
+  return null;
+}
+function containsId(node, id){ return node.body.some(c => c.id === id || containsId(c, id)); }
+function containsList(node, list){ return node.body === list || node.body.some(c => containsList(c, list)); }
+function pieceList(){
+  const p = [
+    {g:'Bloques', key:'while', label:'while ( ) { }', make:() => mk('while', {cond:''})},
+    {g:'Bloques', key:'if',    label:'if ( ) { }',    make:() => mk('if', {cond:''})},
+    {g:'Hilos', key:'wait', label:'wait();', make:() => st('wait')},
+    {g:'Hilos', key:'notify', label:'notify();', make:() => st('notify')},
+    {g:'Hilos', key:'notifyAll', label:'notifyAll();', make:() => st('notifyAll')},
+    {g:'Hilos', key:'sleep', label:'Thread.sleep(500);', make:() => st('sleep')}
+  ];
+  sc.ops.forEach(o => p.push({g:o.g, key:o.key, label:o.label, make:() => st(o.key)}));
+  if (sc.methods.some(m => m.ret === 'boolean')){
+    p.push({g:'Salida', key:'retT', label:'return true;', make:() => st('retT')});
+    p.push({g:'Salida', key:'retF', label:'return false;', make:() => st('retF')});
+  }
+  if (sc.hasPrincipal) p.push({g:'Otra clase', key:'cerrarCall', label:'estante.cerrar();', make:() => st('cerrarCall')});
+  return p;
+}
+function dropOnEmpty(emptyId, payload){
+  const loc = findLoc(emptyId);
+  if (!loc) return;
+  if (payload.startsWith('piece:')){
+    const p = pieceList().find(x => x.key === payload.slice(6));
+    if (!p) return;
+    loc.list[loc.i] = p.make();
+  } else if (payload.startsWith('node:')){
+    const src = findLoc(+payload.slice(5));
+    if (!src) return;
+    const node = src.list[src.i];
+    if (containsId(node, emptyId)) return;
+    src.list.splice(src.i, 1);
+    const loc2 = findLoc(emptyId);
+    loc2.list[loc2.i] = node;
+  } else return;
+  armed = null; changed();
+}
+function dropOnGap(list, i, payload){
+  if (payload.startsWith('piece:')){
+    const p = pieceList().find(x => x.key === payload.slice(6));
+    if (!p) return;
+    list.splice(i, 0, p.make());
+  } else if (payload.startsWith('node:')){
+    const src = findLoc(+payload.slice(5));
+    if (!src) return;
+    const node = src.list[src.i];
+    if (containsList(node, list)) return;
+    src.list.splice(src.i, 1);
+    if (src.list === list && src.i < i) i--;
+    list.splice(i, 0, node);
+  } else return;
+  armed = null; changed();
+}
+function removeNode(id){ const loc = findLoc(id); if (loc){ loc.list.splice(loc.i, 1); if (armed === id) armed = null; changed(); } }
+
+function gapEl(list, i, last){
+  const b = h('button', 'gap' + (last ? ' last' : ''), last ? '＋ insertar línea' : '＋');
+  b.onclick = () => { const n = mk('empty'); list.splice(i, 0, n); armed = n.id; changed(); };
+  b.ondragover = e => { e.preventDefault(); b.classList.add('over'); };
+  b.ondragleave = () => b.classList.remove('over');
+  b.ondrop = e => { e.preventDefault(); b.classList.remove('over'); dropOnGap(list, i, e.dataTransfer.getData('text/plain')); };
+  return b;
+}
+function listEl(list){
+  const wrap = h('div', 'blk');
+  list.forEach((n, i) => { wrap.append(gapEl(list, i, false), nodeEl(n)); });
+  wrap.append(gapEl(list, list.length, true));
+  return wrap;
+}
+function lineParts(n){
+  const line = h('div', 'line');
+  line.dataset.nid = n.id;
+  const grip = h('span', 'grip', '⠿');
+  grip.draggable = true;
+  grip.ondragstart = e => { e.dataTransfer.setData('text/plain', 'node:' + n.id); e.dataTransfer.setDragImage(line, 10, 10); };
+  line.append(grip);
+  return line;
+}
+function tail(line, n){
+  const err = h('span', 'errmsg'); err.dataset.err = n.id;
+  const marks = h('span', 'marks');
+  const del = h('button', 'del', '✕'); del.title = 'Borrar línea'; del.onclick = () => removeNode(n.id);
+  line.append(err, marks, del);
+}
+function nodeEl(n){
+  if (n.kind === 'empty'){
+    const d = h('div', 'line empty' + (armed === n.id ? ' armed' : ''), 'arrastra aquí una instrucción');
+    d.dataset.nid = n.id;
+    d.onclick = () => { armed = n.id; document.querySelectorAll('.line.empty').forEach(x => x.classList.toggle('armed', +x.dataset.nid === n.id)); };
+    d.ondragover = e => { e.preventDefault(); d.classList.add('over'); };
+    d.ondragleave = () => d.classList.remove('over');
+    d.ondrop = e => { e.preventDefault(); d.classList.remove('over'); dropOnEmpty(n.id, e.dataTransfer.getData('text/plain')); };
+    const del = h('button', 'del', '✕'); del.onclick = ev => { ev.stopPropagation(); removeNode(n.id); };
+    d.append(h('span', 'marks'), del);
+    return d;
+  }
+  const line = lineParts(n);
+  if (n.kind === 'stmt'){
+    line.append(h('span', null, opLabel(n.op)));
+    tail(line, n);
+    return line;
+  }
+  const box = h('div');
+  line.append(h('span', null, n.kind + ' ('));
+  const inp = h('input', 'cond'); inp.value = n.cond; inp.placeholder = 'condición'; inp.spellcheck = false;
+  inp.oninput = () => { n.cond = inp.value; n.fn = null; stop(); resetSim(); save(); refreshCompile(); };
+  line.append(inp, h('span', null, ') {'));
+  tail(line, n);
+  box.append(line, listEl(n.body), h('div', 'line', '}'));
+  return box;
+}
+function methodEl(me){
+  const m = prog.m[me.name], box = h('div', 'meth'), head = h('div', 'line');
+  head.append(h('span', null, 'public '));
+  const inp = h('input', 'mod'); inp.value = m.mod; inp.placeholder = '(modificador)'; inp.spellcheck = false;
+  inp.dataset.mod = me.name;
+  inp.oninput = () => { m.mod = inp.value; stop(); resetSim(); save(); refreshCompile(); };
+  head.append(inp, h('span', null, ' ' + me.ret + ' ' + me.name + '(' + (me.params || '') + ') {'));
+  box.append(head, listEl(m.body), h('div', 'line', '}'));
+  return box;
+}
+const statBox = (box, lines) => { lines.forEach(t => box.append(h('div', 'line stat', t))); };
+let tabSel = 0;
+function renderTabs(){
+  const runs = [];
+  sc.hiloLines.join('\n').replace(/\/\/ (\w+)\.run/g, (m, c) => runs.push(c + '.run()'));
+  const names = [sc.clase, 'Principal', runs.join(' · ') || 'Hilos'];
+  ['edRecurso', 'edPrincipal', 'edHilo'].forEach((id, i) => { $(id).style.display = i === tabSel ? '' : 'none'; });
+  const box = $('tabs');
+  box.innerHTML = '';
+  names.forEach((nm, i) => {
+    const b = h('button', i === tabSel ? 'on' : '', nm);
+    b.onclick = () => { tabSel = i; renderTabs(); $('scrollCode').scrollTop = 0; };
+    box.append(b);
+  });
+}
+function renderCode(){
+  const rec = $('edRecurso');
+  rec.innerHTML = '';
+  rec.append(h('div', 'line stat', 'public class ' + sc.clase + ' {'));
+  const body = h('div', 'blk');
+  statBox(body, sc.fields);
+  sc.methods.forEach(me => body.append(methodEl(me)));
+  rec.append(body, h('div', 'line stat', '}'));
+
+  const pr = $('edPrincipal');
+  pr.innerHTML = '';
+  pr.append(h('div', 'line stat', 'public class Principal {'));
+  const pb = h('div', 'blk');
+  if (sc.hasPrincipal){
+    pb.append(h('div', 'line stat', 'public static void main(String[] args) {'));
+    const inner = h('div', 'blk');
+    statBox(inner, sc.principalPre);
+    inner.append(listEl(prog.principal.body));
+    statBox(inner, sc.principalPost);
+    pb.append(inner, h('div', 'line stat', '}'));
+  } else statBox(pb, sc.mainLines);
+  pr.append(pb, h('div', 'line stat', '}'));
+
+  const hi = $('edHilo');
+  hi.innerHTML = '';
+  statBox(hi, sc.hiloLines);
+  renderTabs();
+  refreshCompile();
+}
+function refreshCompile(){
+  const errs = compile();
+  document.querySelectorAll('.errmsg').forEach(e => { e.textContent = ''; });
+  document.querySelectorAll('input.bad').forEach(i => i.classList.remove('bad'));
+  errs.forEach(e => {
+    if (e.id != null){
+      const s = document.querySelector('.errmsg[data-err="' + e.id + '"]');
+      if (s) s.textContent = '← ' + e.msg;
+    }
+  });
+  errs.filter(e => e.id == null && /\(\)$/.test(e.where)).forEach(e => {
+    const i = document.querySelector('input.mod[data-mod="' + e.where.replace('()', '') + '"]');
+    if (i && /modificador|static/.test(e.msg)) i.classList.add('bad');
+  });
+  const box = $('compiler');
+  if (!errs.length){ box.className = 'ok'; box.textContent = '✔ Compila'; }
+  else {
+    box.className = 'ko';
+    box.innerHTML = '<b>No compila:</b><ul>' + errs.map(e => '<li><b>' + e.where + '</b>: ' + e.msg + '</li>').join('') + '</ul>';
+  }
+  return errs;
+}
+function renderPieces(){
+  const box = $('pieces');
+  box.innerHTML = '';
+  let g = null;
+  pieceList().forEach(p => {
+    if (p.g !== g){ g = p.g; box.append(h('div', 'gname', g)); }
+    const d = h('div', 'piece', p.label);
+    d.draggable = true;
+    d.ondragstart = e => e.dataTransfer.setData('text/plain', 'piece:' + p.key);
+    d.onclick = () => {
+      const first = document.querySelector('.line.empty');
+      const target = armed != null ? armed : (first ? +first.dataset.nid : null);
+      if (target != null) dropOnEmpty(target, 'piece:' + p.key);
+    };
+    box.append(d);
+  });
+}
+
+/* ---------- guardar, control ---------- */
+const KEY = 'sim-hilos-v2';
+function save(){ try { localStorage.setItem(KEY, JSON.stringify({progs, nid, cur, cfg})); } catch (e) {} }
+function load(){
+  try {
+    const d = JSON.parse(localStorage.getItem(KEY) || 'null');
+    if (!d) return;
+    ORDER.forEach(k => {
+      if (!d.progs || !d.progs[k]) return;
+      const p = d.progs[k], base = emptyProg(build(k));
+      build(k).methods.forEach(me => { if (p.m && p.m[me.name]) base.m[me.name] = p.m[me.name]; });
+      if (p.principal) base.principal = p.principal;
+      progs[k] = base;
+    });
+    nid = d.nid || 1;
+    if (BUILD[d.cur]) cur = d.cur;
+    if (d.cfg) ORDER.forEach(k => PARAMS[k].forEach(q => { const v = d.cfg[k] && d.cfg[k][q.k]; if (Number.isInteger(v) && v >= q.min && v <= q.max) cfg[k][q.k] = v; }));
+  } catch (e) {}
+}
+function setScenario(id){
+  stop(); cur = id; sc = build(id); prog = progs[id]; armed = null;
+  $('escenario').value = id;
+  $('titulo').textContent = '🧵 ' + sc.titulo;
+  $('enun').innerHTML = ENUN[id](cfg[id]);
+  document.title = 'Simulador de hilos: ' + sc.clase;
+  renderParams(); renderPieces(); renderCode(); resetSim(); save();
+}
+function renderParams(){
+  const box = $('params');
+  box.innerHTML = '';
+  PARAMS[cur].forEach(q => {
+    const w = h('span', 'pp');
+    const minus = h('button', null, '−'), plus = h('button', null, '+');
+    const val = h('b', null, cfg[cur][q.k] + (q.unit || ''));
+    const set = d => { cfg[cur][q.k] = Math.max(q.min, Math.min(q.max, cfg[cur][q.k] + d * (q.step || 1))); paramsChanged(); };
+    minus.onclick = () => set(-1); plus.onclick = () => set(1);
+    w.append(h('span', null, q.label + ':'), minus, val, plus);
+    box.append(w);
+  });
+}
+function paramsChanged(){
+  stop(); sc = build(cur); save();
+  $('titulo').textContent = '🧵 ' + sc.titulo;
+  $('enun').innerHTML = ENUN[cur](cfg[cur]);
+  const o = $('escenario').querySelector('option[value="' + cur + '"]'); if (o) o.textContent = sc.titulo;
+  renderParams(); renderPieces(); renderCode(); resetSim();
+}
+function changed(){ stop(); save(); renderCode(); resetSim(); }
+function stop(){ if (timer){ clearInterval(timer); timer = null; } $('bRun').textContent = '▶ Ejecutar'; }
+function run(){
+  if (timer){ stop(); return; }
+  if (refreshCompile().length) return;
+  if (S.fin) resetSim();
+  $('bRun').textContent = '⏸ Pausa';
+  timer = setInterval(tick, +$('speed').value);
+}
+function setProg(p){
+  const base = emptyProg(sc);
+  sc.methods.forEach(me => { if (p.m[me.name]) base.m[me.name] = p.m[me.name]; });
+  base.principal = p.principal || {body:[]};
+  progs[cur] = base; prog = base;
+  armed = null; changed();
+}
+$('bRun').onclick = run;
+$('bStep').onclick = () => { stop(); if (refreshCompile().length) return; if (S.fin) resetSim(); tick(); };
+$('bReset').onclick = () => { stop(); resetSim(); };
+$('bSol').onclick = () => setProg(sc.solution());
+$('bClear').onclick = () => setProg(emptyProg(sc));
+$('speed').onchange = () => { if (timer){ stop(); run(); } };
+$('escenario').onchange = e => setScenario(e.target.value);
+let csize = 17;
+const setSize = d => { csize = Math.max(11, Math.min(30, csize + d)); document.documentElement.style.setProperty('--csize', csize + 'px'); };
+$('fMenos').onclick = () => setSize(-2);
+$('fMas').onclick = () => setSize(2);
+
+const scr = $('scrollCode');
+document.addEventListener('dragover', e => {
+  const r = scr.getBoundingClientRect();
+  if (e.clientX < r.left || e.clientX > r.right) return;
+  const zone = Math.min(110, r.height / 3);
+  if (e.clientY < r.top + zone) scr.scrollTop -= 6 + 30 * (1 - (e.clientY - r.top) / zone);
+  else if (e.clientY > r.bottom - zone) scr.scrollTop += 6 + 30 * (1 - (r.bottom - e.clientY) / zone);
+});
+
+ORDER.forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = build(k).titulo; $('escenario').append(o); });
+load();
+/* enlace directo a un ejemplo: simulador/index.html#parking */
+{ const k = location.hash.slice(1); if (BUILD[k]) cur = k; }
+setScenario(cur);
+</script>
+</body>
+</html>

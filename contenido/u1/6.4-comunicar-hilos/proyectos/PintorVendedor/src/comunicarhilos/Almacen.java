@@ -1,19 +1,24 @@
 package comunicarhilos;
 
-// El almacén es el objeto que comparten los dos hilos. Solo cabe un cuadro.
+// El almacén es el objeto que comparten los dos hilos. Caben varios cuadros.
 public class Almacen {
 
-    // boolean es un tipo que solo vale true (verdadero) o false (falso).
-    // Aquí dice si hay un cuadro en el almacén.
-    private boolean hayCuadro = false;
+    // Cuántos cuadros hay ahora en el almacén, como los cuchillos libres de la cocina.
+    private int cuadros = 0;
+    // Cuántos cuadros caben como máximo. Llega por el constructor.
+    private int capacidad;
+
+    public Almacen(int capacidad) {
+        this.capacidad = capacidad;
+    }
 
     // synchronized hace que solo un hilo a la vez pueda estar dentro de este método.
     // Si el pintor está dentro, el vendedor tiene que esperar fuera.
     // Además, wait() y notify() solo se pueden usar dentro de métodos synchronized.
     public synchronized void depositar(int numero) {
-        // while repite el bloque mientras se cumpla la condición. Aquí: mientras el almacén esté lleno.
+        // while repite el bloque mientras se cumpla la condición. Aquí: mientras el almacén esté lleno (no quepa otro cuadro).
         // Se usa while y no if porque, al despertar, hay que volver a comprobar si ya se puede continuar.
-        while (hayCuadro) {
+        while (cuadros == capacidad) {
             // try/catch es obligatorio con wait(): puede lanzar InterruptedException,
             // un aviso de que alguien interrumpió la espera. Aquí no hacemos nada con él.
             try {
@@ -23,22 +28,22 @@ public class Almacen {
             } catch (InterruptedException e) {
             }
         }
-        hayCuadro = true;
-        System.out.println(Thread.currentThread().getName() + ": deja el cuadro " + numero);
+        cuadros++;
+        System.out.println(Thread.currentThread().getName() + ": deja el cuadro " + numero + ". En el almacén: " + cuadros);
         // notify() despierta a un hilo que esté esperando en este almacén: ya hay un cuadro.
         notify();
     }
 
-    // Funciona como depositar, pero al revés: espera mientras NO haya cuadro.
+    // Funciona como depositar, pero al revés: espera mientras no haya ningún cuadro.
     public synchronized void vender(int numero) {
-        while (!hayCuadro) {
+        while (cuadros == 0) {
             try {
                 wait();
             } catch (InterruptedException e) {
             }
         }
-        hayCuadro = false;
-        System.out.println(Thread.currentThread().getName() + ": vende el cuadro " + numero);
+        cuadros--;
+        System.out.println(Thread.currentThread().getName() + ": vende el cuadro " + numero + ". En el almacén: " + cuadros);
         notify();
     }
 }

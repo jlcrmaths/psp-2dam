@@ -13,6 +13,6 @@ Avisar a otro hilo de que algo ha cambiado. Solo despierta a uno, y no se puede 
 ## Ejemplo mínimo
 
 ```java
-hayCuadro = true;
+cuadros++;
 notify();
 ```

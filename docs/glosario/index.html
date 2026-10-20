@@ -49,10 +49,10 @@ clientes.add(hilo);
 <dl>
 <dt>Qué es</dt><dd><p>Tipo de dato que solo puede valer true (verdadero) o false (falso).</p>
 </dd>
-<dt>Para qué sirve</dt><dd><p>Guardar un sí o un no, por ejemplo si hay un cuadro en el almacén. Se puede negar con ! (!hayCuadro) y combinar con &amp;&amp; (y).</p>
+<dt>Para qué sirve</dt><dd><p>Guardar un sí o un no, por ejemplo si el pintor ya ha terminado. Se puede negar con ! (!terminado) y combinar con &amp;&amp; (y).</p>
 </dd>
-<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">boolean hayCuadro = false;
-hayCuadro = true;
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">boolean terminado = false;
+terminado = true;
 </code></pre>
 </dd>
 </dl>
@@ -284,7 +284,7 @@ h1.start();
 </dd>
 <dt>Para qué sirve</dt><dd><p>Avisar a otro hilo de que algo ha cambiado. Solo despierta a uno, y no se puede elegir cuál.</p>
 </dd>
-<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">hayCuadro = true;
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">cuadros++;
 notify();
 </code></pre>
 </dd>
@@ -297,7 +297,7 @@ notify();
 </dd>
 <dt>Para qué sirve</dt><dd><p>Cuando hay más de dos hilos esperando, notify() puede despertar al equivocado. Con notifyAll() cada hilo se despierta, comprueba su condición y se vuelve a dormir si no puede seguir.</p>
 </dd>
-<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">hayCuadro = false;
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">cuadros--;
 notifyAll();
 </code></pre>
 </dd>
@@ -593,7 +593,7 @@ System.out.println(actual.getName());
 </dd>
 <dt>Para qué sirve</dt><dd><p>Esperar a que otro hilo avise de que ya se puede continuar. Solo se usa dentro de un método synchronized y obliga a escribir try/catch.</p>
 </dd>
-<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">while (hayCuadro) {
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">while (cuadros == capacidad) {
     try {
         wait();
     } catch (InterruptedException e) {
@@ -610,7 +610,7 @@ System.out.println(actual.getName());
 </dd>
 <dt>Para qué sirve</dt><dd><p>Repetir algo sin saber cuántas veces. Si la condición es falsa desde el principio, el bloque no se ejecuta ninguna vez. Con wait() se usa while y no if, para volver a comprobar la condición al despertar.</p>
 </dd>
-<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">while (hayCuadro) {
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">while (cuadros == capacidad) {
     wait();
 }
 </code></pre>
