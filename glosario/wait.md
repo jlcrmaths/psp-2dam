@@ -13,7 +13,7 @@ Esperar a que otro hilo avise de que ya se puede continuar. Solo se usa dentro d
 ## Ejemplo mínimo
 
 ```java
-while (hayCuadro) {
+while (cuadros == capacidad) {
     try {
         wait();
     } catch (InterruptedException e) {

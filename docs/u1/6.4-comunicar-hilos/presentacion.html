@@ -34,10 +34,10 @@
 </section>
 <section>
 <h3>Una idea para recordarlo</h3>
-  <p>Una caja con <b>un solo hueco</b>. El pintor deja un cuadro en el hueco. El vendedor lo saca para venderlo.</p>
+  <p>Una estantería con <b>3 huecos</b>. El pintor deja cuadros en los huecos. El vendedor los saca para venderlos.</p>
   <ul>
-    <li class="fragment">Si el hueco está <b>lleno</b>, el pintor se sienta a esperar</li>
-    <li class="fragment">Si el hueco está <b>vacío</b>, el vendedor se sienta a esperar</li>
+    <li class="fragment">Si los 3 huecos están <b>llenos</b>, el pintor se sienta a esperar</li>
+    <li class="fragment">Si están todos <b>vacíos</b>, el vendedor se sienta a esperar</li>
     <li class="fragment">Cuando uno termina, le da un toque en el hombro al otro</li>
   </ul>
 </section>
@@ -47,56 +47,61 @@
     <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>notify()</code> de la clase <code>Object</code>: despierta a <b>uno</b> de los hilos que esperan. Con <code>notifyAll()</code>, de la cocina, se despertaba a todos.</p></div>
     <div class="nuevo-item"><span class="etiqueta">Idea</span><p>Una <b>señal de fin</b>: un dato compartido que avisa a los que esperan de que ya no habrá más.</p></div>
     </div>
-    <p class="aviso">Repaso de 6.3: <code>synchronized</code>, <code>wait()</code> y <code>notifyAll()</code> funcionan igual que en la cocina.</p>
+    <p class="aviso">Repaso de 6.3: <code>synchronized</code>, <code>wait()</code> y <code>notifyAll()</code> funcionan igual que en la cocina. El almacén cuenta cuadros como la cocina contaba cuchillos libres, y su capacidad llega por el constructor.</p>
 </section>
 </section>
 <section>
 <section>
 <h3>Ejercicio 1: un pintor y un vendedor</h3>
   <ul>
-    <li>El almacén solo admite <b>un cuadro</b></li>
-    <li>El pintor espera a que el almacén esté <b>vacío</b> para dejar un cuadro</li>
-    <li>El vendedor espera a que haya un cuadro para <b>venderlo</b></li>
+    <li>En el almacén caben <b>3 cuadros</b></li>
+    <li>El pintor espera si el almacén está <b>lleno</b></li>
+    <li>El vendedor espera si el almacén está <b>vacío</b></li>
     <li>Termina al vender 10 cuadros</li>
   </ul>
-  <div class="salida">Pintor: deja el cuadro 1<br>Vendedor: vende el cuadro 1<br>Pintor: deja el cuadro 2<br>…</div>
+  <div class="salida">Pintor: deja el cuadro 1. En el almacén: 1<br>Pintor: deja el cuadro 2. En el almacén: 2<br>Vendedor: vende el cuadro 1. En el almacén: 1<br>…</div>
   <p class="peque">Proyecto <b>PintorVendedor</b></p>
 </section>
 <section>
 <h3>Cómo pensarlo</h3>
   <ul>
     <li>¿Quién es el objeto que comparten? <span class="fragment">El almacén. Será una clase: <code>Almacen</code>.</span></li>
-    <li>¿Cómo sabe el almacén si está lleno? <span class="fragment">Un <code>boolean</code>: <code>hayCuadro</code>.</span></li>
-    <li>¿Qué es distinto de la cocina? <span class="fragment">Aquí hay <b>dos papeles</b>: el pintor espera si está lleno y el vendedor espera si está vacío.</span></li>
+    <li>¿Cómo sabe el almacén si está lleno o vacío? <span class="fragment">Cuenta los cuadros, como la cocina contaba los cuchillos: un <code>int</code> llamado <code>cuadros</code>. Y otro, <code>capacidad</code>, con los que caben.</span></li>
+    <li>¿Qué es distinto de la cocina? <span class="fragment">Aquí hay <b>dos papeles</b>: el pintor espera si <code>cuadros</code> llega a la capacidad y el vendedor espera si <code>cuadros</code> es 0.</span></li>
   </ul>
 </section>
 <section>
 <h3>Solución: el almacén</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="3|5|6|7-10|12-14|17-27">public class Almacen {
+  <pre><code class="language-java" data-trim data-line-numbers="3-4|6-8|10|11|12-15|17-19|22-32">public class Almacen {
 
-    private boolean hayCuadro = false;
+    private int cuadros = 0;
+    private int capacidad;
+
+    public Almacen(int capacidad) {
+        this.capacidad = capacidad;
+    }
 
     public synchronized void depositar(int numero) {
-        while (hayCuadro) {
+        while (cuadros == capacidad) {
             try {
                 wait();
             } catch (InterruptedException e) {
             }
         }
-        hayCuadro = true;
-        System.out.println(Thread.currentThread().getName() + &quot;: deja el cuadro &quot; + numero);
+        cuadros++;
+        System.out.println(Thread.currentThread().getName() + &quot;: deja el cuadro &quot; + numero + &quot;. En el almacén: &quot; + cuadros);
         notify();
     }
 
     public synchronized void vender(int numero) {
-        while (!hayCuadro) {
+        while (cuadros == 0) {
             try {
                 wait();
             } catch (InterruptedException e) {
             }
         }
-        hayCuadro = false;
-        System.out.println(Thread.currentThread().getName() + &quot;: vende el cuadro &quot; + numero);
+        cuadros--;
+        System.out.println(Thread.currentThread().getName() + &quot;: vende el cuadro &quot; + numero + &quot;. En el almacén: &quot; + cuadros);
         notify();
     }
 }</code></pre>
@@ -104,9 +109,10 @@
 <section>
 <h3>Línea por línea (1)</h3>
   <ul class="peque">
-    <li><code>private boolean hayCuadro = false;</code><br>Un <code>boolean</code> solo vale <code>true</code> o <code>false</code>. Empieza en <code>false</code>: el almacén está vacío.</li>
+    <li><code>private int cuadros = 0;</code> y <code>private int capacidad;</code><br>Cuántos cuadros hay (empieza en 0: vacío) y cuántos caben.</li>
+    <li><code>public Almacen(int capacidad)</code><br>El constructor recibe la capacidad, igual que <code>Cocina</code> recibía los cuchillos. En <code>Principal</code>: <code>new Almacen(3)</code>.</li>
     <li><code>public synchronized void depositar(int numero)</code><br>Método del pintor. <code>synchronized</code>: si el pintor está dentro, el vendedor espera fuera.</li>
-    <li><code>while (hayCuadro)</code><br>«Mientras el almacén esté lleno…» repite el bloque.</li>
+    <li><code>while (cuadros == capacidad)</code><br>«Mientras el almacén esté lleno…» repite el bloque.</li>
   </ul>
 </section>
 <section>
@@ -114,21 +120,21 @@
   <ul class="peque">
     <li><code>wait();</code><br>El pintor se <b>duerme</b> y <b>suelta el almacén</b>, para que el vendedor pueda entrar a sacar el cuadro.</li>
     <li><code>try { … } catch (InterruptedException e) { }</code><br>Igual que con el <code>wait()</code> de la cocina.</li>
-    <li><code>hayCuadro = true;</code><br>Ya se puede dejar el cuadro: el almacén pasa a estar lleno.</li>
+    <li><code>cuadros++;</code><br>Ya hay sitio: se suma un cuadro al almacén.</li>
     <li><code>notify();</code><br>Método de la clase <code>Object</code>: «¡Despierta, vendedor, ya hay un cuadro!»</li>
   </ul>
 </section>
 <section>
 <h3>El método vender: al revés</h3>
   <ul class="peque">
-    <li><code>while (!hayCuadro)</code><br>El <code>!</code> significa «no». Espera mientras <b>no</b> haya cuadro.</li>
-    <li><code>hayCuadro = false;</code><br>Saca el cuadro: el almacén queda vacío.</li>
+    <li><code>while (cuadros == 0)</code><br>Espera mientras el almacén esté <b>vacío</b>.</li>
+    <li><code>cuadros--;</code><br>Saca un cuadro: se resta uno.</li>
     <li><code>notify();</code><br>Método de la clase <code>Object</code>. Despierta al pintor: ya hay sitio.</li>
   </ul>
 </section>
 <section>
 <h3>Repaso: <code>while</code> y no <code>if</code></h3>
-  <p class="caja">Como en la cocina: al despertar, el hilo <b>vuelve a mirar</b> la condición. Aquí importa más cuando hay dos vendedores.</p>
+  <p class="caja">Como en la cocina: al despertar, el hilo <b>vuelve a mirar</b> la condición. Aquí importa más cuando hay dos vendedores, y también cuando caben varios cuadros.</p>
 </section>
 <section>
 <h3>Solución: el pintor</h3>
@@ -156,7 +162,7 @@
 <section>
 <h3>Crear los hilos</h3>
   <pre><code class="language-java" data-trim data-line-numbers="1|3-4|6-7">
-Almacen almacen = new Almacen();
+Almacen almacen = new Almacen(3);
 
 Thread pintor = new Thread(new Pintor(almacen), "Pintor");
 Thread vendedor = new Thread(new Vendedor(almacen), "Vendedor");
@@ -165,21 +171,21 @@ pintor.start();
 vendedor.start();
   </code></pre>
   <ul class="peque">
-    <li>Se crea <b>un solo</b> almacén. Si cada hilo tuviera el suyo, no se comunicarían</li>
+    <li>Se crea <b>un solo</b> almacén, con capacidad para 3. Si cada hilo tuviera el suyo, no se comunicarían</li>
     <li>Los dos hilos reciben ese mismo objeto</li>
   </ul>
 </section>
 <section>
 <h3>¿Qué sale en pantalla?</h3>
-  <div class="salida">Pintor: deja el cuadro 1<br>Vendedor: vende el cuadro 1<br>Pintor: deja el cuadro 2<br>Vendedor: vende el cuadro 2<br>…<br>Pintor: deja el cuadro 10<br>Vendedor: vende el cuadro 10</div>
-  <p class="caja">Ahora <b>sí sale siempre igual</b>. En 6.1 el orden variaba; aquí los hilos se esperan.</p>
+  <div class="salida">Pintor: deja el cuadro 1. En el almacén: 1<br>Pintor: deja el cuadro 2. En el almacén: 2<br>Pintor: deja el cuadro 3. En el almacén: 3<br>Vendedor: vende el cuadro 1. En el almacén: 2<br>…<br>Vendedor: vende el cuadro 10. En el almacén: 0</div>
+  <p class="caja">El orden exacto puede variar entre ejecuciones, pero <b>nunca hay más de 3 cuadros ni menos de 0</b>. Se pintan y se venden los 10.</p>
 </section>
 </section>
 <section>
 <section>
 <h3>Ejercicio 2: un pintor y dos vendedores</h3>
   <ul>
-    <li>Un pintor y <b>dos</b> vendedores, con el mismo almacén de un cuadro</li>
+    <li>Un pintor y <b>dos</b> vendedores, con el mismo almacén de 3 cuadros</li>
     <li>Cada cuadro lo vende <b>un solo</b> vendedor</li>
     <li>Termina cuando se han pintado y vendido los 10 cuadros</li>
   </ul>
@@ -194,37 +200,40 @@ vendedor.start();
 </section>
 <section>
 <h3>Solución: el almacén</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="3-5|17|20|21|27-29|30-33|36-39">public class Almacen {
+  <pre><code class="language-java" data-trim data-line-numbers="3-5|20|23|24|30-32|33-36|39-42">public class Almacen {
 
-    private boolean hayCuadro = false;
-    private int cuadro = 0;
+    private int cuadros = 0;
+    private int capacidad;
     private boolean terminado = false;
 
+    public Almacen(int capacidad) {
+        this.capacidad = capacidad;
+    }
+
     public synchronized void depositar(int numero) {
-        while (hayCuadro) {
+        while (cuadros == capacidad) {
             try {
                 wait();
             } catch (InterruptedException e) {
             }
         }
-        hayCuadro = true;
-        cuadro = numero;
-        System.out.println(Thread.currentThread().getName() + &quot;: deja el cuadro &quot; + numero);
+        cuadros++;
+        System.out.println(Thread.currentThread().getName() + &quot;: deja el cuadro &quot; + numero + &quot;. En el almacén: &quot; + cuadros);
         notifyAll();
     }
 
     public synchronized boolean vender() {
-        while (!hayCuadro &amp;&amp; !terminado) {
+        while (cuadros == 0 &amp;&amp; !terminado) {
             try {
                 wait();
             } catch (InterruptedException e) {
             }
         }
-        if (!hayCuadro) {
+        if (cuadros == 0) {
             return false;
         }
-        hayCuadro = false;
-        System.out.println(Thread.currentThread().getName() + &quot;: vende el cuadro &quot; + cuadro);
+        cuadros--;
+        System.out.println(Thread.currentThread().getName() + &quot;: vende un cuadro. En el almacén: &quot; + cuadros);
         notifyAll();
         return true;
     }
@@ -238,20 +247,20 @@ vendedor.start();
 <section>
 <h3>Línea por línea</h3>
   <ul class="peque">
-    <li><code>private int cuadro</code><br>Guarda el número del cuadro que hay en el almacén, para mostrarlo al venderlo.</li>
+    <li><code>private boolean terminado</code><br>Dice si el pintor ya no va a pintar más. Empieza en <code>false</code>.</li>
     <li><code>notifyAll()</code><br>Método de la clase <code>Object</code>. Despierta a <b>todos</b>. Cada uno vuelve a mirar su condición; el que no puede seguir se duerme otra vez.</li>
     <li><code>public synchronized boolean vender()</code><br>Ahora devuelve <code>true</code> si ha vendido y <code>false</code> si ya no queda nada.</li>
-    <li><code>while (!hayCuadro &amp;&amp; !terminado)</code><br><code>&amp;&amp;</code> significa «y». Espera mientras no haya cuadro <b>y</b> el pintor siga pintando.</li>
+    <li><code>while (cuadros == 0 &amp;&amp; !terminado)</code><br><code>&amp;&amp;</code> significa «y», y <code>!</code> significa «no». Espera mientras el almacén esté vacío <b>y</b> el pintor siga pintando.</li>
   </ul>
 </section>
 <section>
 <h3>Línea por línea (2)</h3>
   <ul class="peque">
-    <li><code>if (!hayCuadro) { return false; }</code><br>Si salimos del <code>while</code> y no hay cuadro, es que el pintor terminó. <code>return</code> sale del método y entrega <code>false</code>.</li>
+    <li><code>if (cuadros == 0) { return false; }</code><br>Si salimos del <code>while</code> y no quedan cuadros, es que el pintor terminó. <code>return</code> sale del método y entrega <code>false</code>.</li>
     <li><code>return true;</code><br>Ha vendido un cuadro.</li>
     <li><code>terminar()</code><br>Método de la clase <code>Almacen</code>. Lo llama el pintor al acabar: pone <code>terminado</code> a <code>true</code> y despierta a los vendedores que seguían esperando.</li>
   </ul>
-  <p class="aviso">Se mira primero si hay cuadro. Si el pintor deja el último y termina enseguida, ese cuadro <b>se vende igualmente</b>.</p>
+  <p class="aviso">Se mira primero si quedan cuadros. Si el pintor termina con varios cuadros en el almacén, esos cuadros <b>se venden igualmente</b>.</p>
 </section>
 <section>
 <h3>Solución: el vendedor</h3>
@@ -280,7 +289,7 @@ vendedor.start();
 <section>
 <h3>Crear los hilos</h3>
   <pre><code class="language-java" data-trim data-line-numbers="1|3-5|7-9">
-Almacen almacen = new Almacen();
+Almacen almacen = new Almacen(3);
 
 Thread pintor = new Thread(new Pintor(almacen), "Pintor");
 Thread v1 = new Thread(new Vendedor(almacen), "Vendedor 1");
@@ -294,8 +303,8 @@ v2.start();
 </section>
 <section>
 <h3>¿Qué sale en pantalla?</h3>
-  <div class="salida">Pintor: deja el cuadro 1<br>Vendedor 1: vende el cuadro 1<br>Pintor: deja el cuadro 2<br>Vendedor 2: vende el cuadro 2<br>…</div>
-  <p class="aviso">Los cuadros del 1 al 10 se venden <b>una sola vez</b>, pero <b>quién</b> vende cada uno cambia entre ejecuciones. A veces vende uno solo todos. Ambas cosas son correctas.</p>
+  <div class="salida">Pintor: deja el cuadro 1. En el almacén: 1<br>Vendedor 1: vende un cuadro. En el almacén: 0<br>Pintor: deja el cuadro 2. En el almacén: 1<br>Vendedor 2: vende un cuadro. En el almacén: 0<br>…</div>
+  <p class="aviso">Se pintan y se venden <b>10 cuadros</b>, pero <b>quién</b> vende cada uno cambia entre ejecuciones. A veces vende uno solo todos. Ambas cosas son correctas.</p>
 </section>
 </section>
 <section>
@@ -304,9 +313,20 @@ v2.start();
   <ul>
     <li>Usar <code>notify()</code> con dos vendedores: a veces funciona y a veces se cuelga</li>
     <li>Olvidar <code>terminar()</code>: los vendedores esperan para siempre y el programa <b>no termina</b></li>
-    <li>Mirar <code>terminado</code> antes que <code>hayCuadro</code>: se pierde el último cuadro</li>
+    <li>Mirar <code>terminado</code> antes que <code>cuadros</code>: se pierden los cuadros que quedan en el almacén</li>
     <li>Crear un almacén por hilo: nadie se comunica</li>
   </ul>
+</section>
+<section>
+<h3>Probarlo en el simulador</h3>
+  <p>Con el pintor y los vendedores verás el almacén llenarse y vaciarse, y cómo <code>notify()</code> avisa a un solo hilo y <code>notifyAll()</code> a todos.</p>
+  <ul>
+    <li>Arrastra o pulsa las piezas para escribir <code>synchronized</code>, <code>while</code>, <code>wait()</code> y <code>notifyAll()</code></li>
+    <li>Quita el <code>while</code> o el <code>notifyAll()</code> y mira <b>qué falla</b></li>
+    <li>Prueba <code>notify()</code> en vez de <code>notifyAll()</code> con dos vendedores, y quita <code>terminar()</code> para ver el programa colgado</li>
+  </ul>
+  <p class="aviso"><a href="../../simulador/index.html#pintor2" target="_blank" rel="noopener">Abrir el simulador de hilos</a> (se abre en otra pestaña).</p>
+</section>
 </section>
 <section>
 <h3>Para pensar</h3>
@@ -315,8 +335,8 @@ v2.start();
     <li>En el ejercicio 2, ¿se reparten los cuadros por igual?</li>
     <li>¿Qué pasa si el pintor no llama a <code>terminar()</code>?</li>
     <li>Con un pintor y un vendedor, ¿vale <code>notify()</code>? ¿Y con tres hilos?</li>
+    <li>¿Qué cambia si la capacidad es 1? ¿Y si es 10?</li>
   </ol>
-</section>
 </section>
 </div>
 </div>

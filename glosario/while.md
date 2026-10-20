@@ -13,7 +13,7 @@ Repetir algo sin saber cuántas veces. Si la condición es falsa desde el princi
 ## Ejemplo mínimo
 
 ```java
-while (hayCuadro) {
+while (cuadros == capacidad) {
     wait();
 }
 ```

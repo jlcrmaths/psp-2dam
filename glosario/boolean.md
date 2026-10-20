@@ -8,11 +8,11 @@ Tipo de dato que solo puede valer true (verdadero) o false (falso).
 
 ## Para qué sirve
 
-Guardar un sí o un no, por ejemplo si hay un cuadro en el almacén. Se puede negar con ! (!hayCuadro) y combinar con && (y).
+Guardar un sí o un no, por ejemplo si el pintor ya ha terminado. Se puede negar con ! (!terminado) y combinar con && (y).
 
 ## Ejemplo mínimo
 
 ```java
-boolean hayCuadro = false;
-hayCuadro = true;
+boolean terminado = false;
+terminado = true;
 ```

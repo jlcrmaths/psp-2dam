@@ -4,22 +4,24 @@ package comunicarhilos;
 // Por eso el almacén también apunta cuándo se ha terminado.
 public class Almacen {
 
-    private boolean hayCuadro = false;
-    // Número del cuadro que hay en el almacén.
-    private int cuadro = 0;
+    private int cuadros = 0;
+    private int capacidad;
     // Pasa a true cuando el pintor ya no va a pintar más.
     private boolean terminado = false;
 
+    public Almacen(int capacidad) {
+        this.capacidad = capacidad;
+    }
+
     public synchronized void depositar(int numero) {
-        while (hayCuadro) {
+        while (cuadros == capacidad) {
             try {
                 wait();
             } catch (InterruptedException e) {
             }
         }
-        hayCuadro = true;
-        cuadro = numero;
-        System.out.println(Thread.currentThread().getName() + ": deja el cuadro " + numero);
+        cuadros++;
+        System.out.println(Thread.currentThread().getName() + ": deja el cuadro " + numero + ". En el almacén: " + cuadros);
         // notifyAll() despierta a TODOS los hilos que esperan. Con notify() podría despertarse
         // solo al otro vendedor, que seguiría esperando, y el programa se quedaría parado.
         notifyAll();
@@ -27,20 +29,20 @@ public class Almacen {
 
     // Devuelve true si ha vendido un cuadro y false si ya no queda nada que vender.
     public synchronized boolean vender() {
-        // Espera mientras no haya cuadro Y el pintor no haya terminado.
+        // Espera mientras no haya ningún cuadro Y el pintor no haya terminado.
         // && significa "y": las dos condiciones a la vez.
-        while (!hayCuadro && !terminado) {
+        while (cuadros == 0 && !terminado) {
             try {
                 wait();
             } catch (InterruptedException e) {
             }
         }
-        // Si se sale del while sin cuadro es porque el pintor ha terminado.
-        if (!hayCuadro) {
+        // Si se sale del while sin cuadros es porque el pintor ha terminado.
+        if (cuadros == 0) {
             return false;
         }
-        hayCuadro = false;
-        System.out.println(Thread.currentThread().getName() + ": vende el cuadro " + cuadro);
+        cuadros--;
+        System.out.println(Thread.currentThread().getName() + ": vende un cuadro. En el almacén: " + cuadros);
         notifyAll();
         return true;
     }
