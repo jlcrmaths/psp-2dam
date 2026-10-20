@@ -32,8 +32,15 @@ h2{font-size:.95rem;margin:0 0 8px;color:var(--mute);text-transform:uppercase;le
 
 /* enunciado */
 .enun summary{cursor:pointer;font-size:.95rem;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
-.enun #enun{margin-top:8px;max-height:26vh;overflow-y:auto}
+.enun #enun{margin-top:8px}
 .enun p{margin:0 0 8px}
+.pistas{margin-top:10px;border-top:1px solid var(--line);padding-top:8px}
+.pistas details{margin:4px 0}
+.pistas summary{cursor:pointer;color:var(--acc);font-size:.9em;font-weight:700}
+.pistas ol{margin:6px 0 4px;padding-left:1.3em}
+body.proy .pistas, body.proy .exps, body.proy #bSol{display:none}
+body.proy{font-size:21px}
+body.proy .piece{font-size:.9em}
 .enun ul{margin:0 0 8px;padding-left:1.3em}
 .enun code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--line);padding:0 5px;border-radius:4px;font-size:.9em}
 
@@ -160,6 +167,7 @@ h2{font-size:.95rem;margin:0 0 8px;color:var(--mute);text-transform:uppercase;le
       <option value="120">Rápido</option>
       <option value="30">Muy rápido</option>
     </select>
+    <button id="bProy" title="Letra grande y sin Solución, Experimentos ni Pistas">🖥 Proyectar</button>
     <button id="fMenos" aria-label="Letra más pequeña">A−</button>
     <button id="fMas" aria-label="Letra más grande">A+</button>
   </div>
@@ -450,10 +458,63 @@ const BUILD = {
          terminar:{mod:'synchronized', body:[st('term'), st('notifyAll')]}},
       principal:{body:[]}
     })
+  }),
+  fabrica:p => ({
+    titulo:'6.5 Fábrica: ' + p.maquinas + ' máquinas, cinta de ' + p.capacidad + ', ' + p.total + ' piezas',
+    clase:'Cinta', recurso:'Cinta', icono:'📦', max:p.capacidad,
+    vars:{piezas:0, fabricadas:0}, consts:{maximo:p.capacidad, total:p.total},
+    fields:['private int piezas = 0;', 'private final int maximo = ' + p.capacidad + ';', 'private int fabricadas = 0;', 'private final int total = ' + p.total + ';'],
+    methods:[{name:'poner', ret:'boolean'}, {name:'retirar', ret:'void'}],
+    ops:[
+      {g:'Datos', key:'inc', label:'piezas++;', anim:{emoji:'📦', hold:'none'}, fx:S => {
+        if (S.v.piezas >= p.capacidad) S.pend = '¡no cabe: ' + (S.v.piezas + 1) + ' piezas en una cinta de ' + p.capacidad + '!';
+        S.v.piezas++; return 'piezas++ → ' + S.v.piezas; }},
+      {g:'Datos', key:'dec', label:'piezas--;', anim:{emoji:'📦', hold:'none'}, fx:S => {
+        if (S.v.piezas <= 0) S.pend = '¡retira una pieza que no existe!'; else S.ven++;
+        S.v.piezas--; return 'piezas-- → ' + S.v.piezas; }},
+      {g:'Datos', key:'fab', label:'fabricadas++;', fx:S => { S.v.fabricadas++; return 'fabricadas++ → ' + S.v.fabricadas; }}
+    ],
+    groups:[
+      {t:'m', n:p.maquinas, name:'Máquina', emoji:'🏭', extra:a => ' · puestas: ' + a.done,
+       proc:function*(a){
+         for (;;){
+           yield* sleepTicks(a, ticksDe(p.sleepM));
+           const r = yield* invoke(a, 'poner');
+           if (r === true){ a.done++; continue; }
+           if (S.v.fabricadas >= p.total) log(a.n + ': poner() devolvió false, ya se fabricaron todas, termina');
+           else { S.anomalia = true; log(a.n + ': poner() devolvió false antes de tiempo, se va', true); }
+           break;
+         }
+         a.state = 'fin'; a.cur = null;
+       }},
+      {t:'e', n:1, name:'Empaquetador', emoji:'📮', extra:a => ' · retiradas: ' + a.done + '/' + p.total,
+       proc:function*(a){
+         for (let i = 0; i < p.total; i++){ yield* sleepTicks(a, ticksDe(p.sleepE)); yield* invoke(a, 'retirar'); a.done++; }
+         a.state = 'fin'; a.cur = null;
+       }}
+    ],
+    filled:S => S.v.piezas,
+    anomaly:S => { const m = S.pend; S.pend = null; return m; },
+    stats:S => 'En la cinta: <span class="' + ((S.v.piezas > p.capacidad || S.v.piezas < 0) ? 'bad' : '') + '">' + S.v.piezas + '</span> / ' + p.capacidad + ' · Fabricadas: ' + S.v.fabricadas + ' / ' + p.total + ' · Retiradas: ' + S.ven + ' / ' + p.total,
+    ok:S => S.v.fabricadas === p.total && S.ven === p.total && S.v.piezas === 0 && !S.anomalia,
+    okMsg:S => '✔ Termina bien. Fábrica cerrada: ' + S.v.fabricadas + ' fabricadas y ' + S.ven + ' retiradas',
+    summary:S => 'fabricadas ' + S.v.fabricadas + ' de ' + p.total + ', retiradas ' + S.ven + ', en la cinta ' + S.v.piezas,
+    mainLines:['public static void main(String[] args) {', '    Cinta cinta = new Cinta();', '    // ' + p.maquinas + ' hilos Maquina y 1 hilo Empaquetador, cada uno con su new Thread(...).start()', '    // join de los ' + (p.maquinas + 1) + ' hilos', '    System.out.println("Fábrica cerrada");', '}'],
+    hiloLines:['// Maquina.run(): sleep(' + p.sleepM + '); y repite mientras cinta.poner() sea true', '// Empaquetador.run(): ' + p.total + ' veces sleep(' + p.sleepE + '); y cinta.retirar()'],
+    solution:() => ({
+      m:{poner:{mod:'synchronized', body:[blk('while', 'piezas == maximo && fabricadas < total', [st('wait')]), blk('if', 'fabricadas == total', [st('retF')]), st('inc'), st('fab'), st('notifyAll'), st('retT')]},
+         retirar:{mod:'synchronized', body:[blk('while', 'piezas == 0', [st('wait')]), st('dec'), st('notifyAll')]}},
+      principal:{body:[]}
+    })
   })
 };
 /* enunciado de cada problema (depende de los contadores) */
 const ENUN = {
+  fabrica:p => '<p>Una fábrica con <b>' + p.maquinas + ' máquinas</b> que ponen piezas en una cinta donde caben como máximo <b>' + p.capacidad + '</b>. Una empaquetadora las retira.</p>' +
+    '<ul><li>Si la cinta está llena, las máquinas esperan. Si está vacía, la empaquetadora espera.</li>' +
+    '<li>Cada máquina tarda ' + p.sleepM + ' ms en hacer una pieza y la empaquetadora ' + p.sleepE + ' ms en retirarla.</li>' +
+    '<li>Entre todas las máquinas se fabrican <b>' + p.total + '</b> piezas, ni una más. Cuando se alcanza ese total, <code>poner()</code> devuelve <code>false</code> y las máquinas terminan.</li>' +
+    '<li>La fábrica termina cuando se han fabricado y retirado las ' + p.total + ' piezas y la cinta queda vacía.</li></ul>',
   cocina:p => '<p>Una cocina con <b>' + p.cocineros + ' cocineros</b> y <b>' + p.cuchillos + ' cuchillos</b>. Cada cocinero coge un cuchillo, corta durante ' + p.sleep + ' ms y lo suelta. Lo hace 4 veces.</p>' +
     '<ul><li>Si no queda ningún cuchillo libre, el cocinero espera a que otro suelte uno.</li>' +
     '<li>Los cuchillos libres nunca pueden ser menos de 0.</li>' +
@@ -478,12 +539,44 @@ const ENUN = {
     '<li>Cada cuadro lo vende un solo vendedor.</li>' +
     '<li>El programa termina cuando se han pintado <b>' + p.total + '</b> cuadros y se han vendido todos. Los vendedores no saben cuántos les tocan: el almacén tiene que avisarles de que no hay más.</li></ul>'
 };
-const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2'];
+
+/* pistas por niveles, de menos a más ayuda */
+const HINTS = {
+  cocina:['Lo que comparten los cocineros es la cocina, y lo que cambia a la vez es el número de cuchillos libres. Empieza sin esperas y mira qué pasa.',
+    'En coger(): si no hay cuchillos libres, el cocinero espera con wait() dentro de un while; si hay, resta uno. En soltar(): suma uno y avisa a los que esperan. Los dos métodos llevan synchronized.',
+    ['Escribe synchronized en el modificador de coger() y soltar().', 'En coger(), inserta un while con la condición libres == 0.', 'Dentro del while, pon wait();', 'Después del while, pon libres--;', 'En soltar(), pon libres++; y después notifyAll();', 'Pulsa Ejecutar y comprueba que los libres nunca bajan de 0 y que al final quedan todos los cuchillos libres.']],
+  parking:['Es la cocina con otra historia. ¿Qué es aquí el recurso compartido, qué hace cada hilo y qué pasa cuando no hay plazas?',
+    'En entrar(): si no hay plazas libres, el coche espera con wait() dentro de un while; si hay, ocupa una. En salir(): libera una y avisa a los que esperan. Los dos métodos llevan synchronized.',
+    ['Escribe synchronized en el modificador de entrar() y salir().', 'En entrar(), inserta un while con la condición libres == 0.', 'Dentro del while, pon wait();', 'Después del while, pon libres--;', 'En salir(), pon libres++; y después notifyAll();', 'Ejecuta varias veces: las plazas libres nunca bajan de 0.']],
+  bicis:['Tres cosas compartidas: las bicis del estante, las vendidas y si la tienda está cerrada. Mecánicos y clientes esperan cosas distintas.',
+    'montar() espera mientras el estante está lleno. vender() espera mientras está vacío y la tienda sigue abierta; si al despertar no hay bicis, devuelve false. cerrar() marca la tienda cerrada y avisa a todos. Principal cierra cuando acaban los mecánicos.',
+    ['montar(): synchronized, while (bicis == maximo) wait(); bicis++; notifyAll();', 'vender(): synchronized, while (bicis == 0 && !cerrada) wait();', 'Después, if (bicis == 0) return false;', 'Después bicis--; vendidas++; notifyAll(); return true;', 'cerrar(): synchronized, cerrada = true; notifyAll();', 'En la pestaña Principal, coloca estante.cerrar();']],
+  pintor:['Hay dos papeles distintos: uno espera si el almacén está lleno y el otro si está vacío. Para saberlo hace falta contar los cuadros, como la cocina contaba cuchillos.',
+    'depositar(): while (cuadros == capacidad) wait(); después cuadros++ y notify(). vender(): while (cuadros == 0) wait(); después cuadros-- y notify(). Los dos synchronized.',
+    ['Escribe synchronized en depositar() y vender().', 'En depositar(), un while con cuadros == capacidad y dentro wait();', 'Después, cuadros++; y notify();', 'En vender(), un while con cuadros == 0 y dentro wait();', 'Después, cuadros--; y notify();', 'Ejecuta: se pintan y se venden todos y el almacén acaba en 0.']],
+  pintor2:['Ahora hay tres hilos esperando sobre el mismo almacén y notify() solo despierta a uno cualquiera. Además, los vendedores necesitan saber cuándo ya no habrá más.',
+    'Cambia notify() por notifyAll(). Añade terminado: terminar() lo pone a true y avisa a todos. vender() devuelve boolean: espera mientras no haya cuadros y el pintor no haya terminado; si al salir no hay cuadros, devuelve false. El pintor llama a terminar() al acabar.',
+    ['depositar(): while (cuadros == capacidad) wait(); cuadros++; notifyAll();', 'vender(): while (cuadros == 0 && !terminado) wait();', 'Después, if (cuadros == 0) return false;', 'Después, cuadros--; notifyAll(); return true;', 'terminar(): synchronized, terminado = true; notifyAll();', 'En la pestaña Pintor.run(), coloca almacen.terminar();']],
+  fabrica:['Es un productor y consumidor con varios productores y un tope de piezas fabricadas entre todos. Cuando hay más de dos hilos esperando, elige bien cómo avisar.',
+    'poner() espera mientras la cinta está llena y faltan piezas por fabricar; si ya se fabricaron todas, devuelve false para que la máquina termine. retirar() espera mientras no hay piezas. Los dos avisan con notifyAll().',
+    ['poner(): synchronized, while (piezas == maximo && fabricadas < total) wait();', 'Después, if (fabricadas == total) return false;', 'Después, piezas++; fabricadas++; notifyAll(); return true;', 'retirar(): synchronized, while (piezas == 0) wait();', 'Después, piezas--; notifyAll();', 'Ejecuta: se fabrican y retiran todas y la cinta acaba vacía.']]
+};
+const pistasHTML = id => {
+  const hs = HINTS[id]; if (!hs) return '';
+  const pasos = '<ol>' + hs[2].map(x => '<li>' + x + '</li>').join('') + '</ol>';
+  return '<div class="pistas">' +
+    '<details><summary>Pista 1 · por dónde empezar</summary><p>' + hs[0] + '</p></details>' +
+    '<details><summary>Pista 2 · más ayuda</summary><p>' + hs[1] + '</p></details>' +
+    '<details><summary>Pista 3 · paso a paso</summary>' + pasos + '</details></div>';
+};
+const enunHTML = id => ENUN[id](cfg[id]) + pistasHTML(id);
+const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2', 'fabrica'];
 const PARAMS = {
   cocina:[{k:'cocineros', label:'Cocineros', min:1, max:12, def:9}, {k:'cuchillos', label:'Cuchillos', min:1, max:6, def:2}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:3000}],
   parking:[{k:'coches', label:'Coches', min:1, max:12, def:8}, {k:'plazas', label:'Plazas', min:1, max:6, def:3}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:2000}],
   bicis:[{k:'mecanicos', label:'Mecánicos', min:1, max:5, def:3}, {k:'clientes', label:'Clientes', min:1, max:5, def:2}, {k:'capacidad', label:'Capacidad del estante', min:1, max:6, def:3}, {k:'sleepM', label:'sleep mecánico', unit:' ms', step:100, min:0, max:5000, def:700}, {k:'sleepC', label:'sleep cliente', unit:' ms', step:100, min:0, max:5000, def:1200}],
   pintor:[{k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:3}],
+  fabrica:[{k:'maquinas', label:'Máquinas', min:1, max:5, def:3}, {k:'total', label:'Piezas a fabricar', min:4, max:50, def:20}, {k:'capacidad', label:'Capacidad de la cinta', min:1, max:8, def:5}, {k:'sleepM', label:'sleep máquina', unit:' ms', step:100, min:0, max:5000, def:1200}, {k:'sleepE', label:'sleep empaquetador', unit:' ms', step:100, min:0, max:5000, def:800}],
   pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:3}]
 };
 const cfg = {};
@@ -1096,7 +1189,7 @@ function setScenario(id){
   stop(); cur = id; sc = build(id); prog = progs[id]; armed = null;
   $('escenario').value = id;
   $('titulo').textContent = '🧵 ' + sc.titulo;
-  $('enun').innerHTML = ENUN[id](cfg[id]);
+  $('enun').innerHTML = enunHTML(id);
   document.title = 'Simulador de hilos: ' + sc.clase;
   renderParams(); renderPieces(); renderCode(); resetSim(); save();
   if ($('expPanel') && ex && ex.id !== id){ ex = null; if ($('expPanel').open) exRender(); }
@@ -1117,7 +1210,7 @@ function renderParams(){
 function paramsChanged(){
   stop(); sc = build(cur); save();
   $('titulo').textContent = '🧵 ' + sc.titulo;
-  $('enun').innerHTML = ENUN[cur](cfg[cur]);
+  $('enun').innerHTML = enunHTML(cur);
   const o = $('escenario').querySelector('option[value="' + cur + '"]'); if (o) o.textContent = sc.titulo;
   renderParams(); renderPieces(); renderCode(); resetSim();
 }
@@ -1147,6 +1240,14 @@ $('speed').onchange = () => { if (timer){ stop(); run(); } };
 $('escenario').onchange = e => setScenario(e.target.value);
 let csize = 17;
 const setSize = d => { csize = Math.max(11, Math.min(30, csize + d)); document.documentElement.style.setProperty('--csize', csize + 'px'); };
+let csizeAntes = null;
+function proyectar(on){
+  document.body.classList.toggle('proy', on);
+  $('bProy').textContent = on ? '🖥 Salir de proyección' : '🖥 Proyectar';
+  if (on){ csizeAntes = csize; setSize(24 - csize); }
+  else if (csizeAntes != null){ setSize(csizeAntes - csize); csizeAntes = null; }
+}
+$('bProy').onclick = () => proyectar(!document.body.classList.contains('proy'));
 $('fMenos').onclick = () => setSize(-2);
 $('fMas').onclick = () => setSize(2);
 
@@ -1172,14 +1273,16 @@ const MUT = {
   ifPorWhile:pr => { bodies(pr).forEach(l => walk(l, n => { if (n.kind === 'while') n.kind = 'if'; })); return pr; },
   sinSync:pr => { Object.keys(pr.m).forEach(k => { pr.m[k].mod = ''; }); return pr; },
   sinFin:pr => { pr.fin = {body:[]}; return pr; },
+  sinTopar:pr => { pr.m.poner.body = pr.m.poner.body.filter(n => n.kind !== 'if'); return pr; },
   sinCerrar:pr => { pr.principal = {body:[]}; return pr; }
 };
 const SOL = () => sc.solution();
 
 /* resultado que ve el alumno al repetir */
-const VEREDICTOS = ['Siempre termina bien', 'A veces se cuelga', 'Siempre se cuelga', 'Termina, pero con un resultado incorrecto', 'Se rompe con un error'];
+const VEREDICTOS = ['Siempre termina bien', 'A veces se cuelga', 'Siempre se cuelga', 'Termina, pero con un resultado incorrecto', 'Se rompe con un error', 'No termina nunca: sigue funcionando sin parar'];
 function veredicto(r){
   if (r.murio > 0) return 4;
+  if (r.infinito > 0) return 5;
   if (r.mal > 0) return 3;
   if (r.colgado === r.n) return 2;
   if (r.colgado > 0) return 1;
@@ -1284,6 +1387,33 @@ const EXPS = {
      instr:c => 'Escribe depositar() y vender() para un almacén de ' + c.capacidad + ' y ' + c.total + ' cuadros. Pulsa «Comprobar» cuando creas que está.',
      prog:null, why:'depositar() espera mientras el almacén está lleno y vender() mientras está vacío; los dos con synchronized, while y wait(), y avisando al terminar.'}
   ],
+  fabrica:[
+    {id:'solucion', tipo:'ver', titulo:'Cuántas se fabrican',
+     cfg:() => ({maquinas:randInt(2, 4), total:randInt(8, 14), capacidad:randInt(1, 3), sleepM:pick([500, 1000]), sleepE:500}),
+     instr:c => 'Ejecuta la solución: ' + c.maquinas + ' máquinas, una cinta de ' + c.capacidad + ' y ' + c.total + ' piezas en total. Fíjate en que las máquinas fabrican entre todas.',
+     prog:SOL,
+     q:(r, c) => { const ops = [c.total, c.total + c.maquinas, c.total * c.maquinas].filter((v, i, a) => a.indexOf(v) === i);
+       return {txt:'¿Cuántas piezas se fabrican en total al acabar?', ops:ops.map(v => v + ' piezas'), ok:0, why:'Hay un tope compartido: entre todas las máquinas se fabrican ' + c.total + ', no ' + c.total + ' cada una. Por eso poner() cuenta las fabricadas y devuelve false cuando se alcanza el total.'}; }},
+    {id:'sinTopar', tipo:'ver', titulo:'Sin parar en el total',
+     cfg:() => ({maquinas:randInt(2, 4), total:randInt(8, 12), capacidad:randInt(1, 3), sleepM:500, sleepE:500}),
+     instr:c => 'Aquí poner() no comprueba si ya se fabricaron las ' + c.total + ' piezas (falta el if con return false).',
+     prog:() => MUT.sinTopar(SOL()),
+     q:qResultado('¿Qué ocurre?', 'Sin ese if las máquinas nunca saben que ya está todo fabricado: siguen poniendo piezas y el programa no termina o termina con piezas de más. El return false es la señal de fin de las máquinas.')},
+    {id:'notify', tipo:'ver', titulo:'notify() con varios papeles',
+     cfg:() => ({maquinas:randInt(2, 4), total:randInt(8, 12), capacidad:randInt(1, 2), sleepM:500, sleepE:500}),
+     instr:c => 'Aquí se usa notify() en vez de notifyAll(). Hay ' + c.maquinas + ' máquinas, una empaquetadora y una cinta de ' + c.capacidad + '.',
+     prog:() => MUT.swap(SOL(), 'notifyAll', 'notify'), reps:20,
+     q:qResultado('¿Funciona siempre?', 'Esperan hilos con dos papeles: máquinas (cinta llena) y empaquetadora (cinta vacía). notify() puede despertar a uno que no puede avanzar y la señal se pierde. Con notifyAll() se despiertan todos y cada uno comprueba si le toca.')},
+    {id:'if', tipo:'ver', titulo:'if en vez de while',
+     cfg:() => ({maquinas:randInt(3, 4), total:randInt(8, 12), capacidad:randInt(1, 2), sleepM:500, sleepE:500}),
+     instr:c => 'Aquí hay if en lugar de while antes de los wait(). Hay ' + c.maquinas + ' máquinas.',
+     prog:() => MUT.ifPorWhile(SOL()), reps:20,
+     q:qResultado('¿Falla?', 'Con varias máquinas, notifyAll() las despierta a todas y solo cabe una pieza. La primera la pone y las demás, sin volver a mirar, ponen otra: la cinta se pasa de su capacidad. El while obliga a comprobarlo de nuevo.')},
+    {id:'montar', tipo:'montar', titulo:'Móntalo tú',
+     cfg:() => ({maquinas:randInt(2, 4), total:randInt(8, 12), capacidad:randInt(1, 3), sleepM:500, sleepE:500}),
+     instr:c => 'Escribe poner() y retirar() para ' + c.maquinas + ' máquinas, una cinta de ' + c.capacidad + ' y ' + c.total + ' piezas. Recuerda que poner() devuelve boolean. Pulsa «Comprobar» cuando creas que está.',
+     prog:null, why:'poner(): while (piezas == maximo && fabricadas < total) wait(); si fabricadas == total, return false; después piezas++, fabricadas++, notifyAll() y return true. retirar(): while (piezas == 0) wait(); piezas--; notifyAll().'}
+  ],
   pintor2:[
     {id:'notify', tipo:'ver', titulo:'notify() con dos papeles',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:1, }),
@@ -1320,7 +1450,7 @@ function exCargar(){
   ex.cfg = e.cfg();
   Object.assign(cfg[cur], ex.cfg);
   PARAMS[cur].forEach(q => { cfg[cur][q.k] = Math.max(q.min, Math.min(q.max, cfg[cur][q.k])); });
-  stop(); sc = build(cur); $('titulo').textContent = '🧵 ' + sc.titulo; $('enun').innerHTML = ENUN[cur](cfg[cur]);
+  stop(); sc = build(cur); $('titulo').textContent = '🧵 ' + sc.titulo; $('enun').innerHTML = enunHTML(cur);
   const o = $('escenario').querySelector('option[value="' + cur + '"]'); if (o) o.textContent = sc.titulo;
   renderParams();
   const pr = e.prog ? e.prog() : emptyProg(sc);
@@ -1409,7 +1539,7 @@ $('expPanel').addEventListener('toggle', () => { if ($('expPanel').open) exRende
 ORDER.forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = build(k).titulo; $('escenario').append(o); });
 load();
 /* enlace directo a un ejemplo: simulador/index.html#parking */
-{ const hs = location.hash.slice(1).split('&'); if (BUILD[hs[0]]) cur = hs[0]; if (hs.includes('experimentos')) $('expPanel').open = true; }
+{ const hs = location.hash.slice(1).split('&'); if (BUILD[hs[0]]) cur = hs[0]; if (hs.includes('experimentos')) $('expPanel').open = true; if (hs.includes('proyector')) proyectar(true); }
 setScenario(cur);
 if ($('expPanel').open) exRender();
 </script>
