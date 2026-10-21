@@ -112,6 +112,7 @@ body.proy .piece{font-size:.9em}
 .code input.mod{width:10.5em}
 .code input.cond{width:15em}
 .code input.bad{border-color:#ff6b6b}
+.code input.ms{width:4.5em;text-align:right}
 .errmsg{color:#ff8a8a;font-size:.8em;margin-left:8px;white-space:normal}
 #compiler{padding:8px 12px;border-radius:10px;font-size:.9em;border:2px solid var(--line)}
 #compiler.ok{border-color:var(--ok)} #compiler.ko{border-color:var(--bad)}
@@ -428,14 +429,14 @@ const BUILD = {
       {t:'p1', n:1, name:'Pintor', emoji:'🎨', extra:a => ' · cuadros: ' + a.done + '/' + p.total,
        proc:function*(a){
          for (let i = 0; i < p.total; i++){
-           for (let k = randInt(0, 6); k > 0; k--) yield;   /* pausa aleatoria */
+           yield* sleepTicks(a, randInt(0, ticksDe(p.sleepP == null ? 2000 : p.sleepP)));   /* pausa aleatoria */
            yield* invoke(a, 'depositar'); a.done++; }
          a.state = 'fin'; a.cur = null;
        }},
       {t:'v1', n:p.vendedores, name:'Vendedor', emoji:'💰', extra:a => ' · vendidos: ' + a.done,
        proc:function*(a){
          for (;;){
-           for (let k = randInt(0, 6); k > 0; k--) yield;   /* pausa aleatoria */
+           yield* sleepTicks(a, randInt(0, ticksDe(p.sleepV == null ? 2000 : p.sleepV)));   /* pausa aleatoria */
            const vendidos = yield* invoke(a, 'getCuadrosVendidos');
            if (!(vendidos < p.total)) break;
            const antes = a.dec || 0;
@@ -454,7 +455,7 @@ const BUILD = {
     okMsg:S => '✔ Termina bien. Pintados ' + S.dep + ', vendidos ' + S.ven,
     summary:S => 'pintados ' + S.dep + ', vendidos ' + S.ven,
     mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen(' + p.capacidad + ');', '    new Thread(new Pintor(almacen), "Pintor").start();', '    // ' + p.vendedores + ' hilos Vendedor, cada uno con su new Thread(...).start()', '}'],
-    hiloLines:['// Pintor.run(): for 1..' + p.total + ' → almacen.depositar(i)', '// Vendedor.run(): while (almacen.getCuadrosVendidos() < ' + p.total + ') almacen.vender();   // ya escrito'],
+    hiloLines:['// Pintor.run(): for 1..' + p.total + ' → almacen.depositar(i)', {pre:'//    antes de cada depositar():  Thread.sleep((long) (Math.random() * ', param:'sleepP', post:'));'}, '// Vendedor.run(): while (almacen.getCuadrosVendidos() < ' + p.total + ') almacen.vender();   // ya escrito', {pre:'//    antes de cada vuelta:  Thread.sleep((long) (Math.random() * ', param:'sleepV', post:'));'}],
     solution:() => ({
       m:{depositar:{mod:'synchronized', body:[blk('while', 'numCuadros == numMaxCuadros', [st('wait')]), st('inc'), st('pint'), st('notifyAll')]},
          vender:{mod:'synchronized', body:[blk('while', 'numCuadros == 0 && numCuadrosPintados < total', [st('wait')]), blk('if', 'numCuadros > 0', [st('dec'), st('vend'), st('notifyAll')])]},
@@ -580,7 +581,7 @@ const PARAMS = {
   bicis:[{k:'mecanicos', label:'Mecánicos', min:1, max:5, def:3}, {k:'clientes', label:'Clientes', min:1, max:5, def:2}, {k:'capacidad', label:'Capacidad del estante', min:1, max:6, def:3}, {k:'sleepM', label:'sleep mecánico', unit:' ms', step:100, min:0, max:5000, def:700}, {k:'sleepC', label:'sleep cliente', unit:' ms', step:100, min:0, max:5000, def:1200}],
   pintor:[{k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}],
   fabrica:[{k:'maquinas', label:'Máquinas', min:1, max:5, def:3}, {k:'total', label:'Piezas a fabricar', min:4, max:50, def:20}, {k:'capacidad', label:'Capacidad de la cinta', min:1, max:8, def:5}, {k:'sleepM', label:'sleep máquina', unit:' ms', step:100, min:0, max:5000, def:1200}, {k:'sleepE', label:'sleep empaquetador', unit:' ms', step:100, min:0, max:5000, def:800}],
-  pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}]
+  pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}, {k:'sleepP', label:'sleep pintor', inline:true, min:0, max:5000, def:2000}, {k:'sleepV', label:'sleep vendedor', inline:true, min:0, max:5000, def:2000}]
 };
 const cfg = {};
 ORDER.forEach(id => { cfg[id] = {}; PARAMS[id].forEach(q => { cfg[id][q.k] = q.def; }); });
@@ -1096,11 +1097,19 @@ function methodEl(me){
   box.append(head, listEl(m.body), h('div', 'line', '}'));
   return box;
 }
-const statBox = (box, lines) => { lines.forEach(t => box.append(h('div', 'line stat', t))); };
+const statBox = (box, lines) => { lines.forEach(t => {
+  if (typeof t === 'string'){ box.append(h('div', 'line stat', t)); return; }
+  /* línea con un número editable que escribe en cfg: {pre, param, post} */
+  const q = PARAMS[cur].find(x => x.k === t.param);
+  const inp = h('input', 'ms'); inp.type = 'number'; inp.min = q.min; inp.max = q.max; inp.step = 100; inp.value = cfg[cur][q.k];
+  inp.onchange = () => { const v = parseInt(inp.value, 10); cfg[cur][q.k] = Number.isNaN(v) ? q.def : Math.max(q.min, Math.min(q.max, v)); paramsChanged(); };
+  const row = h('div', 'line stat', t.pre); row.append(inp, document.createTextNode(t.post));
+  box.append(row);
+}); };
 let tabSel = 0;
 function renderTabs(){
   const runs = [];
-  (sc.finPre || []).concat(sc.hiloLines).join('\n').replace(/\/\/ (\w+)\.run/g, (m, c) => runs.push(c + '.run()'));
+  (sc.finPre || []).concat(sc.hiloLines).map(x => typeof x === 'string' ? x : '').join('\n').replace(/\/\/ (\w+)\.run/g, (m, c) => runs.push(c + '.run()'));
   const names = [sc.clase, 'Principal', runs.join(' · ') || 'Hilos'];
   ['edRecurso', 'edPrincipal', 'edHilo'].forEach((id, i) => { $(id).style.display = i === tabSel ? '' : 'none'; });
   const box = $('tabs');
@@ -1216,7 +1225,7 @@ function setScenario(id){
 function renderParams(){
   const box = $('params');
   box.innerHTML = '';
-  PARAMS[cur].forEach(q => {
+  PARAMS[cur].filter(q => !q.inline).forEach(q => {
     const w = h('span', 'pp');
     const minus = h('button', null, '−'), plus = h('button', null, '+');
     const val = h('b', null, cfg[cur][q.k] + (q.unit || ''));
