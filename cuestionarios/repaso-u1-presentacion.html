@@ -531,23 +531,24 @@ class Principal {
 <section class="portada"><h2>6.4 Comunicar hilos</h2><p>14 preguntas</p></section>
 <section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 1 de 14</span><span class="tipo">Emparejar</span></div><h3>wait, notify y compañía</h3><p>Une cada elemento con su función:</p><ul class="par"><li><code>wait()</code></li><li><code>notify()</code></li><li><code>notifyAll()</code></li><li><code>synchronized</code></li></ul><p><span class="chip">El hilo se duerme hasta que lo avisen y suelta el cerrojo</span> <span class="chip">Solo deja entrar a un hilo a la vez</span> <span class="chip">Despierta a uno de los hilos que esperan</span> <span class="chip">Despierta a todos los hilos que esperan</span></p></section>
 <section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 1 de 14</span><span class="tipo">Emparejar</span></div><h3>Respuesta</h3><table class="par"><tr><td><code>wait()</code></td><td>→</td><td><mark>El hilo se duerme hasta que lo avisen y suelta el cerrojo</mark></td></tr><tr><td><code>notify()</code></td><td>→</td><td><mark>Despierta a uno de los hilos que esperan</mark></td></tr><tr><td><code>notifyAll()</code></td><td>→</td><td><mark>Despierta a todos los hilos que esperan</mark></td></tr><tr><td><code>synchronized</code></td><td>→</td><td><mark>Solo deja entrar a un hilo a la vez</mark></td></tr></table><div class="porque"><p><code>notify()</code> despierta a uno; <code>notifyAll()</code>, a todos. Los dos son métodos de la clase <code>Object</code>.</p></div></section>
-<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 2 de 14</span><span class="tipo">Varias correctas</span></div><h3>Los dos papeles</h3><p>Un pintor (hilo) deja cuadros en un almacén donde caben <b>3 cuadros</b> (el almacén guarda cuántos hay y su capacidad), y un vendedor (hilo) los saca para venderlos. El almacén es un objeto compartido con métodos <code>synchronized</code>. Marca lo que es <b>correcto</b>:</p><ol class="op" type="a"><li class="">Cada hilo debe tener su propio almacén.</li><li class="">Cuando uno termina, avisa al otro con <code>notify()</code>.</li><li class="">Solo el pintor necesita esperar; el vendedor nunca espera.</li><li class="">El vendedor espera si el almacén está vacío.</li><li class="">El pintor espera si el almacén está lleno.</li></ol></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 2 de 14</span><span class="tipo">Varias correctas</span></div><h3>Los dos papeles</h3><p>Un pintor (hilo) deja cuadros en un almacén donde caben <b>3 cuadros</b> (el almacén guarda cuántos hay, <code>numCuadros</code>, y cuántos caben, <code>numMaxCuadros</code>), y un vendedor (hilo) los saca para venderlos. El almacén es un objeto compartido con métodos <code>synchronized</code>. Marca lo que es <b>correcto</b>:</p><ol class="op" type="a"><li class="">Cada hilo debe tener su propio almacén.</li><li class="">Cuando uno termina, avisa al otro con <code>notify()</code>.</li><li class="">Solo el pintor necesita esperar; el vendedor nunca espera.</li><li class="">El vendedor espera si el almacén está vacío.</li><li class="">El pintor espera si el almacén está lleno.</li></ol></section>
 <section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 2 de 14</span><span class="tipo">Varias correctas</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Cada hilo debe tener su propio almacén.</li><li class="ok">Cuando uno termina, avisa al otro con <code>notify()</code>. <b>✔</b></li><li class="no">Solo el pintor necesita esperar; el vendedor nunca espera.</li><li class="ok">El vendedor espera si el almacén está vacío. <b>✔</b></li><li class="ok">El pintor espera si el almacén está lleno. <b>✔</b></li></ol><div class="porque"><p>Cada hilo tiene un papel distinto: uno espera a que el otro haga algo. Se crea <b>un solo</b> almacén; si cada hilo tuviera el suyo, no se comunicarían.</p></div></section>
-<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 3 de 14</span><span class="tipo">Test</span></div><h3>notify con 2 hilos</h3><p>Un pintor y <b>un</b> vendedor comparten un almacén de capacidad 3 y con ellos basta <code>notify()</code>. ¿Y si hubiera un pintor y <b>dos</b> vendedores?</p><ol class="op" type="a"><li class="">Sigue valiendo <code>notify()</code> igual.</li><li class="">Hay tres hilos que pueden esperar: <code>notify()</code> despierta a uno cualquiera y puede ser el equivocado; hace falta <code>notifyAll()</code>.</li><li class="">No se puede usar <code>notify()</code> nunca.</li><li class="">Hay que usar <code>sleep()</code> en lugar de avisar.</li></ol></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 3 de 14</span><span class="tipo">Test</span></div><h3>notify con 2 hilos</h3><p>Un pintor y <b>un</b> vendedor comparten un almacén de capacidad 1 y con ellos basta <code>notify()</code>. ¿Y si hubiera un pintor y <b>dos</b> vendedores?</p><ol class="op" type="a"><li class="">Sigue valiendo <code>notify()</code> igual.</li><li class="">Hay tres hilos que pueden esperar: <code>notify()</code> despierta a uno cualquiera y puede ser el equivocado; hace falta <code>notifyAll()</code>.</li><li class="">No se puede usar <code>notify()</code> nunca.</li><li class="">Hay que usar <code>sleep()</code> en lugar de avisar.</li></ol></section>
 <section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 3 de 14</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Sigue valiendo <code>notify()</code> igual.</li><li class="ok">Hay tres hilos que pueden esperar: <code>notify()</code> despierta a uno cualquiera y puede ser el equivocado; hace falta <code>notifyAll()</code>. <b>✔</b></li><li class="no">No se puede usar <code>notify()</code> nunca.</li><li class="no">Hay que usar <code>sleep()</code> en lugar de avisar.</li></ol><div class="porque"><p>Si despierta al que no puede avanzar, el pintor se queda dormido para siempre. Con <code>notify()</code> a veces funciona y a veces se cuelga.</p></div></section>
 <section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 4 de 14</span><span class="tipo">Verdadero o falso</span></div><h3>notify elige al más antiguo</h3><p><code>notify()</code> despierta siempre al hilo que lleva más tiempo esperando.</p><p class="sol">¿Verdadero o falso?</p></section>
 <section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 4 de 14</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol no">FALSO</p><div class="porque"><p>Falso. Despierta a uno cualquiera de los que esperan.</p></div></section>
-<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 5 de 14</span><span class="tipo">Test</span></div><h3>Qué es la señal de fin</h3><p>Varios vendedores sacan cuadros de un almacén compartido y un pintor los va dejando, pero los vendedores <b>no saben cuántos cuadros</b> se van a pintar. ¿Cómo saben que ya no habrá más?</p><ol class="op" type="a"><li class="">Java termina los hilos vendedores automáticamente.</li><li class="">Cada vendedor cuenta hasta 10 por su cuenta.</li><li class="">El almacén guarda un dato compartido (<code>terminado</code>) que el pintor activa al acabar: una señal de fin.</li><li class="">Esperan 20 segundos y salen.</li></ol></section>
-<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 5 de 14</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Java termina los hilos vendedores automáticamente.</li><li class="no">Cada vendedor cuenta hasta 10 por su cuenta.</li><li class="ok">El almacén guarda un dato compartido (<code>terminado</code>) que el pintor activa al acabar: una señal de fin. <b>✔</b></li><li class="no">Esperan 20 segundos y salen.</li></ol><div class="porque"><p>La señal de fin es un dato compartido que avisa a los que esperan de que ya no habrá más.</p></div></section>
-<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 6 de 14</span><span class="tipo">Test</span></div><h3>Pintor sin terminar()</h3><p>Un almacén tiene un <code>boolean terminado</code> que el pintor pone a <code>true</code> llamando a <code>terminar()</code> cuando acaba de pintar. Los vendedores esperan con <code>while (cuadros == 0 &amp;&amp; !terminado) wait();</code>. El pintor pinta sus 10 cuadros pero <b>olvida</b> llamar a <code>terminar()</code>. ¿Qué ocurre?</p><ol class="op" type="a"><li class="">El almacén se vacía y el programa termina normalmente.</li><li class="">Los vendedores se quedan esperando para siempre y el programa no termina.</li><li class="">Los vendedores terminan solos cuando se acaban los cuadros.</li><li class="">Java lanza una excepción en el pintor.</li></ol></section>
-<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 6 de 14</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">El almacén se vacía y el programa termina normalmente.</li><li class="ok">Los vendedores se quedan esperando para siempre y el programa no termina. <b>✔</b></li><li class="no">Los vendedores terminan solos cuando se acaban los cuadros.</li><li class="no">Java lanza una excepción en el pintor.</li></ol><div class="porque"><p><code>terminado</code> es la señal de fin: sin ella, los vendedores no saben que ya no vendrán más cuadros.</p></div></section>
-<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 7 de 14</span><span class="tipo">Test</span></div><h3>terminado antes que cuadros</h3><p>En un almacén de cuadros, el método <code>vender()</code> de los vendedores comprueba <b>primero</b> si el pintor ha terminado (<code>terminado</code>) y, si es así, devuelve <code>false</code> y el vendedor se marcha; solo <b>después</b> mira si hay cuadro. ¿Qué problema puede ocurrir?</p><ol class="op" type="a"><li class="">No pasa nada: da igual el orden.</li><li class="">Se pierde el último cuadro: el pintor lo deja y termina enseguida, y nadie lo vende.</li><li class="">Se venden dos cuadros a la vez.</li><li class="">El programa no compila.</li></ol></section>
-<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 7 de 14</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">No pasa nada: da igual el orden.</li><li class="ok">Se pierde el último cuadro: el pintor lo deja y termina enseguida, y nadie lo vende. <b>✔</b></li><li class="no">Se venden dos cuadros a la vez.</li><li class="no">El programa no compila.</li></ol><div class="porque"><p>Hay que mirar primero si hay cuadro: si el pintor deja el último y termina enseguida, ese cuadro se vende igualmente.</p></div></section>
-<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 8 de 14</span><span class="tipo">Completar código</span></div><h3>Almacén: vender()</h3><p>Un almacén de cuadros lo comparten un pintor y varios vendedores. Completa <code>vender()</code>: los vendedores esperan mientras <b>no haya cuadro y el pintor no haya terminado</b>.</p><pre>class Almacen {
-    private int cuadros = 0;
-    private boolean terminado = false;
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 5 de 14</span><span class="tipo">Test</span></div><h3>Qué es la señal de fin</h3><p>Varios vendedores sacan cuadros de un almacén compartido y un pintor los va dejando, pero los vendedores <b>no saben cuántos cuadros</b> les tocan. ¿Cómo saben que ya no habrá más?</p><ol class="op" type="a"><li class="">Java termina los hilos vendedores automáticamente.</li><li class="">Cada vendedor cuenta hasta 10 por su cuenta.</li><li class="">El almacén cuenta los cuadros pintados y los vendidos (datos compartidos), y los vendedores paran cuando ya se ha pintado todo y no queda ninguno.</li><li class="">Esperan 20 segundos y salen.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 5 de 14</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">Java termina los hilos vendedores automáticamente.</li><li class="no">Cada vendedor cuenta hasta 10 por su cuenta.</li><li class="ok">El almacén cuenta los cuadros pintados y los vendidos (datos compartidos), y los vendedores paran cuando ya se ha pintado todo y no queda ninguno. <b>✔</b></li><li class="no">Esperan 20 segundos y salen.</li></ol><div class="porque"><p>La señal de fin es un dato compartido (aquí, los contadores del almacén) que permite a los que esperan saber que ya no habrá más.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 6 de 14</span><span class="tipo">Test</span></div><h3>Vender sin mirar los pintados</h3><p>Los vendedores esperan con <code>while (numCuadros == 0) wait();</code>, sin mirar <code>numCuadrosPintados</code>. El pintor pinta sus 10 cuadros y se marcha, los vendedores venden todos los cuadros que hay, pero uno de ellos llega a <code>vender()</code> cuando el almacén ya está vacío. ¿Qué ocurre?</p><ol class="op" type="a"><li class="">El programa termina normalmente.</li><li class="">Ese vendedor se queda esperando para siempre y el programa no termina.</li><li class="">Ese vendedor se marcha solo al ver que no hay cuadros.</li><li class="">Java lanza una excepción en el pintor.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 6 de 14</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">El programa termina normalmente.</li><li class="ok">Ese vendedor se queda esperando para siempre y el programa no termina. <b>✔</b></li><li class="no">Ese vendedor se marcha solo al ver que no hay cuadros.</li><li class="no">Java lanza una excepción en el pintor.</li></ol><div class="porque"><p>Nadie va a avisar a ese vendedor: el pintor ya terminó. Por eso el <code>while</code> también mira si faltan cuadros por pintar (<code>numCuadrosPintados &lt; 10</code>), y así el vendedor sale del <code>wait()</code> cuando ya no habrá más.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 7 de 14</span><span class="tipo">Test</span></div><h3>Pintados antes que cuadros</h3><p>En <code>vender()</code>, después del <code>while</code>, un programador comprueba <b>primero</b> si ya se han pintado los 10 cuadros y, si es así, el vendedor se marcha sin vender; solo <b>después</b> mira si hay cuadros. ¿Qué problema puede ocurrir?</p><ol class="op" type="a"><li class="">No pasa nada: da igual el orden.</li><li class="">Se pierden los cuadros que quedan en el almacén: el pintor termina y los vendedores se van sin venderlos.</li><li class="">Se venden dos cuadros a la vez.</li><li class="">El programa no compila.</li></ol></section>
+<section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 7 de 14</span><span class="tipo">Test</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="no">No pasa nada: da igual el orden.</li><li class="ok">Se pierden los cuadros que quedan en el almacén: el pintor termina y los vendedores se van sin venderlos. <b>✔</b></li><li class="no">Se venden dos cuadros a la vez.</li><li class="no">El programa no compila.</li></ol><div class="porque"><p>Hay que mirar primero si hay cuadros (<code>numCuadros &gt; 0</code>): si el pintor termina con cuadros en el almacén, esos cuadros se venden igualmente.</p></div></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 8 de 14</span><span class="tipo">Completar código</span></div><h3>Almacén: vender()</h3><p>Un almacén de cuadros lo comparten un pintor y varios vendedores. Completa <code>vender()</code>: los vendedores esperan mientras <b>no haya cuadros y todavía falten cuadros por pintar</b> (el pintor pinta 10).</p><pre>class Almacen {
+    private int numCuadros = 0;
+    private int numCuadrosPintados = 0;
+    private int numCuadrosVendidos = 0;
 
-    public synchronized boolean vender() {
+    public synchronized void vender() {
         while (<span class="hueco c1">1</span> &amp;&amp; <span class="hueco c2">2</span>) {
             try {
                 wait();
@@ -555,45 +556,34 @@ class Principal {
             }
         }
         if (<span class="hueco c3">3</span>) {
-            return <span class="hueco c4">4</span>;
+            numCuadros--;
+            <span class="hueco c4">4</span>;
+            <span class="hueco c5">5</span>();
         }
-        cuadros--;
-        <span class="hueco c5">5</span>();
-        return true;
     }
-
-    public synchronized void terminar() {
-        terminado = <span class="hueco c6">6</span>;
-        notifyAll();
-    }
-}</pre><p class="peque">Desplegables: <span class="grupo c1"><span class="chip num">1</span> <code>terminado</code> · <code>cuadros == 0</code> · <code>cuadros &amp;gt; 0</code></span> &nbsp; <span class="grupo c2"><span class="chip num">2</span> <code>terminado</code> · <code>cuadros == 0</code> · <code>!terminado</code></span> &nbsp; <span class="grupo c3"><span class="chip num">3</span> <code>terminado</code> · <code>!terminado</code> · <code>cuadros == 0</code> · <code>cuadros &amp;gt; 0</code></span> &nbsp; <span class="grupo c4"><span class="chip num">4</span> <code>true</code> · <code>false</code></span> &nbsp; <span class="grupo c6"><span class="chip num">6</span> <code>false</code> · <code>true</code></span></p></section>
+}</pre><p class="peque">Desplegables: <span class="grupo c1"><span class="chip num">1</span> <code>numCuadrosPintados == 0</code> · <code>numCuadros == 0</code> · <code>numCuadros &amp;gt; 0</code></span> &nbsp; <span class="grupo c2"><span class="chip num">2</span> <code>numCuadrosPintados &amp;gt; 10</code> · <code>numCuadrosVendidos &amp;lt; 10</code> · <code>numCuadrosPintados &amp;lt; 10</code></span> &nbsp; <span class="grupo c3"><span class="chip num">3</span> <code>numCuadrosPintados &amp;lt; 10</code> · <code>numCuadros &amp;gt; 0</code> · <code>numCuadros == 0</code></span> &nbsp; <span class="grupo c4"><span class="chip num">4</span> <code>numCuadrosVendidos--</code> · <code>numCuadrosPintados++</code> · <code>numCuadrosVendidos++</code></span></p></section>
 <section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 8 de 14</span><span class="tipo">Completar código</span></div><h3>Respuesta</h3><pre>class Almacen {
-    private int cuadros = 0;
-    private boolean terminado = false;
+    private int numCuadros = 0;
+    private int numCuadrosPintados = 0;
+    private int numCuadrosVendidos = 0;
 
-    public synchronized boolean vender() {
-        while (<mark class="c1">cuadros == 0</mark> &amp;&amp; <mark class="c2">!terminado</mark>) {
+    public synchronized void vender() {
+        while (<mark class="c1">numCuadros == 0</mark> &amp;&amp; <mark class="c2">numCuadrosPintados &lt; 10</mark>) {
             try {
                 wait();
             } catch (InterruptedException e) {
             }
         }
-        if (<mark class="c3">cuadros == 0</mark>) {
-            return <mark class="c4">false</mark>;
+        if (<mark class="c3">numCuadros &gt; 0</mark>) {
+            numCuadros--;
+            <mark class="c4">numCuadrosVendidos++</mark>;
+            <mark class="c5">notifyAll</mark>();
         }
-        cuadros--;
-        <mark class="c5">notifyAll</mark>();
-        return true;
     }
-
-    public synchronized void terminar() {
-        terminado = <mark class="c6">true</mark>;
-        notifyAll();
-    }
-}</pre><div class="porque"><p>Esperan si no hay cuadro <b>y</b> el pintor sigue pintando. Si salen del <code>while</code> sin cuadro, es que el pintor terminó: devuelve <code>false</code>. Al vender, avisa con <code>notifyAll()</code>.</p></div></section>
+}</pre><div class="porque"><p>Esperan si no hay cuadros <b>y</b> todavía faltan por pintar. Al salir del <code>while</code>, si hay cuadros se vende uno, se cuenta como vendido y se avisa con <code>notifyAll()</code>; si no, es que ya se pintaron todos y el vendedor se va.</p></div></section>
 <section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 9 de 14</span><span class="tipo">Arrastrar código</span></div><h3>Ordena depositar()</h3><p>Ordena las líneas de <code>depositar()</code>. Reglas: primero esperar si el almacén está lleno; después actualizar el estado; luego escribir el mensaje y <b>por último</b> avisar a los demás.</p><pre>class Almacen {
-    private int cuadros = 0;
-    private int capacidad = 3;
+    private int numCuadros = 0;
+    private int numMaxCuadros = 1;
 
     public synchronized void depositar(int numero) throws InterruptedException {
         <span class="hueco">1</span>
@@ -603,36 +593,36 @@ class Principal {
         <span class="hueco">5</span>
         <span class="hueco">6</span>
     }
-}</pre><p class="peque">Palabras (algunas sobran):</p><p><span class="chip">}</span> <span class="chip">notifyAll();</span> <span class="chip">System.out.println("deja el cuadro " + numero);</span> <span class="chip">while (cuadros == capacidad) {</span> <span class="chip">wait();</span> <span class="chip">cuadros++;</span></p></section>
+}</pre><p class="peque">Palabras (algunas sobran):</p><p><span class="chip">}</span> <span class="chip">notifyAll();</span> <span class="chip">System.out.println("deja el cuadro " + numero);</span> <span class="chip">while (numCuadros == numMaxCuadros) {</span> <span class="chip">wait();</span> <span class="chip">numCuadros++;</span></p></section>
 <section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 9 de 14</span><span class="tipo">Arrastrar código</span></div><h3>Respuesta</h3><pre>class Almacen {
-    private int cuadros = 0;
-    private int capacidad = 3;
+    private int numCuadros = 0;
+    private int numMaxCuadros = 1;
 
     public synchronized void depositar(int numero) throws InterruptedException {
-        <mark class="">while (cuadros == capacidad) {</mark>
+        <mark class="">while (numCuadros == numMaxCuadros) {</mark>
             <mark class="">wait();</mark>
         <mark class="">}</mark>
-        <mark class="">cuadros++;</mark>
+        <mark class="">numCuadros++;</mark>
         <mark class="">System.out.println("deja el cuadro " + numero);</mark>
         <mark class="">notifyAll();</mark>
     }
 }</pre><div class="porque"><p>Esperar, cambiar el estado, mostrar y avisar.</p></div></section>
 <section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 10 de 14</span><span class="tipo">Ordenar</span></div><h3>Ordena el aviso</h3><p>Ordena los pasos de lo que ocurre cuando un hilo A espera algo que otro hilo B va a proporcionar.</p><p>1. <span class="hueco">1</span><br>2. <span class="hueco">2</span><br>3. <span class="hueco">3</span><br>4. <span class="hueco">4</span><br>5. <span class="hueco">5</span><br>6. <span class="hueco">6</span></p><p class="peque">Palabras (algunas sobran):</p><p><span class="chip">A se despierta y vuelve a comprobar la condición en el while</span> <span class="chip">B entra en el método y cambia el estado</span> <span class="chip">Ahora se cumple: A sigue ejecutando</span> <span class="chip">B llama a notifyAll()</span> <span class="chip">A entra en un método synchronized y comprueba la condición</span> <span class="chip">No se cumple: A llama a wait() y suelta el cerrojo</span></p></section>
 <section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 10 de 14</span><span class="tipo">Ordenar</span></div><h3>Respuesta</h3><p>1. <mark class="">A entra en un método synchronized y comprueba la condición</mark><br>2. <mark class="">No se cumple: A llama a wait() y suelta el cerrojo</mark><br>3. <mark class="">B entra en el método y cambia el estado</mark><br>4. <mark class="">B llama a notifyAll()</mark><br>5. <mark class="">A se despierta y vuelve a comprobar la condición en el while</mark><br>6. <mark class="">Ahora se cumple: A sigue ejecutando</mark></p><div class="porque"><p>Es el ciclo completo del patrón <code>while + wait</code> / cambiar estado + <code>notifyAll</code>.</p></div></section>
-<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 11 de 14</span><span class="tipo">Verdadero o falso</span></div><h3>Salida con un pintor y un vendedor</h3><p>Un pintor deja 10 cuadros en un almacén donde caben 3 y un vendedor los vende. Los mensajes («deja el cuadro 1», «vende el cuadro 1», «deja el cuadro 2»...) salen <b>siempre en el mismo orden</b> en todas las ejecuciones.</p><p class="sol">¿Verdadero o falso?</p></section>
+<section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 11 de 14</span><span class="tipo">Verdadero o falso</span></div><h3>Salida con un pintor y un vendedor</h3><p>Un pintor deja 10 cuadros en un almacén donde caben 3 (<code>new Almacen(3)</code>) y un vendedor los vende. Los mensajes («deja el cuadro 1», «vende el cuadro 1», «deja el cuadro 2»...) salen <b>siempre en el mismo orden</b> en todas las ejecuciones.</p><p class="sol">¿Verdadero o falso?</p></section>
 <section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 11 de 14</span><span class="tipo">Verdadero o falso</span></div><h3>Respuesta</h3><p class="sol no">FALSO</p><div class="porque"><p>Falso. Los cuadros salen del 1 al 10 y el almacén nunca pasa de 3 ni baja de 0, pero el pintor puede dejar hasta 3 antes de que el vendedor venda, y el orden de los mensajes cambia de una ejecución a otra.</p></div></section>
 <section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 12 de 14</span><span class="tipo">Varias correctas</span></div><h3>Salida con un pintor y dos vendedores</h3><p>Un pintor deja 10 cuadros en un almacén de capacidad 3 y <b>dos</b> vendedores compiten por venderlos (cada cuadro lo vende uno solo). Marca lo que es <b>cierto</b>:</p><ol class="op" type="a"><li class="">A veces un solo vendedor vende todos y también es correcto.</li><li class="">El mismo cuadro se vende dos veces.</li><li class="">Cada cuadro del 1 al 10 se vende una sola vez.</li><li class="">Los dos vendedores venden siempre 5 cuadros cada uno.</li><li class="">Quién vende cada cuadro cambia entre ejecuciones.</li></ol></section>
 <section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 12 de 14</span><span class="tipo">Varias correctas</span></div><h3>Respuesta</h3><ol class="op" type="a"><li class="ok">A veces un solo vendedor vende todos y también es correcto. <b>✔</b></li><li class="no">El mismo cuadro se vende dos veces.</li><li class="ok">Cada cuadro del 1 al 10 se vende una sola vez. <b>✔</b></li><li class="no">Los dos vendedores venden siempre 5 cuadros cada uno.</li><li class="ok">Quién vende cada cuadro cambia entre ejecuciones. <b>✔</b></li></ol><div class="porque"><p>Se reparten los cuadros sin que se sepa cuántos vende cada uno.</p></div></section>
 <section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 13 de 14</span><span class="tipo">Completar</span></div><h3>Cuántos cuadros</h3><p>El pintor pinta 10 cuadros y hay 2 vendedores. Entre los dos venden <span class="hueco c1">1</span> cuadros. El mensaje «deja el cuadro» sale <span class="hueco c2">2</span> veces.</p></section>
 <section class="respuesta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 13 de 14</span><span class="tipo">Completar</span></div><h3>Respuesta</h3><p>El pintor pinta 10 cuadros y hay 2 vendedores. Entre los dos venden <mark class="c1">10</mark> cuadros. El mensaje «deja el cuadro» sale <mark class="c2">10</mark> veces.</p><div class="porque"><p>Cada cuadro se deposita una vez y se vende una vez.</p></div></section>
 <section class="pregunta"><div class="cab"><span>6.4 Comunicar hilos · pregunta 14 de 14</span><span class="tipo">Test</span></div><h3>Error: if en lugar de while</h3><p>Este <code>vender()</code> usa <code>if</code> en lugar de <code>while</code>. Con <b>dos vendedores</b>, ¿qué problema puede ocurrir?</p><pre>class Almacen {
-    private int cuadros = 0;
+    private int numCuadros = 0;
 
     public synchronized void vender() throws InterruptedException {
-        if (cuadros == 0) {
+        if (numCuadros == 0) {
             wait();
         }
-        cuadros--;
+        numCuadros--;
         System.out.println("vende el cuadro");
         notifyAll();
     }

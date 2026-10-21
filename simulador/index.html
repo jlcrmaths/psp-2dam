@@ -369,16 +369,16 @@ const BUILD = {
   pintor:p => ({
     titulo:'6.4 Pintor y vendedor: ' + p.total + ' cuadros, almacén de ' + p.capacidad,
     clase:'Almacen', recurso:'Almacén', icono:'🖼️', max:p.capacidad,
-    vars:{cuadros:0}, consts:{capacidad:p.capacidad},
-    fields:['private int cuadros = 0;', 'private int capacidad;   // el constructor lo pone a ' + p.capacidad],
+    vars:{numCuadros:0}, consts:{numMaxCuadros:p.capacidad},
+    fields:['private int numCuadros = 0;', 'private int numMaxCuadros;   // el constructor lo pone a ' + p.capacidad],
     methods:[{name:'depositar', ret:'void', params:'int numero'}, {name:'vender', ret:'void', params:'int numero'}],
     ops:[
-      {g:'Datos', key:'inc', label:'cuadros++;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
-        if (S.v.cuadros >= p.capacidad) S.pend = '¡no cabe: ' + (S.v.cuadros + 1) + ' cuadros en un almacén de ' + p.capacidad + '!';
-        S.v.cuadros++; S.dep++; return 'cuadros++ → ' + S.v.cuadros; }},
-      {g:'Datos', key:'dec', label:'cuadros--;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
-        if (S.v.cuadros <= 0) S.pend = '¡vende un cuadro que no existe!'; else S.ven++;
-        S.v.cuadros--; return 'cuadros-- → ' + S.v.cuadros; }}
+      {g:'Datos', key:'inc', label:'numCuadros++;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
+        if (S.v.numCuadros >= p.capacidad) S.pend = '¡no cabe: ' + (S.v.numCuadros + 1) + ' cuadros en un almacén de ' + p.capacidad + '!';
+        S.v.numCuadros++; S.dep++; return 'numCuadros++ → ' + S.v.numCuadros; }},
+      {g:'Datos', key:'dec', label:'numCuadros--;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
+        if (S.v.numCuadros <= 0) S.pend = '¡vende un cuadro que no existe!'; else S.ven++;
+        S.v.numCuadros--; return 'numCuadros-- → ' + S.v.numCuadros; }}
     ],
     groups:[
       {t:'p1', n:1, name:'Pintor', emoji:'🎨', extra:a => ' · cuadros: ' + a.done + '/' + p.total,
@@ -392,70 +392,65 @@ const BUILD = {
          a.state = 'fin'; a.cur = null;
        }}
     ],
-    filled:S => S.v.cuadros,
+    filled:S => S.v.numCuadros,
     anomaly:S => { const m = S.pend; S.pend = null; return m; },
     stats:S => 'Pintados: ' + S.dep + ' / ' + p.total + ' · Vendidos: ' + S.ven + ' / ' + p.total,
-    ok:S => S.dep === p.total && S.ven === p.total && S.v.cuadros === 0 && !S.anomalia,
+    ok:S => S.dep === p.total && S.ven === p.total && S.v.numCuadros === 0 && !S.anomalia,
     okMsg:S => '✔ Termina bien. Pintados ' + S.dep + ', vendidos ' + S.ven,
     summary:S => 'pintados ' + S.dep + ', vendidos ' + S.ven,
-    mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen();', '    new Thread(new Pintor(almacen), "Pintor").start();', '    new Thread(new Vendedor(almacen), "Vendedor").start();', '}'],
+    mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen(' + p.capacidad + ');', '    new Thread(new Pintor(almacen), "Pintor").start();', '    new Thread(new Vendedor(almacen), "Vendedor").start();', '}'],
     hiloLines:['// Pintor.run(): for 1..' + p.total + ' → almacen.depositar(i)', '// Vendedor.run(): for 1..' + p.total + ' → almacen.vender(i)'],
     solution:() => ({
-      m:{depositar:{mod:'synchronized', body:[blk('while', 'cuadros == capacidad', [st('wait')]), st('inc'), st('notify')]},
-         vender:{mod:'synchronized', body:[blk('while', 'cuadros == 0', [st('wait')]), st('dec'), st('notify')]}},
+      m:{depositar:{mod:'synchronized', body:[blk('while', 'numCuadros == numMaxCuadros', [st('wait')]), st('inc'), st('notify')]},
+         vender:{mod:'synchronized', body:[blk('while', 'numCuadros == 0', [st('wait')]), st('dec'), st('notify')]}},
       principal:{body:[]}
     })
   }),
   pintor2:p => ({
     titulo:'6.4 Pintor y ' + p.vendedores + ' vendedores: ' + p.total + ' cuadros, almacén de ' + p.capacidad,
     clase:'Almacen', recurso:'Almacén', icono:'🖼️', max:p.capacidad,
-    vars:{cuadros:0, terminado:false}, consts:{capacidad:p.capacidad},
-    fields:['private int cuadros = 0;', 'private int capacidad;   // el constructor lo pone a ' + p.capacidad, 'private boolean terminado = false;'],
-    methods:[{name:'depositar', ret:'void', params:'int numero'}, {name:'vender', ret:'boolean'}, {name:'terminar', ret:'void'}],
+    vars:{numCuadros:0, numCuadrosPintados:0, numCuadrosVendidos:0}, consts:{numMaxCuadros:p.capacidad, total:p.total},
+    fields:['private int numCuadros = 0;', 'private int numMaxCuadros;   // el constructor lo pone a ' + p.capacidad, 'private int numCuadrosPintados = 0;', 'private int numCuadrosVendidos = 0;', '// total = ' + p.total + ': los cuadros que se pintan (en el código del profesor es un 10)'],
+    methods:[{name:'depositar', ret:'void', params:'int numero'}, {name:'vender', ret:'void'}],
     ops:[
-      {g:'Datos', key:'inc', label:'cuadros++;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
-        if (S.v.cuadros >= p.capacidad) S.pend = '¡no cabe: ' + (S.v.cuadros + 1) + ' cuadros en un almacén de ' + p.capacidad + '!';
-        S.v.cuadros++; S.dep++; return 'cuadros++ → ' + S.v.cuadros; }},
-      {g:'Datos', key:'dec', label:'cuadros--;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
-        if (S.v.cuadros <= 0) S.pend = '¡vende un cuadro que no existe!'; else S.ven++;
-        S.v.cuadros--; return 'cuadros-- → ' + S.v.cuadros; }},
-      {g:'Datos', key:'term', label:'terminado = true;',  fx:S => { S.v.terminado = true; return 'terminado = true'; }}
+      {g:'Datos', key:'inc', label:'numCuadros++;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
+        if (S.v.numCuadros >= p.capacidad) S.pend = '¡no cabe: ' + (S.v.numCuadros + 1) + ' cuadros en un almacén de ' + p.capacidad + '!';
+        S.v.numCuadros++; S.dep++; return 'numCuadros++ → ' + S.v.numCuadros; }},
+      {g:'Datos', key:'dec', label:'numCuadros--;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
+        if (S.v.numCuadros <= 0) S.pend = '¡vende un cuadro que no existe!'; else S.ven++;
+        S.v.numCuadros--; return 'numCuadros-- → ' + S.v.numCuadros; }},
+      {g:'Datos', key:'pint', label:'numCuadrosPintados++;', fx:S => { S.v.numCuadrosPintados++; return 'numCuadrosPintados++ → ' + S.v.numCuadrosPintados; }},
+      {g:'Datos', key:'vend', label:'numCuadrosVendidos++;', fx:S => { S.v.numCuadrosVendidos++; return 'numCuadrosVendidos++ → ' + S.v.numCuadrosVendidos; }}
     ],
     groups:[
       {t:'p1', n:1, name:'Pintor', emoji:'🎨', extra:a => ' · cuadros: ' + a.done + '/' + p.total,
        proc:function*(a){
          for (let i = 0; i < p.total; i++){ yield* invoke(a, 'depositar'); a.done++; }
-         yield* execBlock(a, prog.fin.body);
-         if (!prog.fin.body.some(n => n.kind === 'stmt' && n.op === 'terminarCall')) log('Pintor: no llama a terminar()', true);
          a.state = 'fin'; a.cur = null;
        }},
       {t:'v1', n:p.vendedores, name:'Vendedor', emoji:'💰', extra:a => ' · vendidos: ' + a.done,
        proc:function*(a){
-         for (;;){
-           const r = yield* invoke(a, 'vender');
-           if (r === true){ a.done++; continue; }
-           if (S.v.terminado) log(a.n + ': vender() devolvió false, ya no hay más, termina');
-           else { S.anomalia = true; log(a.n + ': vender() devolvió false con el pintor trabajando, se va', true); }
-           break;
+         while (S.v.numCuadrosVendidos < p.total){
+           const antes = S.ven;
+           yield* invoke(a, 'vender');
+           if (S.ven > antes) a.done++;
+           else if (!a.avisado){ a.avisado = true; log(a.n + ': vender() acabó sin vender (no quedan cuadros por pintar)'); }
          }
+         log(a.n + ': ya se han vendido los ' + p.total + ', termina');
          a.state = 'fin'; a.cur = null;
        }}
     ],
-    filled:S => S.v.cuadros,
+    filled:S => S.v.numCuadros,
     anomaly:S => { const m = S.pend; S.pend = null; return m; },
     stats:S => 'Pintados: ' + S.dep + ' / ' + p.total + ' · Vendidos: ' + S.ven + ' / ' + p.total,
-    ok:S => S.dep === p.total && S.ven === p.total && S.v.cuadros === 0 && !S.anomalia,
+    ok:S => S.dep === p.total && S.ven === p.total && S.v.numCuadros === 0 && !S.anomalia,
     okMsg:S => '✔ Termina bien. Pintados ' + S.dep + ', vendidos ' + S.ven,
     summary:S => 'pintados ' + S.dep + ', vendidos ' + S.ven,
-    mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen();', '    new Thread(new Pintor(almacen), "Pintor").start();', '    // ' + p.vendedores + ' hilos Vendedor, cada uno con su new Thread(...).start()', '}'],
-    hasFin:true,
-    finPre:['// Pintor.run(): for 1..' + p.total + ' → depositar(i); después:'],
-    hiloLines:['// Vendedor.run(): while (almacen.vender()) { }'],
+    mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen(' + p.capacidad + ');', '    new Thread(new Pintor(almacen), "Pintor").start();', '    // ' + p.vendedores + ' hilos Vendedor, cada uno con su new Thread(...).start()', '}'],
+    hiloLines:['// Pintor.run(): for 1..' + p.total + ' → almacen.depositar(i)', '// Vendedor.run(): while (almacen.getCuadrosVendidos() < ' + p.total + ') almacen.vender();'],
     solution:() => ({
-      fin:{body:[st('terminarCall')]},
-      m:{depositar:{mod:'synchronized', body:[blk('while', 'cuadros == capacidad', [st('wait')]), st('inc'), st('notifyAll')]},
-         vender:{mod:'synchronized', body:[blk('while', 'cuadros == 0 && !terminado', [st('wait')]), blk('if', 'cuadros == 0', [st('retF')]), st('dec'), st('notifyAll'), st('retT')]},
-         terminar:{mod:'synchronized', body:[st('term'), st('notifyAll')]}},
+      m:{depositar:{mod:'synchronized', body:[blk('while', 'numCuadros == numMaxCuadros', [st('wait')]), st('inc'), st('pint'), st('notifyAll')]},
+         vender:{mod:'synchronized', body:[blk('while', 'numCuadros == 0 && numCuadrosPintados < total', [st('wait')]), blk('if', 'numCuadros > 0', [st('dec'), st('vend'), st('notifyAll')])]}},
       principal:{body:[]}
     })
   }),
@@ -537,7 +532,7 @@ const ENUN = {
     '<ul><li>El pintor espera si el almacén está lleno para dejar un cuadro.</li>' +
     '<li>Los vendedores esperan si el almacén está vacío para poder vender.</li>' +
     '<li>Cada cuadro lo vende un solo vendedor.</li>' +
-    '<li>El programa termina cuando se han pintado <b>' + p.total + '</b> cuadros y se han vendido todos. Los vendedores no saben cuántos les tocan: el almacén tiene que avisarles de que no hay más.</li></ul>'
+    '<li>El programa termina cuando se han pintado <b>' + p.total + '</b> cuadros y se han vendido todos. Los vendedores no saben cuántos les tocan: el almacén cuenta los cuadros pintados y los vendidos (<code>numCuadrosPintados</code>, <code>numCuadrosVendidos</code>) y <code>total</code> vale ' + p.total + '. Cada vendedor repite <code>vender()</code> mientras no se hayan vendido todos.</li></ul>'
 };
 
 /* pistas por niveles, de menos a más ayuda */
@@ -552,11 +547,11 @@ const HINTS = {
     'montar() espera mientras el estante está lleno. vender() espera mientras está vacío y la tienda sigue abierta; si al despertar no hay bicis, devuelve false. cerrar() marca la tienda cerrada y avisa a todos. Principal cierra cuando acaban los mecánicos.',
     ['montar(): synchronized, while (bicis == maximo) wait(); bicis++; notifyAll();', 'vender(): synchronized, while (bicis == 0 && !cerrada) wait();', 'Después, if (bicis == 0) return false;', 'Después bicis--; vendidas++; notifyAll(); return true;', 'cerrar(): synchronized, cerrada = true; notifyAll();', 'En la pestaña Principal, coloca estante.cerrar();']],
   pintor:['Hay dos papeles distintos: uno espera si el almacén está lleno y el otro si está vacío. Para saberlo hace falta contar los cuadros, como la cocina contaba cuchillos.',
-    'depositar(): while (cuadros == capacidad) wait(); después cuadros++ y notify(). vender(): while (cuadros == 0) wait(); después cuadros-- y notify(). Los dos synchronized.',
-    ['Escribe synchronized en depositar() y vender().', 'En depositar(), un while con cuadros == capacidad y dentro wait();', 'Después, cuadros++; y notify();', 'En vender(), un while con cuadros == 0 y dentro wait();', 'Después, cuadros--; y notify();', 'Ejecuta: se pintan y se venden todos y el almacén acaba en 0.']],
-  pintor2:['Ahora hay tres hilos esperando sobre el mismo almacén y notify() solo despierta a uno cualquiera. Además, los vendedores necesitan saber cuándo ya no habrá más.',
-    'Cambia notify() por notifyAll(). Añade terminado: terminar() lo pone a true y avisa a todos. vender() devuelve boolean: espera mientras no haya cuadros y el pintor no haya terminado; si al salir no hay cuadros, devuelve false. El pintor llama a terminar() al acabar.',
-    ['depositar(): while (cuadros == capacidad) wait(); cuadros++; notifyAll();', 'vender(): while (cuadros == 0 && !terminado) wait();', 'Después, if (cuadros == 0) return false;', 'Después, cuadros--; notifyAll(); return true;', 'terminar(): synchronized, terminado = true; notifyAll();', 'En la pestaña Pintor.run(), coloca almacen.terminar();']],
+    'depositar(): while (numCuadros == numMaxCuadros) wait(); después numCuadros++ y notify(). vender(): while (numCuadros == 0) wait(); después numCuadros-- y notify(). Los dos synchronized.',
+    ['Escribe synchronized en depositar() y vender().', 'En depositar(), un while con numCuadros == numMaxCuadros y dentro wait();', 'Después, numCuadros++; y notify();', 'En vender(), un while con numCuadros == 0 y dentro wait();', 'Después, numCuadros--; y notify();', 'Ejecuta: se pintan y se venden todos y el almacén acaba en 0.']],
+  pintor2:['Ahora hay tres hilos esperando sobre el mismo almacén y notify() solo despierta a uno cualquiera. Además, los vendedores necesitan saber cuándo ya no habrá más: el almacén cuenta los cuadros pintados y los vendidos.',
+    'Cambia notify() por notifyAll(). En depositar() cuenta también los pintados. vender() espera mientras no haya cuadros y todavía falten cuadros por pintar; al salir del while, si hay cuadros vende uno (y cuenta el vendido) y avisa a todos. Cada vendedor repite vender() mientras no se hayan vendido todos.',
+    ['depositar(): while (numCuadros == numMaxCuadros) wait(); numCuadros++; numCuadrosPintados++; notifyAll();', 'vender(): while (numCuadros == 0 && numCuadrosPintados < total) wait();', 'Después, un if (numCuadros > 0) { … }', 'Dentro del if: numCuadros--; numCuadrosVendidos++; notifyAll();', 'Ejecuta varias veces: siempre termina y se venden todos.']],
   fabrica:['Es un productor y consumidor con varios productores y un tope de piezas fabricadas entre todos. Cuando hay más de dos hilos esperando, elige bien cómo avisar.',
     'poner() espera mientras la cinta está llena y faltan piezas por fabricar; si ya se fabricaron todas, devuelve false para que la máquina termine. retirar() espera mientras no hay piezas. Los dos avisan con notifyAll().',
     ['poner(): synchronized, while (piezas == maximo && fabricadas < total) wait();', 'Después, if (fabricadas == total) return false;', 'Después, piezas++; fabricadas++; notifyAll(); return true;', 'retirar(): synchronized, while (piezas == 0) wait();', 'Después, piezas--; notifyAll();', 'Ejecuta: se fabrican y retiran todas y la cinta acaba vacía.']]
@@ -575,9 +570,9 @@ const PARAMS = {
   cocina:[{k:'cocineros', label:'Cocineros', min:1, max:12, def:9}, {k:'cuchillos', label:'Cuchillos', min:1, max:6, def:2}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:3000}],
   parking:[{k:'coches', label:'Coches', min:1, max:12, def:8}, {k:'plazas', label:'Plazas', min:1, max:6, def:3}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:2000}],
   bicis:[{k:'mecanicos', label:'Mecánicos', min:1, max:5, def:3}, {k:'clientes', label:'Clientes', min:1, max:5, def:2}, {k:'capacidad', label:'Capacidad del estante', min:1, max:6, def:3}, {k:'sleepM', label:'sleep mecánico', unit:' ms', step:100, min:0, max:5000, def:700}, {k:'sleepC', label:'sleep cliente', unit:' ms', step:100, min:0, max:5000, def:1200}],
-  pintor:[{k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:3}],
+  pintor:[{k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}],
   fabrica:[{k:'maquinas', label:'Máquinas', min:1, max:5, def:3}, {k:'total', label:'Piezas a fabricar', min:4, max:50, def:20}, {k:'capacidad', label:'Capacidad de la cinta', min:1, max:8, def:5}, {k:'sleepM', label:'sleep máquina', unit:' ms', step:100, min:0, max:5000, def:1200}, {k:'sleepE', label:'sleep empaquetador', unit:' ms', step:100, min:0, max:5000, def:800}],
-  pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:3}]
+  pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}]
 };
 const cfg = {};
 ORDER.forEach(id => { cfg[id] = {}; PARAMS[id].forEach(q => { cfg[id][q.k] = q.def; }); });
@@ -1272,7 +1267,8 @@ const MUT = {
   quita:(pr, a) => { bodies(pr).forEach(l => { for (let i = l.length - 1; i >= 0; i--) if (l[i].kind === 'stmt' && l[i].op === a) l.splice(i, 1); }); return pr; },
   ifPorWhile:pr => { bodies(pr).forEach(l => walk(l, n => { if (n.kind === 'while') n.kind = 'if'; })); return pr; },
   sinSync:pr => { Object.keys(pr.m).forEach(k => { pr.m[k].mod = ''; }); return pr; },
-  sinFin:pr => { pr.fin = {body:[]}; return pr; },
+  sinIfVender:pr => { const b = pr.m.vender.body, k = b.findIndex(n => n.kind === 'if'); if (k >= 0) b.splice(k, 1, ...b[k].body); return pr; },
+  sinPintados:pr => { walk(pr.m.vender.body, n => { if (n.kind === 'while') n.cond = 'numCuadros == 0'; }); return pr; },
   sinTopar:pr => { pr.m.poner.body = pr.m.poner.body.filter(n => n.kind !== 'if'); return pr; },
   sinCerrar:pr => { pr.principal = {body:[]}; return pr; }
 };
@@ -1376,7 +1372,7 @@ const EXPS = {
      cfg:() => ({total:randInt(6, 12), capacidad:randInt(1, 3)}),
      instr:c => 'Ejecuta la solución con un almacén de ' + c.capacidad + ' y ' + c.total + ' cuadros. Mira cómo se esperan pintor y vendedor.',
      prog:SOL,
-     q:(r, c) => ({txt:'¿Cuántos cuadros quedan en el almacén al terminar?', ops:['0', '1', String(c.capacidad)], ok:0, why:'Se venden todos los que se pintan: ' + c.total + ' pintados y ' + c.total + ' vendidos, así que el almacén acaba vacío.'})},
+     q:(r, c) => ({txt:'¿Cuántos cuadros quedan en el almacén al terminar?', ops:['0', String(c.capacidad), String(c.capacidad + 1)], ok:0, why:'Se venden todos los que se pintan: ' + c.total + ' pintados y ' + c.total + ' vendidos, así que el almacén acaba vacío.'})},
     {id:'if', tipo:'ver', titulo:'if en vez de while',
      cfg:() => ({total:randInt(6, 12), capacidad:randInt(1, 3)}),
      instr:c => 'Aquí depositar() y vender() usan if en lugar de while. Hay un solo pintor y un solo vendedor.',
@@ -1420,21 +1416,26 @@ const EXPS = {
      instr:c => 'Aquí todos los métodos usan notify() en vez de notifyAll(). Hay ' + c.vendedores + ' vendedores y un almacén de ' + c.capacidad + '.',
      prog:() => MUT.swap(SOL(), 'notifyAll', 'notify'), reps:20,
      q:qResultado('¿Funciona siempre?', 'Puede colgarse (a veces, o casi siempre según el almacén): notify() despierta a uno cualquiera, que puede ser otro vendedor y no el pintor. Si ese hilo no puede avanzar vuelve a dormirse y la señal se pierde. Con notifyAll() despiertan todos y cada uno comprueba si le toca.')},
-    {id:'sinFin', tipo:'ver', titulo:'Sin terminar()',
+    {id:'sinPintados', tipo:'ver', titulo:'Sin mirar los cuadros pintados',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3)}),
-     instr:c => 'Aquí el pintor no llama a terminar() cuando acaba. Hay ' + c.vendedores + ' vendedores.',
-     prog:() => MUT.sinFin(SOL()),
-     q:qResultado('¿Qué ocurre?', 'Los vendedores no saben que ya no habrá más cuadros y esperan en wait() para siempre. terminar() pone terminado = true y avisa a todos para que salgan.')},
+     instr:c => 'Aquí el while de vender() solo mira numCuadros == 0: no mira cuántos cuadros se han pintado. Hay ' + c.vendedores + ' vendedores.',
+     prog:() => MUT.sinPintados(SOL()),
+     q:qResultado('¿Qué ocurre?', 'Cuando el pintor acaba y el almacén se vacía, los vendedores que siguen dentro de vender() esperan en wait() para siempre: nadie les va a avisar. Con numCuadrosPintados < total en el while salen al despertar, ven que no hay cuadros y terminan.')},
     {id:'if', tipo:'ver', titulo:'if en vez de while',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 2)}),
-     instr:c => 'Aquí hay if en lugar de while. Ahora son ' + c.vendedores + ' vendedores.',
+     instr:c => 'Aquí hay if en lugar de while antes de los wait(). Ahora son ' + c.vendedores + ' vendedores.',
      prog:() => MUT.ifPorWhile(SOL()), reps:20,
-     q:qResultado('¿Falla?', 'Con varios vendedores, notifyAll() despierta a todos pero solo hay un cuadro. El primero lo vende y los demás, sin volver a mirar, intentan vender otro que ya no existe. El while obliga a comprobarlo de nuevo.')},
-    {id:'terminar', tipo:'montar', titulo:'Rellena Pintor.run()',
+     q:qResultado('¿Falla?', 'Aquí no falla, pero solo porque vender() vuelve a comprobar con el if (numCuadros > 0) y cada Vendedor repite vender() en su while. Si un vendedor despierta y no hay cuadros, no vende y vuelve a intentarlo. El while dentro del método es la forma segura de hacerlo: no depende de que alguien más lo arregle.')},
+    {id:'sinIf', tipo:'ver', titulo:'Sin comprobar al despertar',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 2)}),
+     instr:c => 'Aquí vender() no tiene el if (numCuadros > 0): después del while siempre vende. Hay ' + c.vendedores + ' vendedores.',
+     prog:() => MUT.sinIfVender(SOL()), reps:20,
+     q:qResultado('¿Qué ocurre?', 'Cuando el pintor acaba, los vendedores que esperan se despiertan, salen del while porque ya se han pintado todos, y venden un cuadro que no existe: numCuadros baja de 0. El if (numCuadros > 0) es lo que los hace irse con las manos vacías.')},
+    {id:'terminar', tipo:'montar', titulo:'Completa el while de vender()',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3)}),
-     instr:c => 'Todo está escrito menos lo que hace el pintor al acabar. Ve a la pestaña Pintor.run(), coloca la línea que falta y pulsa «Comprobar».',
-     prog:() => MUT.sinFin(SOL()), tab:2,
-     why:'Al acabar sus cuadros el pintor llama a almacen.terminar(): pone terminado = true y avisa a todos los vendedores.'}
+     instr:c => 'Todo está escrito menos una parte de la condición del while de vender(). Los vendedores se quedan esperando cuando el pintor acaba. Corrígela (el total es ' + c.total + ': usa la constante total) y pulsa «Comprobar».',
+     prog:() => MUT.sinPintados(SOL()), tab:0,
+     why:'Los vendedores deben esperar mientras no haya cuadros Y todavía falten cuadros por pintar: while (numCuadros == 0 && numCuadrosPintados < total). Así, cuando el pintor acaba, salen del wait(), ven que no hay cuadros y terminan.'}
   ]
 };
 

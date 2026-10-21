@@ -1063,7 +1063,7 @@ emparejar(D, 'wait, notify y compañía',
   '`notify()` despierta a uno; `notifyAll()`, a todos. Los dos son métodos de la clase `Object`.');
 
 multi(D, 'Los dos papeles',
-  'Un pintor (hilo) deja cuadros en un almacén donde caben **3 cuadros** (el almacén guarda cuántos hay y su capacidad), y un vendedor (hilo) los saca para venderlos. El almacén es un objeto compartido con métodos `synchronized`. Marca lo que es **correcto**:',
+  'Un pintor (hilo) deja cuadros en un almacén donde caben **3 cuadros** (el almacén guarda cuántos hay, `numCuadros`, y cuántos caben, `numMaxCuadros`), y un vendedor (hilo) los saca para venderlos. El almacén es un objeto compartido con métodos `synchronized`. Marca lo que es **correcto**:',
   [
     ['El pintor espera si el almacén está lleno.', true],
     ['El vendedor espera si el almacén está vacío.', true],
@@ -1074,7 +1074,7 @@ multi(D, 'Los dos papeles',
   'Cada hilo tiene un papel distinto: uno espera a que el otro haga algo. Se crea **un solo** almacén; si cada hilo tuviera el suyo, no se comunicarían.');
 
 test(D, 'notify con 2 hilos',
-  'Un pintor y **un** vendedor comparten un almacén de capacidad 3 y con ellos basta `notify()`. ¿Y si hubiera un pintor y **dos** vendedores?',
+  'Un pintor y **un** vendedor comparten un almacén de capacidad 1 y con ellos basta `notify()`. ¿Y si hubiera un pintor y **dos** vendedores?',
   [
     ['Hay tres hilos que pueden esperar: `notify()` despierta a uno cualquiera y puede ser el equivocado; hace falta `notifyAll()`.', true],
     ['Sigue valiendo `notify()` igual.', false],
@@ -1089,68 +1089,63 @@ vf(D, 'notify elige al más antiguo',
   'Falso. Despierta a uno cualquiera de los que esperan.');
 
 test(D, 'Qué es la señal de fin',
-  'Varios vendedores sacan cuadros de un almacén compartido y un pintor los va dejando, pero los vendedores **no saben cuántos cuadros** se van a pintar. ¿Cómo saben que ya no habrá más?',
+  'Varios vendedores sacan cuadros de un almacén compartido y un pintor los va dejando, pero los vendedores **no saben cuántos cuadros** les tocan. ¿Cómo saben que ya no habrá más?',
   [
-    ['El almacén guarda un dato compartido (`terminado`) que el pintor activa al acabar: una señal de fin.', true],
+    ['El almacén cuenta los cuadros pintados y los vendidos (datos compartidos), y los vendedores paran cuando ya se ha pintado todo y no queda ninguno.', true],
     ['Cada vendedor cuenta hasta 10 por su cuenta.', false],
     ['Java termina los hilos vendedores automáticamente.', false],
     ['Esperan 20 segundos y salen.', false],
   ],
-  'La señal de fin es un dato compartido que avisa a los que esperan de que ya no habrá más.');
+  'La señal de fin es un dato compartido (aquí, los contadores del almacén) que permite a los que esperan saber que ya no habrá más.');
 
-test(D, 'Pintor sin terminar()',
-  'Un almacén tiene un `boolean terminado` que el pintor pone a `true` llamando a `terminar()` cuando acaba de pintar. Los vendedores esperan con `while (cuadros == 0 && !terminado) wait();`. El pintor pinta sus 10 cuadros pero **olvida** llamar a `terminar()`. ¿Qué ocurre?',
+test(D, 'Vender sin mirar los pintados',
+  'Los vendedores esperan con `while (numCuadros == 0) wait();`, sin mirar `numCuadrosPintados`. El pintor pinta sus 10 cuadros y se marcha, los vendedores venden todos los cuadros que hay, pero uno de ellos llega a `vender()` cuando el almacén ya está vacío. ¿Qué ocurre?',
   [
-    ['Los vendedores se quedan esperando para siempre y el programa no termina.', true],
-    ['Los vendedores terminan solos cuando se acaban los cuadros.', false],
+    ['Ese vendedor se queda esperando para siempre y el programa no termina.', true],
+    ['Ese vendedor se marcha solo al ver que no hay cuadros.', false],
     ['Java lanza una excepción en el pintor.', false],
-    ['El almacén se vacía y el programa termina normalmente.', false],
+    ['El programa termina normalmente.', false],
   ],
-  '`terminado` es la señal de fin: sin ella, los vendedores no saben que ya no vendrán más cuadros.');
+  'Nadie va a avisar a ese vendedor: el pintor ya terminó. Por eso el `while` también mira si faltan cuadros por pintar (`numCuadrosPintados < 10`), y así el vendedor sale del `wait()` cuando ya no habrá más.');
 
-test(D, 'terminado antes que cuadros',
-  'En un almacén de cuadros, el método `vender()` de los vendedores comprueba **primero** si el pintor ha terminado (`terminado`) y, si es así, devuelve `false` y el vendedor se marcha; solo **después** mira si hay cuadro. ¿Qué problema puede ocurrir?',
+test(D, 'Pintados antes que cuadros',
+  'En `vender()`, después del `while`, un programador comprueba **primero** si ya se han pintado los 10 cuadros y, si es así, el vendedor se marcha sin vender; solo **después** mira si hay cuadros. ¿Qué problema puede ocurrir?',
   [
-    ['Se pierde el último cuadro: el pintor lo deja y termina enseguida, y nadie lo vende.', true],
+    ['Se pierden los cuadros que quedan en el almacén: el pintor termina y los vendedores se van sin venderlos.', true],
     ['Se venden dos cuadros a la vez.', false],
     ['No pasa nada: da igual el orden.', false],
     ['El programa no compila.', false],
   ],
-  'Hay que mirar primero si hay cuadro: si el pintor deja el último y termina enseguida, ese cuadro se vende igualmente.');
+  'Hay que mirar primero si hay cuadros (`numCuadros > 0`): si el pintor termina con cuadros en el almacén, esos cuadros se venden igualmente.');
 
 completar(D, 'Almacén: vender()',
-  'Un almacén de cuadros lo comparten un pintor y varios vendedores. Completa `vender()`: los vendedores esperan mientras **no haya cuadro y el pintor no haya terminado**.',
+  'Un almacén de cuadros lo comparten un pintor y varios vendedores. Completa `vender()`: los vendedores esperan mientras **no haya cuadros y todavía falten cuadros por pintar** (el pintor pinta 10).',
   `class Almacen {
-    private int cuadros = 0;
-    private boolean terminado = false;
+    private int numCuadros = 0;
+    private int numCuadrosPintados = 0;
+    private int numCuadrosVendidos = 0;
 
-    public synchronized boolean vender() {
-        while (⟦mc:cuadros == 0|cuadros > 0|terminado⟧ && ⟦mc:!terminado|terminado|cuadros == 0⟧) {
+    public synchronized void vender() {
+        while (⟦mc:numCuadros == 0|numCuadros > 0|numCuadrosPintados == 0⟧ && ⟦mc:numCuadrosPintados < 10|numCuadrosPintados > 10|numCuadrosVendidos < 10⟧) {
             try {
                 wait();
             } catch (InterruptedException e) {
             }
         }
-        if (⟦mc:cuadros == 0|cuadros > 0|terminado|!terminado⟧) {
-            return ⟦mc:false|true⟧;
+        if (⟦mc:numCuadros > 0|numCuadros == 0|numCuadrosPintados < 10⟧) {
+            numCuadros--;
+            ⟦mc:numCuadrosVendidos++|numCuadrosPintados++|numCuadrosVendidos--⟧;
+            ⟦sa:notifyAll⟧();
         }
-        cuadros--;
-        ⟦sa:notifyAll⟧();
-        return true;
-    }
-
-    public synchronized void terminar() {
-        terminado = ⟦mc:true|false⟧;
-        notifyAll();
     }
 }`,
-  'Esperan si no hay cuadro **y** el pintor sigue pintando. Si salen del `while` sin cuadro, es que el pintor terminó: devuelve `false`. Al vender, avisa con `notifyAll()`.');
+  'Esperan si no hay cuadros **y** todavía faltan por pintar. Al salir del `while`, si hay cuadros se vende uno, se cuenta como vendido y se avisa con `notifyAll()`; si no, es que ya se pintaron todos y el vendedor se va.');
 
 arrastrar(D, 'Ordena depositar()',
   'Ordena las líneas de `depositar()`. Reglas: primero esperar si el almacén está lleno; después actualizar el estado; luego escribir el mensaje y **por último** avisar a los demás.',
   `class Almacen {
-    private int cuadros = 0;
-    private int capacidad = 3;
+    private int numCuadros = 0;
+    private int numMaxCuadros = 1;
 
     public synchronized void depositar(int numero) throws InterruptedException {
         [[1]]
@@ -1161,7 +1156,7 @@ arrastrar(D, 'Ordena depositar()',
         [[6]]
     }
 }`,
-  ['while (cuadros == capacidad) {', 'wait();', '}', 'cuadros++;', 'System.out.println("deja el cuadro " + numero);', 'notifyAll();'],
+  ['while (numCuadros == numMaxCuadros) {', 'wait();', '}', 'numCuadros++;', 'System.out.println("deja el cuadro " + numero);', 'notifyAll();'],
   'Esperar, cambiar el estado, mostrar y avisar.',
   { grado: 3 });
 
@@ -1185,7 +1180,7 @@ arrastrar(D, 'Ordena el aviso',
   { esCodigo: false, grado: 2 });
 
 vf(D, 'Salida con un pintor y un vendedor',
-  'Un pintor deja 10 cuadros en un almacén donde caben 3 y un vendedor los vende. Los mensajes («deja el cuadro 1», «vende el cuadro 1», «deja el cuadro 2»...) salen **siempre en el mismo orden** en todas las ejecuciones.',
+  'Un pintor deja 10 cuadros en un almacén donde caben 3 (`new Almacen(3)`) y un vendedor los vende. Los mensajes («deja el cuadro 1», «vende el cuadro 1», «deja el cuadro 2»...) salen **siempre en el mismo orden** en todas las ejecuciones.',
   false,
   'Falso. Los cuadros salen del 1 al 10 y el almacén nunca pasa de 3 ni baja de 0, pero el pintor puede dejar hasta 3 antes de que el vendedor venda, y el orden de los mensajes cambia de una ejecución a otra.');
 
@@ -1214,13 +1209,13 @@ test(D, 'Error: if en lugar de while',
   ],
   'Tras `wait()` el hilo debe volver a mirar la condición: cuando se despierta, el estado pudo cambiar.',
   { codigo: mostrar('6.4 if en vez de while', `class Almacen {
-    private int cuadros = 0;
+    private int numCuadros = 0;
 
     public synchronized void vender() throws InterruptedException {
-        if (cuadros == 0) {
+        if (numCuadros == 0) {
             wait();
         }
-        cuadros--;
+        numCuadros--;
         System.out.println("vende el cuadro");
         notifyAll();
     }

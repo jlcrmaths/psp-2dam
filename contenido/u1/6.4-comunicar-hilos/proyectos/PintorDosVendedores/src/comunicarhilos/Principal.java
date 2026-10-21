@@ -3,8 +3,8 @@ package comunicarhilos;
 public class Principal {
 
     public static void main(String[] args) {
-        // Un almacén, con sitio para 3 cuadros, y tres hilos que lo comparten.
-        Almacen almacen = new Almacen(3);
+        // Un almacén, con sitio para 1 cuadro, y tres hilos que lo comparten.
+        Almacen almacen = new Almacen(1);
 
         Thread pintor = new Thread(new Pintor(almacen), "Pintor");
         Thread v1 = new Thread(new Vendedor(almacen), "Vendedor 1");

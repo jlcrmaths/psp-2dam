@@ -1,6 +1,6 @@
 package comunicarhilos;
 
-// El pintor pinta 10 cuadros y, al acabar, avisa al almacén de que ha terminado.
+// El pintor pinta 10 cuadros.
 public class Pintor implements Runnable {
 
     private Almacen almacen;
@@ -14,6 +14,5 @@ public class Pintor implements Runnable {
         for (int i = 1; i <= 10; i++) {
             almacen.depositar(i);
         }
-        almacen.terminar();
     }
 }
