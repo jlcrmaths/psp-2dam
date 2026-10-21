@@ -533,11 +533,11 @@ const ENUN = {
     '<li>Los clientes no cuentan sus bicis: compran mientras haya bicis o la tienda esté abierta.</li>' +
     '<li>Cuando los mecánicos terminan, <code>Principal</code> cierra la tienda. Los clientes se llevan las que queden y terminan.</li>' +
     '<li>Debe acabar solo, con el estante en 0 y <b>' + (p.mecanicos * 4) + '</b> bicis vendidas.</li></ul>',
-  pintor:p => '<p>Un pintor y un vendedor comparten un almacén donde caben <b>' + p.capacidad + ' cuadros</b>.</p>' +
+  pintor:p => '<p>Un pintor y un vendedor comparten un almacén donde ' + (p.capacidad === 1 ? 'cabe <b>1 cuadro' : 'caben <b>' + p.capacidad + ' cuadros') + '</b>.</p>' +
     '<ul><li>El pintor espera si el almacén está lleno para dejar un cuadro.</li>' +
     '<li>El vendedor espera si el almacén está vacío para poder vender.</li>' +
     '<li>El programa termina cuando se han vendido los <b>' + p.total + '</b> cuadros.</li></ul>',
-  pintor2:p => '<p>Un pintor y <b>' + p.vendedores + ' vendedores</b> comparten un almacén donde caben <b>' + p.capacidad + ' cuadros</b>.</p>' +
+  pintor2:p => '<p>Un pintor y <b>' + p.vendedores + ' vendedores</b> comparten un almacén donde ' + (p.capacidad === 1 ? 'cabe <b>1 cuadro' : 'caben <b>' + p.capacidad + ' cuadros') + '</b>.</p>' +
     '<ul><li>El pintor espera si el almacén está lleno para dejar un cuadro.</li>' +
     '<li>Los vendedores esperan si el almacén está vacío para poder vender.</li>' +
     '<li>Cada cuadro lo vende un solo vendedor.</li>' +
@@ -1578,6 +1578,7 @@ $('expPanel').addEventListener('toggle', () => { if ($('expPanel').open) exRende
 
 ORDER.forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = build(k).titulo; $('escenario').append(o); });
 load();
+ORDER.forEach(k => { const o = $('escenario').querySelector('option[value="' + k + '"]'); if (o) o.textContent = build(k).titulo; });   /* títulos con los parámetros guardados */
 /* enlace directo a un ejemplo: simulador/index.html#parking */
 { const hs = location.hash.slice(1).split('&'); if (BUILD[hs[0]]) cur = hs[0]; if (hs.includes('experimentos')) $('expPanel').open = true; if (hs.includes('proyector')) proyectar(true); }
 setScenario(cur);
