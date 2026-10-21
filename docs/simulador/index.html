@@ -436,9 +436,9 @@ const BUILD = {
       {t:'v1', n:p.vendedores, name:'Vendedor', emoji:'💰', extra:a => ' · vendidos: ' + a.done,
        proc:function*(a){
          for (;;){
-           yield* sleepTicks(a, randInt(0, ticksDe(p.sleepV == null ? 2000 : p.sleepV)));   /* pausa aleatoria */
            const vendidos = yield* invoke(a, 'getCuadrosVendidos');
            if (!(vendidos < p.total)) break;
+           yield* sleepTicks(a, randInt(0, ticksDe(p.sleepV == null ? 2000 : p.sleepV)));   /* pausa aleatoria */
            const antes = a.dec || 0;
            yield* invoke(a, 'vender');
            if ((a.dec || 0) > antes) a.done++;
@@ -455,7 +455,7 @@ const BUILD = {
     okMsg:S => '✔ Termina bien. Pintados ' + S.dep + ', vendidos ' + S.ven,
     summary:S => 'pintados ' + S.dep + ', vendidos ' + S.ven,
     mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen(' + p.capacidad + ');', '    new Thread(new Pintor(almacen), "Pintor").start();', '    // ' + p.vendedores + ' hilos Vendedor, cada uno con su new Thread(...).start()', '}'],
-    hiloLines:['// Pintor.run(): for 1..' + p.total + ' → almacen.depositar(i)', {pre:'//    antes de cada depositar():  Thread.sleep((long) (Math.random() * ', param:'sleepP', post:'));'}, '// Vendedor.run(): while (almacen.getCuadrosVendidos() < ' + p.total + ') almacen.vender();   // ya escrito', {pre:'//    antes de cada vuelta:  Thread.sleep((long) (Math.random() * ', param:'sleepV', post:'));'}],
+    hiloLines:['// Pintor.run() (ya escrito; sleep en ms, se puede cambiar)', 'for (int i = 1; i <= ' + p.total + '; i++) {', {pre:'    Thread.sleep((long) (Math.random() * ', param:'sleepP', post:'));'}, '    almacen.depositar(i);', '}', '', '// Vendedor.run() (ya escrito; sleep en ms, se puede cambiar)', 'while (almacen.getCuadrosVendidos() < ' + p.total + ') {', {pre:'    Thread.sleep((long) (Math.random() * ', param:'sleepV', post:'));'}, '    almacen.vender();', '}'],
     solution:() => ({
       m:{depositar:{mod:'synchronized', body:[blk('while', 'numCuadros == numMaxCuadros', [st('wait')]), st('inc'), st('pint'), st('notifyAll')]},
          vender:{mod:'synchronized', body:[blk('while', 'numCuadros == 0 && numCuadrosPintados < total', [st('wait')]), blk('if', 'numCuadros > 0', [st('dec'), st('vend'), st('notifyAll')])]},
