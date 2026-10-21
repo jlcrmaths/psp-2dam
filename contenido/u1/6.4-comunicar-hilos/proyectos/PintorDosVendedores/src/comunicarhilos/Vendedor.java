@@ -1,6 +1,6 @@
 package comunicarhilos;
 
-// El vendedor vende cuadros mientras quede alguno. No sabe cuántos venderá él: depende de quién llegue antes.
+// El vendedor vende cuadros hasta que entre todos se han vendido 10. No sabe cuántos venderá él: depende de quién llegue antes.
 public class Vendedor implements Runnable {
 
     private Almacen almacen;
@@ -11,10 +11,9 @@ public class Vendedor implements Runnable {
 
     @Override
     public void run() {
-        boolean hayMas = true;
-        // Sigue mientras vender() diga true. Cuando dice false, no hay más cuadros y el hilo termina.
-        while (hayMas) {
-            hayMas = almacen.vender();
+        // Sigue mientras no se hayan vendido los 10 cuadros.
+        while (almacen.getCuadrosVendidos() < 10) {
+            almacen.vender();
         }
     }
 }

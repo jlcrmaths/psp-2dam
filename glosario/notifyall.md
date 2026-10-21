@@ -13,6 +13,6 @@ Cuando hay más de dos hilos esperando, notify() puede despertar al equivocado. 
 ## Ejemplo mínimo
 
 ```java
-cuadros--;
+numCuadros--;
 notifyAll();
 ```
