@@ -108,6 +108,9 @@ body.proy .piece{font-size:.9em}
 .gap:hover{opacity:1;color:#fff}
 .gap.last{font-size:.85em;opacity:1;color:#cdd3e1;border:1px dashed #5b6580;border-radius:6px;padding:1px 10px;margin:3px 0}
 .gap.over{background:#ffffff33;opacity:1}
+.piece.sel,.line.sel{outline:2px solid #fff;background:#ffffff26}
+body.colocando .gap{opacity:1;color:#fff}
+body.colocando .line.empty{border-color:#fff;color:#fff}
 .code input{background:#0b0f17;color:#fff;border:2px solid #5b6580;border-radius:6px;font:inherit;padding:0 6px}
 .code input.mod{width:10.5em}
 .code input.cond{width:15em}
@@ -207,7 +210,7 @@ body.proy .piece{font-size:.9em}
     <div class="panel piecepanel">
       <h2>Piezas</h2>
       <div class="pieces" id="pieces"></div>
-      <details><summary>Cómo se usa</summary><p class="hint">1) Pulsa «＋ insertar línea» donde quieras una instrucción. 2) Pulsa la pieza (o arrástrala al hueco). 3) Rellena a mano lo que falte. Arrastra con ⠿ para mover una línea; ✕ la borra. Se omiten los try/catch de wait() y sleep().</p></details>
+      <details><summary>Cómo se usa</summary><p class="hint">1) Pulsa «＋ insertar línea» donde quieras una instrucción. 2) Pulsa la pieza (o arrástrala al hueco). También puedes pulsar una pieza (queda marcada) y luego pulsar el «＋» o el hueco donde quieras colocarla; con ⠿ pasa igual para mover una línea. 3) Rellena a mano lo que falte. Arrastra con ⠿ para mover una línea; ✕ la borra. Se omiten los try/catch de wait() y sleep().</p></details>
     </div>
     <div class="panel codepanel">
       <h2>Código</h2>
@@ -962,6 +965,14 @@ function updateMarks(){
 
 /* ---------- editor ---------- */
 let armed = null;
+/* selección por clic (alternativa a arrastrar): pieza 'piece:clave' o línea 'node:id'; el siguiente clic en un hueco la coloca */
+let sel = null;
+function setSel(v){
+  sel = sel === v ? null : v;
+  document.querySelectorAll('.piece').forEach(x => x.classList.toggle('sel', sel === 'piece:' + x.dataset.key));
+  document.querySelectorAll('.line[data-nid]').forEach(x => x.classList.toggle('sel', sel === 'node:' + x.dataset.nid));
+  document.body.classList.toggle('colocando', !!sel);
+}
 const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
 const allLists = () => sc.methods.map(m => prog.m[m.name].body).concat(sc.hasPrincipal ? [prog.principal.body] : []).concat(sc.hasFin ? [prog.fin.body] : []);
 
@@ -1034,7 +1045,7 @@ function removeNode(id){ const loc = findLoc(id); if (loc){ loc.list.splice(loc.
 
 function gapEl(list, i, last){
   const b = h('button', 'gap' + (last ? ' last' : ''), last ? '＋ insertar línea' : '＋');
-  b.onclick = () => { const n = mk('empty'); list.splice(i, 0, n); armed = n.id; changed(); };
+  b.onclick = () => { if (sel){ dropOnGap(list, i, sel); return; } const n = mk('empty'); list.splice(i, 0, n); armed = n.id; changed(); };
   b.ondragover = e => { e.preventDefault(); b.classList.add('over'); };
   b.ondragleave = () => b.classList.remove('over');
   b.ondrop = e => { e.preventDefault(); b.classList.remove('over'); dropOnGap(list, i, e.dataTransfer.getData('text/plain')); };
@@ -1052,6 +1063,8 @@ function lineParts(n){
   const grip = h('span', 'grip', '⠿');
   grip.draggable = true;
   grip.ondragstart = e => { e.dataTransfer.setData('text/plain', 'node:' + n.id); e.dataTransfer.setDragImage(line, 10, 10); };
+  grip.title = 'Arrastra, o haz clic para seleccionar la línea y otro clic en un hueco para moverla';
+  grip.onclick = () => setSel('node:' + n.id);
   line.append(grip);
   return line;
 }
@@ -1065,7 +1078,7 @@ function nodeEl(n){
   if (n.kind === 'empty'){
     const d = h('div', 'line empty' + (armed === n.id ? ' armed' : ''), 'arrastra aquí una instrucción');
     d.dataset.nid = n.id;
-    d.onclick = () => { armed = n.id; document.querySelectorAll('.line.empty').forEach(x => x.classList.toggle('armed', +x.dataset.nid === n.id)); };
+    d.onclick = () => { if (sel){ dropOnEmpty(n.id, sel); return; } armed = n.id; document.querySelectorAll('.line.empty').forEach(x => x.classList.toggle('armed', +x.dataset.nid === n.id)); };
     d.ondragover = e => { e.preventDefault(); d.classList.add('over'); };
     d.ondragleave = () => d.classList.remove('over');
     d.ondrop = e => { e.preventDefault(); d.classList.remove('over'); dropOnEmpty(n.id, e.dataTransfer.getData('text/plain')); };
@@ -1184,11 +1197,13 @@ function renderPieces(){
     if (p.g !== g){ g = p.g; box.append(h('div', 'gname', g)); }
     const d = h('div', 'piece', p.label);
     d.draggable = true;
+    d.dataset.key = p.key;
     d.ondragstart = e => e.dataTransfer.setData('text/plain', 'piece:' + p.key);
     d.onclick = () => {
+      /* con un hueco vacío ya creado, la pieza va directa; si no, se selecciona y el siguiente clic en un «＋» la coloca */
       const first = document.querySelector('.line.empty');
       const target = armed != null ? armed : (first ? +first.dataset.nid : null);
-      if (target != null) dropOnEmpty(target, 'piece:' + p.key);
+      if (target != null) dropOnEmpty(target, 'piece:' + p.key); else setSel('piece:' + p.key);
     };
     box.append(d);
   });
@@ -1243,7 +1258,7 @@ function paramsChanged(){
   const o = $('escenario').querySelector('option[value="' + cur + '"]'); if (o) o.textContent = sc.titulo;
   renderParams(); renderPieces(); renderCode(); resetSim();
 }
-function changed(){ stop(); save(); renderCode(); resetSim(); }
+function changed(){ sel = null; document.body.classList.remove('colocando'); stop(); save(); renderCode(); resetSim(); }
 function stop(){ if (timer){ clearInterval(timer); timer = null; } $('bRun').textContent = '▶ Ejecutar'; }
 function run(){
   if (timer){ stop(); return; }
