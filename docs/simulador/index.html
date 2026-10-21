@@ -57,6 +57,7 @@ body.proy .piece{font-size:.9em}
 .params b{min-width:1.6em;text-align:center}
 .ico{display:inline-block}
 .hide-icon .ico{visibility:hidden}
+.ico .num{position:relative;display:inline-block;margin-left:-.25em;font-size:.55em;font-weight:700;font-family:ui-monospace,Menlo,monospace;background:var(--ink,#222);color:var(--bg,#fff);border-radius:.6em;padding:0 .35em;vertical-align:bottom}
 .em.ausente{opacity:.25}
 .carry{font-size:1.2rem;margin-left:4px}
 .alert-ring{width:46px;height:46px;border:4px solid var(--warn);border-radius:50%;font-size:0}
@@ -277,7 +278,7 @@ const BUILD = {
   }),
   parking:p => ({
     titulo:'Parking: ' + p.coches + ' coches y ' + p.plazas + ' plazas',
-    clase:'Parking', recurso:'Plazas', icono:'🚗', max:p.plazas,
+    clase:'Parking', recurso:'Plazas', icono:'🚗', max:p.plazas, slots:true,
     vars:{libres:p.plazas}, consts:{},
     fields:['private int libres;   // el constructor lo pone a ' + p.plazas],
     methods:[{name:'entrar', ret:'void'}, {name:'salir', ret:'void'}],
@@ -411,7 +412,7 @@ const BUILD = {
     clase:'Almacen', recurso:'Almacén', icono:'🖼️', max:p.capacidad,
     vars:{numCuadros:0, numCuadrosPintados:0, numCuadrosVendidos:0}, consts:{numMaxCuadros:p.capacidad, total:p.total},
     fields:['private int numCuadros = 0;', 'private int numMaxCuadros;   // el constructor lo pone a ' + p.capacidad, 'private int numCuadrosPintados = 0;', 'private int numCuadrosVendidos = 0;', '// total = ' + p.total + ': los cuadros que se pintan (en el código del profesor es un 10)'],
-    methods:[{name:'depositar', ret:'void', params:'int numero'}, {name:'vender', ret:'void'}],
+    methods:[{name:'depositar', ret:'void', params:'int numero'}, {name:'vender', ret:'void'}, {name:'getCuadrosVendidos', ret:'int'}],
     ops:[
       {g:'Datos', key:'inc', label:'numCuadros++;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
         if (S.v.numCuadros >= p.capacidad) S.pend = '¡no cabe: ' + (S.v.numCuadros + 1) + ' cuadros en un almacén de ' + p.capacidad + '!';
@@ -419,6 +420,7 @@ const BUILD = {
       {g:'Datos', key:'dec', label:'numCuadros--;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
         if (S.v.numCuadros <= 0) S.pend = '¡vende un cuadro que no existe!'; else S.ven++;
         S.v.numCuadros--; return 'numCuadros-- → ' + S.v.numCuadros; }},
+      {g:'Salida', key:'retVend', label:'return numCuadrosVendidos;', retVar:'numCuadrosVendidos'},
       {g:'Datos', key:'pint', label:'numCuadrosPintados++;', fx:S => { S.v.numCuadrosPintados++; return 'numCuadrosPintados++ → ' + S.v.numCuadrosPintados; }},
       {g:'Datos', key:'vend', label:'numCuadrosVendidos++;', fx:S => { S.v.numCuadrosVendidos++; return 'numCuadrosVendidos++ → ' + S.v.numCuadrosVendidos; }}
     ],
@@ -430,7 +432,9 @@ const BUILD = {
        }},
       {t:'v1', n:p.vendedores, name:'Vendedor', emoji:'💰', extra:a => ' · vendidos: ' + a.done,
        proc:function*(a){
-         while (S.v.numCuadrosVendidos < p.total){
+         for (;;){
+           const vendidos = yield* invoke(a, 'getCuadrosVendidos');
+           if (!(vendidos < p.total)) break;
            const antes = S.ven;
            yield* invoke(a, 'vender');
            if (S.ven > antes) a.done++;
@@ -447,10 +451,11 @@ const BUILD = {
     okMsg:S => '✔ Termina bien. Pintados ' + S.dep + ', vendidos ' + S.ven,
     summary:S => 'pintados ' + S.dep + ', vendidos ' + S.ven,
     mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen(' + p.capacidad + ');', '    new Thread(new Pintor(almacen), "Pintor").start();', '    // ' + p.vendedores + ' hilos Vendedor, cada uno con su new Thread(...).start()', '}'],
-    hiloLines:['// Pintor.run(): for 1..' + p.total + ' → almacen.depositar(i)', '// Vendedor.run(): while (almacen.getCuadrosVendidos() < ' + p.total + ') almacen.vender();'],
+    hiloLines:['// Pintor.run(): for 1..' + p.total + ' → almacen.depositar(i)', '// Vendedor.run(): while (almacen.getCuadrosVendidos() < ' + p.total + ') almacen.vender();   // ya escrito'],
     solution:() => ({
       m:{depositar:{mod:'synchronized', body:[blk('while', 'numCuadros == numMaxCuadros', [st('wait')]), st('inc'), st('pint'), st('notifyAll')]},
-         vender:{mod:'synchronized', body:[blk('while', 'numCuadros == 0 && numCuadrosPintados < total', [st('wait')]), blk('if', 'numCuadros > 0', [st('dec'), st('vend'), st('notifyAll')])]}},
+         vender:{mod:'synchronized', body:[blk('while', 'numCuadros == 0 && numCuadrosPintados < total', [st('wait')]), blk('if', 'numCuadros > 0', [st('dec'), st('vend'), st('notifyAll')])]},
+         getCuadrosVendidos:{mod:'synchronized', body:[st('retVend')]}},
       principal:{body:[]}
     })
   }),
@@ -550,8 +555,8 @@ const HINTS = {
     'depositar(): while (numCuadros == numMaxCuadros) wait(); después numCuadros++ y notify(). vender(): while (numCuadros == 0) wait(); después numCuadros-- y notify(). Los dos synchronized.',
     ['Escribe synchronized en depositar() y vender().', 'En depositar(), un while con numCuadros == numMaxCuadros y dentro wait();', 'Después, numCuadros++; y notify();', 'En vender(), un while con numCuadros == 0 y dentro wait();', 'Después, numCuadros--; y notify();', 'Ejecuta: se pintan y se venden todos y el almacén acaba en 0.']],
   pintor2:['Ahora hay tres hilos esperando sobre el mismo almacén y notify() solo despierta a uno cualquiera. Además, los vendedores necesitan saber cuándo ya no habrá más: el almacén cuenta los cuadros pintados y los vendidos.',
-    'Cambia notify() por notifyAll(). En depositar() cuenta también los pintados. vender() espera mientras no haya cuadros y todavía falten cuadros por pintar; al salir del while, si hay cuadros vende uno (y cuenta el vendido) y avisa a todos. Cada vendedor repite vender() mientras no se hayan vendido todos.',
-    ['depositar(): while (numCuadros == numMaxCuadros) wait(); numCuadros++; numCuadrosPintados++; notifyAll();', 'vender(): while (numCuadros == 0 && numCuadrosPintados < total) wait();', 'Después, un if (numCuadros > 0) { … }', 'Dentro del if: numCuadros--; numCuadrosVendidos++; notifyAll();', 'Ejecuta varias veces: siempre termina y se venden todos.']],
+    'Cambia notify() por notifyAll(). En depositar() cuenta también los pintados. vender() espera mientras no haya cuadros y todavía falten cuadros por pintar; al salir del while, si hay cuadros vende uno (y cuenta el vendido) y avisa a todos. Escribe también getCuadrosVendidos(), que devuelve los vendidos: cada vendedor repite vender() mientras no se hayan vendido todos.',
+    ['depositar(): while (numCuadros == numMaxCuadros) wait(); numCuadros++; numCuadrosPintados++; notifyAll();', 'vender(): while (numCuadros == 0 && numCuadrosPintados < total) wait();', 'Después, un if (numCuadros > 0) { … }', 'Dentro del if: numCuadros--; numCuadrosVendidos++; notifyAll();', 'getCuadrosVendidos(): synchronized, return numCuadrosVendidos; (lo usa el Vendedor para saber si debe seguir)', 'Ejecuta varias veces: siempre termina y se venden todos.']],
   fabrica:['Es un productor y consumidor con varios productores y un tope de piezas fabricadas entre todos. Cuando hay más de dos hilos esperando, elige bien cómo avisar.',
     'poner() espera mientras la cinta está llena y faltan piezas por fabricar; si ya se fabricaron todas, devuelve false para que la máquina termine. retirar() espera mientras no hay piezas. Los dos avisan con notifyAll().',
     ['poner(): synchronized, while (piezas == maximo && fabricadas < total) wait();', 'Después, if (fabricadas == total) return false;', 'Después, piezas++; fabricadas++; notifyAll(); return true;', 'retirar(): synchronized, while (piezas == 0) wait();', 'Después, piezas--; notifyAll();', 'Ejecuta: se fabrican y retiran todas y la cinta acaba vacía.']]
@@ -609,7 +614,7 @@ function checkCond(txt){
   } catch (e) { return 'condición mal escrita'; }
   return null;
 }
-function checkList(list, where, add, isBool){
+function checkList(list, where, add, tipo){
   let ret = false;
   for (const n of list){
     if (n.kind === 'empty') continue;
@@ -625,14 +630,15 @@ function checkList(list, where, add, isBool){
     if (n.kind === 'while' || n.kind === 'if'){
       const e = checkCond(n.cond);
       if (e) add(where + '()', e, n.id);
-      checkList(n.body, where, add, isBool);
+      checkList(n.body, where, add, tipo);
     } else {
       const spec = sc.ops.find(o => o.key === n.op);
       if (n.op === 'cerrarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "estante"; eso se llama desde Principal', n.id);
       if (n.op === 'terminarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "almacen"; eso se llama desde Pintor.run()', n.id);
       if (spec && spec.err) add(where + '()', spec.err, n.id);
-      if ((n.op === 'retT' || n.op === 'retF') && !isBool) add(where + '()', 'return con valor en un método void', n.id);
-      if (n.op === 'retT' || n.op === 'retF') ret = true;
+      if ((n.op === 'retT' || n.op === 'retF') && tipo !== 'boolean') add(where + '()', tipo === 'int' ? 'return true/false en un método que devuelve int' : 'return con valor en un método void', n.id);
+      if (spec && spec.retVar && tipo !== 'int') add(where + '()', tipo === 'boolean' ? 'aquí se devuelve true o false, no un int' : 'return con valor en un método void', n.id);
+      if (n.op === 'retT' || n.op === 'retF' || (spec && spec.retVar)) ret = true;
     }
   }
 }
@@ -640,17 +646,21 @@ function compile(){
   const errs = [];
   const add = (where, msg, id) => errs.push({where, msg, id});
   for (const me of sc.methods){
-    const m = prog.m[me.name], t = m.mod.trim(), isBool = me.ret === 'boolean';
+    const m = prog.m[me.name], t = m.mod.trim(), isBool = me.ret === 'boolean', isInt = me.ret === 'int';
     if (t !== '' && t !== 'synchronized')
       add(me.name + '()', t === 'static' ? 'static: no puede usar las variables ni wait() (no son static)' : 'modificador "' + t + '" no válido', null);
-    checkList(m.body, me.name, add, isBool);
+    checkList(m.body, me.name, add, me.ret);
     if (isBool){
       const real = m.body.filter(n => n.kind !== 'empty'), last = real[real.length - 1];
       if (!last || last.kind !== 'stmt' || (last.op !== 'retT' && last.op !== 'retF')) add(me.name + '()', 'falta un return al final', null);
     }
+    if (isInt){
+      const real = m.body.filter(n => n.kind !== 'empty'), last = real[real.length - 1], sp = last && last.kind === 'stmt' && sc.ops.find(o => o.key === last.op);
+      if (!sp || !sp.retVar) add(me.name + '()', 'falta un return al final', null);
+    }
   }
-  if (sc.hasPrincipal) checkList(prog.principal.body, 'Principal', add, false);
-  if (sc.hasFin) checkList(prog.fin.body, 'Pintor.run', add, false);
+  if (sc.hasPrincipal) checkList(prog.principal.body, 'Principal', add, 'void');
+  if (sc.hasFin) checkList(prog.fin.body, 'Pintor.run', add, 'void');
   return errs;
 }
 
@@ -735,6 +745,7 @@ function* execNode(a, n){
     }
     default: {
       const spec = sc.ops.find(o => o.key === n.op);
+      if (spec && spec.retVar){ log(a.n + ': ' + spec.label + ' → ' + S.v[spec.retVar]); yield; return {v:S.v[spec.retVar]}; }
       if (spec){
         S.cnt[n.op] = (S.cnt[n.op] || 0) + 1;
         if (spec.key === 'dec') S.entradas.push(a.n);
@@ -743,7 +754,14 @@ function* execNode(a, n){
         const f1 = sc.filled(S);
         if (spec.anim && f1 !== f0){
           const up = f1 > f0;
-          S.anim.push({aid:agents.indexOf(a), emoji:spec.anim.emoji, to:up ? 'res' : 'agent', idx:up ? f1 - 1 : f1, hold:spec.anim.hold});
+          const aid = agents.indexOf(a);
+          let idx = up ? f1 - 1 : f1;
+          if (sc.slots && spec.anim.hold === 'inside'){
+            /* cada coche ocupa y libera su propia plaza */
+            if (up){ const k = S.slots.indexOf(null); if (k >= 0){ S.slots[k] = aid; idx = k; } }
+            else { const k = S.slots.indexOf(aid); if (k >= 0){ S.slots[k] = null; idx = k; } }
+          }
+          S.anim.push({aid, emoji:spec.anim.emoji, to:up ? 'res' : 'agent', idx, hold:spec.anim.hold, num:sc.slots ? numDe(a) : ''});
           if (spec.anim.hold === 'carry') a.carry = up ? null : spec.anim.emoji;
           if (spec.anim.hold === 'inside') a.inside = up;
         }
@@ -756,7 +774,7 @@ function* execNode(a, n){
   yield;
 }
 function resetSim(){
-  S = {v:Object.assign({}, sc.vars), dep:0, ven:0, pend:null, anim:[], cnt:{}, lockQ:[], qn:0, entradas:[], result:null, anomalia:false, lock:null, log:[], fin:false, ticks:0, idle:0};
+  S = {slots:sc.slots ? Array(sc.max).fill(null) : [], v:Object.assign({}, sc.vars), dep:0, ven:0, pend:null, anim:[], cnt:{}, lockQ:[], qn:0, entradas:[], result:null, anomalia:false, lock:null, log:[], fin:false, ticks:0, idle:0};
   agents = [];
   sc.groups.forEach(g => {
     for (let i = 1; i <= g.n; i++)
@@ -811,11 +829,13 @@ const STATE_TXT = {
   despierto:'despertado, quiere la llave', dentro:'✅ dentro del método', join:'esperando (join)',
   fin:'🏁 terminó', muerto:'💥 murió'
 };
+const numDe = a => (a.n.match(/\d+/) || [''])[0];
+const conNum = (em, n) => em + (n ? '<b class="num">' + n + '</b>' : '');
 function agentHTML(a, compact){
   const em = a.t === 'p' ? '🧭' : a.g.emoji;
   const extra = a.t === 'p' ? '' : a.g.extra(a);
   return '<div class="agent ' + a.state + (compact ? ' compact' : '') + '" data-aid="' + agents.indexOf(a) + '"><span class="em' + (a.inside ? ' ausente' : '') +
-    '"><span class="ico">' + em + '</span></span> <span class="nm">' + a.n + '</span><span class="carry"><span class="ico">' + (a.carry || '') +
+    '"><span class="ico">' + (sc.slots && a.t !== 'p' ? conNum(em, numDe(a)) : em) + '</span></span> <span class="nm">' + a.n + '</span><span class="carry"><span class="ico">' + (a.carry || '') +
     '</span></span><div class="st">' + STATE_TXT[a.state] + extra + '</div></div>';
 }
 function render(){
@@ -834,8 +854,9 @@ function render(){
   if (sc.badge){ const b = sc.badge(S); html += ' <span class="badge ' + b.cls + '">' + b.text + '</span>'; }
   html += '</div><div class="slots">';
   for (let i = 0; i < max; i++){
-    const full = i < f;
-    html += '<div class="hole' + (full ? ' full' : '') + '"><span class="ico">' + (full ? sc.icono : '') + '</span></div>';
+    const dueno = sc.slots ? S.slots[i] : null;
+    const full = sc.slots ? dueno != null : i < f;
+    html += '<div class="hole' + (full ? ' full' : '') + '"><span class="ico">' + (full ? (dueno != null ? conNum(sc.icono, numDe(agents[dueno])) : sc.icono) : '') + '</span></div>';
   }
   html += '</div><div class="extra">';
   if (f > max) html += '<span class="bad">' + sc.icono.repeat(f - max) + ' ¡de más!</span>';
@@ -866,7 +887,7 @@ function playAnims(){
     const aPos = centre(src), hPos = centre(hole), toRes = ev.to === 'res';
     const from = toRes ? aPos : hPos, to = toRes ? hPos : centre(agentEl);
     const fl = document.createElement('div');
-    fl.className = 'fly'; fl.textContent = ev.emoji;
+    fl.className = 'fly'; fl.innerHTML = conNum(ev.emoji, ev.num);
     fl.style.left = from.x + 'px'; fl.style.top = from.y + 'px';
     document.body.append(fl);
     const dx = to.x - from.x, dy = to.y - from.y;
@@ -1268,6 +1289,7 @@ const MUT = {
   ifPorWhile:pr => { bodies(pr).forEach(l => walk(l, n => { if (n.kind === 'while') n.kind = 'if'; })); return pr; },
   sinSync:pr => { Object.keys(pr.m).forEach(k => { pr.m[k].mod = ''; }); return pr; },
   sinIfVender:pr => { const b = pr.m.vender.body, k = b.findIndex(n => n.kind === 'if'); if (k >= 0) b.splice(k, 1, ...b[k].body); return pr; },
+  sinGetter:pr => { pr.m.getCuadrosVendidos = {mod:'', body:[]}; return pr; },
   sinPintados:pr => { walk(pr.m.vender.body, n => { if (n.kind === 'while') n.cond = 'numCuadros == 0'; }); return pr; },
   sinTopar:pr => { pr.m.poner.body = pr.m.poner.body.filter(n => n.kind !== 'if'); return pr; },
   sinCerrar:pr => { pr.principal = {body:[]}; return pr; }
@@ -1431,6 +1453,11 @@ const EXPS = {
      instr:c => 'Aquí vender() no tiene el if (numCuadros > 0): después del while siempre vende. Hay ' + c.vendedores + ' vendedores.',
      prog:() => MUT.sinIfVender(SOL()), reps:20,
      q:qResultado('¿Qué ocurre?', 'Cuando el pintor acaba, los vendedores que esperan se despiertan, salen del while porque ya se han pintado todos, y venden un cuadro que no existe: numCuadros baja de 0. El if (numCuadros > 0) es lo que los hace irse con las manos vacías.')},
+    {id:'getter', tipo:'montar', titulo:'Escribe getCuadrosVendidos()',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3)}),
+     instr:c => 'Todo está escrito menos getCuadrosVendidos(), el método que usa cada Vendedor para saber si ya se han vendido los ' + c.total + '. Escríbelo en la pestaña Almacen (con su modificador y su return) y pulsa «Comprobar».',
+     prog:() => MUT.sinGetter(SOL()), tab:0,
+     why:'getCuadrosVendidos() es synchronized y devuelve numCuadrosVendidos: el Vendedor lo llama en su while para saber si debe seguir. Es synchronized para que la lectura no se mezcle con un vendedor que está vendiendo.'},
     {id:'terminar', tipo:'montar', titulo:'Completa el while de vender()',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3)}),
      instr:c => 'Todo está escrito menos una parte de la condición del while de vender(). Los vendedores se quedan esperando cuando el pintor acaba. Corrígela (el total es ' + c.total + ': usa la constante total) y pulsa «Comprobar».',

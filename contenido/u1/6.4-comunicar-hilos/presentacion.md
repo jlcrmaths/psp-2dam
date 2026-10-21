@@ -37,7 +37,8 @@
     <div class="nuevo">
     <h3>Lo nuevo de hoy</h3>
     <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>notify()</code> de la clase <code>Object</code>: despierta a <b>uno</b> de los hilos que esperan. Con <code>notifyAll()</code>, de la cocina, se despertaba a todos.</p></div>
-    <div class="nuevo-item"><span class="etiqueta">Idea</span><p>Una <b>señal de fin</b>: un dato compartido que avisa a los que esperan de que ya no habrá más.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Idea</span><p>Una <b>señal de fin</b>: un dato compartido (aquí, los cuadros pintados y vendidos) que avisa a los que esperan de que ya no habrá más.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p>Un método <code>synchronized</code> que <b>devuelve un valor</b>, como <code>getCuadrosVendidos()</code>: el vendedor lo llama para saber si debe seguir.</p></div>
     </div>
     <p class="aviso">Repaso de 6.3: <code>synchronized</code>, <code>wait()</code> y <code>notifyAll()</code> funcionan igual que en la cocina. El almacén cuenta cuadros como la cocina contaba cuchillos libres, y su capacidad llega por el constructor.</p>
 
@@ -188,7 +189,7 @@ vendedor.start();
   <ul class="peque">
     <li><code>if (numCuadros &gt; 0) { … }</code><br>Si salimos del <code>while</code> y hay cuadros, se vende uno: <code>numCuadros--</code>, <code>numCuadrosVendidos++</code> y <code>notifyAll()</code>.</li>
     <li><code>else { … }</code><br>Si no hay cuadros, es que ya se pintaron los 10 y no habrá más. El vendedor lo dice y el método acaba.</li>
-    <li><code>getCuadrosVendidos()</code><br>Método <code>synchronized</code> que devuelve cuántos se han vendido. Lo usa el <code>Vendedor</code> para saber si debe seguir.</li>
+    <li><code>getCuadrosVendidos()</code><br>Método <code>synchronized</code> que devuelve cuántos se han vendido. <code>return numCuadrosVendidos;</code> entrega el valor a quien lo llama. Lo usa el <code>Vendedor</code> para saber si debe seguir. Es <code>synchronized</code> para no leer el contador mientras otro vendedor lo cambia.</li>
   </ul>
   <p class="aviso">Se mira primero si hay cuadros. Si el pintor deja el último y termina enseguida, ese cuadro <b>se vende igualmente</b>.</p>
 
