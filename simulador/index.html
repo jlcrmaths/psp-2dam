@@ -427,12 +427,15 @@ const BUILD = {
     groups:[
       {t:'p1', n:1, name:'Pintor', emoji:'🎨', extra:a => ' · cuadros: ' + a.done + '/' + p.total,
        proc:function*(a){
-         for (let i = 0; i < p.total; i++){ yield* invoke(a, 'depositar'); a.done++; }
+         for (let i = 0; i < p.total; i++){
+           for (let k = randInt(0, 6); k > 0; k--) yield;   /* pausa aleatoria */
+           yield* invoke(a, 'depositar'); a.done++; }
          a.state = 'fin'; a.cur = null;
        }},
       {t:'v1', n:p.vendedores, name:'Vendedor', emoji:'💰', extra:a => ' · vendidos: ' + a.done,
        proc:function*(a){
          for (;;){
+           for (let k = randInt(0, 6); k > 0; k--) yield;   /* pausa aleatoria */
            const vendidos = yield* invoke(a, 'getCuadrosVendidos');
            if (!(vendidos < p.total)) break;
            const antes = a.dec || 0;
@@ -740,7 +743,7 @@ function* execNode(a, n){
       const hit = n.op === 'notifyAll' ? w : (ORDEN_LLEGADA || !w.length ? w.slice(0, 1) : [w.length < 2 || Math.random() < 0.5 ? w[0] : w[1 + Math.floor(Math.random() * (w.length - 1))]]);
       hit.forEach(x => { x.woken = true; S.lockQ.push(x); });
       S.anim.push({kind:'alert', all:n.op === 'notifyAll', aid:agents.indexOf(a), targets:hit.map(x => agents.indexOf(x))});
-      log(a.n + ': ' + SPECIAL[n.op] + ' → despierta a ' + (n.op === 'notifyAll' ? w.length : Math.min(1, w.length)));
+      log(a.n + ': ' + SPECIAL[n.op] + ' → despierta a ' + (hit.length ? hit.map(x => x.n).join(', ') : 'nadie') + (n.op === 'notify' && w.length > 1 ? ' (esperaban: ' + w.map(x => x.n).join(', ') + ')' : ''));
       break;
     }
     default: {
