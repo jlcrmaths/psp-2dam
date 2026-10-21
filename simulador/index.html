@@ -435,9 +435,9 @@ const BUILD = {
          for (;;){
            const vendidos = yield* invoke(a, 'getCuadrosVendidos');
            if (!(vendidos < p.total)) break;
-           const antes = S.ven;
+           const antes = a.dec || 0;
            yield* invoke(a, 'vender');
-           if (S.ven > antes) a.done++;
+           if ((a.dec || 0) > antes) a.done++;
            else if (!a.avisado){ a.avisado = true; log(a.n + ': vender() acabó sin vender (no quedan cuadros por pintar)'); }
          }
          log(a.n + ': ya se han vendido los ' + p.total + ', termina');
@@ -735,9 +735,9 @@ function* execNode(a, n){
     }
     case 'notify': case 'notifyAll': {
       if (S.lock !== a) throw imse(SPECIAL[n.op]);
-      /* Java no garantiza orden: notify() despierta a uno cualquiera. Con ORDEN_LLEGADA = true, al que lleva más tiempo esperando */
+      /* Java no garantiza orden: notify() despierta a uno cualquiera: aquí 50 % el que lleva más tiempo esperando y 50 % uno de los demás. Con ORDEN_LLEGADA = true, al que lleva más tiempo esperando */
       const w = agents.filter(x => x.state === 'espera' && !x.woken).sort((x, y) => x.ticket - y.ticket);
-      const hit = n.op === 'notifyAll' ? w : (ORDEN_LLEGADA || !w.length ? w.slice(0, 1) : [w[Math.floor(Math.random() * w.length)]]);
+      const hit = n.op === 'notifyAll' ? w : (ORDEN_LLEGADA || !w.length ? w.slice(0, 1) : [w.length < 2 || Math.random() < 0.5 ? w[0] : w[1 + Math.floor(Math.random() * (w.length - 1))]]);
       hit.forEach(x => { x.woken = true; S.lockQ.push(x); });
       S.anim.push({kind:'alert', all:n.op === 'notifyAll', aid:agents.indexOf(a), targets:hit.map(x => agents.indexOf(x))});
       log(a.n + ': ' + SPECIAL[n.op] + ' → despierta a ' + (n.op === 'notifyAll' ? w.length : Math.min(1, w.length)));
@@ -748,7 +748,7 @@ function* execNode(a, n){
       if (spec && spec.retVar){ log(a.n + ': ' + spec.label + ' → ' + S.v[spec.retVar]); yield; return {v:S.v[spec.retVar]}; }
       if (spec){
         S.cnt[n.op] = (S.cnt[n.op] || 0) + 1;
-        if (spec.key === 'dec') S.entradas.push(a.n);
+        if (spec.key === 'dec'){ S.entradas.push(a.n); a.dec = (a.dec || 0) + 1; }
         const f0 = sc.filled(S);
         const msg = spec.fx(S);
         const f1 = sc.filled(S);
