@@ -411,6 +411,7 @@ const BUILD = {
   pintor2:p => ({
     titulo:'6.4 Pintor y ' + p.vendedores + ' vendedores: ' + p.total + ' cuadros, almacén de ' + p.capacidad,
     clase:'Almacen', recurso:'Almacén', icono:'🖼️', max:p.capacidad,
+    solutionCfg:{sleepP:0, sleepV:400},   /* con estos sleep, cambiar notifyAll() por notify() cuelga el programa casi siempre */
     vars:{numCuadros:0, numCuadrosPintados:0, numCuadrosVendidos:0}, consts:{numMaxCuadros:p.capacidad, total:p.total},
     fields:['private int numCuadros = 0;', 'private int numMaxCuadros;   // el constructor lo pone a ' + p.capacidad, 'private int numCuadrosPintados = 0;', 'private int numCuadrosVendidos = 0;', '// total = ' + p.total + ': los cuadros que se pintan (en el código del profesor es un 10)'],
     methods:[{name:'depositar', ret:'void', params:'int numero'}, {name:'vender', ret:'void'}, {name:'getCuadrosVendidos', ret:'int'}],
@@ -429,7 +430,7 @@ const BUILD = {
       {t:'p1', n:1, name:'Pintor', emoji:'🎨', extra:a => ' · cuadros: ' + a.done + '/' + p.total,
        proc:function*(a){
          for (let i = 0; i < p.total; i++){
-           yield* sleepTicks(a, randInt(0, ticksDe(p.sleepP == null ? 2000 : p.sleepP)));   /* pausa aleatoria */
+           yield* sleepTicks(a, randInt(0, ticksDe(p.sleepP == null ? 0 : p.sleepP)));   /* pausa aleatoria */
            yield* invoke(a, 'depositar'); a.done++; }
          a.state = 'fin'; a.cur = null;
        }},
@@ -438,7 +439,7 @@ const BUILD = {
          for (;;){
            const vendidos = yield* invoke(a, 'getCuadrosVendidos');
            if (!(vendidos < p.total)) break;
-           yield* sleepTicks(a, randInt(0, ticksDe(p.sleepV == null ? 2000 : p.sleepV)));   /* pausa aleatoria */
+           yield* sleepTicks(a, randInt(0, ticksDe(p.sleepV == null ? 400 : p.sleepV)));   /* pausa aleatoria */
            const antes = a.dec || 0;
            yield* invoke(a, 'vender');
            if ((a.dec || 0) > antes) a.done++;
@@ -581,7 +582,7 @@ const PARAMS = {
   bicis:[{k:'mecanicos', label:'Mecánicos', min:1, max:5, def:3}, {k:'clientes', label:'Clientes', min:1, max:5, def:2}, {k:'capacidad', label:'Capacidad del estante', min:1, max:6, def:3}, {k:'sleepM', label:'sleep mecánico', unit:' ms', step:100, min:0, max:5000, def:700}, {k:'sleepC', label:'sleep cliente', unit:' ms', step:100, min:0, max:5000, def:1200}],
   pintor:[{k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}],
   fabrica:[{k:'maquinas', label:'Máquinas', min:1, max:5, def:3}, {k:'total', label:'Piezas a fabricar', min:4, max:50, def:20}, {k:'capacidad', label:'Capacidad de la cinta', min:1, max:8, def:5}, {k:'sleepM', label:'sleep máquina', unit:' ms', step:100, min:0, max:5000, def:1200}, {k:'sleepE', label:'sleep empaquetador', unit:' ms', step:100, min:0, max:5000, def:800}],
-  pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}, {k:'sleepP', label:'sleep pintor', inline:true, min:0, max:5000, def:2000}, {k:'sleepV', label:'sleep vendedor', inline:true, min:0, max:5000, def:2000}]
+  pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}, {k:'sleepP', label:'sleep pintor', inline:true, min:0, max:5000, def:0}, {k:'sleepV', label:'sleep vendedor', inline:true, min:0, max:5000, def:400}]
 };
 const cfg = {};
 ORDER.forEach(id => { cfg[id] = {}; PARAMS[id].forEach(q => { cfg[id][q.k] = q.def; }); });
@@ -1262,7 +1263,7 @@ function setProg(p){
 $('bRun').onclick = run;
 $('bStep').onclick = () => { stop(); if (refreshCompile().length) return; if (S.fin) resetSim(); tick(); };
 $('bReset').onclick = () => { stop(); resetSim(); };
-$('bSol').onclick = () => setProg(sc.solution());
+$('bSol').onclick = () => { if (sc.solutionCfg){ Object.assign(cfg[cur], sc.solutionCfg); paramsChanged(); } setProg(sc.solution()); };
 $('bClear').onclick = () => setProg(emptyProg(sc));
 $('speed').onchange = () => { if (timer){ stop(); run(); } };
 $('escenario').onchange = e => setScenario(e.target.value);
