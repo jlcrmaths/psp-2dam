@@ -48,7 +48,10 @@ body.proy .piece{font-size:.9em}
 .scene{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:10px;align-items:start}
 .col{display:flex;flex-direction:column;gap:8px}
 .agent{border:3px solid var(--line);border-radius:12px;padding:8px 10px;background:var(--bg);transition:all .2s}
+.agent{position:relative}
 .agent .nm{font-weight:700}
+.agent .say{position:absolute;left:14px;bottom:calc(100% - 2px);z-index:5;max-width:92%;background:#fff;color:#16202e;border:2px solid #16202e;border-radius:12px;padding:3px 10px;font-size:.85rem;font-weight:600;line-height:1.25;box-shadow:0 2px 8px #0006;pointer-events:none}
+.agent .say::after{content:"";position:absolute;left:16px;top:100%;border:7px solid transparent;border-top-color:#16202e}
 .agent .em{font-size:1.7rem;line-height:1}
 .agent .st{font-size:.8em;color:var(--mute)}
 .params{display:flex;flex-wrap:wrap;gap:8px 20px;margin-bottom:10px;align-items:center}
@@ -115,6 +118,7 @@ body.colocando .line.empty{border-color:#fff;color:#fff}
 .code input.mod{width:10.5em}
 .code input.cond{width:15em}
 .code input.bad{border-color:#ff6b6b}
+.code input.txt{width:11em}
 .code input.ms{width:4.5em;text-align:right}
 .errmsg{color:#ff8a8a;font-size:.8em;margin-left:8px;white-space:normal}
 #compiler{padding:8px 12px;border-radius:10px;font-size:.9em;border:2px solid var(--line)}
@@ -376,7 +380,7 @@ const BUILD = {
     clase:'Almacen', recurso:'Almacén', icono:'🖼️', max:p.capacidad,
     vars:{numCuadros:0}, consts:{numMaxCuadros:p.capacidad},
     fields:['private int numCuadros = 0;', 'private int numMaxCuadros;', '', 'public Almacen(int numMaxCuadros) {', '    this.numMaxCuadros = numMaxCuadros;', '}', ''],
-    methods:[{name:'depositar', ret:'void', params:'int numero'}, {name:'vender', ret:'void', params:'int numero'}],
+    methods:[{name:'depositar', ret:'void'}, {name:'vender', ret:'void'}],
     ops:[
       {g:'Datos', key:'inc', label:'numCuadros++;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
         if (S.v.numCuadros >= p.capacidad) S.pend = '¡no cabe: ' + (S.v.numCuadros + 1) + ' cuadros en un almacén de ' + p.capacidad + '!';
@@ -399,7 +403,7 @@ const BUILD = {
     summary:S => 'pintados ' + S.dep + ', vendidos ' + S.ven,
     mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen(' + p.capacidad + ');', '    new Thread(new Pintor(almacen), "Pintor").start();', '    new Thread(new Vendedor(almacen), "Vendedor").start();', '}'],
     hilos:[{k:'Pintor', n:'Pintor.run()', ops:['depositarCall']}, {k:'Vendedor', n:'Vendedor.run()', ops:['venderCall']}],
-    hiloOps:[{key:'depositarCall', label:'almacen.depositar(i);', m:'depositar', i:true}, {key:'venderCall', label:'almacen.vender(i);', m:'vender', i:true}],
+    hiloOps:[{key:'depositarCall', label:'almacen.depositar();', m:'depositar'}, {key:'venderCall', label:'almacen.vender();', m:'vender'}],
     solution:() => ({
       m:{depositar:{mod:'synchronized', body:[blk('while', 'numCuadros == numMaxCuadros', [st('wait')]), st('inc'), st('notify')]},
          vender:{mod:'synchronized', body:[blk('while', 'numCuadros == 0', [st('wait')]), st('dec'), st('notify')]}},
@@ -414,7 +418,7 @@ const BUILD = {
     solutionCfg:{sleepP:0, sleepV:400},   /* con estos sleep, cambiar notifyAll() por notify() cuelga el programa casi siempre */
     vars:{numCuadros:0, numCuadrosPintados:0, numCuadrosVendidos:0}, consts:{numMaxCuadros:p.capacidad, total:p.total},
     fields:['private int numCuadros = 0;', 'private int numMaxCuadros;', 'private int numCuadrosPintados = 0;', 'private int numCuadrosVendidos = 0;', '// total = ' + p.total + ': los cuadros que se pintan (en el código del profesor es un 10)', '', 'public Almacen(int numMaxCuadros) {', '    this.numMaxCuadros = numMaxCuadros;', '}', ''],
-    methods:[{name:'depositar', ret:'void', params:'int numero'}, {name:'vender', ret:'void'}, {name:'getCuadrosVendidos', ret:'int'}],
+    methods:[{name:'depositar', ret:'void'}, {name:'vender', ret:'void'}, {name:'getCuadrosVendidos', ret:'int'}],
     ops:[
       {g:'Datos', key:'inc', label:'numCuadros++;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
         if (S.v.numCuadros >= p.capacidad) S.pend = '¡no cabe: ' + (S.v.numCuadros + 1) + ' cuadros en un almacén de ' + p.capacidad + '!';
@@ -441,7 +445,7 @@ const BUILD = {
     mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen(' + p.capacidad + ');', '    new Thread(new Pintor(almacen), "Pintor").start();', '    // ' + p.vendedores + ' hilos Vendedor, cada uno con su new Thread(...).start()', '}'],
     hilos:[{k:'Pintor', n:'Pintor.run()', ops:['depositarCall', 'sleepRnd'], sleep:'sleepP', ms:p.sleepP == null ? 0 : p.sleepP},
            {k:'Vendedor', n:'Vendedor.run()', ops:['venderCall', 'sleepRnd'], sleep:'sleepV', ms:p.sleepV == null ? 400 : p.sleepV}],
-    hiloOps:[{key:'depositarCall', label:'almacen.depositar(i);', m:'depositar', i:true}, {key:'venderCall', label:'almacen.vender();', m:'vender', i:false}],
+    hiloOps:[{key:'depositarCall', label:'almacen.depositar();', m:'depositar'}, {key:'venderCall', label:'almacen.vender();', m:'vender'}],
     solution:() => ({
       m:{depositar:{mod:'synchronized', body:[blk('while', 'numCuadros == numMaxCuadros', [st('wait')]), st('inc'), st('pint'), st('notifyAll')]},
          vender:{mod:'synchronized', body:[blk('while', 'numCuadros == 0 && numCuadrosPintados < total', [st('wait')]), blk('if', 'numCuadros > 0', [st('dec'), st('vend'), st('notifyAll')])]},
@@ -630,6 +634,7 @@ function checkList(list, where, add, tipo){
       checkList(n.body, where, add, tipo);
     } else {
       const spec = sc.ops.find(o => o.key === n.op);
+      if ((n.op === 'sout' || n.op === 'soutName') && (n.text || '').includes('"')) add(where + '()', 'el texto no puede llevar comillas ("): cerrarían la cadena', n.id);
       if (n.op === 'sleepRnd' || (sc.hiloOps || []).some(o => o.key === n.op)) add(where + '()', 'esto se escribe en el hilo (Pintor.run() / Vendedor.run()), no dentro de ' + sc.clase, n.id);
       if (n.op === 'cerrarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "estante"; eso se llama desde Principal', n.id);
       if (n.op === 'terminarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "almacen"; eso se llama desde Pintor.run()', n.id);
@@ -688,6 +693,8 @@ function checkHList(list, hd, add, vars){
         else if (op.i && !vars.includes('i')) add(hd.n, 'no encuentro la variable i: tiene que estar dentro de un for que la declare', n.id);
       } else if (n.op === 'sleepRnd'){
         if (!hd.sleep) add(hd.n, 'aquí no hay sleep', n.id);
+      } else if (n.op === 'sout' || n.op === 'soutName'){
+        if ((n.text || '').includes('"')) add(hd.n, 'el texto no puede llevar comillas ("): cerrarían la cadena', n.id);
       } else add(hd.n, SPECIAL[n.op] + ' se usa dentro de los métodos del almacén, no en ' + hd.n, n.id);
     }
   }
@@ -765,9 +772,16 @@ function* execH(a, list, hd, env){
         else if (!a.avisado){ a.avisado = true; log(a.n + ': ' + op.m + '() acabó sin vender (no quedan cuadros por pintar)'); }
       } else if (n.op === 'sleepRnd'){
         yield* sleepTicks(a, randInt(0, ticksDe(hd.ms)));
+      } else if (n.op === 'sout' || n.op === 'soutName'){
+        decir(a, n); yield;
       }
     }
   }
+}
+function decir(a, n){
+  const t = (n.op === 'soutName' ? a.n : '') + (n.text || '');
+  a.say = {t, k:S.ticks};
+  log('💬 ' + t);
 }
 function* invoke(a, name){
   const m = prog.m[name], sync = m.mod.trim() === 'synchronized';
@@ -809,6 +823,7 @@ function* execNode(a, n){
     return;
   }
   switch (n.op){
+    case 'sout': case 'soutName': decir(a, n); break;
     case 'sleep': log(a.n + ': sleep(500)' + (S.lock === a ? ' con la llave puesta' : '')); yield; break;
     case 'retT': return {v:true};
     case 'retF': return {v:false};
@@ -925,10 +940,11 @@ const STATE_TXT = {
 };
 const numDe = a => (a.n.match(/\d+/) || [''])[0];
 const conNum = (em, n) => em + (n ? '<b class="num">' + n + '</b>' : '');
+const esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 function agentHTML(a, compact){
   const em = a.t === 'p' ? '🧭' : a.g.emoji;
   const extra = a.t === 'p' ? '' : a.g.extra(a);
-  return '<div class="agent ' + a.state + (compact ? ' compact' : '') + '" data-aid="' + agents.indexOf(a) + '"><span class="em' + (a.inside ? ' ausente' : '') +
+  return '<div class="agent ' + a.state + (compact ? ' compact' : '') + '" data-aid="' + agents.indexOf(a) + '">' + (a.say && S.ticks - a.say.k <= 2 ? '<span class="say">' + esc(a.say.t) + '</span>' : '') + '<span class="em' + (a.inside ? ' ausente' : '') +
     '"><span class="ico">' + (sc.slots && a.t !== 'p' ? conNum(em, numDe(a)) : em) + '</span></span> <span class="nm">' + a.n + '</span><span class="carry"><span class="ico">' + (a.carry || '') +
     '</span></span><div class="st">' + STATE_TXT[a.state] + extra + '</div></div>';
 }
@@ -1082,7 +1098,9 @@ function pieceList(){
     {g:'Hilos', key:'wait', label:'wait();', make:() => st('wait')},
     {g:'Hilos', key:'notify', label:'notify();', make:() => st('notify')},
     {g:'Hilos', key:'notifyAll', label:'notifyAll();', make:() => st('notifyAll')},
-    {g:'Hilos', key:'sleep', label:'Thread.sleep(500);', make:() => st('sleep')}
+    {g:'Hilos', key:'sleep', label:'Thread.sleep(500);', make:() => st('sleep')},
+    {g:'Hilos', key:'sout', label:'System.out.println("…");', make:() => mk('stmt', {op:'sout', text:'Hola'})},
+    {g:'Hilos', key:'soutName', label:'System.out.println(Thread.currentThread().getName() + "…");', make:() => mk('stmt', {op:'soutName', text:' dice hola'})}
   ];
   if (sc.hilos){
     p.splice(2, 0, {g:'Bloques', key:'for', label:'for ( ) { }', make:() => mk('for', {cond:''})});
@@ -1180,7 +1198,11 @@ function nodeEl(n){
   }
   const line = lineParts(n);
   if (n.kind === 'stmt'){
-    if (n.op === 'sleepRnd' && ctxHilo && ctxHilo.sleep){
+    if (n.op === 'sout' || n.op === 'soutName'){
+      const inp = h('input', 'txt'); inp.value = n.text || ''; inp.spellcheck = false;
+      inp.oninput = () => { n.text = inp.value; stop(); resetSim(); save(); refreshCompile(); };
+      line.append(h('span', null, n.op === 'sout' ? 'System.out.println("' : 'System.out.println(Thread.currentThread().getName() + "'), inp, h('span', null, '");'));
+    } else if (n.op === 'sleepRnd' && ctxHilo && ctxHilo.sleep){
       const q = PARAMS[cur].find(x => x.k === ctxHilo.sleep);
       const inp = h('input', 'ms'); inp.type = 'number'; inp.min = q.min; inp.max = q.max; inp.step = 100; inp.value = cfg[cur][q.k];
       inp.onchange = () => { const v = parseInt(inp.value, 10); cfg[cur][q.k] = Number.isNaN(v) ? q.def : Math.max(q.min, Math.min(q.max, v)); paramsChanged(); };
@@ -1549,7 +1571,7 @@ const EXPS = {
      cfg:() => ({total:randInt(6, 12), capacidad:randInt(1, 3)}),
      instr:c => 'El almacén ya está escrito. Escribe en las pestañas Pintor.run() y Vendedor.run() lo que hace cada hilo: ' + c.total + ' cuadros. Pulsa «Comprobar» cuando creas que está.',
      prog:() => { const pr = SOL(); pr.h = emptyProg(sc).h; return pr; }, tab:2,
-     why:'Cada hilo sabe cuántos cuadros le tocan, así que los dos usan un for que repite esa cantidad de veces: el pintor llama a depositar(i) y el vendedor a vender(i).'}
+     why:'Cada hilo sabe cuántos cuadros le tocan, así que los dos usan un for que repite esa cantidad de veces: el pintor llama a depositar() y el vendedor a vender().'}
   ],
   fabrica:[
     {id:'solucion', tipo:'ver', titulo:'Cuántas se fabrican',
