@@ -243,7 +243,7 @@ const blk = (kind, cond, body) => mk(kind, {cond, body});
 /* instrucciones comunes a todos los ejemplos */
 const SPECIAL = {
   wait:'wait();', notify:'notify();', notifyAll:'notifyAll();', sleep:'Thread.sleep(500);',
-  retT:'return true;', retF:'return false;', sleepRnd:'Thread.sleep((long) (Math.random() * ms));', cerrarCall:'estante.cerrar();', terminarCall:'almacen.terminar();'
+  retT:'return true;', retF:'return false;', sleepRnd:'Thread.sleep((long) (Math.random() * ms));', sleepFix:'Thread.sleep(ms);', cerrarCall:'estante.cerrar();', terminarCall:'almacen.terminar();'
 };
 
 /* ----- ejemplos ----- */
@@ -332,9 +332,9 @@ const BUILD = {
       {t:'c', n:p.clientes, name:'Cliente', emoji:'🧑', extra:a => ' · compras: ' + a.done,
        proc:a => runHilo(a, 'Cliente')}
     ],
-    hiloObj:'estante',
-    hilos:[{k:'Mecanico', n:'Mecanico.run()', ops:['montarCall', 'sleepRnd'], sleep:'sleepM', ms:p.sleepM},
-           {k:'Cliente', n:'Cliente.run()', ops:['sleepRnd'], sleep:'sleepC', ms:p.sleepC}],
+    hiloObj:'estante', sleepFijo:true,
+    hilos:[{k:'Mecanico', n:'Mecanico.run()', ops:['montarCall', 'sleepFix'], sleep:'sleepM', ms:p.sleepM},
+           {k:'Cliente', n:'Cliente.run()', ops:['sleepFix'], sleep:'sleepC', ms:p.sleepC}],
     hiloOps:[{key:'montarCall', label:'estante.montar();', m:'montar'}],
     onCall:(a, nm, r) => {
       if (nm === 'montar') a.done++;
@@ -373,8 +373,8 @@ const BUILD = {
          vender:{mod:'synchronized', body:[blk('while', 'bicis == 0 && !cerrada', [st('wait')]), blk('if', 'bicis == 0', [st('retF')]), st('dec'), st('vend'), st('notifyAll'), st('retT')]},
          cerrar:{mod:'synchronized', body:[st('cerr'), st('notifyAll')]}},
       principal:{body:[st('cerrarCall')]},
-      h:{Mecanico:{body:[blk('for', 'int i = 1; i <= 4; i++', [st('montarCall'), st('sleepRnd')])]},
-         Cliente:{body:[blk('while', 'estante.vender()', [st('sleepRnd')])]}}
+      h:{Mecanico:{body:[blk('for', 'int i = 1; i <= 4; i++', [st('montarCall'), st('sleepFix')])]},
+         Cliente:{body:[blk('while', 'estante.vender()', [st('sleepFix')])]}}
     })
   }),
   pintor:p => ({
@@ -639,7 +639,7 @@ function checkList(list, where, add, tipo){
     } else {
       const spec = sc.ops.find(o => o.key === n.op);
       if ((n.op === 'sout' || n.op === 'soutName') && (n.text || '').includes('"')) add(where + '()', 'el texto no puede llevar comillas ("): cerrarían la cadena', n.id);
-      if (n.op === 'sleepRnd' || (sc.hiloOps || []).some(o => o.key === n.op)) add(where + '()', 'esto se escribe en el hilo (' + hnames() + '), no dentro de ' + sc.clase, n.id);
+      if (n.op === 'sleepRnd' || n.op === 'sleepFix' || (sc.hiloOps || []).some(o => o.key === n.op)) add(where + '()', 'esto se escribe en el hilo (' + hnames() + '), no dentro de ' + sc.clase, n.id);
       if (n.op === 'cerrarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "estante"; eso se llama desde Principal', n.id);
       if (n.op === 'terminarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "almacen"; eso se llama desde Pintor.run()', n.id);
       if (spec && spec.err) add(where + '()', spec.err, n.id);
@@ -696,7 +696,7 @@ function checkHList(list, hd, add, vars){
       if (op){
         if (!hd.ops.includes(op.key)) add(hd.n, op.label + ' no se llama desde ' + hd.n, n.id);
         else if (op.i && !vars.includes('i')) add(hd.n, 'no encuentro la variable i: tiene que estar dentro de un for que la declare', n.id);
-      } else if (n.op === 'sleepRnd'){
+      } else if (n.op === 'sleepRnd' || n.op === 'sleepFix'){
         if (!hd.sleep) add(hd.n, 'aquí no hay sleep', n.id);
       } else if (n.op === 'sout' || n.op === 'soutName'){
         if ((n.text || '').includes('"')) add(hd.n, 'el texto no puede llevar comillas ("): cerrarían la cadena', n.id);
@@ -787,6 +787,8 @@ function* execH(a, list, hd, env){
         if (sc.onCall) sc.onCall(a, op.m, r);
         else if (op.m === 'depositar' || (a.dec || 0) > antes) a.done++;
         else if (!a.avisado){ a.avisado = true; log(a.n + ': ' + op.m + '() acabó sin vender (no quedan cuadros por pintar)'); }
+      } else if (n.op === 'sleepFix'){
+        yield* sleepTicks(a, ticksDe(hd.ms));
       } else if (n.op === 'sleepRnd'){
         yield* sleepTicks(a, randInt(0, ticksDe(hd.ms)));
       } else if (n.op === 'sout' || n.op === 'soutName'){
@@ -1123,7 +1125,8 @@ function pieceList(){
   ];
   if (sc.hilos){
     p.splice(2, 0, {g:'Bloques', key:'for', label:'for ( ) { }', make:() => mk('for', {cond:''})});
-    if (sc.hilos.some(x => x.sleep)) p.splice(p.findIndex(x => x.key === 'sleep'), 1, {g:'Hilos', key:'sleepRnd', label:'Thread.sleep((long) (Math.random() * ms));', make:() => st('sleepRnd')});
+    if (sc.hilos.some(x => x.sleep) && sc.sleepFijo) p.splice(p.findIndex(x => x.key === 'sleep'), 1, {g:'Hilos', key:'sleepFix', label:'Thread.sleep(ms);', make:() => st('sleepFix')});
+    else if (sc.hilos.some(x => x.sleep)) p.splice(p.findIndex(x => x.key === 'sleep'), 1, {g:'Hilos', key:'sleepRnd', label:'Thread.sleep((long) (Math.random() * ms));', make:() => st('sleepRnd')});
     else p.splice(p.findIndex(x => x.key === 'sleep'), 1);
     sc.hiloOps.forEach(o => p.push({g:'Otra clase', key:o.key, label:o.label, make:() => st(o.key)}));
   }
@@ -1221,11 +1224,12 @@ function nodeEl(n){
       const inp = h('input', 'txt'); inp.value = n.text || ''; inp.spellcheck = false;
       inp.oninput = () => { n.text = inp.value; stop(); resetSim(); save(); refreshCompile(); };
       line.append(h('span', null, n.op === 'sout' ? 'System.out.println("' : 'System.out.println(Thread.currentThread().getName() + "'), inp, h('span', null, '");'));
-    } else if (n.op === 'sleepRnd' && ctxHilo && ctxHilo.sleep){
+    } else if ((n.op === 'sleepRnd' || n.op === 'sleepFix') && ctxHilo && ctxHilo.sleep){
       const q = PARAMS[cur].find(x => x.k === ctxHilo.sleep);
       const inp = h('input', 'ms'); inp.type = 'number'; inp.min = q.min; inp.max = q.max; inp.step = 100; inp.value = cfg[cur][q.k];
       inp.onchange = () => { const v = parseInt(inp.value, 10); cfg[cur][q.k] = Number.isNaN(v) ? q.def : Math.max(q.min, Math.min(q.max, v)); paramsChanged(); };
-      line.append(h('span', null, 'Thread.sleep((long) (Math.random() * '), inp, h('span', null, '));'));
+      if (n.op === 'sleepFix') line.append(h('span', null, 'Thread.sleep('), inp, h('span', null, ');'));
+      else line.append(h('span', null, 'Thread.sleep((long) (Math.random() * '), inp, h('span', null, '));'));
     } else line.append(h('span', null, opLabel(n.op)));
     tail(line, n);
     return line;
