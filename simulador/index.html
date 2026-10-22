@@ -628,10 +628,11 @@ function checkList(list, where, add, tipo){
     if (n.kind === 'for'){
       add(where + '()', 'un for no se usa dentro de ' + sc.clase + ': va en el hilo (Pintor.run() / Vendedor.run())', n.id);
       checkList(n.body, where, add, tipo);
-    } else if (n.kind === 'while' || n.kind === 'if'){
+    } else if (n.kind === 'while' || n.kind === 'if' || n.kind === 'ifelse'){
       const e = checkCond(n.cond);
       if (e) add(where + '()', e, n.id);
       checkList(n.body, where, add, tipo);
+      if (n.els) checkList(n.els, where, add, tipo);
     } else {
       const spec = sc.ops.find(o => o.key === n.op);
       if ((n.op === 'sout' || n.op === 'soutName') && (n.text || '').includes('"')) add(where + '()', 'el texto no puede llevar comillas ("): cerrarían la cadena', n.id);
@@ -679,13 +680,11 @@ function checkHList(list, hd, add, vars){
       const e = checkFor(n.cond);
       if (e) add(hd.n, e, n.id);
       checkHList(n.body, hd, add, e ? vars : vars.concat(FOR_RE.exec(n.cond)[1]));
-    } else if (n.kind === 'while'){
+    } else if (n.kind === 'while' || n.kind === 'if' || n.kind === 'ifelse'){
       const e = checkHCond(n.cond);
       if (e) add(hd.n, e, n.id);
       checkHList(n.body, hd, add, vars);
-    } else if (n.kind === 'if'){
-      add(hd.n, 'aquí no hace falta un if', n.id);
-      checkHList(n.body, hd, add, vars);
+      if (n.els) checkHList(n.els, hd, add, vars);
     } else {
       const op = (sc.hiloOps || []).find(o => o.key === n.op);
       if (op){
@@ -739,6 +738,14 @@ function* runHilo(a, k){
   log(a.n + ': termina');
   a.state = 'fin'; a.cur = null;
 }
+function* evalH(a, n){
+  a.cur = n.id;
+  const vals = {};
+  const txt = n.cond.replace(HCALL, (m0, nm) => 'v_' + nm);
+  for (const m of n.cond.matchAll(HCALL)) vals['v_' + m[1]] = yield* invoke(a, m[1]);
+  a.cur = n.id;
+  return new Function(...Object.keys(vals), '"use strict";return (' + txt + ')')(...Object.values(vals));
+}
 function* execH(a, list, hd, env){
   for (const n of list){
     if (n.kind === 'empty') continue;
@@ -752,16 +759,16 @@ function* execH(a, list, hd, env){
       }
     } else if (n.kind === 'while'){
       for (;;){
-        a.cur = n.id;
-        const vals = {};
-        const txt = n.cond.replace(HCALL, (m0, nm) => 'v_' + nm);
-        for (const m of n.cond.matchAll(HCALL)) vals['v_' + m[1]] = yield* invoke(a, m[1]);
-        a.cur = n.id;
-        const c = new Function(...Object.keys(vals), '"use strict";return (' + txt + ')')(...Object.values(vals));
+        const c = yield* evalH(a, n);
         yield;
         if (!c) break;
         yield* execH(a, n.body, hd, env);
       }
+    } else if (n.kind === 'if' || n.kind === 'ifelse'){
+      const c = yield* evalH(a, n);
+      yield;
+      if (c) yield* execH(a, n.body, hd, env);
+      else if (n.els) yield* execH(a, n.els, hd, env);
     } else if (n.kind === 'stmt'){
       const op = (sc.hiloOps || []).find(o => o.key === n.op);
       if (op){
@@ -816,10 +823,11 @@ function* execNode(a, n){
       if (r) return r;
     }
   }
-  if (n.kind === 'if'){
+  if (n.kind === 'if' || n.kind === 'ifelse'){
     const c = evalCond(n);
     yield;
     if (c){ const r = yield* execBlock(a, n.body); if (r) return r; }
+    else if (n.els){ const r = yield* execBlock(a, n.els); if (r) return r; }
     return;
   }
   switch (n.op){
@@ -1083,18 +1091,19 @@ function findLoc(id, list){
   for (const l of lists){
     for (let i = 0; i < l.length; i++){
       if (l[i].id === id) return {list:l, i};
-      const r = findLoc(id, l[i].body);
+      const r = findLoc(id, l[i].body) || (l[i].els && findLoc(id, l[i].els));
       if (r) return r;
     }
   }
   return null;
 }
-function containsId(node, id){ return node.body.some(c => c.id === id || containsId(c, id)); }
-function containsList(node, list){ return node.body === list || node.body.some(c => containsList(c, list)); }
+function containsId(node, id){ return node.body.concat(node.els || []).some(c => c.id === id || containsId(c, id)); }
+function containsList(node, list){ return node.body === list || node.els === list || node.body.concat(node.els || []).some(c => containsList(c, list)); }
 function pieceList(){
   const p = [
     {g:'Bloques', key:'while', label:'while ( ) { }', make:() => mk('while', {cond:''})},
     {g:'Bloques', key:'if',    label:'if ( ) { }',    make:() => mk('if', {cond:''})},
+    {g:'Bloques', key:'ifelse', label:'if ( ) { } else { }', make:() => mk('ifelse', {cond:'', els:[]})},
     {g:'Hilos', key:'wait', label:'wait();', make:() => st('wait')},
     {g:'Hilos', key:'notify', label:'notify();', make:() => st('notify')},
     {g:'Hilos', key:'notifyAll', label:'notifyAll();', make:() => st('notifyAll')},
@@ -1212,14 +1221,16 @@ function nodeEl(n){
     return line;
   }
   const box = h('div');
-  line.append(h('span', null, n.kind + ' ('));
+  line.append(h('span', null, (n.kind === 'ifelse' ? 'if' : n.kind) + ' ('));
   const inp = h('input', 'cond'); inp.value = n.cond; inp.placeholder = 'condición'; inp.spellcheck = false;
   if (n.kind === 'for') inp.style.width = '19em';
   else if (ctxHilo) inp.style.width = '26em';
   inp.oninput = () => { n.cond = inp.value; n.fn = null; stop(); resetSim(); save(); refreshCompile(); };
   line.append(inp, h('span', null, ') {'));
   tail(line, n);
-  box.append(line, listEl(n.body), h('div', 'line', '}'));
+  box.append(line, listEl(n.body));
+  if (n.kind === 'ifelse') box.append(h('div', 'line', '} else {'), listEl(n.els));
+  box.append(h('div', 'line', '}'));
   return box;
 }
 function methodEl(me){
@@ -1443,7 +1454,7 @@ document.addEventListener('dragover', e => {
 /* ===== EXPERIMENTOS: el alumno ejecuta una situación y comprueba la teoría ===== */
 const randInt = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
 const pick = a => a[Math.floor(Math.random() * a.length)];
-const walk = (list, fn) => { list.forEach((n, i) => { fn(n, list, i); if (n.body) walk(n.body, fn); }); };
+const walk = (list, fn) => { list.forEach((n, i) => { fn(n, list, i); if (n.body) walk(n.body, fn); if (n.els) walk(n.els, fn); }); };
 const bodies = pr => Object.keys(pr.m).map(k => pr.m[k].body);
 const MUT = {
   /* cambia una instrucción por otra: swap(pr, 'notifyAll', 'notify') */
