@@ -419,7 +419,7 @@ const BUILD = {
     clase:'Almacen', recurso:'Almacén', icono:'🖼️', max:p.capacidad,
     solutionCfg:{sleepP:0, sleepV:400},   /* con estos sleep, cambiar notifyAll() por notify() cuelga el programa casi siempre */
     vars:{numCuadros:0, numCuadrosPintados:0, numCuadrosVendidos:0}, consts:{numMaxCuadros:p.capacidad, total:p.total},
-    fields:['private int numCuadros = 0;', 'private int numMaxCuadros;', 'private int numCuadrosPintados = 0;', 'private int numCuadrosVendidos = 0;', '// total = ' + p.total + ': los cuadros que se pintan (en el código del profesor es un 10)', '', 'public Almacen(int numMaxCuadros) {', '    this.numMaxCuadros = numMaxCuadros;', '}', ''],
+    fields:['private int numCuadros = 0;', 'private int numMaxCuadros;', 'private int numCuadrosPintados = 0;', 'private int numCuadrosVendidos = 0;', 'private final int total = ' + p.total + ';', '', 'public Almacen(int numMaxCuadros) {', '    this.numMaxCuadros = numMaxCuadros;', '}', ''],
     methods:[{name:'depositar', ret:'void'}, {name:'vender', ret:'void'}, {name:'getCuadrosVendidos', ret:'int'}],
     ops:[
       {g:'Datos', key:'inc', label:'numCuadros++;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
