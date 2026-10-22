@@ -9,8 +9,9 @@
   <ul>
     <li>Hilos con <b>papeles distintos</b> que se esperan entre sí</li>
     <li>Cuándo basta <code>notify()</code> y cuándo hace falta <code>notifyAll()</code></li>
-    <li>Cómo avisar a los que esperan de que <b>ya no habrá más</b></li>
+    <li>Cómo avisar a los que esperan de que <b>ya no habrá más</b>, de <b>dos formas</b> distintas</li>
     <li>Resolver el problema del pintor y los vendedores</li>
+    <li>Y después, la tienda de bicis, que avisa de otra manera</li>
   </ul>
 
 ---
@@ -231,6 +232,133 @@ v2.start();
 ---
 
 <!-- html -->
+  <h3>Otra forma de avisar: la tienda de bicis</h3>
+  <p>Unos <b>mecánicos</b> montan bicis y las dejan en un estante con sitio limitado. Unos <b>clientes</b> las cogen para llevárselas.</p>
+  <ul>
+    <li>Cada mecánico monta <b>4 bicis</b></li>
+    <li>Los clientes <b>no saben</b> cuántas bicis habrá en total</li>
+    <li>El programa tiene que acabar solo, con el estante vacío</li>
+  </ul>
+  <p class="aviso">Es el mismo problema de siempre: ¿cómo se entera el cliente de que <b>ya no vendrán más bicis</b>?</p>
+
+--
+
+<!-- html -->
+  <h3>Dos formas de decir «ya no hay más»</h3>
+  <ul class="peque">
+    <li><b>Pintor y vendedores: contadores.</b><br>El almacén cuenta los cuadros pintados y vendidos. El vendedor mira <code>getCuadrosVendidos()</code> y <b>se para solo</b> al llegar a 10. Hace falta saber el total de antemano.</li>
+    <li class="fragment"><b>Bicis: una bandera.</b><br>Cuando los mecánicos terminan, alguien <b>avisa</b>: <code>cerrar()</code>. El cliente no cuenta nada: <code>vender()</code> le devuelve <code>false</code> cuando ya no queda nada y la tienda está cerrada.</li>
+  </ul>
+  <p class="caja fragment">Las dos funcionan. La primera es más sencilla si el total se conoce. La segunda sirve cuando <b>nadie lo sabe</b>: solo se sabe cuándo acaban los que producen.</p>
+
+--
+
+<!-- html -->
+    <div class="nuevo">
+    <h3>Lo nuevo de la tienda de bicis</h3>
+    <div class="nuevo-item"><span class="etiqueta">Concepto</span><p>Una <b>bandera</b>: una variable <code>boolean</code> compartida (<code>cerrada</code>) que dice que la producción ha terminado.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p>Un método <code>synchronized</code> que devuelve <code>boolean</code>, como <code>vender()</code>: <code>true</code> si se ha vendido una bici y <code>false</code> si ya no quedan.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>join()</code> de la clase <code>Thread</code> <b>dos veces</b>, con <code>cerrar()</code> entre medias: primero se espera a los mecánicos y después a los clientes.</p></div>
+    </div>
+
+--
+
+<!-- html -->
+  <h3>El estante: montar y vender</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1-7|9-12|13-15|16-19">
+public synchronized void montar() {
+    while (bicis == maximo) {
+        try { wait(); } catch (InterruptedException e) { }
+    }
+    bicis++;
+    notifyAll();
+}
+
+public synchronized boolean vender() {
+    while (bicis == 0 &amp;&amp; !cerrada) {
+        try { wait(); } catch (InterruptedException e) { }
+    }
+    if (bicis == 0) {
+        return false;
+    }
+    bicis--;
+    vendidas++;
+    notifyAll();
+    return true;
+}
+  </code></pre>
+
+--
+
+<!-- html -->
+  <h3>Línea por línea (1)</h3>
+  <ul class="peque">
+    <li><code>while (bicis == maximo)</code> en <code>montar()</code><br>El mecánico espera mientras el estante está <b>lleno</b>. <code>maximo</code> es <code>final</code>: no cambia nunca.</li>
+    <li><code>bicis++;</code> y <code>notifyAll();</code><br>Deja la bici y avisa a los clientes, por si alguno esperaba una.</li>
+    <li><code>while (bicis == 0 &amp;&amp; !cerrada)</code> en <code>vender()</code><br>El cliente espera mientras <b>no haya bicis</b> <b>y</b> la tienda siga abierta. <code>!cerrada</code> se lee «no cerrada».</li>
+  </ul>
+  <p class="aviso">Aquí está la diferencia con el pintor: la condición mira una <b>bandera</b> y no un contador de cuadros pintados.</p>
+
+--
+
+<!-- html -->
+  <h3>Línea por línea (2)</h3>
+  <ul class="peque">
+    <li><code>if (bicis == 0) { return false; }</code><br>Si el cliente sale del <code>while</code> y no hay bicis, solo puede ser porque la tienda ha cerrado. Devuelve <code>false</code>: «no he comprado nada, no vendrán más».</li>
+    <li><code>bicis--; vendidas++;</code><br>Si hay bici, se la lleva y se anota la venta.</li>
+    <li><code>return true;</code><br>Palabra <code>return</code>: sale del método y entrega <code>true</code> a quien lo llamó: «he comprado una».</li>
+    <li><code>public synchronized void cerrar()</code><br>Pone <code>cerrada = true;</code> y llama a <code>notifyAll()</code>, para despertar a los clientes que seguían esperando una bici que ya no llegará.</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>El cliente no sabe cuántas comprará</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1|2-5|3">
+boolean hayBici = true;
+while (hayBici) {
+    hayBici = estante.vender();
+    // aquí, el sleep
+}
+  </code></pre>
+  <ul class="peque">
+    <li>El mecánico sabe que monta 4: usa un <code>for</code>. El cliente no sabe cuántas: usa un <code>while</code></li>
+    <li><code>vender()</code> decide cuándo se acaba: cuando devuelve <code>false</code>, <code>hayBici</code> vale <code>false</code> y el hilo termina</li>
+    <li>También se puede escribir <code>while (estante.vender())</code>: es lo mismo en una sola línea. Es la forma que usa el simulador</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>El orden al crear los hilos y esperar</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1|2|3|4|5">
+// 1. crear y arrancar los mecánicos y los clientes
+// 2. join() de cada mecánico
+estante.cerrar();
+// 3. join() de cada cliente
+System.out.println("Total vendidas: " + estante.getVendidas());
+  </code></pre>
+  <ul class="peque">
+    <li><b>Primero</b> se espera a los mecánicos: hasta que no acaben de montar, no se puede cerrar</li>
+    <li><b>Después</b> <code>cerrar()</code>: avisa a los clientes que esperan</li>
+    <li><b>Luego</b> se espera a los clientes: así el total sale completo</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Errores típicos en la tienda de bicis</h3>
+  <ul>
+    <li>No llamar a <code>cerrar()</code>: los clientes se quedan en <code>wait()</code> y el programa <b>no termina</b></li>
+    <li>Llamar a <code>cerrar()</code> <b>antes</b> de esperar a los mecánicos: los clientes se van con el estante vacío y las bicis que quedan por montar no se venden</li>
+    <li>No mirar <code>!cerrada</code> en el <code>while</code> de <code>vender()</code>: nadie saca al cliente del <code>wait()</code></li>
+    <li>Olvidar el <code>if (bicis == 0)</code> después del <code>while</code>: el cliente vende una bici que no existe y salen <b>bicis negativas</b></li>
+    <li>Leer <code>getVendidas()</code> antes del segundo <code>join()</code>: el total sale corto</li>
+  </ul>
+
+---
+
+<!-- html -->
   <h3>Errores típicos</h3>
   <ul>
     <li>Usar <code>notify()</code> con dos vendedores: a veces funciona y a veces se cuelga</li>
@@ -249,8 +377,10 @@ v2.start();
     <li>Quita el <code>while</code> o el <code>notifyAll()</code> y mira <b>qué falla</b></li>
     <li>El panel <b>Experimentos</b> te propone situaciones para ejecutar (y alguna para completar tú) y te dice si lo que has visto es lo esperado</li>
     <li>Prueba <code>notify()</code> en vez de <code>notifyAll()</code> con dos vendedores</li>
+    <li>Con el pintor y los vendedores, los <b>Experimentos</b> empiezan mirando y acaban contigo escribiendo el almacén y los hilos, poco a poco</li>
+    <li>La <b>tienda de bicis</b> tiene su propio ejemplo: 12 ejercicios de menos a más difíciles, desde poner <code>estante.cerrar();</code> hasta escribir <code>Mecanico.run()</code> y <code>Cliente.run()</code></li>
   </ul>
-  <p class="aviso"><a href="../../simulador/index.html#pintor2&experimentos" target="_blank" rel="noopener">Abrir el simulador de hilos</a> (se abre en otra pestaña).</p>
+  <p class="aviso"><a href="../../simulador/index.html#pintor2&experimentos" target="_blank" rel="noopener">Pintor y dos vendedores</a> · <a href="../../simulador/index.html#bicis&experimentos" target="_blank" rel="noopener">Tienda de bicis</a> (se abren en otra pestaña).</p>
 
 ---
 
@@ -262,4 +392,6 @@ v2.start();
     <li>¿Qué pasa si el <code>while</code> de <code>vender()</code> no mira <code>numCuadrosPintados</code>?</li>
     <li>Con un pintor y un vendedor, ¿vale <code>notify()</code>? ¿Y con tres hilos?</li>
     <li>¿Qué cambia si en el almacén caben 3 cuadros? ¿Y 10?</li>
+    <li>En la tienda de bicis, ¿qué pasa si <code>cerrar()</code> se llama antes de esperar a los mecánicos?</li>
+    <li>¿Cuándo usarías contadores (pintor) y cuándo una bandera (bicis) para avisar de que ya no habrá más?</li>
   </ol>

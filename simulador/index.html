@@ -328,22 +328,22 @@ const BUILD = {
     ],
     groups:[
       {t:'m', n:p.mecanicos, name:'Mecánico', emoji:'🔧', extra:a => ' · bicis: ' + a.done + '/4',
-       proc:function*(a){
-         for (let i = 0; i < 4; i++){ yield* invoke(a, 'montar'); a.done++; yield* sleepTicks(a, ticksDe(p.sleepM)); }
-         a.state = 'fin'; a.cur = null;
-       }},
+       proc:a => runHilo(a, 'Mecanico')},
       {t:'c', n:p.clientes, name:'Cliente', emoji:'🧑', extra:a => ' · compras: ' + a.done,
-       proc:function*(a){
-         for (;;){
-           const r = yield* invoke(a, 'vender');
-           if (r === true){ a.done++; yield* sleepTicks(a, ticksDe(p.sleepC)); continue; }
-           if (S.v.cerrada) log(a.n + ': vender() devolvió false, tienda cerrada, se va');
-           else { S.anomalia = true; log(a.n + ': vender() devolvió false con la tienda abierta, se va', true); }
-           break;
-         }
-         a.state = 'fin'; a.cur = null;
-       }}
+       proc:a => runHilo(a, 'Cliente')}
     ],
+    hiloObj:'estante',
+    hilos:[{k:'Mecanico', n:'Mecanico.run()', ops:['montarCall', 'sleepRnd'], sleep:'sleepM', ms:p.sleepM},
+           {k:'Cliente', n:'Cliente.run()', ops:['sleepRnd'], sleep:'sleepC', ms:p.sleepC}],
+    hiloOps:[{key:'montarCall', label:'estante.montar();', m:'montar'}],
+    onCall:(a, nm, r) => {
+      if (nm === 'montar') a.done++;
+      else if (nm === 'vender'){
+        if (r === true) a.done++;
+        else if (S.v.cerrada) log(a.n + ': vender() devolvió false, tienda cerrada, se va');
+        else { S.anomalia = true; log(a.n + ': vender() devolvió false con la tienda abierta, se va', true); }
+      }
+    },
     principalProc:function*(a){
       const mecs = agents.filter(x => x.t === 'm'), clis = agents.filter(x => x.t === 'c');
       const fin = x => x.state === 'fin' || x.state === 'muerto';
@@ -372,7 +372,9 @@ const BUILD = {
       m:{montar:{mod:'synchronized', body:[blk('while', 'bicis == maximo', [st('wait')]), st('inc'), st('notifyAll')]},
          vender:{mod:'synchronized', body:[blk('while', 'bicis == 0 && !cerrada', [st('wait')]), blk('if', 'bicis == 0', [st('retF')]), st('dec'), st('vend'), st('notifyAll'), st('retT')]},
          cerrar:{mod:'synchronized', body:[st('cerr'), st('notifyAll')]}},
-      principal:{body:[st('cerrarCall')]}
+      principal:{body:[st('cerrarCall')]},
+      h:{Mecanico:{body:[blk('for', 'int i = 1; i <= 4; i++', [st('montarCall'), st('sleepRnd')])]},
+         Cliente:{body:[blk('while', 'estante.vender()', [st('sleepRnd')])]}}
     })
   }),
   pintor:p => ({
@@ -524,7 +526,8 @@ const ENUN = {
     '<li>Un cliente que ve el estante vacío espera, mientras la tienda siga abierta.</li>' +
     '<li>Los clientes no cuentan sus bicis: compran mientras haya bicis o la tienda esté abierta.</li>' +
     '<li>Cuando los mecánicos terminan, <code>Principal</code> cierra la tienda. Los clientes se llevan las que queden y terminan.</li>' +
-    '<li>Debe acabar solo, con el estante en 0 y <b>' + (p.mecanicos * 4) + '</b> bicis vendidas.</li></ul>',
+    '<li>Debe acabar solo, con el estante en 0 y <b>' + (p.mecanicos * 4) + '</b> bicis vendidas.</li>' +
+    '<li>Los hilos también los escribes tú, en sus pestañas: el mecánico sabe cuántas bicis monta (<code>for</code>) y el cliente no sabe cuántas comprará (<code>while (estante.vender())</code>).</li></ul>',
   pintor:p => '<p>Un pintor y un vendedor comparten un almacén donde ' + (p.capacidad === 1 ? 'cabe <b>1 cuadro' : 'caben <b>' + p.capacidad + ' cuadros') + '</b>.</p>' +
     '<ul><li>El pintor espera si el almacén está lleno para dejar un cuadro.</li>' +
     '<li>El vendedor espera si el almacén está vacío para poder vender.</li>' +
@@ -547,7 +550,7 @@ const HINTS = {
     ['Escribe synchronized en el modificador de entrar() y salir().', 'En entrar(), inserta un while con la condición libres == 0.', 'Dentro del while, pon wait();', 'Después del while, pon libres--;', 'En salir(), pon libres++; y después notifyAll();', 'Ejecuta varias veces: las plazas libres nunca bajan de 0.']],
   bicis:['Tres cosas compartidas: las bicis del estante, las vendidas y si la tienda está cerrada. Mecánicos y clientes esperan cosas distintas.',
     'montar() espera mientras el estante está lleno. vender() espera mientras está vacío y la tienda sigue abierta; si al despertar no hay bicis, devuelve false. cerrar() marca la tienda cerrada y avisa a todos. Principal cierra cuando acaban los mecánicos.',
-    ['montar(): synchronized, while (bicis == maximo) wait(); bicis++; notifyAll();', 'vender(): synchronized, while (bicis == 0 && !cerrada) wait();', 'Después, if (bicis == 0) return false;', 'Después bicis--; vendidas++; notifyAll(); return true;', 'cerrar(): synchronized, cerrada = true; notifyAll();', 'En la pestaña Principal, coloca estante.cerrar();']],
+    ['montar(): synchronized, while (bicis == maximo) wait(); bicis++; notifyAll();', 'vender(): synchronized, while (bicis == 0 && !cerrada) wait();', 'Después, if (bicis == 0) return false;', 'Después bicis--; vendidas++; notifyAll(); return true;', 'cerrar(): synchronized, cerrada = true; notifyAll();', 'En la pestaña Principal, coloca estante.cerrar();', 'Mecanico.run(): for con estante.montar(); y el sleep', 'Cliente.run(): while (estante.vender()) con el sleep dentro']],
   pintor:['Hay dos papeles distintos: uno espera si el almacén está lleno y el otro si está vacío. Para saberlo hace falta contar los cuadros, como la cocina contaba cuchillos.',
     'depositar(): while (numCuadros == numMaxCuadros) wait(); después numCuadros++ y notify(). vender(): while (numCuadros == 0) wait(); después numCuadros-- y notify(). Los dos synchronized.',
     ['Escribe synchronized en depositar() y vender().', 'En depositar(), un while con numCuadros == numMaxCuadros y dentro wait();', 'Después, numCuadros++; y notify();', 'En vender(), un while con numCuadros == 0 y dentro wait();', 'Después, numCuadros--; y notify();', 'Ejecuta: se pintan y se venden todos y el almacén acaba en 0.']],
@@ -571,7 +574,7 @@ const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2', 'fabrica'];
 const PARAMS = {
   cocina:[{k:'cocineros', label:'Cocineros', min:1, max:12, def:9}, {k:'cuchillos', label:'Cuchillos', min:1, max:6, def:2}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:3000}],
   parking:[{k:'coches', label:'Coches', min:1, max:12, def:8}, {k:'plazas', label:'Plazas', min:1, max:6, def:3}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:2000}],
-  bicis:[{k:'mecanicos', label:'Mecánicos', min:1, max:5, def:3}, {k:'clientes', label:'Clientes', min:1, max:5, def:2}, {k:'capacidad', label:'Capacidad del estante', min:1, max:6, def:3}, {k:'sleepM', label:'sleep mecánico', unit:' ms', step:100, min:0, max:5000, def:700}, {k:'sleepC', label:'sleep cliente', unit:' ms', step:100, min:0, max:5000, def:1200}],
+  bicis:[{k:'mecanicos', label:'Mecánicos', min:1, max:5, def:3}, {k:'clientes', label:'Clientes', min:1, max:5, def:2}, {k:'capacidad', label:'Capacidad del estante', min:1, max:6, def:3}, {k:'sleepM', label:'sleep mecánico', inline:true, min:0, max:5000, def:700}, {k:'sleepC', label:'sleep cliente', inline:true, min:0, max:5000, def:1200}],
   pintor:[{k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}],
   fabrica:[{k:'maquinas', label:'Máquinas', min:1, max:5, def:3}, {k:'total', label:'Piezas a fabricar', min:4, max:50, def:20}, {k:'capacidad', label:'Capacidad de la cinta', min:1, max:8, def:5}, {k:'sleepM', label:'sleep máquina', unit:' ms', step:100, min:0, max:5000, def:1200}, {k:'sleepE', label:'sleep empaquetador', unit:' ms', step:100, min:0, max:5000, def:800}],
   pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}, {k:'sleepP', label:'sleep pintor', inline:true, min:0, max:5000, def:0}, {k:'sleepV', label:'sleep vendedor', inline:true, min:0, max:5000, def:400}]
@@ -626,7 +629,7 @@ function checkList(list, where, add, tipo){
       continue;
     }
     if (n.kind === 'for'){
-      add(where + '()', 'un for no se usa dentro de ' + sc.clase + ': va en el hilo (Pintor.run() / Vendedor.run())', n.id);
+      add(where + '()', 'un for no se usa dentro de ' + sc.clase + ': va en el hilo (' + hnames() + ')', n.id);
       checkList(n.body, where, add, tipo);
     } else if (n.kind === 'while' || n.kind === 'if' || n.kind === 'ifelse'){
       const e = checkCond(n.cond);
@@ -636,7 +639,7 @@ function checkList(list, where, add, tipo){
     } else {
       const spec = sc.ops.find(o => o.key === n.op);
       if ((n.op === 'sout' || n.op === 'soutName') && (n.text || '').includes('"')) add(where + '()', 'el texto no puede llevar comillas ("): cerrarían la cadena', n.id);
-      if (n.op === 'sleepRnd' || (sc.hiloOps || []).some(o => o.key === n.op)) add(where + '()', 'esto se escribe en el hilo (Pintor.run() / Vendedor.run()), no dentro de ' + sc.clase, n.id);
+      if (n.op === 'sleepRnd' || (sc.hiloOps || []).some(o => o.key === n.op)) add(where + '()', 'esto se escribe en el hilo (' + hnames() + '), no dentro de ' + sc.clase, n.id);
       if (n.op === 'cerrarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "estante"; eso se llama desde Principal', n.id);
       if (n.op === 'terminarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "almacen"; eso se llama desde Pintor.run()', n.id);
       if (spec && spec.err) add(where + '()', spec.err, n.id);
@@ -656,20 +659,23 @@ function checkFor(txt){
   if (m[3] !== m[1] || m[6] !== m[1]) return 'las tres partes del for deben usar la misma variable (' + m[1] + ')';
   return null;
 }
-const HCALL = /almacen\.(\w+)\(\)/g;
+const hcall = () => new RegExp((sc.hiloObj || 'almacen') + '\\.(\\w+)\\(\\)', 'g');
+const hnames = () => (sc.hilos || []).map(x => x.n).join(' / ') || 'el hilo';
 function checkHCond(txt){
   const t = (txt || '').trim();
   if (!t) return 'falta la condición';
   if (/===|!==/.test(t) || !/^[A-Za-z0-9_\s!=<>&|().+\-]*$/.test(t)) return 'símbolo no permitido';
-  const ints = sc.methods.filter(m => m.ret === 'int').map(m => m.name);
+  const calls = sc.methods.filter(m => m.ret === 'int' || m.ret === 'boolean');
+  const obj = sc.hiloObj || 'almacen';
   let bad = null;
-  const u = t.replace(HCALL, (m0, nm) => { if (!ints.includes(nm)) bad = nm; return 'v_' + nm; });
-  if (bad) return 'almacen no tiene un método ' + bad + '() que devuelva un número';
+  const u = t.replace(hcall(), (m0, nm) => { if (!calls.some(m => m.name === nm)) bad = nm; return 'v_' + nm; });
+  if (bad) return obj + ' no tiene un método ' + bad + '() que devuelva un número o un boolean';
   for (const id of (u.match(/[A-Za-z_]\w*/g) || [])) if (!/^v_/.test(id) && id !== 'true' && id !== 'false') return id === 'total' ? 'aquí "total" no existe: escribe el número' : 'no encuentro el símbolo "' + id + '"';
   if (/(^|[^=!<>])=($|[^=])/.test(u)) return 'para comparar se usa ==, no =';
   try {
     const names = (u.match(/v_\w+/g) || []).filter((v, i, a) => a.indexOf(v) === i);
-    if (typeof new Function(...names, '"use strict";return (' + u + ')')(...names.map(() => 1)) !== 'boolean') return 'la condición debe ser true o false';
+    const sample = names.map(v => (calls.find(m => 'v_' + m.name === v) || {}).ret === 'boolean' ? true : 1);
+    if (typeof new Function(...names, '"use strict";return (' + u + ')')(...sample) !== 'boolean') return 'la condición debe ser true o false';
   } catch (e) { return 'condición mal escrita'; }
   return null;
 }
@@ -694,7 +700,7 @@ function checkHList(list, hd, add, vars){
         if (!hd.sleep) add(hd.n, 'aquí no hay sleep', n.id);
       } else if (n.op === 'sout' || n.op === 'soutName'){
         if ((n.text || '').includes('"')) add(hd.n, 'el texto no puede llevar comillas ("): cerrarían la cadena', n.id);
-      } else add(hd.n, SPECIAL[n.op] + ' se usa dentro de los métodos del almacén, no en ' + hd.n, n.id);
+      } else add(hd.n, SPECIAL[n.op] + ' se usa dentro de los métodos de ' + sc.clase + ', no en ' + hd.n, n.id);
     }
   }
 }
@@ -741,8 +747,11 @@ function* runHilo(a, k){
 function* evalH(a, n){
   a.cur = n.id;
   const vals = {};
-  const txt = n.cond.replace(HCALL, (m0, nm) => 'v_' + nm);
-  for (const m of n.cond.matchAll(HCALL)) vals['v_' + m[1]] = yield* invoke(a, m[1]);
+  const txt = n.cond.replace(hcall(), (m0, nm) => 'v_' + nm);
+  for (const m of n.cond.matchAll(hcall())){
+    vals['v_' + m[1]] = yield* invoke(a, m[1]);
+    if (sc.onCall) sc.onCall(a, m[1], vals['v_' + m[1]]);
+  }
   a.cur = n.id;
   return new Function(...Object.keys(vals), '"use strict";return (' + txt + ')')(...Object.values(vals));
 }
@@ -773,9 +782,10 @@ function* execH(a, list, hd, env){
       const op = (sc.hiloOps || []).find(o => o.key === n.op);
       if (op){
         const antes = a.dec || 0;
-        yield* invoke(a, op.m);
+        const r = yield* invoke(a, op.m);
         a.cur = n.id;
-        if (op.m === 'depositar' || (a.dec || 0) > antes) a.done++;
+        if (sc.onCall) sc.onCall(a, op.m, r);
+        else if (op.m === 'depositar' || (a.dec || 0) > antes) a.done++;
         else if (!a.avisado){ a.avisado = true; log(a.n + ': ' + op.m + '() acabó sin vender (no quedan cuadros por pintar)'); }
       } else if (n.op === 'sleepRnd'){
         yield* sleepTicks(a, randInt(0, ticksDe(hd.ms)));
@@ -1302,7 +1312,7 @@ function renderCode(){
     ctxHilo = hd;
     hi.append(h('div', 'line stat', 'public class ' + hd.k + ' implements Runnable {'));
     const hb = h('div', 'blk');
-    hb.append(h('div', 'line stat', 'private Almacen almacen;   // el constructor lo recibe'));
+    hb.append(h('div', 'line stat', 'private ' + sc.clase + ' ' + (sc.hiloObj || 'almacen') + ';   // el constructor lo recibe'));
     hb.append(h('div', 'line stat', 'public void run() {'));
     const hin = h('div', 'blk'); hin.append(listEl(prog.h[hd.k].body)); hb.append(hin, h('div', 'line stat', '}'));
     hi.append(hb, h('div', 'line stat', '}'));
@@ -1367,6 +1377,7 @@ function load(){
       if (p.principal) base.principal = p.principal;
       if (p.fin) base.fin = p.fin;
       Object.keys(base.h).forEach(k => { if (p.h && p.h[k]) base.h[k] = p.h[k]; });
+      if (!p.h && build(k).hilos) base.h = build(k).solution().h;   /* guardado de antes de que los hilos fueran editables */
       progs[k] = base;
     });
     nid = d.nid || 1;
@@ -1466,7 +1477,21 @@ const MUT = {
   sinGetter:pr => { pr.m.getCuadrosVendidos = {mod:'', body:[]}; return pr; },
   sinPintados:pr => { walk(pr.m.vender.body, n => { if (n.kind === 'while') n.cond = 'numCuadros == 0'; }); return pr; },
   sinTopar:pr => { pr.m.poner.body = pr.m.poner.body.filter(n => n.kind !== 'if'); return pr; },
-  sinCerrar:pr => { pr.principal = {body:[]}; return pr; }
+  sinCerrar:pr => { pr.principal = {body:[]}; return pr; },
+  sinCerrarM:pr => { pr.m.cerrar = {mod:'', body:[]}; return pr; },
+  sinMontar:pr => { pr.m.montar = {mod:'', body:[]}; return pr; },
+  sinVender:pr => { pr.m.vender = {mod:'', body:[]}; return pr; },
+  sinIfBicis:pr => { const b = pr.m.vender.body, k = b.findIndex(n => n.kind === 'if'); if (k >= 0) b.splice(k, 1); return pr; },
+  sinDepositar:pr => { pr.m.depositar = {mod:'', body:[]}; return pr; },
+  sinVenderM:pr => { pr.m.vender = {mod:'', body:[]}; return pr; },
+  sinCondIf:pr => { walk(pr.m.vender.body, n => { if (n.kind === 'if') n.cond = ''; }); return pr; },
+  sinAlmacen:pr => { pr.m.depositar = {mod:'', body:[]}; pr.m.vender = {mod:'', body:[]}; pr.m.getCuadrosVendidos = {mod:'', body:[]}; return pr; },
+  sinPintor:pr => { pr.h.Pintor = {body:[]}; return pr; },
+  sinVendedor:pr => { pr.h.Vendedor = {body:[]}; return pr; },
+  sinMecanico:pr => { pr.h.Mecanico = {body:[]}; return pr; },
+  sinCliente:pr => { pr.h.Cliente = {body:[]}; return pr; },
+  sinAbierta:pr => { walk(pr.m.vender.body, n => { if (n.kind === 'while') n.cond = 'bicis == 0'; }); return pr; },
+  sinEstante:pr => { pr.m.montar = {mod:'', body:[]}; pr.m.vender = {mod:'', body:[]}; pr.m.cerrar = {mod:'', body:[]}; pr.principal = {body:[]}; return pr; }
 };
 const SOL = () => sc.solution();
 
@@ -1546,22 +1571,67 @@ const EXPS = {
      prog:null, why:'Igual que la cocina: synchronized en los dos métodos, while (libres == 0) con wait() en entrar() y notifyAll() en salir().'}
   ],
   bicis:[
-    {id:'total', tipo:'ver', titulo:'¿Cuántas se venden?',
+    {id:'total', nivel:1, tipo:'ver', titulo:'¿Cuántas se venden?',
      cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
      instr:c => 'Ejecuta la solución: ' + c.mecanicos + ' mecánicos montan 4 bicis cada uno.',
      prog:SOL,
      q:(r, c) => { const n = c.mecanicos * 4, ops = [n - 4, n, n + 4, n + 2].filter((v, i, a) => v > 0 && a.indexOf(v) === i).sort((a, b) => a - b);
        return {txt:'¿Cuántas bicis se han vendido en total al acabar?', ops:ops.map(v => v + ' bicis'), ok:ops.indexOf(n), why:'Cada mecánico monta 4, así que ' + c.mecanicos + ' × 4 = ' + n + '. Los clientes no cuentan sus bicis: compran mientras haya bicis o la tienda siga abierta, y por eso el estante necesita cerrar().'}; }},
-    {id:'sinCerrar', tipo:'ver', titulo:'Sin cerrar la tienda',
+    {id:'sinCerrar', nivel:2, tipo:'ver', titulo:'Sin cerrar la tienda',
      cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
      instr:c => 'Aquí Principal no llama a cerrar(). Hay ' + c.mecanicos + ' mecánicos y ' + c.clientes + ' clientes.',
      prog:() => MUT.sinCerrar(SOL()),
      q:qResultado('¿Qué ocurre?', 'Cuando los mecánicos terminan, los clientes siguen esperando una bici que ya no llegará. Nadie les avisa de que la tienda cierra, así que se quedan en wait() para siempre.')},
-    {id:'cerrar', tipo:'montar', titulo:'Rellena Principal',
+    {id:'cerrar', nivel:3, tipo:'montar', titulo:'Rellena Principal',
      cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
      instr:c => 'Todo está escrito menos la llamada que cierra la tienda. Ve a la pestaña Principal, coloca la línea que falta y pulsa «Comprobar».',
      prog:() => MUT.sinCerrar(SOL()), tab:1,
-     why:'Principal espera con join() a los mecánicos y después llama a estante.cerrar(): así los clientes sacan las bicis que quedan y terminan.'}
+     why:'Principal espera con join() a los mecánicos y después llama a estante.cerrar(): así los clientes sacan las bicis que quedan y terminan.'},
+    {id:'metodoCerrar', nivel:4, tipo:'montar', titulo:'Escribe cerrar()',
+     cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
+     instr:c => 'Todo está escrito menos el método cerrar() de la pestaña Estante. Escríbelo (con su modificador) para que la tienda se cierre y los clientes se enteren. Pulsa «Comprobar».',
+     prog:() => MUT.sinCerrarM(SOL()), tab:0,
+     why:'cerrar() es synchronized: marca cerrada = true y llama a notifyAll() para despertar a los clientes que esperan una bici que ya no llegará.'},
+    {id:'condVender', nivel:5, tipo:'montar', titulo:'Completa el while de vender()',
+     cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
+     instr:c => 'Los clientes se quedan esperando cuando los mecánicos terminan: al while de vender() le falta una parte de la condición. Corrígela usando la variable cerrada y pulsa «Comprobar».',
+     prog:() => MUT.sinAbierta(SOL()), tab:0,
+     why:'Los clientes deben esperar mientras no haya bicis Y la tienda siga abierta: while (bicis == 0 && !cerrada) wait(). Cuando cierra, salen del wait() aunque no haya bicis.'},
+    {id:'montar', nivel:6, tipo:'montar', titulo:'Escribe montar()',
+     cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
+     instr:c => 'Todo está escrito menos montar(): el método que usa cada mecánico para dejar una bici en el estante de ' + c.capacidad + '. Escríbelo en la pestaña Estante y pulsa «Comprobar».',
+     prog:() => MUT.sinMontar(SOL()), tab:0,
+     why:'montar() es synchronized, espera mientras el estante está lleno (while (bicis == maximo) wait();), después bicis++; y avisa con notifyAll().'},
+    {id:'ifVender', nivel:7, tipo:'montar', titulo:'Qué hacer al despertar sin bicis',
+     cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
+     instr:c => 'A vender() le falta algo: cuando la tienda cierra y no quedan bicis, el cliente despierta y vende una bici que no existe. Coloca la comprobación que falta (con su return) y pulsa «Comprobar».',
+     prog:() => MUT.sinIfBicis(SOL()), tab:0,
+     why:'Después del while hay que volver a mirar: if (bicis == 0) return false;. Ese false es la señal de fin para el cliente: no hay bicis y la tienda está cerrada.'},
+    {id:'vender', nivel:8, tipo:'montar', titulo:'Escribe vender()',
+     cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
+     instr:c => 'Todo está escrito menos vender(), que devuelve boolean. Escríbelo en la pestaña Estante y pulsa «Comprobar».',
+     prog:() => MUT.sinVender(SOL()), tab:0,
+     why:'vender(): synchronized; while (bicis == 0 && !cerrada) wait(); if (bicis == 0) return false; bicis--; vendidas++; notifyAll(); return true;'},
+    {id:'todo', nivel:9, tipo:'montar', titulo:'Móntalo tú',
+     cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
+     instr:c => 'Escribe montar(), vender() y cerrar() en Estante y lo que falta en Principal, para ' + c.mecanicos + ' mecánicos, ' + c.clientes + ' clientes y un estante de ' + c.capacidad + '. Pulsa «Comprobar» cuando creas que está.',
+     prog:() => MUT.sinEstante(SOL()), tab:0,
+     why:'montar() espera con el estante lleno; vender() espera sin bicis y con la tienda abierta, y devuelve false si no hay; cerrar() marca cerrada y avisa a todos; Principal llama a cerrar() tras el join de los mecánicos.'},
+    {id:'hMecanico', nivel:10, tipo:'montar', titulo:'Escribe Mecanico.run()',
+     cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
+     instr:c => 'Estante, Principal y Cliente ya están escritos. Escribe en la pestaña Mecanico.run() lo que hace cada mecánico: monta 4 bicis. Pulsa «Comprobar».',
+     prog:() => MUT.sinMecanico(SOL()), tab:2,
+     why:'Cada mecánico sabe cuántas bicis le tocan, así que usa un for que repite 4 veces: estante.montar(); y el sleep.'},
+    {id:'hCliente', nivel:11, tipo:'montar', titulo:'Escribe Cliente.run()',
+     cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
+     instr:c => 'Todo está escrito menos lo que hace cada cliente. Escribe en la pestaña Cliente.run() un bucle que compre bicis. Recuerda que el cliente no sabe cuántas comprará. Pulsa «Comprobar».',
+     prog:() => MUT.sinCliente(SOL()), tab:3,
+     why:'El cliente no sabe cuántas bicis comprará: repite while (estante.vender()) mientras vender() devuelva true, y con el sleep dentro. Cuando devuelve false, el while termina.'},
+    {id:'hilos', nivel:12, tipo:'montar', titulo:'Escribe los dos hilos',
+     cfg:() => ({mecanicos:randInt(2, 4), clientes:randInt(2, 3), capacidad:randInt(2, 4), sleepM:500, sleepC:500}),
+     instr:c => 'El estante y Principal ya están escritos. Escribe en las pestañas Mecanico.run() y Cliente.run() lo que hace cada hilo: hay ' + c.mecanicos + ' mecánicos (4 bicis cada uno) y ' + c.clientes + ' clientes. Pulsa «Comprobar».',
+     prog:() => MUT.sinCliente(MUT.sinMecanico(SOL())), tab:2,
+     why:'El mecánico sabe cuántas bicis monta: for de 4 vueltas con montar(). El cliente no lo sabe: while (estante.vender()). Los dos con su sleep.'}
   ],
   pintor:[
     {id:'solucion', tipo:'ver', titulo:'Los dos hilos se turnan',
@@ -1612,37 +1682,67 @@ const EXPS = {
      prog:null, why:'poner(): while (piezas == maximo && fabricadas < total) wait(); si fabricadas == total, return false; después piezas++, fabricadas++, notifyAll() y return true. retirar(): while (piezas == 0) wait(); piezas--; notifyAll().'}
   ],
   pintor2:[
-    {id:'notify', tipo:'ver', titulo:'notify() con dos papeles',
+    {id:'notify', nivel:1, tipo:'ver', titulo:'notify() con dos papeles',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:1, }),
      instr:c => 'Aquí todos los métodos usan notify() en vez de notifyAll(). Hay ' + c.vendedores + ' vendedores y un almacén de ' + c.capacidad + '.',
      prog:() => MUT.swap(SOL(), 'notifyAll', 'notify'), reps:20,
      q:qResultado('¿Funciona siempre?', 'Puede colgarse (a veces, o casi siempre según el almacén): notify() despierta a uno cualquiera, que puede ser otro vendedor y no el pintor. Si ese hilo no puede avanzar vuelve a dormirse y la señal se pierde. Con notifyAll() despiertan todos y cada uno comprueba si le toca.')},
-    {id:'sinPintados', tipo:'ver', titulo:'Sin mirar los cuadros pintados',
+    {id:'sinPintados', nivel:2, tipo:'ver', titulo:'Sin mirar los cuadros pintados',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3)}),
      instr:c => 'Aquí el while de vender() solo mira numCuadros == 0: no mira cuántos cuadros se han pintado. Hay ' + c.vendedores + ' vendedores.',
      prog:() => MUT.sinPintados(SOL()),
      q:qResultado('¿Qué ocurre?', 'Cuando el pintor acaba y el almacén se vacía, los vendedores que siguen dentro de vender() esperan en wait() para siempre: nadie les va a avisar. Con numCuadrosPintados < total en el while salen al despertar, ven que no hay cuadros y terminan.')},
-    {id:'if', tipo:'ver', titulo:'if en vez de while',
+    {id:'if', nivel:3, tipo:'ver', titulo:'if en vez de while',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 2)}),
      instr:c => 'Aquí hay if en lugar de while antes de los wait(). Ahora son ' + c.vendedores + ' vendedores.',
      prog:() => MUT.ifPorWhile(SOL()), reps:20,
      q:qResultado('¿Falla?', 'Aquí no falla, pero solo porque vender() vuelve a comprobar con el if (numCuadros > 0) y cada Vendedor repite vender() en su while. Si un vendedor despierta y no hay cuadros, no vende y vuelve a intentarlo. El while dentro del método es la forma segura de hacerlo: no depende de que alguien más lo arregle.')},
-    {id:'sinIf', tipo:'ver', titulo:'Sin comprobar al despertar',
+    {id:'sinIf', nivel:4, tipo:'ver', titulo:'Sin comprobar al despertar',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 2)}),
      instr:c => 'Aquí vender() no tiene el if (numCuadros > 0): después del while siempre vende. Hay ' + c.vendedores + ' vendedores.',
      prog:() => MUT.sinIfVender(SOL()), reps:20,
      q:qResultado('¿Qué ocurre?', 'Cuando el pintor acaba, los vendedores que esperan se despiertan, salen del while porque ya se han pintado todos, y venden un cuadro que no existe: numCuadros baja de 0. El if (numCuadros > 0) es lo que los hace irse con las manos vacías.')},
-    {id:'getter', tipo:'montar', titulo:'Escribe getCuadrosVendidos()',
+    {id:'getter', nivel:5, tipo:'montar', titulo:'Escribe getCuadrosVendidos()',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3)}),
      instr:c => 'Todo está escrito menos getCuadrosVendidos(), el método que usa cada Vendedor para saber si ya se han vendido los ' + c.total + '. Escríbelo en la pestaña Almacen (con su modificador y su return) y pulsa «Comprobar».',
      prog:() => MUT.sinGetter(SOL()), tab:0,
      why:'getCuadrosVendidos() es synchronized y devuelve numCuadrosVendidos: el Vendedor lo llama en su while para saber si debe seguir. Es synchronized para que la lectura no se mezcle con un vendedor que está vendiendo.'},
-    {id:'terminar', tipo:'montar', titulo:'Completa el while de vender()',
+    {id:'terminar', nivel:6, tipo:'montar', titulo:'Completa el while de vender()',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3)}),
      instr:c => 'Todo está escrito menos una parte de la condición del while de vender(). Los vendedores se quedan esperando cuando el pintor acaba. Corrígela (el total es ' + c.total + ': usa la constante total) y pulsa «Comprobar».',
      prog:() => MUT.sinPintados(SOL()), tab:0,
      why:'Los vendedores deben esperar mientras no haya cuadros Y todavía falten cuadros por pintar: while (numCuadros == 0 && numCuadrosPintados < total). Así, cuando el pintor acaba, salen del wait(), ven que no hay cuadros y terminan.'},
-    {id:'hilos', tipo:'montar', titulo:'Escribe el for y el while',
+    {id:'condIf', nivel:7, tipo:'montar', titulo:'Completa el if de vender()',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3), sleepP:0, sleepV:400}),
+     instr:c => 'A vender() le falta la condición del if: cuando el pintor acaba, los vendedores despiertan y venden un cuadro que no existe. Escríbela en la pestaña Almacen y pulsa «Comprobar».',
+     prog:() => MUT.sinCondIf(SOL()), tab:0,
+     why:'Después del while hay que volver a mirar si hay cuadros: if (numCuadros > 0). Si no hay, el vendedor no vende y se va con las manos vacías.'},
+    {id:'depositar', nivel:8, tipo:'montar', titulo:'Escribe depositar()',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3), sleepP:0, sleepV:400}),
+     instr:c => 'Todo está escrito menos depositar(): el método que usa el pintor para dejar un cuadro en el almacén de ' + c.capacidad + '. Escríbelo en la pestaña Almacen y pulsa «Comprobar».',
+     prog:() => MUT.sinDepositar(SOL()), tab:0,
+     why:'depositar() es synchronized, espera mientras el almacén está lleno (while (numCuadros == numMaxCuadros) wait();), después numCuadros++; numCuadrosPintados++; y avisa con notifyAll().'},
+    {id:'venderM', nivel:9, tipo:'montar', titulo:'Escribe vender()',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3), sleepP:0, sleepV:400}),
+     instr:c => 'Todo está escrito menos vender(). Escríbelo en la pestaña Almacen: tiene que esperar si no hay cuadros y, cuando el pintor acaba, dejar salir a los vendedores. Pulsa «Comprobar».',
+     prog:() => MUT.sinVenderM(SOL()), tab:0,
+     why:'vender(): synchronized; while (numCuadros == 0 && numCuadrosPintados < total) wait(); if (numCuadros > 0) { numCuadros--; numCuadrosVendidos++; notifyAll(); }'},
+    {id:'todo', nivel:10, tipo:'montar', titulo:'Móntalo tú',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3), sleepP:0, sleepV:400}),
+     instr:c => 'Los hilos ya están escritos. Escribe depositar(), vender() y getCuadrosVendidos() en el Almacen: hay ' + c.vendedores + ' vendedores y se pintan ' + c.total + ' cuadros. Pulsa «Comprobar».',
+     prog:() => MUT.sinAlmacen(SOL()), tab:0,
+     why:'depositar() espera con el almacén lleno; vender() espera sin cuadros y mientras falten por pintar, y solo vende si hay; getCuadrosVendidos() devuelve numCuadrosVendidos. Los tres son synchronized.'},
+    {id:'hPintor', nivel:11, tipo:'montar', titulo:'Escribe Pintor.run()',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3), sleepP:0, sleepV:400}),
+     instr:c => 'El almacén y el Vendedor ya están escritos. Escribe en la pestaña Pintor.run() lo que hace el pintor: pinta ' + c.total + ' cuadros. Pulsa «Comprobar».',
+     prog:() => MUT.sinPintor(SOL()), tab:2,
+     why:'El pintor sabe cuántos cuadros pinta, así que usa un for con esa cantidad de vueltas: almacen.depositar(); y el sleep.'},
+    {id:'hVendedor', nivel:12, tipo:'montar', titulo:'Escribe Vendedor.run()',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3), sleepP:0, sleepV:400}),
+     instr:c => 'Todo está escrito menos lo que hace cada vendedor. Escribe en la pestaña Vendedor.run() un bucle que venda. Recuerda que cada vendedor no sabe cuántos venderá. Pulsa «Comprobar».',
+     prog:() => MUT.sinVendedor(SOL()), tab:3,
+     why:'El vendedor no sabe cuántos cuadros le tocan: repite almacen.vender(); con un while mientras almacen.getCuadrosVendidos() sea menor que el total, con el sleep dentro.'},
+    {id:'hilos', nivel:13, tipo:'montar', titulo:'Escribe el for y el while',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3), sleepP:0, sleepV:400}),
      instr:c => 'El almacén ya está escrito. Escribe en las pestañas Pintor.run() y Vendedor.run() lo que hace cada hilo. Hay ' + c.vendedores + ' vendedores y se pintan ' + c.total + ' cuadros. Pulsa «Comprobar» cuando creas que está.',
      prog:() => { const pr = SOL(); pr.h = emptyProg(sc).h; return pr; }, tab:2,
@@ -1654,7 +1754,9 @@ let ex = null;   /* estado del cuestionario de este ejemplo */
 const exCreate = id => {
   const bank = EXPS[id].slice().sort(() => Math.random() - .5);
   const montar = bank.filter(e => e.tipo === 'montar'), ver = bank.filter(e => e.tipo === 'ver');
-  const lista = ver.slice(0, Math.min(3, ver.length)).concat(montar.slice(0, 1)).sort(() => Math.random() - .5);
+  /* si los ejercicios tienen nivel, van todos y de menos a más difícil */
+  const lista = bank.every(e => e.nivel) ? bank.sort((a, b) => a.nivel - b.nivel)
+    : ver.slice(0, Math.min(3, ver.length)).concat(montar.slice(0, 1)).sort(() => Math.random() - .5);
   ex = {id, lista, i:0, aciertos:0, respondidas:0, r:null, q:null, hecho:false, cargado:false, cfg:null};
 };
 function exCargar(){
