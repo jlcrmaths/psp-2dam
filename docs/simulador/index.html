@@ -239,7 +239,7 @@ const blk = (kind, cond, body) => mk(kind, {cond, body});
 /* instrucciones comunes a todos los ejemplos */
 const SPECIAL = {
   wait:'wait();', notify:'notify();', notifyAll:'notifyAll();', sleep:'Thread.sleep(500);',
-  retT:'return true;', retF:'return false;', cerrarCall:'estante.cerrar();', terminarCall:'almacen.terminar();'
+  retT:'return true;', retF:'return false;', sleepRnd:'Thread.sleep((long) (Math.random() * ms));', cerrarCall:'estante.cerrar();', terminarCall:'almacen.terminar();'
 };
 
 /* ----- ejemplos ----- */
@@ -257,7 +257,7 @@ const BUILD = {
     titulo:'Cocina: ' + p.cocineros + ' cocineros y ' + p.cuchillos + ' cuchillos',
     clase:'Cocina', recurso:'Cuchillos', icono:'🔪', max:p.cuchillos,
     vars:{libres:p.cuchillos}, consts:{},
-    fields:['private int libres;   // el constructor lo pone a ' + p.cuchillos],
+    fields:['private int libres;', '', 'public Cocina(int cuchillos) {', '    libres = cuchillos;', '}', ''],
     methods:[{name:'coger', ret:'void'}, {name:'soltar', ret:'void'}],
     ops:[
       {g:'Datos', key:'dec',  label:'libres--;',   anim:{emoji:'🔪', hold:'carry'}, fx:S => { S.v.libres--; return 'libres-- → ' + S.v.libres; }},
@@ -284,7 +284,7 @@ const BUILD = {
     titulo:'Parking: ' + p.coches + ' coches y ' + p.plazas + ' plazas',
     clase:'Parking', recurso:'Plazas', icono:'🚗', max:p.plazas, slots:true,
     vars:{libres:p.plazas}, consts:{},
-    fields:['private int libres;   // el constructor lo pone a ' + p.plazas],
+    fields:['private int libres;', '', 'public Parking(int plazas) {', '    libres = plazas;', '}', ''],
     methods:[{name:'entrar', ret:'void'}, {name:'salir', ret:'void'}],
     ops:[
       {g:'Datos', key:'dec',  label:'libres--;',   anim:{emoji:'🚗', hold:'inside'}, fx:S => { S.v.libres--; return 'libres-- → ' + S.v.libres; }},
@@ -375,7 +375,7 @@ const BUILD = {
     titulo:'6.4 Pintor y vendedor: ' + p.total + ' cuadros, almacén de ' + p.capacidad,
     clase:'Almacen', recurso:'Almacén', icono:'🖼️', max:p.capacidad,
     vars:{numCuadros:0}, consts:{numMaxCuadros:p.capacidad},
-    fields:['private int numCuadros = 0;', 'private int numMaxCuadros;   // el constructor lo pone a ' + p.capacidad],
+    fields:['private int numCuadros = 0;', 'private int numMaxCuadros;', '', 'public Almacen(int numMaxCuadros) {', '    this.numMaxCuadros = numMaxCuadros;', '}', ''],
     methods:[{name:'depositar', ret:'void', params:'int numero'}, {name:'vender', ret:'void', params:'int numero'}],
     ops:[
       {g:'Datos', key:'inc', label:'numCuadros++;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
@@ -387,15 +387,9 @@ const BUILD = {
     ],
     groups:[
       {t:'p1', n:1, name:'Pintor', emoji:'🎨', extra:a => ' · cuadros: ' + a.done + '/' + p.total,
-       proc:function*(a){
-         for (let i = 0; i < p.total; i++){ yield* invoke(a, 'depositar'); a.done++; }
-         a.state = 'fin'; a.cur = null;
-       }},
+       proc:a => runHilo(a, 'Pintor')},
       {t:'v1', n:1, name:'Vendedor', emoji:'💰', extra:a => ' · cuadros: ' + a.done + '/' + p.total,
-       proc:function*(a){
-         for (let i = 0; i < p.total; i++){ yield* invoke(a, 'vender'); a.done++; }
-         a.state = 'fin'; a.cur = null;
-       }}
+       proc:a => runHilo(a, 'Vendedor')}
     ],
     filled:S => S.v.numCuadros,
     anomaly:S => { const m = S.pend; S.pend = null; return m; },
@@ -404,11 +398,14 @@ const BUILD = {
     okMsg:S => '✔ Termina bien. Pintados ' + S.dep + ', vendidos ' + S.ven,
     summary:S => 'pintados ' + S.dep + ', vendidos ' + S.ven,
     mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen(' + p.capacidad + ');', '    new Thread(new Pintor(almacen), "Pintor").start();', '    new Thread(new Vendedor(almacen), "Vendedor").start();', '}'],
-    hiloLines:['// Pintor.run(): for 1..' + p.total + ' → almacen.depositar(i)', '// Vendedor.run(): for 1..' + p.total + ' → almacen.vender(i)'],
+    hilos:[{k:'Pintor', n:'Pintor.run()', ops:['depositarCall']}, {k:'Vendedor', n:'Vendedor.run()', ops:['venderCall']}],
+    hiloOps:[{key:'depositarCall', label:'almacen.depositar(i);', m:'depositar', i:true}, {key:'venderCall', label:'almacen.vender(i);', m:'vender', i:true}],
     solution:() => ({
       m:{depositar:{mod:'synchronized', body:[blk('while', 'numCuadros == numMaxCuadros', [st('wait')]), st('inc'), st('notify')]},
          vender:{mod:'synchronized', body:[blk('while', 'numCuadros == 0', [st('wait')]), st('dec'), st('notify')]}},
-      principal:{body:[]}
+      principal:{body:[]},
+      h:{Pintor:{body:[blk('for', 'int i = 1; i <= ' + p.total + '; i++', [st('depositarCall')])]},
+         Vendedor:{body:[blk('for', 'int i = 1; i <= ' + p.total + '; i++', [st('venderCall')])]}}
     })
   }),
   pintor2:p => ({
@@ -416,7 +413,7 @@ const BUILD = {
     clase:'Almacen', recurso:'Almacén', icono:'🖼️', max:p.capacidad,
     solutionCfg:{sleepP:0, sleepV:400},   /* con estos sleep, cambiar notifyAll() por notify() cuelga el programa casi siempre */
     vars:{numCuadros:0, numCuadrosPintados:0, numCuadrosVendidos:0}, consts:{numMaxCuadros:p.capacidad, total:p.total},
-    fields:['private int numCuadros = 0;', 'private int numMaxCuadros;   // el constructor lo pone a ' + p.capacidad, 'private int numCuadrosPintados = 0;', 'private int numCuadrosVendidos = 0;', '// total = ' + p.total + ': los cuadros que se pintan (en el código del profesor es un 10)'],
+    fields:['private int numCuadros = 0;', 'private int numMaxCuadros;', 'private int numCuadrosPintados = 0;', 'private int numCuadrosVendidos = 0;', '// total = ' + p.total + ': los cuadros que se pintan (en el código del profesor es un 10)', '', 'public Almacen(int numMaxCuadros) {', '    this.numMaxCuadros = numMaxCuadros;', '}', ''],
     methods:[{name:'depositar', ret:'void', params:'int numero'}, {name:'vender', ret:'void'}, {name:'getCuadrosVendidos', ret:'int'}],
     ops:[
       {g:'Datos', key:'inc', label:'numCuadros++;', anim:{emoji:'🖼️', hold:'none'}, fx:S => {
@@ -431,26 +428,9 @@ const BUILD = {
     ],
     groups:[
       {t:'p1', n:1, name:'Pintor', emoji:'🎨', extra:a => ' · cuadros: ' + a.done + '/' + p.total,
-       proc:function*(a){
-         for (let i = 0; i < p.total; i++){
-           yield* sleepTicks(a, randInt(0, ticksDe(p.sleepP == null ? 0 : p.sleepP)));   /* pausa aleatoria */
-           yield* invoke(a, 'depositar'); a.done++; }
-         a.state = 'fin'; a.cur = null;
-       }},
+       proc:a => runHilo(a, 'Pintor')},
       {t:'v1', n:p.vendedores, name:'Vendedor', emoji:'💰', extra:a => ' · vendidos: ' + a.done,
-       proc:function*(a){
-         for (;;){
-           const vendidos = yield* invoke(a, 'getCuadrosVendidos');
-           if (!(vendidos < p.total)) break;
-           yield* sleepTicks(a, randInt(0, ticksDe(p.sleepV == null ? 400 : p.sleepV)));   /* pausa aleatoria */
-           const antes = a.dec || 0;
-           yield* invoke(a, 'vender');
-           if ((a.dec || 0) > antes) a.done++;
-           else if (!a.avisado){ a.avisado = true; log(a.n + ': vender() acabó sin vender (no quedan cuadros por pintar)'); }
-         }
-         log(a.n + ': ya se han vendido los ' + p.total + ', termina');
-         a.state = 'fin'; a.cur = null;
-       }}
+       proc:a => runHilo(a, 'Vendedor')}
     ],
     filled:S => S.v.numCuadros,
     anomaly:S => { const m = S.pend; S.pend = null; return m; },
@@ -459,12 +439,16 @@ const BUILD = {
     okMsg:S => '✔ Termina bien. Pintados ' + S.dep + ', vendidos ' + S.ven,
     summary:S => 'pintados ' + S.dep + ', vendidos ' + S.ven,
     mainLines:['public static void main(String[] args) {', '    Almacen almacen = new Almacen(' + p.capacidad + ');', '    new Thread(new Pintor(almacen), "Pintor").start();', '    // ' + p.vendedores + ' hilos Vendedor, cada uno con su new Thread(...).start()', '}'],
-    hiloLines:['// Pintor.run() (ya escrito; sleep en ms, se puede cambiar)', 'for (int i = 1; i <= ' + p.total + '; i++) {', {pre:'    Thread.sleep((long) (Math.random() * ', param:'sleepP', post:'));'}, '    almacen.depositar(i);', '}', '', '// Vendedor.run() (ya escrito; sleep en ms, se puede cambiar)', 'while (almacen.getCuadrosVendidos() < ' + p.total + ') {', {pre:'    Thread.sleep((long) (Math.random() * ', param:'sleepV', post:'));'}, '    almacen.vender();', '}'],
+    hilos:[{k:'Pintor', n:'Pintor.run()', ops:['depositarCall', 'sleepRnd'], sleep:'sleepP', ms:p.sleepP == null ? 0 : p.sleepP},
+           {k:'Vendedor', n:'Vendedor.run()', ops:['venderCall', 'sleepRnd'], sleep:'sleepV', ms:p.sleepV == null ? 400 : p.sleepV}],
+    hiloOps:[{key:'depositarCall', label:'almacen.depositar(i);', m:'depositar', i:true}, {key:'venderCall', label:'almacen.vender();', m:'vender', i:false}],
     solution:() => ({
       m:{depositar:{mod:'synchronized', body:[blk('while', 'numCuadros == numMaxCuadros', [st('wait')]), st('inc'), st('pint'), st('notifyAll')]},
          vender:{mod:'synchronized', body:[blk('while', 'numCuadros == 0 && numCuadrosPintados < total', [st('wait')]), blk('if', 'numCuadros > 0', [st('dec'), st('vend'), st('notifyAll')])]},
          getCuadrosVendidos:{mod:'synchronized', body:[st('retVend')]}},
-      principal:{body:[]}
+      principal:{body:[]},
+      h:{Pintor:{body:[blk('for', 'int i = 1; i <= ' + p.total + '; i++', [st('sleepRnd'), st('depositarCall')])]},
+         Vendedor:{body:[blk('while', 'almacen.getCuadrosVendidos() < ' + p.total, [st('sleepRnd'), st('venderCall')])]}}
     })
   }),
   fabrica:p => ({
@@ -545,7 +529,8 @@ const ENUN = {
     '<ul><li>El pintor espera si el almacén está lleno para dejar un cuadro.</li>' +
     '<li>Los vendedores esperan si el almacén está vacío para poder vender.</li>' +
     '<li>Cada cuadro lo vende un solo vendedor.</li>' +
-    '<li>El programa termina cuando se han pintado <b>' + p.total + '</b> cuadros y se han vendido todos. Los vendedores no saben cuántos les tocan: el almacén cuenta los cuadros pintados y los vendidos (<code>numCuadrosPintados</code>, <code>numCuadrosVendidos</code>) y <code>total</code> vale ' + p.total + '. Cada vendedor repite <code>vender()</code> mientras no se hayan vendido todos.</li></ul>'
+    '<li>El programa termina cuando se han pintado <b>' + p.total + '</b> cuadros y se han vendido todos. Los vendedores no saben cuántos les tocan: el almacén cuenta los cuadros pintados y los vendidos (<code>numCuadrosPintados</code>, <code>numCuadrosVendidos</code>) y <code>total</code> vale ' + p.total + '. Cada vendedor repite <code>vender()</code> mientras no se hayan vendido todos.</li>' +
+    '<li>Los hilos también los escribes tú, en sus pestañas: el pintor sabe cuántos cuadros pinta (<code>for</code>) y el vendedor no sabe cuántos venderá (<code>while</code>).</li></ul>'
 };
 
 /* pistas por niveles, de menos a más ayuda */
@@ -592,15 +577,16 @@ ORDER.forEach(id => { cfg[id] = {}; PARAMS[id].forEach(q => { cfg[id][q.k] = q.d
 const build = id => BUILD[id](cfg[id]);
 let cur = 'cocina', sc = build('cocina');
 const emptyProg = s => {
-  const p = {m:{}, principal:{body:[]}, fin:{body:[]}};
+  const p = {m:{}, principal:{body:[]}, fin:{body:[]}, h:{}};
   s.methods.forEach(m => { p.m[m.name] = {mod:'', body:[]}; });
+  (s.hilos || []).forEach(x => { p.h[x.k] = {body:[]}; });
   return p;
 };
 const progs = {};
 ORDER.forEach(k => { progs[k] = emptyProg(build(k)); });
 let prog = progs[cur];
 
-function opLabel(key){ return SPECIAL[key] || (sc.ops.find(o => o.key === key) || {label:key}).label; }
+function opLabel(key){ return SPECIAL[key] || (sc.hiloOps || []).filter(o => o.key === key).map(o => o.label)[0] || (sc.ops.find(o => o.key === key) || {label:key}).label; }
 
 /* ----- compilador ----- */
 const idsOf = () => Object.keys(sc.vars).concat(Object.keys(sc.consts), ['true', 'false']);
@@ -635,18 +621,74 @@ function checkList(list, where, add, tipo){
       if (n.kind !== 'stmt' || n.op !== 'terminarCall') add(where, 'aquí solo cabe almacen.terminar();', n.id);
       continue;
     }
-    if (n.kind === 'while' || n.kind === 'if'){
+    if (n.kind === 'for'){
+      add(where + '()', 'un for no se usa dentro de ' + sc.clase + ': va en el hilo (Pintor.run() / Vendedor.run())', n.id);
+      checkList(n.body, where, add, tipo);
+    } else if (n.kind === 'while' || n.kind === 'if'){
       const e = checkCond(n.cond);
       if (e) add(where + '()', e, n.id);
       checkList(n.body, where, add, tipo);
     } else {
       const spec = sc.ops.find(o => o.key === n.op);
+      if (n.op === 'sleepRnd' || (sc.hiloOps || []).some(o => o.key === n.op)) add(where + '()', 'esto se escribe en el hilo (Pintor.run() / Vendedor.run()), no dentro de ' + sc.clase, n.id);
       if (n.op === 'cerrarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "estante"; eso se llama desde Principal', n.id);
       if (n.op === 'terminarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "almacen"; eso se llama desde Pintor.run()', n.id);
       if (spec && spec.err) add(where + '()', spec.err, n.id);
       if ((n.op === 'retT' || n.op === 'retF') && tipo !== 'boolean') add(where + '()', tipo === 'int' ? 'return true/false en un método que devuelve int' : 'return con valor en un método void', n.id);
       if (spec && spec.retVar && tipo !== 'int') add(where + '()', tipo === 'boolean' ? 'aquí se devuelve true o false, no un int' : 'return con valor en un método void', n.id);
       if (n.op === 'retT' || n.op === 'retF' || (spec && spec.retVar)) ret = true;
+    }
+  }
+}
+/* ----- hilos editables (Pintor.run() / Vendedor.run()) ----- */
+const FOR_RE = /^\s*int\s+(\w+)\s*=\s*(\d+)\s*;\s*(\w+)\s*(<=|<)\s*(\d+)\s*;\s*(\w+)\+\+\s*$/;
+function checkFor(txt){
+  const t = (txt || '').trim();
+  if (!t) return 'falta la cabecera del for';
+  const m = FOR_RE.exec(t);
+  if (!m) return 'el for lleva tres partes separadas por ;  por ejemplo: int i = 1; i <= 10; i++';
+  if (m[3] !== m[1] || m[6] !== m[1]) return 'las tres partes del for deben usar la misma variable (' + m[1] + ')';
+  return null;
+}
+const HCALL = /almacen\.(\w+)\(\)/g;
+function checkHCond(txt){
+  const t = (txt || '').trim();
+  if (!t) return 'falta la condición';
+  if (/===|!==/.test(t) || !/^[A-Za-z0-9_\s!=<>&|().+\-]*$/.test(t)) return 'símbolo no permitido';
+  const ints = sc.methods.filter(m => m.ret === 'int').map(m => m.name);
+  let bad = null;
+  const u = t.replace(HCALL, (m0, nm) => { if (!ints.includes(nm)) bad = nm; return 'v_' + nm; });
+  if (bad) return 'almacen no tiene un método ' + bad + '() que devuelva un número';
+  for (const id of (u.match(/[A-Za-z_]\w*/g) || [])) if (!/^v_/.test(id) && id !== 'true' && id !== 'false') return id === 'total' ? 'aquí "total" no existe: escribe el número' : 'no encuentro el símbolo "' + id + '"';
+  if (/(^|[^=!<>])=($|[^=])/.test(u)) return 'para comparar se usa ==, no =';
+  try {
+    const names = (u.match(/v_\w+/g) || []).filter((v, i, a) => a.indexOf(v) === i);
+    if (typeof new Function(...names, '"use strict";return (' + u + ')')(...names.map(() => 1)) !== 'boolean') return 'la condición debe ser true o false';
+  } catch (e) { return 'condición mal escrita'; }
+  return null;
+}
+function checkHList(list, hd, add, vars){
+  for (const n of list){
+    if (n.kind === 'empty') continue;
+    if (n.kind === 'for'){
+      const e = checkFor(n.cond);
+      if (e) add(hd.n, e, n.id);
+      checkHList(n.body, hd, add, e ? vars : vars.concat(FOR_RE.exec(n.cond)[1]));
+    } else if (n.kind === 'while'){
+      const e = checkHCond(n.cond);
+      if (e) add(hd.n, e, n.id);
+      checkHList(n.body, hd, add, vars);
+    } else if (n.kind === 'if'){
+      add(hd.n, 'aquí no hace falta un if', n.id);
+      checkHList(n.body, hd, add, vars);
+    } else {
+      const op = (sc.hiloOps || []).find(o => o.key === n.op);
+      if (op){
+        if (!hd.ops.includes(op.key)) add(hd.n, op.label + ' no se llama desde ' + hd.n, n.id);
+        else if (op.i && !vars.includes('i')) add(hd.n, 'no encuentro la variable i: tiene que estar dentro de un for que la declare', n.id);
+      } else if (n.op === 'sleepRnd'){
+        if (!hd.sleep) add(hd.n, 'aquí no hay sleep', n.id);
+      } else add(hd.n, SPECIAL[n.op] + ' se usa dentro de los métodos del almacén, no en ' + hd.n, n.id);
     }
   }
 }
@@ -669,6 +711,7 @@ function compile(){
   }
   if (sc.hasPrincipal) checkList(prog.principal.body, 'Principal', add, 'void');
   if (sc.hasFin) checkList(prog.fin.body, 'Pintor.run', add, 'void');
+  (sc.hilos || []).forEach(hd => checkHList(prog.h[hd.k].body, hd, add, []));
   return errs;
 }
 
@@ -683,6 +726,49 @@ function evalCond(n){
 }
 const ticksDe = ms => Math.max(0, Math.round(ms / 400));   /* 1 paso del simulador = 400 ms de sleep */
 function* sleepTicks(a, k){ a.cur = null; a.state = 'trabaja'; for (let i = 0; i < k; i++) yield; }
+function* runHilo(a, k){
+  const hd = sc.hilos.find(x => x.k === k);
+  yield* execH(a, prog.h[k].body, hd, {});
+  log(a.n + ': termina');
+  a.state = 'fin'; a.cur = null;
+}
+function* execH(a, list, hd, env){
+  for (const n of list){
+    if (n.kind === 'empty') continue;
+    a.cur = n.id;
+    if (n.kind === 'for'){
+      const m = FOR_RE.exec(n.cond);
+      if (!m) continue;
+      for (let i = +m[2]; m[4] === '<=' ? i <= +m[5] : i < +m[5]; i++){
+        a.cur = n.id; yield;
+        yield* execH(a, n.body, hd, Object.assign({}, env, {[m[1]]:i}));
+      }
+    } else if (n.kind === 'while'){
+      for (;;){
+        a.cur = n.id;
+        const vals = {};
+        const txt = n.cond.replace(HCALL, (m0, nm) => 'v_' + nm);
+        for (const m of n.cond.matchAll(HCALL)) vals['v_' + m[1]] = yield* invoke(a, m[1]);
+        a.cur = n.id;
+        const c = new Function(...Object.keys(vals), '"use strict";return (' + txt + ')')(...Object.values(vals));
+        yield;
+        if (!c) break;
+        yield* execH(a, n.body, hd, env);
+      }
+    } else if (n.kind === 'stmt'){
+      const op = (sc.hiloOps || []).find(o => o.key === n.op);
+      if (op){
+        const antes = a.dec || 0;
+        yield* invoke(a, op.m);
+        a.cur = n.id;
+        if (op.m === 'depositar' || (a.dec || 0) > antes) a.done++;
+        else if (!a.avisado){ a.avisado = true; log(a.n + ': ' + op.m + '() acabó sin vender (no quedan cuadros por pintar)'); }
+      } else if (n.op === 'sleepRnd'){
+        yield* sleepTicks(a, randInt(0, ticksDe(hd.ms)));
+      }
+    }
+  }
+}
 function* invoke(a, name){
   const m = prog.m[name], sync = m.mod.trim() === 'synchronized';
   if (sync){
@@ -974,7 +1060,7 @@ function setSel(v){
   document.body.classList.toggle('colocando', !!sel);
 }
 const h = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
-const allLists = () => sc.methods.map(m => prog.m[m.name].body).concat(sc.hasPrincipal ? [prog.principal.body] : []).concat(sc.hasFin ? [prog.fin.body] : []);
+const allLists = () => sc.methods.map(m => prog.m[m.name].body).concat(sc.hasPrincipal ? [prog.principal.body] : []).concat(sc.hasFin ? [prog.fin.body] : []).concat((sc.hilos || []).map(x => prog.h[x.k].body));
 
 function findLoc(id, list){
   const lists = list ? [list] : allLists();
@@ -998,6 +1084,12 @@ function pieceList(){
     {g:'Hilos', key:'notifyAll', label:'notifyAll();', make:() => st('notifyAll')},
     {g:'Hilos', key:'sleep', label:'Thread.sleep(500);', make:() => st('sleep')}
   ];
+  if (sc.hilos){
+    p.splice(2, 0, {g:'Bloques', key:'for', label:'for ( ) { }', make:() => mk('for', {cond:''})});
+    if (sc.hilos.some(x => x.sleep)) p.splice(p.findIndex(x => x.key === 'sleep'), 1, {g:'Hilos', key:'sleepRnd', label:'Thread.sleep((long) (Math.random() * ms));', make:() => st('sleepRnd')});
+    else p.splice(p.findIndex(x => x.key === 'sleep'), 1);
+    sc.hiloOps.forEach(o => p.push({g:'Otra clase', key:o.key, label:o.label, make:() => st(o.key)}));
+  }
   sc.ops.forEach(o => p.push({g:o.g, key:o.key, label:o.label, make:() => st(o.key)}));
   if (sc.methods.some(m => m.ret === 'boolean')){
     p.push({g:'Salida', key:'retT', label:'return true;', make:() => st('retT')});
@@ -1088,13 +1180,20 @@ function nodeEl(n){
   }
   const line = lineParts(n);
   if (n.kind === 'stmt'){
-    line.append(h('span', null, opLabel(n.op)));
+    if (n.op === 'sleepRnd' && ctxHilo && ctxHilo.sleep){
+      const q = PARAMS[cur].find(x => x.k === ctxHilo.sleep);
+      const inp = h('input', 'ms'); inp.type = 'number'; inp.min = q.min; inp.max = q.max; inp.step = 100; inp.value = cfg[cur][q.k];
+      inp.onchange = () => { const v = parseInt(inp.value, 10); cfg[cur][q.k] = Number.isNaN(v) ? q.def : Math.max(q.min, Math.min(q.max, v)); paramsChanged(); };
+      line.append(h('span', null, 'Thread.sleep((long) (Math.random() * '), inp, h('span', null, '));'));
+    } else line.append(h('span', null, opLabel(n.op)));
     tail(line, n);
     return line;
   }
   const box = h('div');
   line.append(h('span', null, n.kind + ' ('));
   const inp = h('input', 'cond'); inp.value = n.cond; inp.placeholder = 'condición'; inp.spellcheck = false;
+  if (n.kind === 'for') inp.style.width = '19em';
+  else if (ctxHilo) inp.style.width = '26em';
   inp.oninput = () => { n.cond = inp.value; n.fn = null; stop(); resetSim(); save(); refreshCompile(); };
   line.append(inp, h('span', null, ') {'));
   tail(line, n);
@@ -1121,16 +1220,18 @@ const statBox = (box, lines) => { lines.forEach(t => {
   box.append(row);
 }); };
 let tabSel = 0;
+let ctxHilo = null;   /* hilo cuya pestaña se está dibujando (para el sleep editable) */
 function renderTabs(){
   const runs = [];
+  if (sc.hilos && tabSel > 1 + sc.hilos.length) tabSel = 0;
   (sc.finPre || []).concat(sc.hiloLines).map(x => typeof x === 'string' ? x : '').join('\n').replace(/\/\/ (\w+)\.run/g, (m, c) => runs.push(c + '.run()'));
-  const names = [sc.clase, 'Principal', runs.join(' · ') || 'Hilos'];
-  ['edRecurso', 'edPrincipal', 'edHilo'].forEach((id, i) => { $(id).style.display = i === tabSel ? '' : 'none'; });
+  const names = [sc.clase, 'Principal'].concat(sc.hilos ? sc.hilos.map(x => x.n) : [runs.join(' · ') || 'Hilos']);
+  ['edRecurso', 'edPrincipal', 'edHilo'].forEach((id, i) => { $(id).style.display = i === Math.min(tabSel, 2) ? '' : 'none'; });
   const box = $('tabs');
   box.innerHTML = '';
   names.forEach((nm, i) => {
     const b = h('button', i === tabSel ? 'on' : '', nm);
-    b.onclick = () => { tabSel = i; renderTabs(); $('scrollCode').scrollTop = 0; };
+    b.onclick = () => { tabSel = i; renderCode(); $('scrollCode').scrollTop = 0; };
     box.append(b);
   });
 }
@@ -1163,7 +1264,17 @@ function renderCode(){
     statBox(hi, sc.finPre);
     hi.append(listEl(prog.fin.body));
   }
-  statBox(hi, sc.hiloLines);
+  if (sc.hilos){
+    const hd = sc.hilos[Math.max(0, Math.min(sc.hilos.length - 1, tabSel - 2))];
+    ctxHilo = hd;
+    hi.append(h('div', 'line stat', 'public class ' + hd.k + ' implements Runnable {'));
+    const hb = h('div', 'blk');
+    hb.append(h('div', 'line stat', 'private Almacen almacen;   // el constructor lo recibe'));
+    hb.append(h('div', 'line stat', 'public void run() {'));
+    const hin = h('div', 'blk'); hin.append(listEl(prog.h[hd.k].body)); hb.append(hin, h('div', 'line stat', '}'));
+    hi.append(hb, h('div', 'line stat', '}'));
+    ctxHilo = null;
+  } else statBox(hi, sc.hiloLines);
   renderTabs();
   refreshCompile();
 }
@@ -1222,6 +1333,7 @@ function load(){
       build(k).methods.forEach(me => { if (p.m && p.m[me.name]) base.m[me.name] = p.m[me.name]; });
       if (p.principal) base.principal = p.principal;
       if (p.fin) base.fin = p.fin;
+      Object.keys(base.h).forEach(k => { if (p.h && p.h[k]) base.h[k] = p.h[k]; });
       progs[k] = base;
     });
     nid = d.nid || 1;
@@ -1272,6 +1384,7 @@ function setProg(p){
   sc.methods.forEach(me => { if (p.m[me.name]) base.m[me.name] = p.m[me.name]; });
   base.principal = p.principal || {body:[]};
   base.fin = p.fin || {body:[]};
+  Object.keys(base.h).forEach(k => { if (p.h && p.h[k]) base.h[k] = p.h[k]; });
   progs[cur] = base; prog = base;
   armed = null; changed();
 }
@@ -1431,7 +1544,12 @@ const EXPS = {
     {id:'montar', tipo:'montar', titulo:'Móntalo tú',
      cfg:() => ({total:randInt(6, 12), capacidad:randInt(1, 3)}),
      instr:c => 'Escribe depositar() y vender() para un almacén de ' + c.capacidad + ' y ' + c.total + ' cuadros. Pulsa «Comprobar» cuando creas que está.',
-     prog:null, why:'depositar() espera mientras el almacén está lleno y vender() mientras está vacío; los dos con synchronized, while y wait(), y avisando al terminar.'}
+     prog:null, why:'depositar() espera mientras el almacén está lleno y vender() mientras está vacío; los dos con synchronized, while y wait(), y avisando al terminar.'},
+    {id:'hilos', tipo:'montar', titulo:'Escribe los hilos',
+     cfg:() => ({total:randInt(6, 12), capacidad:randInt(1, 3)}),
+     instr:c => 'El almacén ya está escrito. Escribe en las pestañas Pintor.run() y Vendedor.run() lo que hace cada hilo: ' + c.total + ' cuadros. Pulsa «Comprobar» cuando creas que está.',
+     prog:() => { const pr = SOL(); pr.h = emptyProg(sc).h; return pr; }, tab:2,
+     why:'Cada hilo sabe cuántos cuadros le tocan, así que los dos usan un for que repite esa cantidad de veces: el pintor llama a depositar(i) y el vendedor a vender(i).'}
   ],
   fabrica:[
     {id:'solucion', tipo:'ver', titulo:'Cuántas se fabrican',
@@ -1490,7 +1608,12 @@ const EXPS = {
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3)}),
      instr:c => 'Todo está escrito menos una parte de la condición del while de vender(). Los vendedores se quedan esperando cuando el pintor acaba. Corrígela (el total es ' + c.total + ': usa la constante total) y pulsa «Comprobar».',
      prog:() => MUT.sinPintados(SOL()), tab:0,
-     why:'Los vendedores deben esperar mientras no haya cuadros Y todavía falten cuadros por pintar: while (numCuadros == 0 && numCuadrosPintados < total). Así, cuando el pintor acaba, salen del wait(), ven que no hay cuadros y terminan.'}
+     why:'Los vendedores deben esperar mientras no haya cuadros Y todavía falten cuadros por pintar: while (numCuadros == 0 && numCuadrosPintados < total). Así, cuando el pintor acaba, salen del wait(), ven que no hay cuadros y terminan.'},
+    {id:'hilos', tipo:'montar', titulo:'Escribe el for y el while',
+     cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3), sleepP:0, sleepV:400}),
+     instr:c => 'El almacén ya está escrito. Escribe en las pestañas Pintor.run() y Vendedor.run() lo que hace cada hilo. Hay ' + c.vendedores + ' vendedores y se pintan ' + c.total + ' cuadros. Pulsa «Comprobar» cuando creas que está.',
+     prog:() => { const pr = SOL(); pr.h = emptyProg(sc).h; return pr; }, tab:2,
+     why:'El pintor sabe cuántos cuadros pinta (los del enunciado), así que usa un for. Cada vendedor no sabe cuántos va a vender, porque se los reparten: repite vender() con un while mientras almacen.getCuadrosVendidos() sea menor que el total.'}
   ]
 };
 
@@ -1510,9 +1633,10 @@ function exCargar(){
   const o = $('escenario').querySelector('option[value="' + cur + '"]'); if (o) o.textContent = sc.titulo;
   renderParams();
   const pr = e.prog ? e.prog() : emptyProg(sc);
+  if (sc.hilos && !e.prog) pr.h = sc.solution().h;   /* en «Móntalo tú» los hilos ya están escritos */
   if (!pr.fin) pr.fin = {body:[]};
   setProg(pr);
-  if (e.tab != null){ tabSel = e.tab; renderTabs(); }
+  if (e.tab != null){ tabSel = e.tab; renderCode(); }
   ex.cargado = true; ex.r = null; ex.q = null; ex.hecho = false;
   exRender();
 }
