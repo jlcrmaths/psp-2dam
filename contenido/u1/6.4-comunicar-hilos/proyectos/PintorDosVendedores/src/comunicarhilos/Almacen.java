@@ -26,7 +26,7 @@ public class Almacen {
         System.out.println(Thread.currentThread().getName() + ": deja el cuadro " + numero + ". En el almacén: " + numCuadros);
         // notifyAll() despierta a TODOS los hilos que esperan. Con notify() podría despertarse
         // solo al otro vendedor, que seguiría esperando, y el programa se quedaría parado.
-        notifyAll();
+        notify();
     }
 
     public synchronized void vender() {
@@ -42,7 +42,7 @@ public class Almacen {
             numCuadros--;
             numCuadrosVendidos++;
             System.out.println(Thread.currentThread().getName() + ": vende un cuadro. En el almacén: " + numCuadros);
-            notifyAll();
+            notify();
         } else {
             // Sin cuadros y con los 10 pintados: no va a haber más.
             System.out.println(Thread.currentThread().getName() + ": no quedan cuadros y el pintor ha terminado, me voy.");
