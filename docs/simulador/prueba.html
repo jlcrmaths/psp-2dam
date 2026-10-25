@@ -2073,50 +2073,22 @@ const NIVELES = [
   {n:3, nombre:'Solo texto', desc:'Sin piezas: escribes el código a mano.'}
 ];
 const lista = a => a.map(x => x);
-/* cada ejercicio quita una parte de la solución; el alumno la reescribe */
+/* el ejercicio empieza con todo vacío: el alumno escribe los tres métodos y los dos run() */
 const PPB = [
-  {id:'prod', tab:0, prog:() => { const pr = SOL(); pr.m[TEMA.mProd] = {mod:'', body:[]}; return pr; },
-   instr:c => 'Todo está escrito menos ' + TEMA.mProd + '(), lo que hace el ' + TEMA.prodL + ' en ' + TEMA.el + ' (caben ' + c.capacidad + '). Escríbelo en la pestaña ' + TEMA.clase + ', con su modificador, y pulsa «Comprobar».',
-   pasos:() => ['Pon synchronized en el modificador.', 'Un while que haga wait(); mientras ' + TEMA.cnt + ' == ' + TEMA.max + '.', 'Después, ' + TEMA.cnt + '++; y ' + TEMA.hechos + '++;', 'Y avisa a todos con notifyAll();'],
-   why:() => TEMA.mProd + '() es synchronized, espera mientras ' + TEMA.el + ' está ' + TEMA.lleno + ' (while (' + TEMA.cnt + ' == ' + TEMA.max + ') wait();), suma ' + TEMA.cnt + '++ y ' + TEMA.hechos + '++ y avisa con notifyAll().'},
-  {id:'cons', tab:0, prog:() => { const pr = SOL(); pr.m[TEMA.mCons] = {mod:'', body:[]}; return pr; },
-   instr:c => 'Todo está escrito menos ' + TEMA.mCons + '(), lo que hace cada ' + TEMA.consL + '. Tiene que esperar si no hay nada y, cuando el ' + TEMA.prodL + ' ya ha terminado, dejar salir a los ' + TEMA.consPl + '. Escríbelo en la pestaña ' + TEMA.clase + ' y pulsa «Comprobar».',
-   pasos:() => ['Pon synchronized.', 'while (' + TEMA.cnt + ' == 0 && ' + TEMA.hechos + ' < total) wait();', 'Después un if (' + TEMA.cnt + ' > 0) { … }', 'Dentro del if: ' + TEMA.cnt + '--; ' + TEMA.vend + '++; notifyAll();'],
-   why:() => TEMA.mCons + '(): synchronized; while (' + TEMA.cnt + ' == 0 && ' + TEMA.hechos + ' < total) wait(); if (' + TEMA.cnt + ' > 0) { ' + TEMA.cnt + '--; ' + TEMA.vend + '++; notifyAll(); }'},
-  {id:'while', tab:0, prog:() => { const pr = SOL(); walk(pr.m[TEMA.mCons].body, n => { if (n.kind === 'while') n.cond = TEMA.cnt + ' == 0'; }); return pr; },
-   instr:c => 'A ' + TEMA.mCons + '() le falta una parte de la condición del while: cuando el ' + TEMA.prodL + ' termina, los ' + TEMA.consPl + ' se quedan esperando para siempre. Corrígela (el total es ' + c.total + ': usa la constante total) y pulsa «Comprobar».',
-   pasos:() => ['Deben esperar mientras no haya nada Y todavía falte por ' + TEMA.mProd + '.', 'Añade al while: && ' + TEMA.hechos + ' < total'],
-   why:() => 'Esperan mientras no haya ' + TEMA.plural + ' Y todavía falten por ' + TEMA.mProd + ': while (' + TEMA.cnt + ' == 0 && ' + TEMA.hechos + ' < total). Así, al terminar el ' + TEMA.prodL + ', salen del wait() y acaban.'},
-  {id:'if', tab:0, prog:() => { const pr = SOL(); walk(pr.m[TEMA.mCons].body, n => { if (n.kind === 'if') n.cond = ''; }); return pr; },
-   instr:c => 'A ' + TEMA.mCons + '() le falta la condición del if: cuando el ' + TEMA.prodL + ' acaba, los ' + TEMA.consPl + ' despiertan y sacan algo que no existe. Escríbela y pulsa «Comprobar».',
-   pasos:() => ['Después del while hay que volver a mirar si hay algo.', 'if (' + TEMA.cnt + ' > 0)'],
-   why:() => 'Tras el while hay que comprobar otra vez: if (' + TEMA.cnt + ' > 0). Si no hay nada, el ' + TEMA.consL + ' no saca nada y se va.'},
-  {id:'get', tab:0, prog:() => { const pr = SOL(); pr.m[TEMA.mGet] = {mod:'', body:[]}; return pr; },
-   instr:c => 'Todo está escrito menos ' + TEMA.mGet + '(), el método que usa cada ' + TEMA.consL + ' para saber si ya se han retirado los ' + c.total + '. Escríbelo en la pestaña ' + TEMA.clase + ' (modificador y return) y pulsa «Comprobar».',
-   pasos:() => ['Devuelve un int: pon synchronized.', 'return ' + TEMA.vend + ';'],
-   why:() => TEMA.mGet + '() es synchronized y devuelve ' + TEMA.vend + ': el ' + TEMA.consL + ' la usa en su while para saber si debe seguir.'},
-  {id:'todo', tab:0, prog:() => { const pr = SOL(); pr.m[TEMA.mProd] = {mod:'', body:[]}; pr.m[TEMA.mCons] = {mod:'', body:[]}; pr.m[TEMA.mGet] = {mod:'', body:[]}; return pr; },
-   instr:c => 'Los hilos ya están escritos. Escribe ' + TEMA.mProd + '(), ' + TEMA.mCons + '() y ' + TEMA.mGet + '() en ' + TEMA.clase + ': hay ' + c.vendedores + ' ' + TEMA.consPl + ' y se ' + TEMA.vProdPl + ' ' + c.total + ' ' + TEMA.plural + '. Pulsa «Comprobar».',
-   pasos:() => [TEMA.mProd + '(): synchronized; while (' + TEMA.cnt + ' == ' + TEMA.max + ') wait(); ' + TEMA.cnt + '++; ' + TEMA.hechos + '++; notifyAll();', TEMA.mCons + '(): synchronized; while (' + TEMA.cnt + ' == 0 && ' + TEMA.hechos + ' < total) wait(); if (' + TEMA.cnt + ' > 0) { ' + TEMA.cnt + '--; ' + TEMA.vend + '++; notifyAll(); }', TEMA.mGet + '(): synchronized; return ' + TEMA.vend + ';'],
-   why:() => 'El ' + TEMA.prodL + ' espera con ' + TEMA.el + ' ' + TEMA.lleno + '; el ' + TEMA.consL + ' espera sin nada y mientras falte por ' + TEMA.mProd + ', y solo saca si hay; ' + TEMA.mGet + '() devuelve ' + TEMA.vend + '. Los tres son synchronized.'},
-  {id:'hProd', tab:2, prog:() => { const pr = SOL(); pr.h[TEMA.prodK] = {body:[]}; return pr; },
-   instr:c => 'El ' + TEMA.clase + ' y el ' + TEMA.consK + ' ya están escritos. Escribe en la pestaña ' + TEMA.prodK + '.run() lo que hace el ' + TEMA.prodL + ': hay ' + c.total + ' ' + TEMA.plural + ' que ' + TEMA.mProd + '. Pulsa «Comprobar».',
-   pasos:c => ['El ' + TEMA.prodL + ' sabe cuántos ' + TEMA.plural + ' hace: usa un for con ' + c.total + ' vueltas.', 'Dentro: el sleep y ' + TEMA.obj + '.' + TEMA.mProd + '();'],
-   why:c => 'El ' + TEMA.prodL + ' sabe cuántos hace, así que usa un for con esas vueltas: ' + TEMA.obj + '.' + TEMA.mProd + '(); y el sleep.'},
-  {id:'hCons', tab:3, prog:() => { const pr = SOL(); pr.h[TEMA.consK] = {body:[]}; return pr; },
-   instr:c => 'Todo está escrito menos lo que hace cada ' + TEMA.consL + '. Escribe en la pestaña ' + TEMA.consK + '.run() un bucle que ' + TEMA.mCons + '. Recuerda que cada uno no sabe cuántos hará (hay ' + c.vendedores + '). Pulsa «Comprobar».',
-   pasos:c => ['No sabe cuántos hará: usa un while.', 'Condición: ' + TEMA.obj + '.' + TEMA.mGet + '() < ' + c.total, 'Dentro: el sleep y ' + TEMA.obj + '.' + TEMA.mCons + '();'],
-   why:c => 'No sabe cuántos le tocan, así que repite ' + TEMA.obj + '.' + TEMA.mCons + '(); con un while mientras ' + TEMA.obj + '.' + TEMA.mGet + '() sea menor que el total (' + c.total + '), con el sleep dentro.'},
-  {id:'hilos', tab:2, prog:() => { const pr = SOL(); pr.h = emptyProg(sc).h; return pr; },
-   instr:c => 'El ' + TEMA.clase + ' ya está escrito. Escribe en las pestañas ' + TEMA.prodK + '.run() y ' + TEMA.consK + '.run() lo que hace cada hilo. Hay ' + c.vendedores + ' ' + TEMA.consPl + ' y se ' + TEMA.vProdPl + ' ' + c.total + ' ' + TEMA.plural + '. Pulsa «Comprobar».',
-   pasos:c => ['El ' + TEMA.prodL + ': un for con ' + c.total + ' vueltas, con el sleep y ' + TEMA.obj + '.' + TEMA.mProd + '();', 'El ' + TEMA.consL + ': un while mientras ' + TEMA.obj + '.' + TEMA.mGet + '() < ' + c.total + ', con el sleep y ' + TEMA.obj + '.' + TEMA.mCons + '();'],
-   why:c => 'Uno sabe cuántos hace (for) y el otro no (while con ' + TEMA.mGet + '()), porque se los reparten entre ' + c.vendedores + '.'}
+  {id:'completo', tab:0, prog:() => emptyProg(sc),
+   instr:c => 'Escribe todo el programa desde cero. En la pestaña ' + TEMA.clase + ': ' + TEMA.mProd + '(), ' + TEMA.mCons + '() y ' + TEMA.mGet + '(). En las pestañas ' + TEMA.prodK + '.run() y ' + TEMA.consK + '.run(): lo que hace cada hilo. Hay ' + c.vendedores + ' ' + TEMA.consPl + ' y se ' + TEMA.vProdPl + ' ' + c.total + ' ' + TEMA.plural + '. Pulsa «Comprobar» cuando creas que está.',
+   pasos:c => [
+     TEMA.mProd + '(): synchronized; while (' + TEMA.cnt + ' == ' + TEMA.max + ') wait(); ' + TEMA.cnt + '++; ' + TEMA.hechos + '++; notifyAll();',
+     TEMA.mCons + '(): synchronized; while (' + TEMA.cnt + ' == 0 && ' + TEMA.hechos + ' < total) wait(); if (' + TEMA.cnt + ' > 0) { ' + TEMA.cnt + '--; ' + TEMA.vend + '++; notifyAll(); }',
+     TEMA.mGet + '(): synchronized; return ' + TEMA.vend + ';',
+     TEMA.prodK + '.run(): el ' + TEMA.prodL + ' sabe cuántos hace, así que un for con ' + c.total + ' vueltas, con el sleep y ' + TEMA.obj + '.' + TEMA.mProd + '();',
+     TEMA.consK + '.run(): el ' + TEMA.consL + ' no sabe cuántos hará, así que un while mientras ' + TEMA.obj + '.' + TEMA.mGet + '() < ' + c.total + ', con el sleep y ' + TEMA.obj + '.' + TEMA.mCons + '();'],
+   why:c => 'El ' + TEMA.prodL + ' espera con ' + TEMA.el + ' ' + TEMA.lleno + '; el ' + TEMA.consL + ' espera sin nada y mientras falte por ' + TEMA.mProd + ', y solo saca si hay; ' + TEMA.mGet + '() devuelve ' + TEMA.vend + '. Los tres métodos son synchronized. El ' + TEMA.prodL + ' sabe cuántos hace (for) y el ' + TEMA.consL + ' no (while con ' + TEMA.mGet + '()), porque se los reparten entre ' + c.vendedores + '.'}
 ];
 let pp = null;   /* {nivel, e, cfg, r, ok, hecho, aciertos, hechas, escribirAntes, activo} */
 const ppNivel = () => (pp && pp.nivel) || 1;
 function ppCargar(){
-  const prev = pp.e && pp.e.id;
-  pp.e = pick(PPB.filter(x => x.id !== prev));
+  pp.e = pick(PPB);
   TEMA = pick(TEMAS.filter(x => x !== TEMA));
   Object.assign(cfg.tema, {vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3), sleepP:0, sleepV:400});
   pp.cfg = Object.assign({}, cfg.tema);
