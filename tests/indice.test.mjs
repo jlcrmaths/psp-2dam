@@ -48,3 +48,8 @@ test('la portada enlaza el simulador de hilos', () => {
   const html = paginaIndice([]);
   assert.match(html, /href="simulador\/index\.html"/);
 });
+
+test('la portada enlaza Ponte a prueba debajo del simulador', () => {
+  const html = paginaIndice([]);
+  assert.match(html, /href="simulador\/index\.html"[\s\S]*href="simulador\/prueba\.html"/);
+});

@@ -119,6 +119,11 @@ body.colocando .line.empty{border-color:#fff;color:#fff}
 .code input.cond{width:15em}
 .code input.bad{border-color:#ff6b6b}
 .code input.txt{width:11em}
+.code input.ln{font:inherit;min-width:12ch}
+body.escribir .piecepanel, body.escribir .grip{display:none}
+#hintEscribir{display:none}
+body.escribir #hintEscribir{display:block}
+#bEscribir.on{background:#2f6f4f;color:#fff}
 .code input.ms{width:4.5em;text-align:right}
 .errmsg{color:#ff8a8a;font-size:.8em;margin-left:8px;white-space:normal}
 #compiler{padding:8px 12px;border-radius:10px;font-size:.9em;border:2px solid var(--line)}
@@ -136,7 +141,14 @@ body.colocando .line.empty{border-color:#fff;color:#fff}
 .piece:hover{border-color:var(--acc)}
 .hint{color:var(--mute);font-size:.8em;margin:8px 0 0}
 .exps summary{cursor:pointer;font-size:.95rem;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
-.exps #exps{margin-top:8px}
+.exps #exps, .exps #ppBox{margin-top:8px}
+.prueba{padding:0 20px 20px}
+.prueba .panel{max-width:900px;margin:0 auto}
+.exps .nota{font-size:1.6rem;font-weight:800;margin:6px 0}
+.exps .nota.ok{color:var(--ok)} .exps .nota.ko{color:var(--bad)}
+.exps .nivel{display:block;width:100%;text-align:left;margin:4px 0;padding:6px 12px;font-size:.92em}
+.exps .nivel.on{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 16%,var(--panel))}
+.exps ol.pasos{margin:4px 0 8px;padding-left:1.3em;font-size:.92em}
 .exps .eh{display:flex;justify-content:space-between;align-items:center;gap:8px;color:var(--mute);font-size:.85em;margin-bottom:6px}
 .exps .et{font-weight:700;margin:2px 0 6px}
 .exps .ebtns{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
@@ -158,10 +170,12 @@ body.colocando .line.empty{border-color:#fff;color:#fff}
   .right .scroll{flex:1;min-height:0;max-height:none}
 }
 @media (max-width:700px){.scene{grid-template-columns:1fr}}
+a.volver{font-size:.85rem;color:var(--acc);font-weight:700;text-decoration:none;border:2px solid var(--acc);border-radius:10px;padding:4px 10px;white-space:nowrap}
 </style>
 </head>
 <body>
 <header>
+  <a class="volver" href="prueba.html">🎯 Ponte a prueba</a>
   <h1 id="titulo">Simulador de hilos</h1>
   <div class="controls">
     <select id="escenario" aria-label="Ejemplo"></select>
@@ -170,6 +184,7 @@ body.colocando .line.empty{border-color:#fff;color:#fff}
     <button id="bReset">↺ Reiniciar</button>
     <button id="bSol">Solución</button>
     <button id="bClear">Vaciar</button>
+    <button id="bEscribir" title="Escribir el código a mano en cuadros de texto, sin piezas ni arrastrar">⌨ Escribir</button>
     <select id="speed" aria-label="Velocidad">
       <option value="800">Lento</option>
       <option value="300" selected>Normal</option>
@@ -219,6 +234,7 @@ body.colocando .line.empty{border-color:#fff;color:#fff}
     <div class="panel codepanel">
       <h2>Código</h2>
       <div class="tabs" id="tabs"></div>
+      <p class="hint" id="hintEscribir">Pulsa «＋», escribe la instrucción tal como en Java (con su <code>;</code>) y pulsa Enter. Bloques: <code>while (condición) {</code> · <code>if (condición) {</code> · <code>if (condición) { } else { }</code> · <code>for (int i = 1; i &lt;= 10; i++) {</code>. Se omiten los try/catch.</p>
       <div class="scroll" id="scrollCode">
         <div class="code" id="edRecurso"></div>
         <div class="code" id="edPrincipal"></div>
@@ -228,9 +244,12 @@ body.colocando .line.empty{border-color:#fff;color:#fff}
     </div>
   </section>
 </main>
+  </details>
+</div>
 
 <script>
 /* ===SIM=== */
+const SOLO_PRUEBA = false;   /* prueba.html (generado por generar-prueba.mjs) lo pone a true */
 const TICK_CAP = 900;
 let QUIET = false;   /* true = sin dibujar (para repetir muchas veces) */
 const ORDEN_LLEGADA = false;   /* false = como Java (sin orden garantizado); true = cola por orden de llegada */
@@ -256,6 +275,36 @@ function* usoRecurso(a, entrar, salir, vueltas, dormir){
   }
   a.state = 'fin'; a.cur = null;
 }
+
+/* ----- «Ponte a prueba»: la misma estructura (productor y varios consumidores) con otras historias ----- */
+const TEMAS = [
+  {nombre:'Panadería', clase:'Horno', obj:'horno', lugar:'un horno', el:'el horno', lleno:'lleno', vacio:'vacío', icono:'🥖', unidad:'pan', plural:'panes', los:'los',
+   prodK:'Panadero', prodL:'panadero', prodEm:'👩‍🍳', consK:'Cliente', consL:'cliente', consPl:'clientes', consEm:'🧑',
+   mProd:'hornear', vProdPl:'hornean', mCons:'comprar', mGet:'getPanesComprados', cnt:'numPanes', max:'numMaxPanes', hechos:'numPanesHorneados', vend:'numPanesComprados',
+   parts:'horneado y comprado', vProd3:'hornea', vConsFut:'comprará'},
+  {nombre:'Biblioteca', clase:'Estanteria', obj:'estanteria', lugar:'una estantería', el:'la estantería', lleno:'llena', vacio:'vacía', icono:'📚', unidad:'libro', plural:'libros', los:'los',
+   prodK:'Bibliotecario', prodL:'bibliotecario', prodEm:'🧑‍🏫', consK:'Lector', consL:'lector', consPl:'lectores', consEm:'🤓',
+   mProd:'colocar', vProdPl:'colocan', mCons:'prestar', mGet:'getLibrosPrestados', cnt:'numLibros', max:'numMaxLibros', hechos:'numLibrosColocados', vend:'numLibrosPrestados',
+   parts:'colocado y prestado', vProd3:'coloca', vConsFut:'se llevará'},
+  {nombre:'Pizzería', clase:'Mostrador', obj:'mostrador', lugar:'un mostrador', el:'el mostrador', lleno:'lleno', vacio:'vacío', icono:'🍕', unidad:'pizza', plural:'pizzas', los:'las',
+   prodK:'Pizzero', prodL:'pizzero', prodEm:'👨‍🍳', consK:'Repartidor', consL:'repartidor', consPl:'repartidores', consEm:'🛵',
+   mProd:'preparar', vProdPl:'preparan', mCons:'recoger', mGet:'getPizzasRecogidas', cnt:'numPizzas', max:'numMaxPizzas', hechos:'numPizzasPreparadas', vend:'numPizzasRecogidas',
+   parts:'preparado y recogido', vProd3:'prepara', vConsFut:'recogerá'},
+  {nombre:'Huerto', clase:'Cesta', obj:'cesta', lugar:'una cesta', el:'la cesta', lleno:'llena', vacio:'vacía', icono:'🍎', unidad:'fruta', plural:'frutas', los:'las',
+   prodK:'Agricultor', prodL:'agricultor', prodEm:'🧑‍🌾', consK:'Comprador', consL:'comprador', consPl:'compradores', consEm:'🛒',
+   mProd:'recolectar', vProdPl:'recolectan', mCons:'comprar', mGet:'getFrutasCompradas', cnt:'numFrutas', max:'numMaxFrutas', hechos:'numFrutasRecolectadas', vend:'numFrutasCompradas',
+   parts:'recolectado y comprado', vProd3:'recolecta', vConsFut:'comprará'},
+  {nombre:'Taller de juguetes', clase:'Caja', obj:'caja', lugar:'una caja', el:'la caja', lleno:'llena', vacio:'vacía', icono:'🧸', unidad:'juguete', plural:'juguetes', los:'los',
+   prodK:'Artesano', prodL:'artesano', prodEm:'🧑‍🔧', consK:'Transportista', consL:'transportista', consPl:'transportistas', consEm:'🚚',
+   mProd:'fabricar', vProdPl:'fabrican', mCons:'recoger', mGet:'getJuguetesRecogidos', cnt:'numJuguetes', max:'numMaxJuguetes', hechos:'numJuguetesFabricados', vend:'numJuguetesRecogidos',
+   parts:'fabricado y recogido', vProd3:'fabrica', vConsFut:'recogerá'},
+  {nombre:'Lavandería', clase:'Tendedero', obj:'tendedero', lugar:'un tendedero', el:'el tendedero', lleno:'lleno', vacio:'vacío', icono:'👕', unidad:'prenda', plural:'prendas', los:'las',
+   prodK:'Lavandero', prodL:'lavandero', prodEm:'🧺', consK:'Planchador', consL:'planchador', consPl:'planchadores', consEm:'🧑‍🏭',
+   mProd:'tender', vProdPl:'tienden', mCons:'retirar', mGet:'getPrendasRetiradas', cnt:'numPrendas', max:'numMaxPrendas', hechos:'numPrendasTendidas', vend:'numPrendasRetiradas',
+   parts:'tendido y retirado', vProd3:'tiende', vConsFut:'retirará'}
+];
+let TEMA = TEMAS[0];
+const cap = t => t.charAt(0).toUpperCase() + t.slice(1);
 const BUILD = {
   cocina:p => ({
     titulo:'Cocina: ' + p.cocineros + ' cocineros y ' + p.cuchillos + ' cuchillos',
@@ -457,6 +506,50 @@ const BUILD = {
          Vendedor:{body:[blk('while', 'almacen.getCuadrosVendidos() < ' + p.total, [st('sleepRnd'), st('venderCall')])]}}
     })
   }),
+  tema:p => { const T = TEMA, C = T.cnt, M = T.max, H = T.hechos, V = T.vend, un = n => n === 1 ? T.unidad : T.plural; return {
+    titulo:'Ponte a prueba · ' + T.nombre,
+    clase:T.clase, recurso:T.clase, icono:T.icono, max:p.capacidad, hiloObj:T.obj,
+    solutionCfg:{sleepP:0, sleepV:400},
+    sinVender:'acabó sin ' + T.mCons + ' (no queda nada por ' + T.mProd + ')',
+    vars:{[C]:0, [H]:0, [V]:0}, consts:{[M]:p.capacidad, total:p.total},
+    fields:['private int ' + C + ' = 0;', 'private int ' + M + ';', 'private int ' + H + ' = 0;', 'private int ' + V + ' = 0;', 'private final int total = ' + p.total + ';', '', 'public ' + T.clase + '(int ' + M + ') {', '    this.' + M + ' = ' + M + ';', '}', ''],
+    methods:[{name:T.mProd, ret:'void'}, {name:T.mCons, ret:'void'}, {name:T.mGet, ret:'int'}],
+    ops:[
+      {g:'Datos', key:'inc', label:C + '++;', anim:{emoji:T.icono, hold:'none'}, fx:S => {
+        if (S.v[C] >= p.capacidad) S.pend = '¡no cabe: ' + (S.v[C] + 1) + ' ' + T.plural + ' en ' + T.lugar + ' de ' + p.capacidad + '!';
+        S.v[C]++; S.dep++; return C + '++ → ' + S.v[C]; }},
+      {g:'Datos', key:'dec', label:C + '--;', anim:{emoji:T.icono, hold:'none'}, fx:S => {
+        if (S.v[C] <= 0) S.pend = '¡saca algo de ' + T.el + ' ' + T.vacio + '!'; else S.ven++;
+        S.v[C]--; return C + '-- → ' + S.v[C]; }},
+      {g:'Salida', key:'retVend', label:'return ' + V + ';', retVar:V},
+      {g:'Datos', key:'pint', label:H + '++;', fx:S => { S.v[H]++; return H + '++ → ' + S.v[H]; }},
+      {g:'Datos', key:'vend', label:V + '++;', fx:S => { S.v[V]++; return V + '++ → ' + S.v[V]; }}
+    ],
+    groups:[
+      {t:'p1', n:1, name:T.prodK, emoji:T.prodEm, extra:a => ' · ' + T.plural + ': ' + a.done + '/' + p.total,
+       proc:a => runHilo(a, T.prodK)},
+      {t:'v1', n:p.vendedores, name:T.consK, emoji:T.consEm, extra:a => ' · ' + T.plural + ': ' + a.done,
+       proc:a => runHilo(a, T.consK)}
+    ],
+    filled:S => S.v[C],
+    anomaly:S => { const m = S.pend; S.pend = null; return m; },
+    stats:S => T.mProd + '(): ' + S.dep + ' / ' + p.total + ' · ' + T.mCons + '(): ' + S.ven + ' / ' + p.total,
+    ok:S => S.dep === p.total && S.ven === p.total && S.v[C] === 0 && !S.anomalia,
+    okMsg:S => '✔ Termina bien: ' + T.mProd + '() ' + S.dep + ' veces y ' + T.mCons + '() ' + S.ven,
+    summary:S => T.mProd + '() ' + S.dep + ', ' + T.mCons + '() ' + S.ven,
+    mainLines:['public static void main(String[] args) {', '    ' + T.clase + ' ' + T.obj + ' = new ' + T.clase + '(' + p.capacidad + ');', '    new Thread(new ' + T.prodK + '(' + T.obj + '), "' + T.prodK + '").start();', '    // ' + p.vendedores + ' hilos ' + T.consK + ', cada uno con su new Thread(...).start()', '}'],
+    hilos:[{k:T.prodK, n:T.prodK + '.run()', ops:['prodCall', 'sleepRnd'], sleep:'sleepP', ms:p.sleepP == null ? 0 : p.sleepP},
+           {k:T.consK, n:T.consK + '.run()', ops:['consCall', 'sleepRnd'], sleep:'sleepV', ms:p.sleepV == null ? 400 : p.sleepV}],
+    hiloOps:[{key:'prodCall', label:T.obj + '.' + T.mProd + '();', m:T.mProd, prod:true}, {key:'consCall', label:T.obj + '.' + T.mCons + '();', m:T.mCons}],
+    solution:() => ({
+      m:{[T.mProd]:{mod:'synchronized', body:[blk('while', C + ' == ' + M, [st('wait')]), st('inc'), st('pint'), st('notifyAll')]},
+         [T.mCons]:{mod:'synchronized', body:[blk('while', C + ' == 0 && ' + H + ' < total', [st('wait')]), blk('if', C + ' > 0', [st('dec'), st('vend'), st('notifyAll')])]},
+         [T.mGet]:{mod:'synchronized', body:[st('retVend')]}},
+      principal:{body:[]},
+      h:{[T.prodK]:{body:[blk('for', 'int i = 1; i <= ' + p.total + '; i++', [st('sleepRnd'), st('prodCall')])]},
+         [T.consK]:{body:[blk('while', T.obj + '.' + T.mGet + '() < ' + p.total, [st('sleepRnd'), st('consCall')])]}}
+    })
+  }; },
   fabrica:p => ({
     titulo:'6.5 Fábrica: ' + p.maquinas + ' máquinas, cinta de ' + p.capacidad + ', ' + p.total + ' piezas',
     clase:'Cinta', recurso:'Cinta', icono:'📦', max:p.capacidad,
@@ -532,6 +625,12 @@ const ENUN = {
     '<ul><li>El pintor espera si el almacén está lleno para dejar un cuadro.</li>' +
     '<li>El vendedor espera si el almacén está vacío para poder vender.</li>' +
     '<li>El programa termina cuando se han vendido los <b>' + p.total + '</b> cuadros.</li></ul>',
+  tema:p => { const T = TEMA; return '<p>Un <b>' + T.prodL + '</b> y <b>' + p.vendedores + ' ' + (p.vendedores === 1 ? T.consL : T.consPl) + '</b> comparten ' + T.lugar + ' donde ' + (p.capacidad === 1 ? 'cabe <b>1 ' + T.unidad : 'caben <b>' + p.capacidad + ' ' + T.plural) + '</b>.</p>' +
+    '<ul><li>El ' + T.prodL + ' espera si ' + T.el + ' está ' + T.lleno + ' para poder ' + T.mProd + '.</li>' +
+    '<li>' + (p.vendedores === 1 ? 'El ' + T.consL + ' espera' : 'Los ' + T.consPl + ' esperan') + ' si ' + T.el + ' está ' + T.vacio + ' para poder ' + T.mCons + '.</li>' +
+    '<li>Si varios ' + T.consPl + ' piden a la vez, solo uno puede ' + T.mCons + ' cada vez.</li>' +
+    '<li>El programa termina cuando se han ' + T.parts + ' ' + T.los + ' <b>' + p.total + '</b> ' + T.plural + '. ' + T.el.replace(/^./, c => c.toUpperCase()) + ' cuenta lo producido y lo retirado (<code>' + T.hechos + '</code>, <code>' + T.vend + '</code>) y <code>total</code> vale ' + p.total + '.</li>' +
+    '<li>Los hilos también los escribes tú, en sus pestañas: el ' + T.prodL + ' sabe ' + (T.los === 'las' ? 'cuántas ' : 'cuántos ') + T.plural + ' ' + T.vProd3 + ' (<code>for</code>) y el ' + T.consL + ' no sabe ' + (T.los === 'las' ? 'cuántas' : 'cuántos') + ' ' + T.vConsFut + ' (<code>while</code>).</li></ul>'; },
   pintor2:p => '<p>Un pintor y <b>' + p.vendedores + ' vendedores</b> comparten un almacén donde ' + (p.capacidad === 1 ? 'cabe <b>1 cuadro' : 'caben <b>' + p.capacidad + ' cuadros') + '</b>.</p>' +
     '<ul><li>El pintor espera si el almacén está lleno para dejar un cuadro.</li>' +
     '<li>Los vendedores esperan si el almacén está vacío para poder vender.</li>' +
@@ -570,13 +669,15 @@ const pistasHTML = id => {
     '<details><summary>Pista 3 · paso a paso</summary>' + pasos + '</details></div>';
 };
 const enunHTML = id => ENUN[id](cfg[id]) + pistasHTML(id);
-const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2', 'fabrica'];
+const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2', 'fabrica', 'tema'];
+const MENU = ORDER.filter(k => k !== 'tema');   /* «tema» solo se usa desde Ponte a prueba */
 const PARAMS = {
   cocina:[{k:'cocineros', label:'Cocineros', min:1, max:12, def:9}, {k:'cuchillos', label:'Cuchillos', min:1, max:6, def:2}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:3000}],
   parking:[{k:'coches', label:'Coches', min:1, max:12, def:8}, {k:'plazas', label:'Plazas', min:1, max:6, def:3}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:2000}],
   bicis:[{k:'mecanicos', label:'Mecánicos', min:1, max:5, def:3}, {k:'clientes', label:'Clientes', min:1, max:5, def:2}, {k:'capacidad', label:'Capacidad del estante', min:1, max:6, def:3}, {k:'sleepM', label:'sleep mecánico', inline:true, min:0, max:5000, def:700}, {k:'sleepC', label:'sleep cliente', inline:true, min:0, max:5000, def:1200}],
   pintor:[{k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}],
   fabrica:[{k:'maquinas', label:'Máquinas', min:1, max:5, def:3}, {k:'total', label:'Piezas a fabricar', min:4, max:50, def:20}, {k:'capacidad', label:'Capacidad de la cinta', min:1, max:8, def:5}, {k:'sleepM', label:'sleep máquina', unit:' ms', step:100, min:0, max:5000, def:1200}, {k:'sleepE', label:'sleep empaquetador', unit:' ms', step:100, min:0, max:5000, def:800}],
+  tema:[{k:'vendedores', inline:true, min:1, max:5, def:2}, {k:'total', inline:true, min:1, max:20, def:10}, {k:'capacidad', inline:true, min:1, max:5, def:1}, {k:'sleepP', inline:true, min:0, max:5000, def:0}, {k:'sleepV', inline:true, min:0, max:5000, def:400}],
   pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}, {k:'sleepP', label:'sleep pintor', inline:true, min:0, max:5000, def:0}, {k:'sleepV', label:'sleep vendedor', inline:true, min:0, max:5000, def:400}]
 };
 const cfg = {};
@@ -615,10 +716,11 @@ function checkCond(txt){
   } catch (e) { return 'condición mal escrita'; }
   return null;
 }
+const NO_RECONOZCO = 'no reconozco esta instrucción (¿falta el ; o la { ?)';
 function checkList(list, where, add, tipo){
   let ret = false;
   for (const n of list){
-    if (n.kind === 'empty') continue;
+    if (n.kind === 'empty'){ if (n.raw) add(where, NO_RECONOZCO, n.id); continue; }
     if (ret) add(where, 'instrucción inalcanzable después de return', n.id);
     if (where === 'Principal'){
       if (n.kind !== 'stmt' || n.op !== 'cerrarCall') add(where, 'en Principal solo cabe estante.cerrar();', n.id);
@@ -681,7 +783,7 @@ function checkHCond(txt){
 }
 function checkHList(list, hd, add, vars){
   for (const n of list){
-    if (n.kind === 'empty') continue;
+    if (n.kind === 'empty'){ if (n.raw) add(hd.n, NO_RECONOZCO, n.id); continue; }
     if (n.kind === 'for'){
       const e = checkFor(n.cond);
       if (e) add(hd.n, e, n.id);
@@ -785,8 +887,8 @@ function* execH(a, list, hd, env){
         const r = yield* invoke(a, op.m);
         a.cur = n.id;
         if (sc.onCall) sc.onCall(a, op.m, r);
-        else if (op.m === 'depositar' || (a.dec || 0) > antes) a.done++;
-        else if (!a.avisado){ a.avisado = true; log(a.n + ': ' + op.m + '() acabó sin vender (no quedan cuadros por pintar)'); }
+        else if (op.prod || op.m === 'depositar' || (a.dec || 0) > antes) a.done++;
+        else if (!a.avisado){ a.avisado = true; log(a.n + ': ' + op.m + '() ' + (sc.sinVender || 'acabó sin vender (no quedan cuadros por pintar)')); }
       } else if (n.op === 'sleepFix'){
         yield* sleepTicks(a, ticksDe(hd.ms));
       } else if (n.op === 'sleepRnd'){
@@ -1207,6 +1309,7 @@ function tail(line, n){
   line.append(err, marks, del);
 }
 function nodeEl(n){
+  if (escribir) return nodeTxt(n);
   if (n.kind === 'empty'){
     const d = h('div', 'line empty' + (armed === n.id ? ' armed' : ''), 'arrastra aquí una instrucción');
     d.dataset.nid = n.id;
@@ -1246,6 +1349,101 @@ function nodeEl(n){
   if (n.kind === 'ifelse') box.append(h('div', 'line', '} else {'), listEl(n.els));
   box.append(h('div', 'line', '}'));
   return box;
+}
+
+/* ---------- modo escribir: cuadros de texto en vez de piezas ---------- */
+let escribir = false;
+try { escribir = localStorage.getItem('sim-escribir') === '1'; } catch (e) {}
+function sleepMs(){ return ctxHilo && ctxHilo.sleep ? cfg[cur][ctxHilo.sleep] : null; }
+function textOf(n){
+  if (n.kind === 'empty') return n.raw || '';
+  if (n.kind === 'stmt'){
+    if (n.op === 'sout') return 'System.out.println("' + (n.text || '') + '");';
+    if (n.op === 'soutName') return 'System.out.println(Thread.currentThread().getName() + "' + (n.text || '') + '");';
+    const ms = sleepMs();
+    if (ms != null && n.op === 'sleepFix') return 'Thread.sleep(' + ms + ');';
+    if (ms != null && n.op === 'sleepRnd') return 'Thread.sleep((long) (Math.random() * ' + ms + '));';
+    return opLabel(n.op);
+  }
+  return (n.kind === 'ifelse' ? 'if' : n.kind) + ' (' + n.cond + ') {';
+}
+/* texto → {kind, ...} o null si no se reconoce */
+function parseLine(t){
+  t = t.trim();
+  let m;
+  if ((m = /^System\.out\.println\(\s*Thread\.currentThread\(\)\.getName\(\)\s*\+\s*"(.*)"\s*\);$/.exec(t))) return {kind:'stmt', op:'soutName', text:m[1]};
+  if ((m = /^System\.out\.println\(\s*"(.*)"\s*\);$/.exec(t))) return {kind:'stmt', op:'sout', text:m[1]};
+  const keys = pieceList().map(x => x.key), hilosSleep = !!(sc.hilos && sc.hilos.some(x => x.sleep));
+  if (/^Thread\.sleep\(.*\);$/.test(t)){
+    if (/Math\.random/.test(t)){
+      m = /\*\s*(\d+)\s*\)\s*\)\s*\);$/.exec(t);
+      return hilosSleep && m ? {kind:'stmt', op:'sleepRnd', ms:+m[1]} : null;
+    }
+    m = /^Thread\.sleep\(\s*(\d+)\s*\);$/.exec(t);
+    if (!m) return null;
+    const op = hilosSleep ? 'sleepFix' : keys.includes('sleep') ? 'sleep' : null;
+    return op ? {kind:'stmt', op, ms:+m[1]} : null;
+  }
+  if ((m = /^if\s*\((.*)\)\s*\{\s*\}\s*else\s*\{\s*\}?$/.exec(t))) return {kind:'ifelse', cond:m[1]};
+  if ((m = /^(while|if|for)\s*\((.*)\)\s*\{$/.exec(t)) && (m[1] !== 'for' || keys.includes('for'))) return {kind:m[1], cond:m[2]};
+  const flat = t.replace(/\s+/g, '');
+  const p = pieceList().find(x => !/^(while|if|ifelse|for|sout|soutName|sleep|sleepFix|sleepRnd)$/.test(x.key) && x.label.replace(/\s+/g, '') === flat);
+  if (p){ const q = p.make(); return {kind:q.kind, op:q.op, text:q.text}; }
+  return null;
+}
+function commitText(n, value, errSpan, inp){
+  const sp = parseLine(value);
+  if (!sp){
+    if (n.kind === 'empty'){ n.raw = value; changed(); }
+    else { inp.value = textOf(n); errSpan.textContent = '← ' + NO_RECONOZCO; }
+    return;
+  }
+  if (sp.kind === 'stmt' && n.kind !== 'stmt' && n.kind !== 'empty' && n.body.length){ inp.value = textOf(n); errSpan.textContent = '← vacía primero el bloque para cambiarlo por una instrucción'; return; }
+  if (n.kind === 'ifelse' && sp.kind === 'if') sp.kind = 'ifelse';
+  const keep = n.body;
+  ['raw', 'op', 'text', 'cond', 'els', 'fn', 'fnNames'].forEach(k => { delete n[k]; });
+  n.kind = sp.kind; n.body = sp.kind === 'stmt' ? [] : keep;
+  if (sp.op) n.op = sp.op;
+  if (sp.text != null) n.text = sp.text;
+  if (sp.kind !== 'stmt') n.cond = sp.cond;
+  if (sp.kind === 'ifelse') n.els = [];
+  const ms = sleepMs(), q = ms != null && sp.ms != null && PARAMS[cur].find(x => x.k === ctxHilo.sleep);
+  if (q){ cfg[cur][q.k] = Math.max(q.min, Math.min(q.max, sp.ms)); paramsChanged(); return; }
+  changed();
+}
+function lineBox(n, bloque){
+  const line = h('div', 'line');
+  line.dataset.nid = n.id;
+  const inp = h('input', 'ln'); inp.value = textOf(n); inp.spellcheck = false;
+  inp.placeholder = 'escribe aquí la instrucción';
+  const fit = () => { inp.style.width = Math.max(26, inp.value.length + 2) + 'ch'; };
+  fit();
+  const err = h('span', 'errmsg'); err.dataset.err = n.id;
+  inp.oninput = fit;
+  inp.onchange = () => commitText(n, inp.value, err, inp);
+  inp.onkeydown = e => { if (e.key === 'Enter') inp.blur(); };
+  line.append(inp, err, h('span', 'marks'));
+  const del = h('button', 'del', '✕'); del.title = 'Borrar línea'; del.onclick = () => removeNode(n.id);
+  line.append(del);
+  if (armed === n.id) setTimeout(() => { inp.focus(); armed = null; }, 0);
+  return line;
+}
+function nodeTxt(n){
+  const line = lineBox(n);
+  if (n.kind === 'empty' || n.kind === 'stmt') return line;
+  const box = h('div');
+  box.append(line, listEl(n.body));
+  if (n.kind === 'ifelse') box.append(h('div', 'line', '} else {'), listEl(n.els));
+  box.append(h('div', 'line', '}'));
+  return box;
+}
+function setEscribir(on){
+  escribir = on;
+  document.body.classList.toggle('escribir', on);
+  $('bEscribir').classList.toggle('on', on);
+  try { localStorage.setItem('sim-escribir', on ? '1' : '0'); } catch (e) {}
+  sel = null; document.body.classList.remove('colocando');
+  renderCode();
 }
 function methodEl(me){
   const m = prog.m[me.name], box = h('div', 'meth'), head = h('div', 'line');
@@ -1368,13 +1566,13 @@ function renderPieces(){
 }
 
 /* ---------- guardar, control ---------- */
-const KEY = 'sim-hilos-v2';
+const KEY = SOLO_PRUEBA ? 'sim-prueba-v1' : 'sim-hilos-v2';
 function save(){ try { localStorage.setItem(KEY, JSON.stringify({progs, nid, cur, cfg})); } catch (e) {} }
 function load(){
   try {
     const d = JSON.parse(localStorage.getItem(KEY) || 'null');
     if (!d) return;
-    ORDER.forEach(k => {
+    MENU.forEach(k => {
       if (!d.progs || !d.progs[k]) return;
       const p = d.progs[k], base = emptyProg(build(k));
       build(k).methods.forEach(me => { if (p.m && p.m[me.name]) base.m[me.name] = p.m[me.name]; });
@@ -1385,7 +1583,7 @@ function load(){
       progs[k] = base;
     });
     nid = d.nid || 1;
-    if (BUILD[d.cur]) cur = d.cur;
+    if (MENU.includes(d.cur)) cur = d.cur;
     if (d.cfg) ORDER.forEach(k => PARAMS[k].forEach(q => { const v = d.cfg[k] && d.cfg[k][q.k]; if (Number.isInteger(v) && v >= q.min && v <= q.max) cfg[k][q.k] = v; }));
   } catch (e) {}
 }
@@ -1436,13 +1634,14 @@ function setProg(p){
   progs[cur] = base; prog = base;
   armed = null; changed();
 }
+$('bEscribir').onclick = () => { stop(); setEscribir(!escribir); };
 $('bRun').onclick = run;
 $('bStep').onclick = () => { stop(); if (refreshCompile().length) return; if (S.fin) resetSim(); tick(); };
 $('bReset').onclick = () => { stop(); resetSim(); };
 $('bSol').onclick = () => { if (sc.solutionCfg){ Object.assign(cfg[cur], sc.solutionCfg); paramsChanged(); } setProg(sc.solution()); };
 $('bClear').onclick = () => setProg(emptyProg(sc));
 $('speed').onchange = () => { if (timer){ stop(); run(); } };
-$('escenario').onchange = e => setScenario(e.target.value);
+$('escenario').onchange = e => { ppSalir(); setScenario(e.target.value); };
 let csize = 17;
 const setSize = d => { csize = Math.max(11, Math.min(30, csize + d)); document.documentElement.style.setProperty('--csize', csize + 'px'); };
 let csizeAntes = null;
@@ -1782,6 +1981,14 @@ function exCargar(){
 function exRepetir(n){
   if (refreshCompile().length){ ex.aviso = 'El código tiene errores: revisa las líneas marcadas en rojo antes de ejecutar.'; ex.r = null; exRender(); return; }
   stop(); ex.aviso = null;
+  ex.r = correr(n);
+  const r = ex.r;
+  const e = ex.lista[ex.i];
+  if (e.tipo === 'ver') ex.q = e.q(r, ex.cfg);
+  else { ex.hecho = true; ex.respondidas++; if (r.bien === r.n) ex.aciertos++; ex.okMontar = r.bien === r.n; }
+  exRender();
+}
+function correr(n){
   const r = {n, bien:0, mal:0, colgado:0, murio:0, infinito:0, ordenes:0};
   const firmas = new Set();
   QUIET = true;
@@ -1796,15 +2003,12 @@ function exRepetir(n){
   } finally { QUIET = false; }
   r.ordenes = firmas.size;
   resetSim();
-  ex.r = r;
-  const e = ex.lista[ex.i];
-  if (e.tipo === 'ver') ex.q = e.q(r, ex.cfg);
-  else { ex.hecho = true; ex.respondidas++; if (r.bien === r.n) ex.aciertos++; ex.okMontar = r.bien === r.n; }
-  exRender();
+  return r;
 }
 function exSiguiente(){ ex.i++; ex.cargado = false; ex.r = null; ex.q = null; ex.hecho = false; ex.aviso = null; if (ex.i < ex.lista.length) exCargar(); else exRender(); }
 function exRender(){
   const box = $('exps');
+  if (!EXPS[cur]){ box.innerHTML = ''; box.append(h('p', null, 'Este ejemplo no tiene experimentos.')); return; }
   if (!ex || ex.id !== cur) exCreate(cur);
   box.innerHTML = '';
   if (ex.i >= ex.lista.length){
@@ -1855,13 +2059,139 @@ function exRender(){
 }
 $('expPanel').addEventListener('toggle', () => { if ($('expPanel').open) exRender(); });
 
-ORDER.forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = build(k).titulo; $('escenario').append(o); });
+/* ===== PONTE A PRUEBA: ejercicio aleatorio con otra historia, tres niveles y corrección automática ===== */
+const NIVELES = [
+  {n:1, nombre:'Con explicación y piezas', desc:'Te digo los pasos y arrastras las piezas.'},
+  {n:2, nombre:'Solo piezas', desc:'Sin pasos: arrastras las piezas tú solo.'},
+  {n:3, nombre:'Solo texto', desc:'Sin piezas: escribes el código a mano.'}
+];
+const lista = a => a.map(x => x);
+/* cada ejercicio quita una parte de la solución; el alumno la reescribe */
+const PPB = [
+  {id:'prod', tab:0, prog:() => { const pr = SOL(); pr.m[TEMA.mProd] = {mod:'', body:[]}; return pr; },
+   instr:c => 'Todo está escrito menos ' + TEMA.mProd + '(), lo que hace el ' + TEMA.prodL + ' en ' + TEMA.el + ' (caben ' + c.capacidad + '). Escríbelo en la pestaña ' + TEMA.clase + ', con su modificador, y pulsa «Comprobar».',
+   pasos:() => ['Pon synchronized en el modificador.', 'Un while que haga wait(); mientras ' + TEMA.cnt + ' == ' + TEMA.max + '.', 'Después, ' + TEMA.cnt + '++; y ' + TEMA.hechos + '++;', 'Y avisa a todos con notifyAll();'],
+   why:() => TEMA.mProd + '() es synchronized, espera mientras ' + TEMA.el + ' está ' + TEMA.lleno + ' (while (' + TEMA.cnt + ' == ' + TEMA.max + ') wait();), suma ' + TEMA.cnt + '++ y ' + TEMA.hechos + '++ y avisa con notifyAll().'},
+  {id:'cons', tab:0, prog:() => { const pr = SOL(); pr.m[TEMA.mCons] = {mod:'', body:[]}; return pr; },
+   instr:c => 'Todo está escrito menos ' + TEMA.mCons + '(), lo que hace cada ' + TEMA.consL + '. Tiene que esperar si no hay nada y, cuando el ' + TEMA.prodL + ' ya ha terminado, dejar salir a los ' + TEMA.consPl + '. Escríbelo en la pestaña ' + TEMA.clase + ' y pulsa «Comprobar».',
+   pasos:() => ['Pon synchronized.', 'while (' + TEMA.cnt + ' == 0 && ' + TEMA.hechos + ' < total) wait();', 'Después un if (' + TEMA.cnt + ' > 0) { … }', 'Dentro del if: ' + TEMA.cnt + '--; ' + TEMA.vend + '++; notifyAll();'],
+   why:() => TEMA.mCons + '(): synchronized; while (' + TEMA.cnt + ' == 0 && ' + TEMA.hechos + ' < total) wait(); if (' + TEMA.cnt + ' > 0) { ' + TEMA.cnt + '--; ' + TEMA.vend + '++; notifyAll(); }'},
+  {id:'while', tab:0, prog:() => { const pr = SOL(); walk(pr.m[TEMA.mCons].body, n => { if (n.kind === 'while') n.cond = TEMA.cnt + ' == 0'; }); return pr; },
+   instr:c => 'A ' + TEMA.mCons + '() le falta una parte de la condición del while: cuando el ' + TEMA.prodL + ' termina, los ' + TEMA.consPl + ' se quedan esperando para siempre. Corrígela (el total es ' + c.total + ': usa la constante total) y pulsa «Comprobar».',
+   pasos:() => ['Deben esperar mientras no haya nada Y todavía falte por ' + TEMA.mProd + '.', 'Añade al while: && ' + TEMA.hechos + ' < total'],
+   why:() => 'Esperan mientras no haya ' + TEMA.plural + ' Y todavía falten por ' + TEMA.mProd + ': while (' + TEMA.cnt + ' == 0 && ' + TEMA.hechos + ' < total). Así, al terminar el ' + TEMA.prodL + ', salen del wait() y acaban.'},
+  {id:'if', tab:0, prog:() => { const pr = SOL(); walk(pr.m[TEMA.mCons].body, n => { if (n.kind === 'if') n.cond = ''; }); return pr; },
+   instr:c => 'A ' + TEMA.mCons + '() le falta la condición del if: cuando el ' + TEMA.prodL + ' acaba, los ' + TEMA.consPl + ' despiertan y sacan algo que no existe. Escríbela y pulsa «Comprobar».',
+   pasos:() => ['Después del while hay que volver a mirar si hay algo.', 'if (' + TEMA.cnt + ' > 0)'],
+   why:() => 'Tras el while hay que comprobar otra vez: if (' + TEMA.cnt + ' > 0). Si no hay nada, el ' + TEMA.consL + ' no saca nada y se va.'},
+  {id:'get', tab:0, prog:() => { const pr = SOL(); pr.m[TEMA.mGet] = {mod:'', body:[]}; return pr; },
+   instr:c => 'Todo está escrito menos ' + TEMA.mGet + '(), el método que usa cada ' + TEMA.consL + ' para saber si ya se han retirado los ' + c.total + '. Escríbelo en la pestaña ' + TEMA.clase + ' (modificador y return) y pulsa «Comprobar».',
+   pasos:() => ['Devuelve un int: pon synchronized.', 'return ' + TEMA.vend + ';'],
+   why:() => TEMA.mGet + '() es synchronized y devuelve ' + TEMA.vend + ': el ' + TEMA.consL + ' la usa en su while para saber si debe seguir.'},
+  {id:'todo', tab:0, prog:() => { const pr = SOL(); pr.m[TEMA.mProd] = {mod:'', body:[]}; pr.m[TEMA.mCons] = {mod:'', body:[]}; pr.m[TEMA.mGet] = {mod:'', body:[]}; return pr; },
+   instr:c => 'Los hilos ya están escritos. Escribe ' + TEMA.mProd + '(), ' + TEMA.mCons + '() y ' + TEMA.mGet + '() en ' + TEMA.clase + ': hay ' + c.vendedores + ' ' + TEMA.consPl + ' y se ' + TEMA.vProdPl + ' ' + c.total + ' ' + TEMA.plural + '. Pulsa «Comprobar».',
+   pasos:() => [TEMA.mProd + '(): synchronized; while (' + TEMA.cnt + ' == ' + TEMA.max + ') wait(); ' + TEMA.cnt + '++; ' + TEMA.hechos + '++; notifyAll();', TEMA.mCons + '(): synchronized; while (' + TEMA.cnt + ' == 0 && ' + TEMA.hechos + ' < total) wait(); if (' + TEMA.cnt + ' > 0) { ' + TEMA.cnt + '--; ' + TEMA.vend + '++; notifyAll(); }', TEMA.mGet + '(): synchronized; return ' + TEMA.vend + ';'],
+   why:() => 'El ' + TEMA.prodL + ' espera con ' + TEMA.el + ' ' + TEMA.lleno + '; el ' + TEMA.consL + ' espera sin nada y mientras falte por ' + TEMA.mProd + ', y solo saca si hay; ' + TEMA.mGet + '() devuelve ' + TEMA.vend + '. Los tres son synchronized.'},
+  {id:'hProd', tab:2, prog:() => { const pr = SOL(); pr.h[TEMA.prodK] = {body:[]}; return pr; },
+   instr:c => 'El ' + TEMA.clase + ' y el ' + TEMA.consK + ' ya están escritos. Escribe en la pestaña ' + TEMA.prodK + '.run() lo que hace el ' + TEMA.prodL + ': hay ' + c.total + ' ' + TEMA.plural + ' que ' + TEMA.mProd + '. Pulsa «Comprobar».',
+   pasos:c => ['El ' + TEMA.prodL + ' sabe cuántos ' + TEMA.plural + ' hace: usa un for con ' + c.total + ' vueltas.', 'Dentro: el sleep y ' + TEMA.obj + '.' + TEMA.mProd + '();'],
+   why:c => 'El ' + TEMA.prodL + ' sabe cuántos hace, así que usa un for con esas vueltas: ' + TEMA.obj + '.' + TEMA.mProd + '(); y el sleep.'},
+  {id:'hCons', tab:3, prog:() => { const pr = SOL(); pr.h[TEMA.consK] = {body:[]}; return pr; },
+   instr:c => 'Todo está escrito menos lo que hace cada ' + TEMA.consL + '. Escribe en la pestaña ' + TEMA.consK + '.run() un bucle que ' + TEMA.mCons + '. Recuerda que cada uno no sabe cuántos hará (hay ' + c.vendedores + '). Pulsa «Comprobar».',
+   pasos:c => ['No sabe cuántos hará: usa un while.', 'Condición: ' + TEMA.obj + '.' + TEMA.mGet + '() < ' + c.total, 'Dentro: el sleep y ' + TEMA.obj + '.' + TEMA.mCons + '();'],
+   why:c => 'No sabe cuántos le tocan, así que repite ' + TEMA.obj + '.' + TEMA.mCons + '(); con un while mientras ' + TEMA.obj + '.' + TEMA.mGet + '() sea menor que el total (' + c.total + '), con el sleep dentro.'},
+  {id:'hilos', tab:2, prog:() => { const pr = SOL(); pr.h = emptyProg(sc).h; return pr; },
+   instr:c => 'El ' + TEMA.clase + ' ya está escrito. Escribe en las pestañas ' + TEMA.prodK + '.run() y ' + TEMA.consK + '.run() lo que hace cada hilo. Hay ' + c.vendedores + ' ' + TEMA.consPl + ' y se ' + TEMA.vProdPl + ' ' + c.total + ' ' + TEMA.plural + '. Pulsa «Comprobar».',
+   pasos:c => ['El ' + TEMA.prodL + ': un for con ' + c.total + ' vueltas, con el sleep y ' + TEMA.obj + '.' + TEMA.mProd + '();', 'El ' + TEMA.consL + ': un while mientras ' + TEMA.obj + '.' + TEMA.mGet + '() < ' + c.total + ', con el sleep y ' + TEMA.obj + '.' + TEMA.mCons + '();'],
+   why:c => 'Uno sabe cuántos hace (for) y el otro no (while con ' + TEMA.mGet + '()), porque se los reparten entre ' + c.vendedores + '.'}
+];
+let pp = null;   /* {nivel, e, cfg, r, ok, hecho, aciertos, hechas, escribirAntes, activo} */
+const ppNivel = () => (pp && pp.nivel) || 1;
+function ppCargar(){
+  const prev = pp.e && pp.e.id;
+  pp.e = pick(PPB.filter(x => x.id !== prev));
+  TEMA = pick(TEMAS.filter(x => x !== TEMA));
+  Object.assign(cfg.tema, {vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:randInt(1, 3), sleepP:0, sleepV:400});
+  pp.cfg = Object.assign({}, cfg.tema);
+  progs.tema = emptyProg(build('tema'));
+  stop();
+  setScenario('tema');
+  setProg(pp.e.prog());
+  tabSel = pp.e.tab; renderCode();
+  if (!pp.activo){ pp.escribirAntes = escribir; pp.activo = true; }
+  if (escribir !== (pp.nivel === 3)) setEscribir(pp.nivel === 3);
+  pp.r = null; pp.hecho = false; pp.aviso = null; pp.fallos = 0;
+  ppRender();
+}
+function ppComprobar(){
+  if (refreshCompile().length){ pp.aviso = 'El código tiene errores: revisa las líneas marcadas en rojo antes de comprobar.'; pp.r = null; ppRender(); return; }
+  stop(); pp.aviso = null;
+  pp.r = correr(10);
+  pp.ok = pp.r.bien === pp.r.n;
+  /* nota = ejecuciones bien sobre 10, menos 1 por cada intento fallido anterior (mínimo 0) */
+  pp.base = Math.round(pp.r.bien / pp.r.n * 10);
+  pp.nota = Math.max(0, pp.base - pp.fallos);
+  if (!pp.ok) pp.fallos++;
+  if (pp.ok && !pp.hecho){ pp.hecho = true; pp.hechas++; pp.aciertos++; pp.suma += pp.nota; }
+  ppRender();
+}
+function ppSalir(){
+  if (pp && pp.activo && pp.escribirAntes !== escribir) setEscribir(pp.escribirAntes);
+  if (pp) { pp.activo = false; pp.e = null; }
+  if ($('pruebaPanel') && $('pruebaPanel').open) ppRender();
+}
+function ppRender(){
+  const box = $('ppBox');
+  if (!box) return;
+  box.innerHTML = '';
+  if (!pp) pp = {nivel:1, aciertos:0, hechas:0, suma:0, fallos:0, activo:false};
+  document.body.classList.toggle('pp-activo', !!(pp.activo && pp.e));
+  if (!pp.activo || !pp.e){
+    box.append(h('p', null, 'Te sale un ejercicio al azar con una historia distinta (panadería, biblioteca…). Elige cómo quieres hacerlo y pulsa «Ejercicio nuevo».'));
+    NIVELES.forEach(nv => {
+      const b = h('button', 'nivel' + (pp.nivel === nv.n ? ' on' : ''), nv.n + ' · ' + nv.nombre + ' — ' + nv.desc);
+      b.onclick = () => { pp.nivel = nv.n; ppRender(); };
+      box.append(b);
+    });
+    const go = h('button', 'main', 'Ejercicio nuevo'); go.onclick = ppCargar;
+    box.append(go);
+    if (pp.hechas) box.append(h('p', null, 'Llevas ' + pp.hechas + ' ejercicio' + (pp.hechas === 1 ? '' : 's') + ' hecho' + (pp.hechas === 1 ? '' : 's') + ' · nota media: ' + (pp.suma / pp.hechas).toFixed(1).replace('.', ',') + ' / 10.'));
+    return;
+  }
+  const e = pp.e, c = pp.cfg;
+  const head = h('div', 'eh');
+  head.append(h('span', null, 'Nivel ' + pp.nivel + ' · ' + NIVELES[pp.nivel - 1].nombre + ' · ' + (pp.hechas ? 'media ' + (pp.suma / pp.hechas).toFixed(1).replace('.', ',') + ' / 10' : 'sin nota todavía')));
+  const cambiar = h('button', null, 'Cambiar de nivel'); cambiar.onclick = ppSalir;
+  head.append(cambiar);
+  box.append(head, h('p', null, e.instr(c)));
+  if (pp.nivel === 1){
+    box.append(h('div', 'q', 'Pasos'));
+    const ol = h('ol', 'pasos'); e.pasos(c).forEach(t => ol.append(h('li', null, t))); box.append(ol);
+  }
+  const bt = h('div', 'ebtns');
+  const comp = h('button', 'main', 'Comprobar'); comp.onclick = ppComprobar;
+  const recarga = h('button', null, 'Volver a cargar'); recarga.onclick = () => { setProg(e.prog()); tabSel = e.tab; renderCode(); pp.r = null; pp.hecho = pp.hecho; ppRender(); };
+  const nuevo = h('button', null, 'Ejercicio nuevo'); nuevo.onclick = ppCargar;
+  bt.append(comp, recarga, nuevo); box.append(bt);
+  if (pp.aviso) box.append(h('div', 'res', pp.aviso));
+  if (pp.r){
+    box.append(h('div', 'nota ' + (pp.ok ? 'ok' : 'ko'), 'Nota: ' + pp.nota + ' / 10'));
+    box.append(h('div', 'res', textoRes(pp.r) + (pp.fallos - (pp.ok ? 0 : 1) > 0 ? ' Intentos fallidos antes: ' + (pp.fallos - (pp.ok ? 0 : 1)) + ' (−1 punto cada uno).' : '')));
+    box.append(h('div', 'why', (pp.ok ? '✔ Correcto: las ' + pp.r.n + ' ejecuciones salen bien. ' : '✘ Todavía no: no salen bien todas las ejecuciones. Corrige y vuelve a comprobar. ') + e.why(c)));
+  }
+}
+if ($('pruebaPanel')) $('pruebaPanel').addEventListener('toggle', () => { if ($('pruebaPanel').open) ppRender(); });
+
+MENU.forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = build(k).titulo; $('escenario').append(o); });
 load();
-ORDER.forEach(k => { const o = $('escenario').querySelector('option[value="' + k + '"]'); if (o) o.textContent = build(k).titulo; });   /* títulos con los parámetros guardados */
+MENU.forEach(k => { const o = $('escenario').querySelector('option[value="' + k + '"]'); if (o) o.textContent = build(k).titulo; });   /* títulos con los parámetros guardados */
 /* enlace directo a un ejemplo: simulador/index.html#parking */
 { const hs = location.hash.slice(1).split('&'); if (BUILD[hs[0]]) cur = hs[0]; if (hs.includes('experimentos')) $('expPanel').open = true; if (hs.includes('proyector')) proyectar(true); }
+if (SOLO_PRUEBA) cur = 'tema';
+document.body.classList.toggle('escribir', escribir); $('bEscribir').classList.toggle('on', escribir);
 setScenario(cur);
 if ($('expPanel').open) exRender();
+if (SOLO_PRUEBA) ppRender();
 </script>
 </body>
 </html>
