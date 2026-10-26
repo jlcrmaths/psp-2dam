@@ -506,6 +506,56 @@ const BUILD = {
          Vendedor:{body:[blk('while', 'almacen.getCuadrosVendidos() < ' + p.total, [st('sleepRnd'), st('venderCall')])]}}
     })
   }),
+  lectores:p => ({
+    titulo:'6.6 Lectores y escritores: ' + p.lectores + ' lectores y ' + p.escritores + ' escritores',
+    clase:'Fichero', recurso:'Fichero', icono:'📄', max:1,
+    vars:{lectores:0, escritores:0}, consts:{},
+    fields:['private int lectores = 0;', 'private int escritores = 0;', ''],
+    methods:[{name:'leerFichero', ret:'void'}, {name:'escribirFichero', ret:'void'}, {name:'terminaLeer', ret:'void'}, {name:'terminaEscribir', ret:'void'}],
+    ops:[
+      {g:'Datos', key:'incL', label:'lectores++;', anim:{emoji:'📄', hold:'none'}, fx:S => {
+        if (S.v.lectores + S.v.escritores >= 1) S.pend = '¡entra un lector y ya hay ' + (S.v.lectores + S.v.escritores) + ' hilo(s) usando el fichero!';
+        S.v.lectores++; return 'lectores++ → ' + S.v.lectores; }},
+      {g:'Datos', key:'decL', label:'lectores--;', anim:{emoji:'📄', hold:'none'}, fx:S => {
+        if (S.v.lectores <= 0) S.pend = '¡termina de leer un lector que no estaba leyendo!';
+        S.v.lectores--; return 'lectores-- → ' + S.v.lectores; }},
+      {g:'Datos', key:'incE', label:'escritores++;', anim:{emoji:'📄', hold:'none'}, fx:S => {
+        if (S.v.lectores + S.v.escritores >= 1) S.pend = '¡entra un escritor y ya hay ' + (S.v.lectores + S.v.escritores) + ' hilo(s) usando el fichero!';
+        S.v.escritores++; return 'escritores++ → ' + S.v.escritores; }},
+      {g:'Datos', key:'decE', label:'escritores--;', anim:{emoji:'📄', hold:'none'}, fx:S => {
+        if (S.v.escritores <= 0) S.pend = '¡termina de escribir un escritor que no estaba escribiendo!';
+        S.v.escritores--; return 'escritores-- → ' + S.v.escritores; }}
+    ],
+    groups:[
+      {t:'l', n:p.lectores, name:'Lector', emoji:'📖', extra:a => ' · ' + (a.done ? 'ya ha leído' : 'sin leer'),
+       proc:a => runHilo(a, 'Lector')},
+      {t:'e', n:p.escritores, name:'Escritor', emoji:'✏️', extra:a => ' · ' + (a.done ? 'ya ha escrito' : 'sin escribir'),
+       proc:a => runHilo(a, 'Escritor')}
+    ],
+    hiloObj:'fich', sleepFijo:true,
+    hilos:[{k:'Lector', n:'Lector.run()', ops:['leerCall', 'sleepFix', 'terminaLeerCall'], sleep:'sleepL', ms:p.sleepL},
+           {k:'Escritor', n:'Escritor.run()', ops:['escribirCall', 'sleepFix', 'terminaEscribirCall'], sleep:'sleepE', ms:p.sleepE}],
+    hiloOps:[{key:'leerCall', label:'fich.leerFichero();', m:'leerFichero'}, {key:'terminaLeerCall', label:'fich.terminaLeer();', m:'terminaLeer'},
+             {key:'escribirCall', label:'fich.escribirFichero();', m:'escribirFichero'}, {key:'terminaEscribirCall', label:'fich.terminaEscribir();', m:'terminaEscribir'}],
+    onCall:(a, nm) => { if (nm === 'leerFichero' || nm === 'escribirFichero') a.done++; },
+    filled:S => Math.max(0, S.v.lectores + S.v.escritores),
+    anomaly:S => { const m = S.pend; S.pend = null; return m; },
+    stats:S => 'Dentro: <span class="' + ((S.v.lectores + S.v.escritores > 1 || S.v.lectores < 0 || S.v.escritores < 0) ? 'bad' : '') + '">' + S.v.lectores + ' lectores y ' + S.v.escritores + ' escritores</span> · Han leído: ' + (S.cnt.decL || 0) + ' / ' + p.lectores + ' · Han escrito: ' + (S.cnt.decE || 0) + ' / ' + p.escritores,
+    ok:S => (S.cnt.decL || 0) === p.lectores && (S.cnt.decE || 0) === p.escritores && S.v.lectores === 0 && S.v.escritores === 0 && !S.anomalia,
+    okMsg:S => '✔ Termina bien. Han usado el fichero ' + (S.cnt.decL || 0) + ' lectores y ' + (S.cnt.decE || 0) + ' escritores, de uno en uno',
+    summary:S => 'leído por ' + (S.cnt.decL || 0) + ' de ' + p.lectores + ', escrito por ' + (S.cnt.decE || 0) + ' de ' + p.escritores,
+    mainLines:['public static void main(String[] args) {', '    Fichero f = new Fichero();', '    // ' + p.lectores + ' hilos Lector ("Lector0"…) y ' + p.escritores + ' hilos Escritor ("Escritor0"…)', '    // en dos arrays de Thread; los lectores se arrancan con un for', '    // y los escritores con un for-each', '}'],
+    hiloLines:['// Lector.run(): leerFichero(); sleep(' + p.sleepL + '); terminaLeer();', '// Escritor.run(): escribirFichero(); sleep(' + p.sleepE + '); terminaEscribir();'],
+    solution:() => ({
+      m:{leerFichero:{mod:'synchronized', body:[blk('while', 'lectores > 0 || escritores > 0', [st('wait')]), st('incL')]},
+         escribirFichero:{mod:'synchronized', body:[blk('while', 'lectores > 0 || escritores > 0', [st('wait')]), st('incE')]},
+         terminaLeer:{mod:'synchronized', body:[st('decL'), st('notifyAll')]},
+         terminaEscribir:{mod:'synchronized', body:[st('decE'), st('notifyAll')]}},
+      principal:{body:[]},
+      h:{Lector:{body:[st('leerCall'), st('sleepFix'), st('terminaLeerCall')]},
+         Escritor:{body:[st('escribirCall'), st('sleepFix'), st('terminaEscribirCall')]}}
+    })
+  }),
   tema:p => { const T = TEMA, C = T.cnt, M = T.max, H = T.hechos, V = T.vend, un = n => n === 1 ? T.unidad : T.plural; return {
     titulo:'Ponte a prueba · ' + T.nombre,
     clase:T.clase, recurso:T.clase, icono:T.icono, max:p.capacidad, hiloObj:T.obj,
@@ -625,6 +675,12 @@ const ENUN = {
     '<ul><li>El pintor espera si el almacén está lleno para dejar un cuadro.</li>' +
     '<li>El vendedor espera si el almacén está vacío para poder vender.</li>' +
     '<li>El programa termina cuando se han vendido los <b>' + p.total + '</b> cuadros.</li></ul>',
+  lectores:p => '<p><b>' + p.lectores + ' hilos lectores</b> y <b>' + p.escritores + ' hilos escritores</b> comparten un fichero. Cada hilo lee o escribe una sola vez.</p>' +
+    '<ul><li>Si hay alguien usando el fichero, sea lector o escritor, el hilo espera.</li>' +
+    '<li>Cuando un hilo termina, avisa a los que esperan.</li>' +
+    '<li>Leer o escribir lleva un tiempo: el hilo duerme entre entrar y salir.</li>' +
+    '<li>El programa termina cuando han usado el fichero los ' + p.lectores + ' lectores y los ' + p.escritores + ' escritores.</li>' +
+    '<li>Los hilos también los escribes tú, en sus pestañas: <code>leerFichero()</code>, <code>sleep</code> y <code>terminaLeer()</code>, y lo mismo con el escritor.</li></ul>',
   tema:p => { const T = TEMA, dificil = typeof pp !== 'undefined' && pp && pp.activo && pp.nivel === 3; return '<p>Un <b>' + T.prodL + '</b> y <b>' + p.vendedores + ' ' + (p.vendedores === 1 ? T.consL : T.consPl) + '</b> comparten ' + T.lugar + ' donde ' + (p.capacidad === 1 ? 'cabe <b>1 ' + T.unidad : 'caben <b>' + p.capacidad + ' ' + T.plural) + '</b>.</p>' +
     '<ul><li>El ' + T.prodL + ' espera si ' + T.el + ' está ' + T.lleno + ' para poder ' + T.mProd + '.</li>' +
     '<li>' + (p.vendedores === 1 ? 'El ' + T.consL + ' espera' : 'Los ' + T.consPl + ' esperan') + ' si ' + T.el + ' está ' + T.vacio + ' para poder ' + T.mCons + '.</li>' +
@@ -658,7 +714,10 @@ const HINTS = {
     ['depositar(): while (numCuadros == numMaxCuadros) wait(); numCuadros++; numCuadrosPintados++; notifyAll();', 'vender(): while (numCuadros == 0 && numCuadrosPintados < total) wait();', 'Después, un if (numCuadros > 0) { … }', 'Dentro del if: numCuadros--; numCuadrosVendidos++; notifyAll();', 'getCuadrosVendidos(): synchronized, return numCuadrosVendidos; (lo usa el Vendedor para saber si debe seguir)', 'Ejecuta varias veces: siempre termina y se venden todos.']],
   fabrica:['Es un productor y consumidor con varios productores y un tope de piezas fabricadas entre todos. Cuando hay más de dos hilos esperando, elige bien cómo avisar.',
     'poner() espera mientras la cinta está llena y faltan piezas por fabricar; si ya se fabricaron todas, devuelve false para que la máquina termine. retirar() espera mientras no hay piezas. Los dos avisan con notifyAll().',
-    ['poner(): synchronized, while (piezas == maximo && fabricadas < total) wait();', 'Después, if (fabricadas == total) return false;', 'Después, piezas++; fabricadas++; notifyAll(); return true;', 'retirar(): synchronized, while (piezas == 0) wait();', 'Después, piezas--; notifyAll();', 'Ejecuta: se fabrican y retiran todas y la cinta acaba vacía.']]
+    ['poner(): synchronized, while (piezas == maximo && fabricadas < total) wait();', 'Después, if (fabricadas == total) return false;', 'Después, piezas++; fabricadas++; notifyAll(); return true;', 'retirar(): synchronized, while (piezas == 0) wait();', 'Después, piezas--; notifyAll();', 'Ejecuta: se fabrican y retiran todas y la cinta acaba vacía.']],
+  lectores:['Hay dos papeles pero una sola regla: el fichero lo usa un hilo cada vez. ¿Qué tiene que saber el fichero para decidir si un hilo puede entrar?',
+    'El fichero cuenta los lectores y los escritores que lo están usando. leerFichero() y escribirFichero() esperan con un while mientras haya algún lector o algún escritor; después suman uno a su contador. terminaLeer() y terminaEscribir() restan uno y avisan. Los cuatro métodos llevan synchronized.',
+    ['Escribe synchronized en los cuatro métodos.', 'En leerFichero(), un while con lectores > 0 || escritores > 0 y dentro wait();', 'Después del while, lectores++;', 'En escribirFichero(), lo mismo, pero con escritores++;', 'En terminaLeer(), lectores--; y notifyAll();', 'En terminaEscribir(), escritores--; y notifyAll();', 'En Lector.run(): leerFichero(), sleep y terminaLeer(). En Escritor.run(): escribirFichero(), sleep y terminaEscribir().']]
 };
 const pistasHTML = id => {
   const hs = HINTS[id]; if (!hs) return '';
@@ -669,7 +728,7 @@ const pistasHTML = id => {
     '<details><summary>Pista 3 · paso a paso</summary>' + pasos + '</details></div>';
 };
 const enunHTML = id => ENUN[id](cfg[id]) + pistasHTML(id);
-const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2', 'fabrica', 'tema'];
+const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2', 'fabrica', 'lectores', 'tema'];
 const MENU = ORDER.filter(k => k !== 'tema');   /* «tema» solo se usa desde Ponte a prueba */
 const PARAMS = {
   cocina:[{k:'cocineros', label:'Cocineros', min:1, max:12, def:9}, {k:'cuchillos', label:'Cuchillos', min:1, max:6, def:2}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:3000}],
@@ -677,6 +736,7 @@ const PARAMS = {
   bicis:[{k:'mecanicos', label:'Mecánicos', min:1, max:5, def:3}, {k:'clientes', label:'Clientes', min:1, max:5, def:2}, {k:'capacidad', label:'Capacidad del estante', min:1, max:6, def:3}, {k:'sleepM', label:'sleep mecánico', inline:true, min:0, max:5000, def:700}, {k:'sleepC', label:'sleep cliente', inline:true, min:0, max:5000, def:1200}],
   pintor:[{k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}],
   fabrica:[{k:'maquinas', label:'Máquinas', min:1, max:5, def:3}, {k:'total', label:'Piezas a fabricar', min:4, max:50, def:20}, {k:'capacidad', label:'Capacidad de la cinta', min:1, max:8, def:5}, {k:'sleepM', label:'sleep máquina', unit:' ms', step:100, min:0, max:5000, def:1200}, {k:'sleepE', label:'sleep empaquetador', unit:' ms', step:100, min:0, max:5000, def:800}],
+  lectores:[{k:'lectores', label:'Lectores', min:1, max:8, def:5}, {k:'escritores', label:'Escritores', min:1, max:4, def:2}, {k:'sleepL', label:'sleep lector', inline:true, min:0, max:5000, def:1600}, {k:'sleepE', label:'sleep escritor', inline:true, min:0, max:5000, def:2400}],
   tema:[{k:'vendedores', inline:true, min:1, max:5, def:2}, {k:'total', inline:true, min:1, max:20, def:10}, {k:'capacidad', inline:true, min:1, max:5, def:1}, {k:'sleepP', inline:true, min:0, max:5000, def:0}, {k:'sleepV', inline:true, min:0, max:5000, def:400}],
   pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}, {k:'sleepP', label:'sleep pintor', inline:true, min:0, max:5000, def:0}, {k:'sleepV', label:'sleep vendedor', inline:true, min:0, max:5000, def:400}]
 };
@@ -1694,6 +1754,15 @@ const MUT = {
   sinMecanico:pr => { pr.h.Mecanico = {body:[]}; return pr; },
   sinCliente:pr => { pr.h.Cliente = {body:[]}; return pr; },
   sinAbierta:pr => { walk(pr.m.vender.body, n => { if (n.kind === 'while') n.cond = 'bicis == 0'; }); return pr; },
+  sinEscritoresL:pr => { walk(pr.m.leerFichero.body, n => { if (n.kind === 'while') n.cond = 'escritores > 0'; }); return pr; },
+  sinLectoresE:pr => { walk(pr.m.escribirFichero.body, n => { if (n.kind === 'while') n.cond = 'escritores > 0'; }); return pr; },
+  sinCondL:pr => { walk(pr.m.leerFichero.body, n => { if (n.kind === 'while') n.cond = ''; }); return pr; },
+  sinLeer:pr => { pr.m.leerFichero = {mod:'', body:[]}; return pr; },
+  sinEscribir:pr => { pr.m.escribirFichero = {mod:'', body:[]}; return pr; },
+  sinTermina:pr => { pr.m.terminaLeer = {mod:'', body:[]}; pr.m.terminaEscribir = {mod:'', body:[]}; return pr; },
+  sinFichero:pr => { ['leerFichero', 'escribirFichero', 'terminaLeer', 'terminaEscribir'].forEach(k => { pr.m[k] = {mod:'', body:[]}; }); return pr; },
+  sinLector:pr => { pr.h.Lector = {body:[]}; return pr; },
+  sinEscritor:pr => { pr.h.Escritor = {body:[]}; return pr; },
   sinEstante:pr => { pr.m.montar = {mod:'', body:[]}; pr.m.vender = {mod:'', body:[]}; pr.m.cerrar = {mod:'', body:[]}; pr.principal = {body:[]}; return pr; }
 };
 const SOL = () => sc.solution();
@@ -1883,6 +1952,84 @@ const EXPS = {
      cfg:() => ({maquinas:randInt(2, 4), total:randInt(8, 12), capacidad:randInt(1, 3), sleepM:500, sleepE:500}),
      instr:c => 'Escribe poner() y retirar() para ' + c.maquinas + ' máquinas, una cinta de ' + c.capacidad + ' y ' + c.total + ' piezas. Recuerda que poner() devuelve boolean. Pulsa «Comprobar» cuando creas que está.',
      prog:null, why:'poner(): while (piezas == maximo && fabricadas < total) wait(); si fabricadas == total, return false; después piezas++, fabricadas++, notifyAll() y return true. retirar(): while (piezas == 0) wait(); piezas--; notifyAll().'}
+  ],
+  lectores:[
+    {id:'unoAUno', nivel:1, tipo:'ver', titulo:'¿Cuántos a la vez?',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'Ejecuta la solución con ' + c.lectores + ' lectores y ' + c.escritores + ' escritores. Fíjate en cuántos hilos hay dentro del fichero a la vez (lo ves en el panel de arriba).',
+     prog:SOL,
+     q:r => ({txt:'¿Cuántos hilos como máximo usan el fichero a la vez?', ops:['Solo uno, sea lector o escritor', 'Varios lectores a la vez, pero un solo escritor', 'Varios lectores y varios escritores'], ok:0,
+       why:'El while mira los dos contadores: mientras haya algún lector o algún escritor, el hilo espera. Por eso entra uno solo cada vez, aunque sea un lector.'})},
+    {id:'if', nivel:2, tipo:'ver', titulo:'if en vez de while',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'Aquí leerFichero() y escribirFichero() tienen un if en lugar del while antes del wait(). Hay ' + c.lectores + ' lectores y ' + c.escritores + ' escritores.',
+     prog:() => MUT.ifPorWhile(SOL()), reps:20,
+     q:qResultado('¿Qué ocurre al repetirlo?', 'Con if, el hilo que despierta no vuelve a mirar si el fichero está libre: entra directamente. Si otro hilo ya había entrado, hay dos dentro a la vez. El while obliga a comprobar la condición otra vez después de despertar.')},
+    {id:'sinNotify', nivel:3, tipo:'ver', titulo:'Sin avisar',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'Aquí terminaLeer() y terminaEscribir() no avisan a nadie: falta el notifyAll(). Hay ' + c.lectores + ' lectores y ' + c.escritores + ' escritores.',
+     prog:() => MUT.quita(SOL(), 'notifyAll'),
+     q:qResultado('¿Qué ocurre?', 'Los hilos que esperan en wait() solo se despiertan si alguien los avisa. Sin notifyAll() el primero que entra termina y nadie despierta a los demás: el programa se queda colgado.')},
+    {id:'sinSync', nivel:4, tipo:'ver', titulo:'Sin synchronized',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'Aquí se han quitado los synchronized de los cuatro métodos. Hay ' + c.lectores + ' lectores y ' + c.escritores + ' escritores.',
+     prog:() => MUT.sinSync(SOL()),
+     q:qResultado('¿Qué ocurre?', 'wait() y notifyAll() solo se pueden llamar con la llave del objeto, y la llave solo se tiene dentro de un método synchronized. Sin él, Java lanza IllegalMonitorStateException.')},
+    {id:'notify', nivel:5, tipo:'ver', titulo:'Solo notify()',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'Aquí terminaLeer() y terminaEscribir() usan notify() y no notifyAll(). Hay ' + c.lectores + ' lectores y ' + c.escritores + ' escritores.',
+     prog:() => MUT.swap(SOL(), 'notifyAll', 'notify'), reps:20,
+     q:qResultado('¿Funciona siempre?', 'Aquí sí: todos los hilos que esperan esperan lo mismo (que el fichero quede libre), así que despertar a uno cualquiera basta, y ese hilo puede entrar. Con papeles distintos, como el pintor y los vendedores, notify() puede despertar al equivocado. notifyAll() es la opción segura.')},
+    {id:'sinEscritoresL', nivel:6, tipo:'ver', titulo:'El lector solo mira a los escritores',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'Aquí el while de leerFichero() solo mira escritores > 0: no mira si hay otros lectores. Hay ' + c.lectores + ' lectores y ' + c.escritores + ' escritores.',
+     prog:() => MUT.sinEscritoresL(SOL()), reps:20,
+     q:qResultado('¿Qué ocurre?', 'Los lectores entran aunque haya otro lector dentro: leen a la vez. Eso sería válido en el problema clásico de lectores y escritores, pero aquí el fichero lo usa un solo hilo cada vez, y por eso el while tiene que mirar los dos contadores.')},
+    {id:'sinLectoresE', nivel:7, tipo:'ver', titulo:'El escritor no mira a los lectores',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'Aquí el while de escribirFichero() solo mira escritores > 0: no mira si hay lectores dentro. Hay ' + c.lectores + ' lectores y ' + c.escritores + ' escritores.',
+     prog:() => MUT.sinLectoresE(SOL()), reps:20,
+     q:qResultado('¿Qué ocurre?', 'El escritor entra aunque haya un lector leyendo. Escribir mientras otro lee es justo lo que hay que evitar: el escritor tiene que esperar a que no haya ni lectores ni escritores.')},
+    {id:'condL', nivel:8, tipo:'montar', titulo:'Completa el while de leerFichero()',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'A leerFichero() le falta la condición del while: los lectores entran sin esperar. Escríbela en la pestaña Fichero y pulsa «Comprobar».',
+     prog:() => MUT.sinCondL(SOL()), tab:0,
+     why:'El lector espera mientras haya algún lector o algún escritor dentro: while (lectores > 0 || escritores > 0) wait(); Después del while ya puede entrar.'},
+    {id:'termina', nivel:9, tipo:'montar', titulo:'Escribe terminaLeer() y terminaEscribir()',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'Todo está escrito menos terminaLeer() y terminaEscribir(): los hilos entran, pero nunca salen del todo y los demás no se enteran. Escríbelos en la pestaña Fichero y pulsa «Comprobar».',
+     prog:() => MUT.sinTermina(SOL()), tab:0,
+     why:'Los dos son synchronized: terminaLeer() resta uno a lectores y terminaEscribir() resta uno a escritores, y los dos llaman a notifyAll() para avisar a los que esperan.'},
+    {id:'leer', nivel:10, tipo:'montar', titulo:'Escribe leerFichero()',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'Todo está escrito menos leerFichero(): el método con el que entra un lector. Escríbelo en la pestaña Fichero y pulsa «Comprobar».',
+     prog:() => MUT.sinLeer(SOL()), tab:0,
+     why:'leerFichero(): synchronized; while (lectores > 0 || escritores > 0) wait(); lectores++;'},
+    {id:'escribir', nivel:11, tipo:'montar', titulo:'Escribe escribirFichero()',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'Todo está escrito menos escribirFichero(): el método con el que entra un escritor. Escríbelo en la pestaña Fichero y pulsa «Comprobar».',
+     prog:() => MUT.sinEscribir(SOL()), tab:0,
+     why:'escribirFichero(): synchronized; while (lectores > 0 || escritores > 0) wait(); escritores++; La condición es la misma que la del lector: lo que cambia es el contador que suma.'},
+    {id:'todo', nivel:12, tipo:'montar', titulo:'Móntalo tú',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'Los hilos ya están escritos. Escribe los cuatro métodos del Fichero: hay ' + c.lectores + ' lectores y ' + c.escritores + ' escritores y el fichero lo usa un hilo cada vez. Pulsa «Comprobar».',
+     prog:() => MUT.sinFichero(SOL()), tab:0,
+     why:'leerFichero() y escribirFichero() esperan mientras haya algún lector o algún escritor y después suman uno a su contador; terminaLeer() y terminaEscribir() restan uno y llaman a notifyAll(). Los cuatro son synchronized.'},
+    {id:'hLector', nivel:13, tipo:'montar', titulo:'Escribe Lector.run()',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'El Fichero y el Escritor ya están escritos. Escribe en la pestaña Lector.run() lo que hace el lector: entrar, leer durante un tiempo y salir. Pulsa «Comprobar».',
+     prog:() => MUT.sinLector(SOL()), tab:2,
+     why:'El lector llama a fich.leerFichero(), duerme (es el tiempo de leer, FUERA de los métodos synchronized) y llama a fich.terminaLeer().'},
+    {id:'hEscritor', nivel:14, tipo:'montar', titulo:'Escribe Escritor.run()',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'Todo está escrito menos lo que hace el escritor. Escribe en la pestaña Escritor.run(): entrar, escribir durante un tiempo y salir. Pulsa «Comprobar».',
+     prog:() => MUT.sinEscritor(SOL()), tab:3,
+     why:'El escritor llama a fich.escribirFichero(), duerme y llama a fich.terminaEscribir(). Es igual que el lector con los otros dos métodos.'},
+    {id:'hilos', nivel:15, tipo:'montar', titulo:'Escribe los dos hilos',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2), sleepL:800, sleepE:1200}),
+     instr:c => 'El Fichero ya está escrito. Escribe en las pestañas Lector.run() y Escritor.run() lo que hace cada hilo. Hay ' + c.lectores + ' lectores y ' + c.escritores + ' escritores. Pulsa «Comprobar» cuando creas que está.',
+     prog:() => { const pr = SOL(); pr.h = emptyProg(sc).h; return pr; }, tab:2,
+     why:'Cada hilo hace tres cosas, en este orden: pedir permiso (leerFichero() o escribirFichero()), dormir mientras lee o escribe, y avisar de que termina (terminaLeer() o terminaEscribir()).'}
   ],
   pintor2:[
     {id:'notify', nivel:1, tipo:'ver', titulo:'notify() con dos papeles',
