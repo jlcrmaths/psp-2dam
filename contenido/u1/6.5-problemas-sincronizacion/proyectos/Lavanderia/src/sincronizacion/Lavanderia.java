@@ -1,39 +1,40 @@
 package sincronizacion;
 
-// La lavandería: 4 lavadoras que comparten todos los clientes.
+// La lavandería: unas lavadoras que comparten todos los clientes.
 public class Lavanderia {
 
-    private int libres = 4;
-    private int atendidos = 0;
+    // final: el valor se fija al crear el objeto y no cambia.
+    public final int LAVADORAS = 4;
+    private final int PRECIO = 3;
+    private int lavadorasDisponibles = LAVADORAS;
+    private int clientesAtendidos = 0;
+    private int dineroGanado = 0;
 
-    // El cliente solo cuenta como atendido cuando consigue lavadora, no mientras espera.
-    public synchronized void entrar() {
-        String nombre = Thread.currentThread().getName();
-        if (libres == 0) {
-            System.out.println(nombre + " espera en la cola");
+    // El cliente solo cuenta como atendido (y paga) cuando consigue lavadora, no mientras espera.
+    public synchronized void ponerLavadora() throws InterruptedException {
+        while (lavadorasDisponibles == 0) {
+            System.out.println(Thread.currentThread().getName() + " esperando. No hay lavadoras disponibles.");
+            wait();
         }
-        while (libres == 0) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-            }
-        }
-        libres--;
-        atendidos++;
-        System.out.println(nombre + " paga 3€ y empieza a lavar");
+        lavadorasDisponibles--;
+        // +=: suma a la variable lo que hay a la derecha. dineroGanado += PRECIO es lo mismo que dineroGanado = dineroGanado + PRECIO.
+        dineroGanado += PRECIO;
+        clientesAtendidos++;
+        System.out.println(Thread.currentThread().getName() + " pone una lavadora. Lavadoras disponibles: " + lavadorasDisponibles);
     }
 
-    public synchronized void salir() {
-        libres++;
-        System.out.println(Thread.currentThread().getName() + " termina y deja libre una lavadora");
-        // Puede haber varios clientes esperando: se despierta a todos y el que llegue primero la coge.
-        notifyAll();
+    public synchronized void quitarLavadora() {
+        lavadorasDisponibles++;
+        System.out.println(Thread.currentThread().getName() + " terminó de lavar. Lavadoras disponibles: " + lavadorasDisponibles);
+        // Todos los que esperan esperan lo mismo (una lavadora libre): despertar a uno basta.
+        notify();
     }
 
-    public synchronized void mostrarEstado() {
-        System.out.println("Clientes atendidos: " + atendidos);
-        System.out.println("Ganancia total: " + (atendidos * 3) + "€");
-        System.out.println("Lavadoras disponibles: " + libres);
-        System.out.println("Lavadoras en uso: " + (4 - libres));
+    // \n es un salto de línea y \t un tabulador, dentro de un texto.
+    public synchronized void mostrarInfo() {
+        System.out.println("Estado de la lavandería:\n\tClientes totales: " + clientesAtendidos
+                + "\n\tDinero ganado: " + dineroGanado + "€"
+                + "\n\tLavadoras disponibles: " + lavadorasDisponibles
+                + "\n\tLavadoras alquiladas: " + (LAVADORAS - lavadorasDisponibles));
     }
 }

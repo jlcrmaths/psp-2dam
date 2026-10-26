@@ -30,60 +30,71 @@ Crea una clase `Fichero` que guarde la ruta del fichero y tenga dos métodos `sy
 
 ## Ejercicio 2: fábrica de piezas (proyecto `FabricaPiezas`)
 
-Una fábrica tiene tres máquinas automáticas que generan piezas y las ponen en una cinta transportadora. Una máquina empaquetadora las recoge de la cinta.
+Una fábrica tiene tres máquinas creadoras que generan piezas y las ponen en una cinta transportadora. Una máquina empaquetadora las recoge de la cinta. Las máquinas se llaman "Creadora0", "Creadora1", "Creadora2" y "Empaquetadora0".
 
-- La cinta admite como máximo 5 piezas. Si está llena, las máquinas esperan a que se libere espacio.
-- Cada máquina genera una pieza cada 1 a 3 segundos (al azar) y la pone en la cinta si hay espacio.
-- La empaquetadora retira una pieza cada 2 segundos. Si no hay ninguna, espera.
-- Cada vez que se pone o se retira una pieza, se muestra el estado de la cinta.
-- La fábrica termina cuando se han fabricado 50 piezas y no queda ninguna en la cinta. Entonces se muestra `Fábrica cerrada`.
+- La cinta admite como máximo 5 piezas. Si está llena, las creadoras esperan a que se libere espacio.
+- Cada creadora tarda de 2 a 3 segundos (al azar) en crear una pieza y la pone en la cinta.
+- La empaquetadora retira una pieza cada segundo. Si no hay ninguna, espera.
+- Cada vez que se crea o se empaqueta una pieza, se muestra cuántas hay en la cinta.
+- Entre todas las creadoras se crean 50 piezas, ni una más. Las máquinas no saben de antemano cuántas piezas habrá: lo sabe la cinta.
+- La fábrica termina cuando se han creado y empaquetado las 50 piezas y la cinta queda vacía. Entonces se muestra `Fábrica cerrada`.
 
 ### Pistas
-La cinta es el objeto compartido y es un problema de productor y consumidor, como el del pintor. La diferencia es que hay varios productores y un tope de piezas fabricadas entre todos. Cuando hay más de dos hilos esperando, elige bien el método para avisar. Para el mensaje final, `main` tiene que esperar a que terminen los cuatro hilos.
+La cinta transportadora es el objeto compartido y es un problema de productor y consumidor, como el del pintor. La diferencia es que hay varios productores y un tope de piezas entre todos. Las máquinas no saben cuándo parar: se lo tiene que decir la cinta. Piensa qué puede devolver un método de la cinta para que la máquina sepa si debe seguir o parar, y quién tiene que guardar esa información. Piensa también cuándo debe acabar la empaquetadora: no basta con que la cinta esté vacía. Para el mensaje final, `main` tiene que esperar a que terminen todos los hilos.
 
 ### Más ayuda
-La clase `Cinta` guarda cuántas piezas hay y cuántas se han fabricado en total. El método de poner espera mientras la cinta esté llena y falten piezas por fabricar; si ya se fabricaron las 50, devuelve `false` para que la máquina termine. El método de retirar espera mientras no haya piezas. Los dos avisan con `notifyAll()`. `Thread.sleep()` simula el tiempo de cada máquina, y `Random` da el número de segundos al azar; ambos se usan fuera de los métodos `synchronized`. La empaquetadora repite 50 veces su trabajo. En `Principal`, `join()` sobre los cuatro hilos hace esperar a `main` antes de mostrar el mensaje.
+La clase `CintaTransportadora` guarda cuántas piezas hay en la cinta, cuántas se han creado y cuántas se han empaquetado, y dos banderas `boolean`: una dice si se debe seguir fabricando y otra si se debe seguir empaquetando. Las dos empiezan en `true`. La capacidad y el total de piezas son constantes de la clase. Tiene dos métodos `synchronized` que devuelven `boolean` y declaran `throws InterruptedException`. El de crear espera mientras la cinta esté llena. Después, si ya se crearon todas las piezas, apaga la bandera de fabricar; si no, crea una pieza y la pone en la cinta. Avisa con `notifyAll()` y devuelve la bandera. El de empaquetar espera mientras la cinta esté vacía y se siga fabricando. Después, si la cinta está vacía y ya no se fabrica, apaga la bandera de empaquetar; si no, retira una pieza y avisa. Devuelve su bandera. `MaquinaCreadora` y `MaquinaEmpaquetadora` implementan `Runnable` y reciben la cinta en el constructor. Cada una repite su método de la cinta con un `while` mientras devuelva `true`, y duerme con `Thread.sleep()` fuera de los métodos de la cinta. La creadora usa `Random` para el tiempo al azar. `Principal` guarda los hilos en dos arrays de `Thread`, los arranca con un for-each y hace `join()` a todos antes del mensaje final.
 
 ### Paso a paso
 1. Crea el proyecto `FabricaPiezas` y el paquete `sincronizacion`.
-2. Crea `Cinta` con dos atributos `int`: piezas que hay ahora y piezas fabricadas en total.
-3. Escribe el método de poner, `synchronized`, que devuelve un `boolean`. Espera con un `while` mientras la cinta tenga 5 y falten piezas por fabricar.
-4. Tras el `while`, si ya se fabricaron las 50, devuelve `false`. Si no, suma una pieza a la cinta y al total, muestra el estado, llama a `notifyAll()` y devuelve `true`.
-5. Escribe el método de retirar, `synchronized`: espera mientras no haya piezas, resta una, muestra el estado y llama a `notifyAll()`.
-6. Crea `Maquina`: en un bucle, duerme entre 1 y 3 segundos con `Thread.sleep` y pone una pieza. Repite mientras el método de poner devuelva `true`.
-7. Crea `Empaquetador`: un `for` de 50 vueltas que duerme 2 segundos y retira una pieza.
-8. En `Principal`, crea una `Cinta`, tres hilos con `Maquina` ("Máquina 1", "Máquina 2" y "Máquina 3") y un hilo con `Empaquetador`.
-9. Arranca los cuatro hilos y haz `join()` a los cuatro. `main` tendrá que declarar `throws InterruptedException`.
-10. Después de los `join()`, muestra `Fábrica cerrada`. Comprueba que salen 50 piezas puestas y 50 retiradas.
+2. Crea `CintaTransportadora` con dos constantes `static final`, la capacidad (5) y el total de piezas (50), y tres atributos `int`: las piezas en la cinta, las creadas y las empaquetadas, todos a 0.
+3. Añade dos atributos `boolean` privados: una bandera para seguir fabricando y otra para seguir empaquetando, las dos a `true`.
+4. Escribe el método de crear, `synchronized`, que devuelve un `boolean` y declara `throws InterruptedException`. Un `while` que, mientras las piezas de la cinta sean igual a la capacidad, muestre que la cinta está llena y llame a `wait()`.
+5. Tras el `while`, un `if`: si las piezas creadas ya llegan al total, pon la bandera de fabricar a `false`. Si no, suma 1 a las piezas de la cinta y a las creadas, y muestra cuántas piezas hay en la cinta.
+6. Llama a `notifyAll()` y devuelve la bandera de fabricar.
+7. Escribe el método de empaquetar, `synchronized`, que devuelve un `boolean`. Un `while` que, mientras la cinta esté vacía y se siga fabricando, muestre que la cinta está vacía y llame a `wait()`.
+8. Tras el `while`, un `if`: si la cinta está vacía y ya no se fabrica, pon la bandera de empaquetar a `false`. Si no, resta 1 a las piezas de la cinta, suma 1 a las empaquetadas, muestra cuántas hay en la cinta y llama a `notifyAll()`.
+9. Devuelve la bandera de empaquetar.
+10. Crea `MaquinaCreadora`, que implementa `Runnable` y guarda la cinta que recibe en el constructor. En `run()`, dentro de un `try`: un `while` que repita mientras el método de crear devuelva `true`, y dentro duerme un tiempo al azar de 2 a 3 segundos con `Thread.sleep` y un `Random`.
+11. Crea `MaquinaEmpaquetadora` del mismo modo: un `while` que repita mientras el método de empaquetar devuelva `true`, y dentro duerme 1 segundo.
+12. En `Principal`, crea una `CintaTransportadora`, dos arrays de `Thread` (3 creadoras y 1 empaquetadora) y crea los hilos con los nombres "Creadora0"… y "Empaquetadora0". `main` tendrá que declarar `throws InterruptedException`.
+13. Arranca todos los hilos con un for-each. Después haz `join()` a todos, también con un for-each.
+14. Después de los `join()`, muestra `Fábrica cerrada`. Comprueba que se crean 50 piezas, que se empaquetan 50 y que ninguna máquina se queda esperando al final.
 
 ## Ejercicio 3: lavandería CleanFast (proyecto `Lavanderia`)
 
-Una lavandería de autoservicio tiene 4 lavadoras. Los clientes llegan, esperan si no hay ninguna libre y lavan su ropa durante un tiempo al azar de entre 5 y 10 segundos. El lavado cuesta 3 euros. El cliente no paga ni cuenta como atendido hasta que consigue una lavadora.
+Una lavandería de autoservicio, CleanFast, tiene 4 lavadoras. Los clientes llegan, esperan si no hay ninguna libre y lavan su ropa durante un tiempo al azar de 10 a 20 segundos. El lavado cuesta 3 euros. El cliente no paga ni cuenta como atendido hasta que consigue una lavadora.
 
-El programa muestra un menú con tres opciones:
+Al empezar, el programa da la bienvenida y muestra un menú con tres opciones. Después lee la opción que escribe el usuario y la repite hasta que elija cerrar:
 
-1. **Simular llegada de clientes:** pregunta cuántos llegan y lanza un hilo por cliente.
-2. **Mostrar estado:** muestra los clientes atendidos, la ganancia total (atendidos por 3 €), las lavadoras disponibles y las que están en uso.
-3. **Cerrar:** no se aceptan más clientes, se espera a que terminen todos los que estaban esperando o lavando y entonces acaba el programa.
+1. **Llegada de clientes:** pregunta cuántos clientes llegan a la vez y lanza un hilo por cada uno. Pueden llegar clientes varias veces durante la misma ejecución, y los nombres ("Cliente 1", "Cliente 2"…) no se repiten.
+2. **Estado:** muestra los clientes totales atendidos, el dinero ganado, las lavadoras disponibles y las lavadoras alquiladas (en uso).
+3. **Cerrar:** muestra que cierra la tienda, espera a que terminen todos los clientes que estaban esperando o lavando y acaba el programa.
+
+Si el usuario escribe otro número, el programa muestra `Selección no válida.`
+
+Cada cliente muestra un mensaje cuando espera porque no hay lavadoras, cuando coge una y cuando termina de lavar, con las lavadoras que quedan disponibles.
 
 ### Pistas
-Las lavadoras son lo que comparten los clientes. No hace falta una clase por lavadora: basta con saber cuántas están libres. El menú vive en `main` y los clientes en hilos. Piensa en cómo esperar al final a todos los hilos que lanzaste, sin saber de antemano cuántos serán.
+Las lavadoras son lo que comparten los clientes. No hace falta una clase por lavadora: basta con saber cuántas están libres. Piensa qué datos tiene que guardar la lavandería para poder mostrar el estado: lo que necesita para mostrar el dinero ganado, los clientes atendidos y las lavadoras en uso. El menú vive en `main` y los clientes en hilos. Dos preguntas: cómo dar a cada cliente un nombre que no se repita aunque lleguen en varias tandas, y cómo esperar al final a todos los hilos que lanzaste sin saber de antemano cuántos serán. Piensa también cuándo debe contarse un cliente como atendido.
 
 ### Más ayuda
-La clase `Lavanderia` guarda cuántas lavadoras hay libres (empieza en 4) y cuántos clientes se han atendido. Un método `synchronized` para entrar espera mientras no haya ninguna libre; al conseguirla, resta una libre y suma un atendido. Otro para salir suma una libre y llama a `notifyAll()`. El cliente duerme con `Thread.sleep` entre las dos llamadas, fuera de los métodos `synchronized`. En `Principal`, `Scanner` lee la opción del menú, un `switch` elige qué hacer y un `ArrayList` de hilos guarda los clientes lanzados. Al cerrar, se recorre la lista haciendo `join()` a cada hilo.
+La clase `Lavanderia` guarda el número total de lavadoras y el precio como constantes, y tres contadores: las lavadoras disponibles (empiezan en el total), los clientes atendidos y el dinero ganado. Tiene tres métodos `synchronized`. El de poner la lavadora declara `throws InterruptedException` y espera con un `while` mientras no haya ninguna disponible, mostrando que el cliente espera; al conseguirla, resta una disponible, suma el precio al dinero, suma un atendido y lo muestra. El de quitar la lavadora suma una disponible, lo muestra y avisa con `notify()`, porque todos los que esperan esperan lo mismo. El de mostrar la información escribe el estado con los cuatro datos. `Cliente` implementa `Runnable`, recibe la lavandería en el constructor y trabaja dentro de un `try`: pone la lavadora, duerme un tiempo al azar con `Thread.sleep()` y `Random`, fuera de los métodos de la lavandería, y la quita. En `Principal`, un `Scanner` lee la opción, un `do while` repite el menú hasta que se elige cerrar, un `switch` decide qué hacer y una lista de hilos guarda los clientes lanzados. Un contador de clientes llegados sirve a la vez para el nombre de cada cliente y para saber qué hilo arrancar. Al cerrar, se recorre la lista haciendo `join()` a cada hilo.
 
 ### Paso a paso
 1. Crea el proyecto `Lavanderia` y el paquete `sincronizacion`.
-2. Crea `Lavanderia` con dos atributos `int`: lavadoras libres (4) y clientes atendidos (0).
-3. Escribe el método de entrar, `synchronized`: si no hay libres, muestra que el cliente espera; espera con un `while`; al salir, resta una libre, suma un atendido y muestra que paga.
-4. Escribe el método de salir, `synchronized`: suma una libre, muestra el mensaje y llama a `notifyAll()`.
-5. Escribe el método que muestra el estado, también `synchronized`, con los cuatro datos del enunciado.
-6. Crea `Cliente`, que implementa `Runnable`: entra, duerme entre 5 y 10 segundos y sale.
-7. En `Principal`, crea una sola `Lavanderia`, un `Scanner` y un `ArrayList<Thread>`.
-8. Escribe un bucle que muestre el menú, lea la opción y use un `switch`.
-9. En la opción 1, pregunta cuántos clientes llegan y crea un `Thread` por cada uno, con nombre "Cliente" y su número. Guárdalos en la lista y arráncalos.
-10. En la opción 2, muestra el estado. En la opción 3, sal del bucle.
-11. Tras el bucle, haz `join()` a todos los hilos de la lista y muestra el estado final.
+2. Crea `Lavanderia` con dos constantes `final`: las lavadoras (4) y el precio (3). Añade tres atributos `int`: lavadoras disponibles (las mismas que el total), clientes atendidos (0) y dinero ganado (0).
+3. Escribe el método de poner la lavadora, `synchronized`, con `throws InterruptedException`. Un `while` que, mientras no haya lavadoras disponibles, muestre el nombre del hilo con `esperando` y llame a `wait()`.
+4. Al salir del `while`, resta una lavadora disponible, suma el precio al dinero, suma un cliente atendido y muestra que el cliente pone una lavadora y cuántas quedan.
+5. Escribe el método de quitar la lavadora, `synchronized`: suma una lavadora disponible, muestra que el cliente terminó de lavar y llama a `notify()`.
+6. Escribe el método que muestra la información, `synchronized`, con los clientes atendidos, el dinero ganado, las lavadoras disponibles y las alquiladas (el total menos las disponibles).
+7. Crea `Cliente`, que implementa `Runnable`. Guarda la lavandería que recibe en el constructor y tiene un `Random`.
+8. En el `run()` de `Cliente`, dentro de un `try`: pone la lavadora, duerme de 10 a 20 segundos con `Thread.sleep` y quita la lavadora.
+9. En `Principal`, crea una sola `Lavanderia`, un `Scanner`, una lista de hilos y un contador de clientes a 0. `main` declara `throws Exception`.
+10. Muestra el mensaje de bienvenida con las tres opciones y abre un `do while` que lea la opción con `nextInt()` y use un `switch`. El bucle se repite mientras la opción no sea 3.
+11. En la opción 1, pregunta cuántos clientes llegan y calcula el total acumulado (el contador más los que llegan ahora). Un `for` crea cada `Thread` con el nombre "Cliente" y su número, lo guarda en la lista, lo arranca y suma 1 al contador.
+12. En la opción 2, muestra la información. En la opción 3, muestra que cierras la tienda y haz `join()` a todos los hilos de la lista con un for-each. En `default`, muestra `Selección no válida.`
+13. Ejecuta con pocos clientes y muchos, y comprueba que nunca hay más de 4 lavando, que los nombres no se repiten y que al cerrar el programa espera a todos.
 
 ## Ejercicio 4: panadería self-service (proyecto `Panaderia`)
 
