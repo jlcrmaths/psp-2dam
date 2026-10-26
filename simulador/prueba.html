@@ -632,12 +632,12 @@ const ENUN = {
     '<ul><li>El pintor espera si el almacén está lleno para dejar un cuadro.</li>' +
     '<li>El vendedor espera si el almacén está vacío para poder vender.</li>' +
     '<li>El programa termina cuando se han vendido los <b>' + p.total + '</b> cuadros.</li></ul>',
-  tema:p => { const T = TEMA; return '<p>Un <b>' + T.prodL + '</b> y <b>' + p.vendedores + ' ' + (p.vendedores === 1 ? T.consL : T.consPl) + '</b> comparten ' + T.lugar + ' donde ' + (p.capacidad === 1 ? 'cabe <b>1 ' + T.unidad : 'caben <b>' + p.capacidad + ' ' + T.plural) + '</b>.</p>' +
+  tema:p => { const T = TEMA, dificil = typeof pp !== 'undefined' && pp && pp.activo && pp.nivel === 3; return '<p>Un <b>' + T.prodL + '</b> y <b>' + p.vendedores + ' ' + (p.vendedores === 1 ? T.consL : T.consPl) + '</b> comparten ' + T.lugar + ' donde ' + (p.capacidad === 1 ? 'cabe <b>1 ' + T.unidad : 'caben <b>' + p.capacidad + ' ' + T.plural) + '</b>.</p>' +
     '<ul><li>El ' + T.prodL + ' espera si ' + T.el + ' está ' + T.lleno + ' para poder ' + T.mProd + '.</li>' +
     '<li>' + (p.vendedores === 1 ? 'El ' + T.consL + ' espera' : 'Los ' + T.consPl + ' esperan') + ' si ' + T.el + ' está ' + T.vacio + ' para poder ' + T.mCons + '.</li>' +
-    '<li>Si varios ' + T.consPl + ' piden a la vez, solo uno puede ' + T.mCons + ' cada vez.</li>' +
-    '<li>El programa termina cuando se han ' + T.parts + ' ' + T.los + ' <b>' + p.total + '</b> ' + T.plural + '. ' + T.el.replace(/^./, c => c.toUpperCase()) + ' cuenta lo producido y lo retirado (<code>' + T.hechos + '</code>, <code>' + T.vend + '</code>) y <code>total</code> vale ' + p.total + '.</li>' +
-    '<li>Los hilos también los escribes tú, en sus pestañas: el ' + T.prodL + ' sabe ' + (T.los === 'las' ? 'cuántas ' : 'cuántos ') + T.plural + ' ' + T.vProd3 + ' (<code>for</code>) y el ' + T.consL + ' no sabe ' + (T.los === 'las' ? 'cuántas' : 'cuántos') + ' ' + T.vConsFut + ' (<code>while</code>).</li></ul>'; },
+    (dificil ? '' : '<li>Si varios ' + T.consPl + ' piden a la vez, solo uno puede ' + T.mCons + ' cada vez.</li>') +
+    '<li>El programa termina cuando se han ' + T.parts + ' ' + T.los + ' <b>' + p.total + '</b> ' + T.plural + '.' + (dificil ? '' : ' ' + T.el.replace(/^./, c => c.toUpperCase()) + ' cuenta lo producido y lo retirado (<code>' + T.hechos + '</code>, <code>' + T.vend + '</code>) y <code>total</code> vale ' + p.total + '.') + '</li>' +
+    (dificil ? '' : '<li>Los hilos también los escribes tú, en sus pestañas: el ' + T.prodL + ' sabe ' + (T.los === 'las' ? 'cuántas ' : 'cuántos ') + T.plural + ' ' + T.vProd3 + ' (<code>for</code>) y el ' + T.consL + ' no sabe ' + (T.los === 'las' ? 'cuántas' : 'cuántos') + ' ' + T.vConsFut + ' (<code>while</code>).</li>') + '</ul>'; },
   pintor2:p => '<p>Un pintor y <b>' + p.vendedores + ' vendedores</b> comparten un almacén donde ' + (p.capacidad === 1 ? 'cabe <b>1 cuadro' : 'caben <b>' + p.capacidad + ' cuadros') + '</b>.</p>' +
     '<ul><li>El pintor espera si el almacén está lleno para dejar un cuadro.</li>' +
     '<li>Los vendedores esperan si el almacén está vacío para poder vender.</li>' +
@@ -2095,10 +2095,10 @@ function ppCargar(){
   pp.cfg = Object.assign({}, cfg.tema);
   progs.tema = emptyProg(build('tema'));
   stop();
+  if (!pp.activo){ pp.escribirAntes = escribir; pp.activo = true; }
   setScenario('tema');
   setProg(pp.e.prog());
   tabSel = pp.e.tab; renderCode();
-  if (!pp.activo){ pp.escribirAntes = escribir; pp.activo = true; }
   if (escribir !== (pp.nivel === 3)) setEscribir(pp.nivel === 3);
   pp.r = null; pp.hecho = false; pp.aviso = null; pp.fallos = 0;
   ppRender();
