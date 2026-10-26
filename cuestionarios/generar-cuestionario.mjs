@@ -1531,6 +1531,126 @@ redaccion(E, 'Diseña tu propio problema',
 }`, '', { grado: 5 });
 
 // =====================================================================
+// 6.6 LECTORES Y ESCRITORES
+// =====================================================================
+const F = '6.6';
+categoria('Repaso PSP Unidad 1/6.6 Lectores y escritores');
+
+completar(F, 'El método leerFichero',
+  'El lector entra al fichero solo si no hay nadie dentro. Completa `leerFichero()`:',
+  `public ⟦sa:synchronized⟧ void leerFichero() throws InterruptedException {
+    while (lectores > 0 ⟦sa:||⟧ escritores > 0) {
+        ⟦sa:wait⟧();
+    }
+    lectores++;
+}`,
+  'El lector espera mientras haya algún lector **o** algún escritor dentro. Después se apunta con `lectores++`.',
+  { compilar: false });
+
+test(F, 'Qué significa ||',
+  '¿Qué significa `||` en `while (lectores > 0 || escritores > 0)`?',
+  [
+    ['«o»: basta con que se cumpla una de las dos condiciones.', true],
+    ['«y»: tienen que cumplirse las dos a la vez.', false],
+    ['«distinto de».', false],
+    ['Es un comentario.', false],
+  ],
+  '`||` es «o» y `&&` es «y». Aquí el hilo espera si hay algún lector o algún escritor dentro.');
+
+test(F, 'Hilos dentro a la vez',
+  'En esta solución, el `while` de `leerFichero()` y el de `escribirFichero()` son `while (lectores > 0 || escritores > 0)`. ¿Cuántos hilos como máximo usan el fichero a la vez?',
+  [
+    ['Uno solo, sea lector o escritor.', true],
+    ['Varios lectores, pero un solo escritor.', false],
+    ['Todos los lectores y un escritor.', false],
+    ['Ninguno: se quedan esperando para siempre.', false],
+  ],
+  'Los dos `while` miran los dos contadores: mientras haya alguien dentro, el resto espera. Por eso entra uno solo cada vez.');
+
+test(F, 'Condición del escritor',
+  '¿Qué condición debe tener el `while` de `escribirFichero()` para que un escritor no entre con nadie dentro?',
+  [
+    ['`while (lectores > 0 || escritores > 0)`', true],
+    ['`while (escritores > 0)`', false],
+    ['`while (lectores > 0 && escritores > 0)`', false],
+    ['`while (lectores == 0)`', false],
+  ],
+  'Con `while (escritores > 0)` el escritor entraría con un lector leyendo. Con `&&` solo esperaría si hubiera lectores **y** escritores a la vez, algo imposible.');
+
+test(F, 'sleep dentro del método',
+  'El lector hace `fich.leerFichero();`, luego `Thread.sleep(...)` y luego `fich.terminaLeer();`. ¿Qué pasaría si el `sleep` estuviera **dentro** del método `synchronized` `leerFichero()`?',
+  [
+    ['El lector dormiría con el fichero bloqueado y los demás hilos ni siquiera podrían entrar a mirar.', true],
+    ['No compilaría.', false],
+    ['Los lectores leerían más rápido.', false],
+    ['No cambiaría nada.', false],
+  ],
+  'Regla de siempre: `sleep` va fuera de los métodos `synchronized`, entre la llamada de entrar y la de salir.');
+
+vf(F, 'throws InterruptedException',
+  'Un método con `throws InterruptedException` no necesita `try/catch` dentro: el error lo recoge quien llama al método.',
+  true,
+  'Verdadero. Por eso el `try/catch` está en `run()` de `Lector` y de `Escritor`.');
+
+test(F, 'notify en vez de notifyAll',
+  'En este ejercicio, todos los hilos que esperan esperan lo mismo: que el fichero quede libre. Si `terminaLeer()` y `terminaEscribir()` usan `notify()` en vez de `notifyAll()`, ¿el programa funciona?',
+  [
+    ['Sí: despertar a uno cualquiera basta, porque ese hilo puede entrar. `notifyAll()` es la opción segura.', true],
+    ['No: se cuelga siempre.', false],
+    ['No compila.', false],
+    ['Sí, pero solo con un lector.', false],
+  ],
+  'Con papeles distintos, como el pintor y los vendedores de 6.4, `notify()` puede despertar al equivocado. Aquí no, pero `notifyAll()` sigue siendo lo más seguro.');
+
+arrastrar(F, 'Qué hace el hilo lector',
+  'Ordena lo que hace `Lector.run()`:',
+  `1. [[1]]
+2. [[2]]
+3. [[3]]`,
+  [
+    'fich.leerFichero();',
+    'Thread.sleep((r.nextInt(9) + 2) * 1000);',
+    'fich.terminaLeer();',
+  ],
+  'Primero se pide permiso, después se duerme (es el tiempo de leer, fuera de los métodos `synchronized`) y por último se avisa de que se termina.',
+  { esCodigo: false });
+
+emparejar(F, 'Contadores y métodos',
+  'Une cada método con lo que hace:',
+  [
+    ['`leerFichero()`', 'Espera si hay alguien dentro y suma 1 a `lectores`'],
+    ['`escribirFichero()`', 'Espera si hay alguien dentro y suma 1 a `escritores`'],
+    ['`terminaLeer()`', 'Resta 1 a `lectores` y avisa con `notifyAll()`'],
+    ['`terminaEscribir()`', 'Resta 1 a `escritores` y avisa con `notifyAll()`'],
+  ],
+  'Los cuatro métodos son `synchronized`. Los de entrar esperan con `wait()`; los de salir avisan con `notifyAll()`.');
+
+redaccion(F, 'Escribe el escritor',
+  'Escribe la clase `Escritor` del ejercicio de lectores y escritores. Implementa `Runnable`, recibe el `Fichero` en el constructor y en `run()` entra al fichero para escribir, duerme de 2 a 10 segundos y sale.',
+  `import java.util.Random;
+
+public class Escritor implements Runnable {
+
+    private Fichero fich;
+
+    public Escritor(Fichero f) {
+        this.fich = f;
+    }
+
+    private Random r = new Random();
+
+    @Override
+    public void run() {
+        try {
+            fich.escribirFichero();
+            Thread.sleep((r.nextInt(9) + 2) * 1000);
+            fich.terminaEscribir();
+        } catch (InterruptedException ex) {
+        }
+    }
+}`, '', { grado: 4 });
+
+// =====================================================================
 // SIMULACRO DE EXAMEN
 // =====================================================================
 const S = 'EX';

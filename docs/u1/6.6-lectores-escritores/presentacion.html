@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>6.6 Lectores y escritores</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+<link rel="stylesheet" href="../../estilo/tema.css">
+<link rel="stylesheet" href="../../estilo/presentacion.css">
+<script>try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t)}catch(e){}</script>
+</head>
+<body class="presentacion">
+<div class="reveal">
+<div class="slides">
+<section>
+<h2>Lectores y escritores</h2>
+  <p>PSP · 2º DAM · Apartado 6.6</p>
+</section>
+<section>
+<section>
+<h3>Objetivo de la clase</h3>
+  <ul>
+    <li>Sincronizar y comunicar hilos con <b>papeles distintos</b>: lectores y escritores</li>
+    <li>Contar quién está usando un recurso con <b>dos contadores</b></li>
+    <li>Esperar con <code>wait()</code> y avisar con <code>notifyAll()</code></li>
+    <li>Saber dónde va el tiempo de lectura o escritura: <b>fuera</b> de <code>synchronized</code></li>
+    <li>Resolver el ejercicio de 5 lectores y 2 escritores</li>
+  </ul>
+</section>
+<section>
+<h3>De la tienda de bicis al fichero</h3>
+  <p>En 6.4, mecánicos y clientes esperaban por <b>cosas distintas</b>.</p>
+  <p class="fragment">Hoy hay dos papeles, <b>lector</b> y <b>escritor</b>, pero comparten <b>la misma regla</b>: si hay alguien dentro, hay que esperar.</p>
+</section>
+<section>
+<h3>Una idea para recordarlo</h3>
+  <p>Un <b>cuaderno</b> que se deja en una mesa de la biblioteca.</p>
+  <ul>
+    <li class="fragment">Si alguien lo está <b>leyendo</b> o <b>escribiendo</b>, los demás hacen cola</li>
+    <li class="fragment">Cuando lo deja en la mesa, <b>avisa en voz alta</b> a todos los que esperan</li>
+    <li class="fragment">Cada uno mira si ya puede cogerlo. Si no, sigue esperando</li>
+  </ul>
+</section>
+<section>
+<div class="nuevo">
+    <h3>Lo nuevo de hoy</h3>
+    <div class="nuevo-item"><span class="etiqueta">Concepto</span><p><b>Lectores y escritores</b>: hilos con dos papeles que comparten un recurso y no deben estorbarse.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Idea</span><p><b>Dos contadores</b>: un <code>int</code> con los lectores que están dentro y otro con los escritores. Con ellos el fichero sabe si está libre.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>||</code> significa <b>«o»</b>: basta con que se cumpla una de las dos condiciones. Es la hermana de <code>&amp;&amp;</code> («y»).</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>throws InterruptedException</code> en un método: en vez de un <code>try/catch</code> dentro, deja que el error lo recoja quien llama al método. Aquí, <code>Lector</code> y <code>Escritor</code>.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Idea</span><p>El <b>tiempo de leer o escribir</b> (<code>sleep</code>) va <b>fuera</b> de los métodos <code>synchronized</code>, entre la llamada de entrar y la de salir.</p></div>
+    </div>
+    <p class="aviso">Repaso: <code>synchronized</code>, <code>wait()</code>, <code>notifyAll()</code>, <code>Random</code>, <code>sleep()</code> y los arrays de <code>Thread</code> funcionan igual que antes.</p>
+</section>
+</section>
+<section>
+<section>
+<h3>Ejercicio: lectores y escritores</h3>
+  <ul>
+    <li><b>5 hilos lectores</b> y <b>2 hilos escritores</b> comparten un fichero</li>
+    <li>Cada hilo lee o escribe <b>una vez</b>, de <b>2 a 10 segundos</b> al azar</li>
+    <li>Si hay alguien usando el fichero, el hilo lo dice y <b>espera</b></li>
+    <li>Al entrar y al terminar, el hilo lo dice por pantalla</li>
+    <li>El fichero lo usa <b>un solo hilo cada vez</b></li>
+  </ul>
+  <div class="salida">Lector0: Leyendo fichero. Lectores: 1<br>Lector1: Hay alguien usando el fichero. Espero.<br>Escritor0: Hay alguien usando el fichero. Espero.<br>Lector0: He terminado de leer. Lectores: 0<br>Lector1: Leyendo fichero. Lectores: 1<br>…</div>
+  <p class="peque">Proyecto <b>LeerYEscribir</b></p>
+</section>
+<section>
+<h3>Cómo pensarlo</h3>
+  <ul>
+    <li>¿Qué es lo que comparten los siete hilos? <span class="fragment">El fichero. Será una clase: <code>Fichero</code>.</span></li>
+    <li>¿Cómo sabe el fichero si está libre? <span class="fragment">Cuenta cuántos lectores y cuántos escritores están dentro: <code>int lectores</code> e <code>int escritores</code>.</span></li>
+    <li>¿Cuándo tiene que esperar un hilo? <span class="fragment">Cuando <b>haya algún lector o algún escritor</b> dentro.</span></li>
+    <li>¿Quién avisa a los que esperan? <span class="fragment">El que termina, con <code>notifyAll()</code>.</span></li>
+  </ul>
+</section>
+<section>
+<h3>Solución: el fichero</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="3-4|6-13|15-22|24-28|30-34">public class Fichero {
+
+    private int lectores = 0;
+    private int escritores = 0;
+
+    public synchronized void leerFichero() throws InterruptedException {
+        while (lectores &gt; 0 || escritores &gt; 0) {
+            System.out.println(Thread.currentThread().getName() + &quot;: Hay alguien usando el fichero. Espero.&quot;);
+            wait();
+        }
+        lectores++;
+        System.out.println(Thread.currentThread().getName() + &quot;: Leyendo fichero. Lectores: &quot; + lectores);
+    }
+
+    public synchronized void escribirFichero() throws InterruptedException {
+        while (lectores &gt; 0 || escritores &gt; 0) {
+            System.out.println(Thread.currentThread().getName() + &quot;: Hay alguien usando el fichero. Espero.&quot;);
+            wait();
+        }
+        escritores++;
+        System.out.println(Thread.currentThread().getName() + &quot;: Escribiendo fichero.&quot;);
+    }
+
+    public synchronized void terminaLeer() {
+        lectores--;
+        System.out.println(Thread.currentThread().getName() + &quot;: He terminado de leer. Lectores: &quot; + lectores);
+        notifyAll();
+    }
+
+    public synchronized void terminaEscribir() {
+        escritores--;
+        System.out.println(Thread.currentThread().getName() + &quot;: He terminado de escribir&quot;);
+        notifyAll();
+    }
+}</code></pre>
+</section>
+<section>
+<h3>Línea por línea (1)</h3>
+  <ul class="peque">
+    <li><code>private int lectores = 0;</code> y <code>private int escritores = 0;</code><br>Cuántos lectores y cuántos escritores están usando el fichero. Empiezan en 0: está libre.</li>
+    <li><code>public synchronized void leerFichero() throws InterruptedException</code><br>La <b>puerta de entrada</b> del lector. <code>synchronized</code>: solo un hilo a la vez toca los contadores. <code>throws</code>: el error de <code>wait()</code> lo recoge quien llama.</li>
+    <li><code>while (lectores &gt; 0 || escritores &gt; 0)</code><br>«Mientras haya algún lector <b>o</b> algún escritor…» el hilo no puede entrar.</li>
+  </ul>
+</section>
+<section>
+<h3>Línea por línea (2)</h3>
+  <ul class="peque">
+    <li><code>System.out.println(… "Hay alguien usando el fichero. Espero.")</code><br>Antes de dormirse, el hilo lo dice con su nombre: <code>Thread.currentThread().getName()</code>.</li>
+    <li><code>wait();</code> (método de la clase <code>Object</code>)<br>El hilo se duerme y <b>suelta el fichero</b>, para que el que está dentro pueda terminar.</li>
+    <li><code>lectores++;</code> y el mensaje <code>Leyendo fichero</code><br>Ya puede leer: se apunta como lector y lo dice, con cuántos lectores hay.</li>
+  </ul>
+</section>
+<section>
+<h3>El escritor es casi igual</h3>
+  <ul class="peque">
+    <li><code>escribirFichero()</code> tiene <b>la misma condición</b> en el <code>while</code></li>
+    <li>Al entrar suma 1 a <code>escritores</code> y dice <code>Escribiendo fichero.</code></li>
+    <li>La diferencia entre lector y escritor está en <b>qué contador</b> suma y en <b>qué mensaje</b> muestra</li>
+  </ul>
+</section>
+<section>
+<h3>Salir y avisar</h3>
+  <ul class="peque">
+    <li><code>terminaLeer()</code>: <code>lectores--;</code>, mensaje <code>He terminado de leer</code> y <code>notifyAll();</code></li>
+    <li><code>terminaEscribir()</code>: <code>escritores--;</code>, mensaje y <code>notifyAll();</code></li>
+    <li><code>notifyAll();</code> (método de la clase <code>Object</code>): despierta a <b>todos</b> los que esperan. Cada uno vuelve a mirar el <code>while</code>: uno entra y los demás siguen esperando</li>
+  </ul>
+</section>
+<section>
+<h3><code>notifyAll()</code> y <code>notify()</code></h3>
+  <p class="caja">Aquí todos los que esperan esperan <b>lo mismo</b>: que el fichero quede libre. Por eso <code>notify()</code> también funcionaría: el hilo que despierta puede entrar. Pero <code>notifyAll()</code> es la opción <b>segura</b>: sirve aunque los hilos esperen cosas distintas, como el pintor y los vendedores de 6.4. Compruébalo en el simulador.</p>
+</section>
+<section>
+<h3>Solución: el lector</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="3|5|7-9|11|15|16|17|18">import java.util.Random;
+
+public class Lector implements Runnable {
+
+    private Fichero fich;
+
+    public Lector(Fichero f) {
+        this.fich = f;
+    }
+
+    private Random r = new Random();
+
+    @Override
+    public void run() {
+        try {
+            fich.leerFichero();
+            Thread.sleep((r.nextInt(9) + 2) * 1000);
+            fich.terminaLeer();
+        } catch (InterruptedException ex) {
+        }
+    }
+}</code></pre>
+  <ul class="peque">
+    <li>El fichero llega por el <b>constructor</b> y se guarda en <code>fich</code>: es el mismo objeto para todos. <code>Random r</code> da el tiempo al azar</li>
+    <li>Todo va dentro de un <code>try</code> porque <code>leerFichero()</code> declara <code>throws InterruptedException</code> y <code>sleep()</code> también lo exige</li>
+    <li><code>fich.leerFichero()</code>: si hay alguien, el lector espera aquí. Cuando entra, sigue</li>
+    <li><code>Thread.sleep(...)</code>: leer lleva de 2 a 10 segundos. <code>(r.nextInt(9) + 2) * 1000</code> da de 2000 a 10000 milisegundos</li>
+    <li><code>fich.terminaLeer()</code>: sale, lo dice y avisa a los que esperan</li>
+  </ul>
+</section>
+<section>
+<h3>Un fallo muy típico: el <code>sleep</code> dentro</h3>
+  <p class="caja">Si el <code>sleep</code> estuviera <b>dentro</b> de <code>leerFichero()</code>, el lector seguiría con el fichero bloqueado mientras duerme y los demás ni siquiera podrían entrar a mirar. Por eso <code>leerFichero()</code> y <code>terminaLeer()</code> solo abren y cierran la puerta, y el <code>sleep</code> está en <code>run()</code>, <b>entre las dos llamadas</b>.</p>
+</section>
+<section>
+<h3>Solución: el escritor y los hilos</h3>
+  <ul class="peque">
+    <li><code>Escritor</code> es igual que <code>Lector</code>, con <code>escribirFichero()</code> y <code>terminaEscribir()</code></li>
+    <li>Se crea <b>un solo</b> <code>Fichero</code> y se pasa a los siete hilos</li>
+    <li>Los hilos se guardan en dos <b>arrays</b> de <code>Thread</code>: los lectores se arrancan con un <code>for</code> y los escritores con un <code>for-each</code></li>
+  </ul>
+  <pre><code class="language-java" data-trim>Fichero f = new Fichero();
+Thread[] lectores = new Thread[5];
+lectores[i] = new Thread(new Lector(f), "Lector" + i);
+escritores[i] = new Thread(new Escritor(f), "Escritor" + i);
+lectores[i].start();
+for (Thread escr : escritores) { escr.start(); }</code></pre>
+</section>
+<section>
+<h3>Qué debes ver al ejecutar</h3>
+  <ul>
+    <li>Un hilo entra y <b>todos los demás</b> dicen <code>Hay alguien usando el fichero. Espero.</code></li>
+    <li>Cuando el que está dentro termina, <b>entra otro</b> y los demás vuelven a decirlo</li>
+    <li><code>Lectores:</code> nunca pasa de <b>1</b>: no hay dos lectores a la vez</li>
+    <li>Nunca sale <code>Escribiendo</code> entre un <code>Leyendo</code> y su <code>He terminado de leer</code></li>
+    <li>Quién entra primero cambia en cada ejecución. Las reglas, no</li>
+  </ul>
+</section>
+<section>
+<h3>Errores típicos</h3>
+  <ul>
+    <li>El <code>sleep</code> dentro de un método <code>synchronized</code>: los demás ni siquiera pueden entrar a mirar</li>
+    <li>Mirar solo <code>lectores</code> en el <code>while</code> del escritor, o solo <code>escritores</code> en el del lector: entra alguien con el fichero ocupado</li>
+    <li>Usar <code>if</code> en vez de <code>while</code>: al despertar no se vuelve a mirar y se rompe la exclusión</li>
+    <li>Olvidar <code>notifyAll()</code> al terminar: los que esperan no despiertan y el programa <b>no termina</b></li>
+    <li>Usar <code>notify()</code> sin entender por qué aquí funciona: con hilos que esperan cosas distintas, a veces se cuelga</li>
+    <li>Crear un <code>Fichero</code> por hilo: nadie se espera</li>
+  </ul>
+</section>
+</section>
+<section>
+<h3>Probarlo en el simulador</h3>
+  <p>Con los lectores y los escritores verás cómo el fichero se ocupa y se libera, y cómo cada hilo espera su turno.</p>
+  <ul>
+    <li>Arrastra o pulsa las piezas para escribir <code>synchronized</code>, <code>while</code>, <code>wait()</code> y <code>notifyAll()</code> en el <code>Fichero</code></li>
+    <li>Quita el <code>while</code>, el <code>notifyAll()</code> o una de las dos condiciones y mira <b>qué falla</b></li>
+    <li>El panel <b>Experimentos</b> te propone situaciones para ejecutar y, poco a poco, te hace escribir <code>Fichero</code>, <code>Lector.run()</code> y <code>Escritor.run()</code></li>
+    <li>Prueba <code>notify()</code> en vez de <code>notifyAll()</code>: aquí funciona. ¿Por qué?</li>
+  </ul>
+  <p class="aviso"><a href="../../simulador/index.html#lectores&experimentos" target="_blank" rel="noopener">Lectores y escritores</a> (se abre en otra pestaña).</p>
+</section>
+<section>
+<h3>Para pensar</h3>
+  <ol>
+    <li>En esta solución, ¿pueden leer dos lectores a la vez? ¿Tendría sentido que pudieran?</li>
+    <li>¿Qué cambiarías en <code>leerFichero()</code> para que varios lectores lean a la vez y el escritor siga entrando solo?</li>
+    <li>Pon el <code>sleep</code> dentro de <code>leerFichero()</code>. ¿Qué ves?</li>
+    <li>Cambia <code>notifyAll()</code> por <code>notify()</code> y ejecuta diez veces. ¿Siempre termina? ¿Por qué, si en 6.4 no valía?</li>
+    <li>Si llegaran lectores sin parar, ¿podría un escritor <b>no entrar nunca</b>?</li>
+  </ol>
+</section>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+<script>Reveal.initialize({ hash: true, slideNumber: 'c/t', plugins: [ RevealHighlight ] });</script>
+</body>
+</html>

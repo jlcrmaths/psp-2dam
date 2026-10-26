@@ -1756,9 +1756,194 @@ class Principal {
 }</pre>]]></text></graderinfo>
 <responsetemplate format="html"><text><![CDATA[]]></text></responsetemplate>
 </question>
+<question type="category"><category><text>$course$/top/Repaso PSP Unidad 1/6.6 Lectores y escritores</text></category></question>
+<question type="cloze">
+<name><text>6.6-103 El método leerFichero</text></name>
+<questiontext format="html"><text><![CDATA[<p>El lector entra al fichero solo si no hay nadie dentro. Completa <code>leerFichero()</code>:</p><pre>public {1:SHORTANSWER_C:=synchronized} void leerFichero() throws InterruptedException {
+    while (lectores &gt; 0 {1:SHORTANSWER_C:=~=~=} escritores &gt; 0) {
+        {1:SHORTANSWER_C:=wait}();
+    }
+    lectores++;
+}</pre>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>El lector espera mientras haya algún lector <b>o</b> algún escritor dentro. Después se apunta con <code>lectores++</code>.</p>]]></text></generalfeedback>
+<penalty>0.3333333</penalty><hidden>0</hidden>
+</question>
+<question type="multichoice">
+<name><text>6.6-104 Qué significa ||</text></name>
+<questiontext format="html"><text><![CDATA[<p>¿Qué significa <code>||</code> en <code>while (lectores &gt; 0 || escritores &gt; 0)</code>?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p><code>||</code> es «o» y <code>&amp;&amp;</code> es «y». Aquí el hilo espera si hay algún lector o algún escritor dentro.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="100" format="html"><text><![CDATA[«o»: basta con que se cumpla una de las dos condiciones.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[«y»: tienen que cumplirse las dos a la vez.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[«distinto de».]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Es un comentario.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>6.6-105 Hilos dentro a la vez</text></name>
+<questiontext format="html"><text><![CDATA[<p>En esta solución, el <code>while</code> de <code>leerFichero()</code> y el de <code>escribirFichero()</code> son <code>while (lectores &gt; 0 || escritores &gt; 0)</code>. ¿Cuántos hilos como máximo usan el fichero a la vez?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Los dos <code>while</code> miran los dos contadores: mientras haya alguien dentro, el resto espera. Por eso entra uno solo cada vez.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="100" format="html"><text><![CDATA[Uno solo, sea lector o escritor.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Varios lectores, pero un solo escritor.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Todos los lectores y un escritor.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Ninguno: se quedan esperando para siempre.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>6.6-106 Condición del escritor</text></name>
+<questiontext format="html"><text><![CDATA[<p>¿Qué condición debe tener el <code>while</code> de <code>escribirFichero()</code> para que un escritor no entre con nadie dentro?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Con <code>while (escritores &gt; 0)</code> el escritor entraría con un lector leyendo. Con <code>&amp;&amp;</code> solo esperaría si hubiera lectores <b>y</b> escritores a la vez, algo imposible.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="100" format="html"><text><![CDATA[<code>while (lectores &gt; 0 || escritores &gt; 0)</code>]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[<code>while (escritores &gt; 0)</code>]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[<code>while (lectores &gt; 0 &amp;&amp; escritores &gt; 0)</code>]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[<code>while (lectores == 0)</code>]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>6.6-107 sleep dentro del método</text></name>
+<questiontext format="html"><text><![CDATA[<p>El lector hace <code>fich.leerFichero();</code>, luego <code>Thread.sleep(...)</code> y luego <code>fich.terminaLeer();</code>. ¿Qué pasaría si el <code>sleep</code> estuviera <b>dentro</b> del método <code>synchronized</code> <code>leerFichero()</code>?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Regla de siempre: <code>sleep</code> va fuera de los métodos <code>synchronized</code>, entre la llamada de entrar y la de salir.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="100" format="html"><text><![CDATA[El lector dormiría con el fichero bloqueado y los demás hilos ni siquiera podrían entrar a mirar.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[No compilaría.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Los lectores leerían más rápido.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[No cambiaría nada.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="truefalse">
+<name><text>6.6-108 throws InterruptedException</text></name>
+<questiontext format="html"><text><![CDATA[<p>Un método con <code>throws InterruptedException</code> no necesita <code>try/catch</code> dentro: el error lo recoge quien llama al método.</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Verdadero. Por eso el <code>try/catch</code> está en <code>run()</code> de <code>Lector</code> y de <code>Escritor</code>.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>1.0000000</penalty>
+<hidden>0</hidden>
+<answer fraction="100" format="moodle_auto_format"><text>true</text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>6.6-109 notify en vez de notifyAll</text></name>
+<questiontext format="html"><text><![CDATA[<p>En este ejercicio, todos los hilos que esperan esperan lo mismo: que el fichero quede libre. Si <code>terminaLeer()</code> y <code>terminaEscribir()</code> usan <code>notify()</code> en vez de <code>notifyAll()</code>, ¿el programa funciona?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Con papeles distintos, como el pintor y los vendedores de 6.4, <code>notify()</code> puede despertar al equivocado. Aquí no, pero <code>notifyAll()</code> sigue siendo lo más seguro.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="100" format="html"><text><![CDATA[Sí: despertar a uno cualquiera basta, porque ese hilo puede entrar. <code>notifyAll()</code> es la opción segura.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[No: se cuelga siempre.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[No compila.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Sí, pero solo con un lector.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="ddwtos">
+<name><text>6.6-110 Qué hace el hilo lector</text></name>
+<questiontext format="html"><text><![CDATA[<p>Ordena lo que hace <code>Lector.run()</code>:</p><p>1. [[1]]<br/>2. [[2]]<br/>3. [[3]]</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Primero se pide permiso, después se duerme (es el tiempo de leer, fuera de los métodos <code>synchronized</code>) y por último se avisa de que se termina.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<shuffleanswers>1</shuffleanswers>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>1</shownumcorrectfeedback>
+<dragbox><text>fich.leerFichero();</text><group>1</group></dragbox>
+<dragbox><text>Thread.sleep((r.nextInt(9) + 2) * 1000);</text><group>1</group></dragbox>
+<dragbox><text>fich.terminaLeer();</text><group>1</group></dragbox>
+</question>
+<question type="matching">
+<name><text>6.6-111 Contadores y métodos</text></name>
+<questiontext format="html"><text><![CDATA[<p>Une cada método con lo que hace:</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Los cuatro métodos son <code>synchronized</code>. Los de entrar esperan con <code>wait()</code>; los de salir avisan con <code>notifyAll()</code>.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<shuffleanswers>true</shuffleanswers>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>1</shownumcorrectfeedback>
+<subquestion format="html"><text><![CDATA[<code>leerFichero()</code>]]></text><answer><text>Espera si hay alguien dentro y suma 1 a `lectores`</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[<code>escribirFichero()</code>]]></text><answer><text>Espera si hay alguien dentro y suma 1 a `escritores`</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[<code>terminaLeer()</code>]]></text><answer><text>Resta 1 a `lectores` y avisa con `notifyAll()`</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[<code>terminaEscribir()</code>]]></text><answer><text>Resta 1 a `escritores` y avisa con `notifyAll()`</text></answer></subquestion>
+</question>
+<question type="essay">
+<name><text>6.6-112 Escribe el escritor</text></name>
+<questiontext format="html"><text><![CDATA[<p>Escribe la clase <code>Escritor</code> del ejercicio de lectores y escritores. Implementa <code>Runnable</code>, recibe el <code>Fichero</code> en el constructor y en <code>run()</code> entra al fichero para escribir, duerme de 2 a 10 segundos y sale.</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Solución de ejemplo:</p><pre>import java.util.Random;
+
+public class Escritor implements Runnable {
+
+    private Fichero fich;
+
+    public Escritor(Fichero f) {
+        this.fich = f;
+    }
+
+    private Random r = new Random();
+
+    @Override
+    public void run() {
+        try {
+            fich.escribirFichero();
+            Thread.sleep((r.nextInt(9) + 2) * 1000);
+            fich.terminaEscribir();
+        } catch (InterruptedException ex) {
+        }
+    }
+}</pre>]]></text></generalfeedback>
+<defaultgrade>4</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<responseformat>monospaced</responseformat><responserequired>1</responserequired>
+<responsefieldlines>18</responsefieldlines><attachments>0</attachments><attachmentsrequired>0</attachmentsrequired>
+<graderinfo format="html"><text><![CDATA[<p>Solución de ejemplo (acepta variantes equivalentes):</p><pre>import java.util.Random;
+
+public class Escritor implements Runnable {
+
+    private Fichero fich;
+
+    public Escritor(Fichero f) {
+        this.fich = f;
+    }
+
+    private Random r = new Random();
+
+    @Override
+    public void run() {
+        try {
+            fich.escribirFichero();
+            Thread.sleep((r.nextInt(9) + 2) * 1000);
+            fich.terminaEscribir();
+        } catch (InterruptedException ex) {
+        }
+    }
+}</pre>]]></text></graderinfo>
+<responsetemplate format="html"><text><![CDATA[]]></text></responsetemplate>
+</question>
 <question type="category"><category><text>$course$/top/Repaso PSP Unidad 1/Simulacro de examen (mezcla)</text></category></question>
 <question type="multichoice">
-<name><text>EX-103 Encuentra los fallos</text></name>
+<name><text>EX-113 Encuentra los fallos</text></name>
 <questiontext format="html"><text><![CDATA[<p>Este buzón debería permitir que un hilo deje un mensaje y otro lo recoja, con <b>varios</b> hilos usándolo. Marca los fallos <b>reales</b>:</p><pre>class Buzon {
     private String mensaje = null;
 
@@ -1785,7 +1970,7 @@ class Principal {
 <answer fraction="-50" format="html"><text><![CDATA[<code>mensaje</code> debería ser de tipo <code>int</code>.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="ddwtos">
-<name><text>EX-104 Buzón completo</text></name>
+<name><text>EX-114 Buzón completo</text></name>
 <questiontext format="html"><text><![CDATA[<p>Completa el buzón (productor/consumidor) arrastrando las palabras. Algunas se usan <b>varias veces</b> y algunas sobran.</p><pre>class Buzon {
     private String mensaje = null;
 
@@ -1825,7 +2010,7 @@ class Principal {
 <dragbox><text>join</text><group>1</group></dragbox>
 </question>
 <question type="multichoice">
-<name><text>EX-105 Al despertar con notifyAll</text></name>
+<name><text>EX-115 Al despertar con notifyAll</text></name>
 <questiontext format="html"><text><![CDATA[<p>Varios hilos esperan en <code>wait()</code> y otro llama a <code>notifyAll()</code>. ¿Qué hace cada hilo al despertar?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Por eso <code>wait()</code> va dentro de un <code>while</code>: cada hilo comprueba otra vez la condición.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1841,7 +2026,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[Terminan todos.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="truefalse">
-<name><text>EX-106 Dos métodos synchronized a la vez</text></name>
+<name><text>EX-116 Dos métodos synchronized a la vez</text></name>
 <questiontext format="html"><text><![CDATA[<p>Dos hilos pueden estar a la vez dentro de dos métodos <code>synchronized</code> <b>distintos</b> del mismo objeto.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Falso. El cerrojo es del objeto, no del método: mientras uno está dentro de cualquier método <code>synchronized</code>, el otro espera.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1851,7 +2036,7 @@ class Principal {
 <answer fraction="100" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="numerical">
-<name><text>EX-107 Entradas al parking</text></name>
+<name><text>EX-117 Entradas al parking</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un parking tiene 3 plazas. Lanzas 8 coches (hilos) y cada uno entra al parking 3 veces, llamando a un método <code>entrar()</code>. ¿Cuántas veces se ejecuta <code>entrar()</code> en total?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>8 coches × 3 entradas = 24. (Con <code>wait()</code> y <code>notifyAll()</code>, las plazas libres nunca bajan de 0 y al final quedan 3.)</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1861,7 +2046,7 @@ class Principal {
 <unitgradingtype>0</unitgradingtype><unitpenalty>0.1000000</unitpenalty><showunits>3</showunits><unitsleft>0</unitsleft>
 </question>
 <question type="matching">
-<name><text>EX-108 Síntoma y causa</text></name>
+<name><text>EX-118 Síntoma y causa</text></name>
 <questiontext format="html"><text><![CDATA[<p>Une cada síntoma con su causa más probable:</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Reconocer el síntoma ahorra mucho tiempo al depurar.</p>]]></text></generalfeedback>
 <defaultgrade>3</defaultgrade>
@@ -1879,7 +2064,7 @@ class Principal {
 <subquestion format="html"><text><![CDATA[ArrayIndexOutOfBoundsException]]></text><answer><text>for con &lt;= en lugar de &lt; en un array</text></answer></subquestion>
 </question>
 <question type="essay">
-<name><text>EX-109 Problema completo de examen</text></name>
+<name><text>EX-119 Problema completo de examen</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un gimnasio tiene <b>4 máquinas</b> de pesas. Llegan 10 socios (hilos). Cada socio usa una máquina 2 segundos (con <code>sleep</code>) y la deja. Escribe las 3 clases: <code>Gimnasio</code> (recurso compartido con <code>usar()</code> y <code>dejar()</code>), <code>Socio</code> (<code>Runnable</code>) y <code>Principal</code> (crea los 10 hilos con nombre «Socio 1»…«Socio 10»).</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Solución de ejemplo:</p><pre>public class Gimnasio {
     private int libres = 4;

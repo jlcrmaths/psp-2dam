@@ -225,6 +225,22 @@ System.out.println(&quot;El hilo ha terminado&quot;);
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="lectores y escritores">
+<h2><code>lectores y escritores</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Problema clásico de hilos: unos hilos solo leen un dato compartido y otros lo cambian. El programa tiene que evitar que se estorben.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Es un concepto, no una instrucción. Se resuelve con un objeto compartido que cuenta cuántos lectores y cuántos escritores lo usan, y con wait() y notifyAll() para esperar y avisar. En la versión más simple solo entra un hilo cada vez. Una versión más fina deja entrar a varios lectores a la vez, pero a un escritor siempre solo.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">// Espera si hay alguien dentro, sea lector o escritor.
+while (lectores &gt; 0 || escritores &gt; 0) {
+    wait();
+}
+lectores++;
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre=".length">
 <h2><code>.length</code></h2>
 <dl>

@@ -1,0 +1,5 @@
+{
+  "titulo": "6.6 Lectores y escritores",
+  "orden": 6,
+  "resumen": "Cinco hilos leen y dos escriben el mismo fichero. ¿Qué pasa si leen o escriben a la vez? ¿Cómo se enteran de que ya pueden entrar?"
+}

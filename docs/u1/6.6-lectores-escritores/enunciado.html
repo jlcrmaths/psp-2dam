@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apartado 6.6 – Lectores y escritores</title>
+<link rel="stylesheet" href="../../estilo/tema.css">
+<script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t)}catch(e){}</script>
+</head>
+<body class="">
+<header class="cabecera">
+  <a class="marca" href="../../index.html">PSP · 2º DAM</a>
+  <nav><a href="../../glosario/index.html">Glosario</a><button id="tema" type="button" aria-label="Cambiar entre tema claro y oscuro">◐</button></nav>
+</header>
+<main class="contenido">
+<h1>Apartado 6.6 – Lectores y escritores</h1>
+<p>El ejercicio es un proyecto de NetBeans con el nombre que se indica. Las clases van en el paquete <code>leerescribir</code>.</p>
+
+<section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
+<h2>Ejercicio 1: lectores y escritores (proyecto <code>LeerYEscribir</code>)</h2>
+<p>Hay 5 hilos lectores y 2 hilos escritores que comparten un mismo fichero. Los lectores se llaman &quot;Lector0&quot; a &quot;Lector4&quot; y los escritores, &quot;Escritor0&quot; y &quot;Escritor1&quot;.</p>
+<ul>
+<li>Cada hilo lee o escribe una sola vez, durante un tiempo al azar de 2 a 10 segundos.</li>
+<li>Mientras un hilo usa el fichero, ningún otro hilo puede usarlo, sea lector o escritor.</li>
+<li>Un hilo que no puede entrar muestra <code>Hilo: Hay alguien usando el fichero. Espero.</code> y espera hasta que pueda.</li>
+<li>Cuando un lector entra, muestra <code>Lector0: Leyendo fichero. Lectores: 1</code>. Cuando un escritor entra, muestra <code>Escritor0: Escribiendo fichero.</code></li>
+<li>Cuando termina, muestra <code>Lector0: He terminado de leer. Lectores: 0</code> o <code>Escritor0: He terminado de escribir</code>.</li>
+<li>Todos los hilos acaban leyendo o escribiendo.</li>
+</ul>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El fichero es lo que comparten los siete hilos, así que necesita su propia clase y todos deben recibir el mismo objeto. Para saber si hay alguien dentro, el fichero tiene que contar cuántos lectores y cuántos escritores lo están usando. Los hilos esperan con <code>wait()</code> y se avisan con <code>notifyAll()</code>, dentro de métodos <code>synchronized</code>. Piensa dónde debe estar el tiempo de lectura o escritura: ¿dentro o fuera de los métodos <code>synchronized</code>? Y piensa a quién tiene que avisar el hilo que termina.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>Fichero</code> con dos atributos <code>int</code>: los lectores y los escritores que están usando el fichero ahora mismo. Tiene cuatro métodos <code>synchronized</code>: leer, escribir, terminar de leer y terminar de escribir. Al leer o escribir, el hilo espera con un <code>while</code> mientras haya algún lector o algún escritor dentro; mientras espera muestra el mensaje de que hay alguien usando el fichero. Cuando puede continuar, suma uno a su contador y muestra que está leyendo o escribiendo. Los dos métodos de terminar restan uno, muestran que ha terminado y llaman a <code>notifyAll()</code>, porque hay hilos de los dos tipos esperando. <code>wait()</code> obliga a tratar <code>InterruptedException</code>: los métodos de esperar pueden declararlo con <code>throws</code> y dejar que lo recoja quien los llama. <code>Lector</code> y <code>Escritor</code> implementan <code>Runnable</code>, reciben el fichero en el constructor y siguen estos pasos, todos dentro de un <code>try</code>: pedir permiso al fichero, dormir con <code>Thread.sleep()</code> y <code>Random</code>, y avisar de que terminan. <code>Principal</code> guarda los hilos en dos arrays de <code>Thread</code> y los arranca.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>LeerYEscribir</code> y el paquete <code>leerescribir</code>.</li>
+<li>Crea la clase <code>Fichero</code> con dos atributos privados <code>int</code>: <code>lectores</code> y <code>escritores</code>, los dos a 0.</li>
+<li>Escribe el método <code>leerFichero</code>, <code>synchronized</code> y con <code>throws InterruptedException</code>. Un <code>while</code> que, mientras <code>lectores</code> sea mayor que 0 o <code>escritores</code> sea mayor que 0, muestre <code>Hay alguien usando el fichero. Espero.</code> con el nombre del hilo y llame a <code>wait()</code>.</li>
+<li>Al salir del <code>while</code>, suma 1 a <code>lectores</code> y muestra el nombre del hilo con <code>Leyendo fichero.</code> y cuántos lectores hay.</li>
+<li>Escribe <code>escribirFichero</code> del mismo modo, pero que sume 1 a <code>escritores</code> y muestre <code>Escribiendo fichero.</code></li>
+<li>Escribe el método <code>terminaLeer</code>, <code>synchronized</code>: resta 1 a <code>lectores</code>, muestra <code>He terminado de leer.</code> con el nombre del hilo y llama a <code>notifyAll()</code>.</li>
+<li>Escribe <code>terminaEscribir</code> del mismo modo, restando 1 a <code>escritores</code>.</li>
+<li>Crea las clases <code>Lector</code> y <code>Escritor</code>, que implementan <code>Runnable</code>. Cada una guarda el <code>Fichero</code> que recibe en el constructor y tiene un atributo <code>Random</code>.</li>
+<li>En el <code>run()</code> de <code>Lector</code>, dentro de un <code>try</code> con <code>catch (InterruptedException ex)</code>: llama a <code>leerFichero</code>, duerme un tiempo al azar de 2 a 10 segundos con <code>Thread.sleep</code> y llama a <code>terminaLeer</code>.</li>
+<li>En el <code>run()</code> de <code>Escritor</code> haz lo mismo con <code>escribirFichero</code> y <code>terminaEscribir</code>.</li>
+<li>En <code>Principal</code>, crea un solo <code>Fichero</code>, un array de 5 <code>Thread</code> con <code>Lector</code> (&quot;Lector0&quot; a &quot;Lector4&quot;) y otro de 2 con <code>Escritor</code> (&quot;Escritor0&quot; y &quot;Escritor1&quot;). Arranca los lectores con un <code>for</code> y los escritores con un <code>for-each</code>.</li>
+<li>Ejecuta varias veces. Comprueba que nunca hay dos hilos usando el fichero a la vez y que los siete acaban.</li>
+</ol>
+</div>
+</section>
+
+</main>
+<script type="module" src="../../estilo/tema.js"></script>
+<script type="module" src="../../estilo/ayudas.js"></script>
+</body>
+</html>
