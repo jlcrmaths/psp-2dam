@@ -2077,6 +2077,7 @@ const lista = a => a.map(x => x);
 const PPB = [
   {id:'completo', tab:0, prog:() => emptyProg(sc),
    instr:c => 'Escribe todo el programa desde cero. En la pestaña ' + TEMA.clase + ': ' + TEMA.mProd + '(), ' + TEMA.mCons + '() y ' + TEMA.mGet + '(). En las pestañas ' + TEMA.prodK + '.run() y ' + TEMA.consK + '.run(): lo que hace cada hilo. Hay ' + c.vendedores + ' ' + TEMA.consPl + ' y se ' + TEMA.vProdPl + ' ' + c.total + ' ' + TEMA.plural + '. Pulsa «Comprobar» cuando creas que está.',
+   instr3:c => 'Historia: ' + c.vendedores + ' ' + TEMA.consPl + ' y un ' + TEMA.prodL + ' comparten ' + TEMA.lugar + ' con sitio para ' + c.capacidad + ' ' + (c.capacidad === 1 ? TEMA.unidad : TEMA.plural) + '. El ' + TEMA.prodL + ' ' + TEMA.vProd3 + ' ' + c.total + ' ' + TEMA.plural + ' y entre todos los ' + TEMA.consPl + ' tienen que ' + TEMA.mCons + ' los ' + c.total + '. Nada se pierde ni se repite. Nombres que debes usar: ' + TEMA.mProd + ', ' + TEMA.mCons + ', ' + TEMA.mGet + '.',
    pasos:c => [
      TEMA.mProd + '(): synchronized; while (' + TEMA.cnt + ' == ' + TEMA.max + ') wait(); ' + TEMA.cnt + '++; ' + TEMA.hechos + '++; notifyAll();',
      TEMA.mCons + '(): synchronized; while (' + TEMA.cnt + ' == 0 && ' + TEMA.hechos + ' < total) wait(); if (' + TEMA.cnt + ' > 0) { ' + TEMA.cnt + '--; ' + TEMA.vend + '++; notifyAll(); }',
@@ -2142,7 +2143,7 @@ function ppRender(){
   head.append(h('span', null, 'Nivel ' + pp.nivel + ' · ' + NIVELES[pp.nivel - 1].nombre + ' · ' + (pp.hechas ? 'media ' + (pp.suma / pp.hechas).toFixed(1).replace('.', ',') + ' / 10' : 'sin nota todavía')));
   const cambiar = h('button', null, 'Cambiar de nivel'); cambiar.onclick = ppSalir;
   head.append(cambiar);
-  box.append(head, h('p', null, e.instr(c)));
+  box.append(head, h('p', null, pp.nivel === 3 && e.instr3 ? e.instr3(c) : e.instr(c)));
   if (pp.nivel === 1){
     box.append(h('div', 'q', 'Pasos'));
     const ol = h('ol', 'pasos'); e.pasos(c).forEach(t => ol.append(h('li', null, t))); box.append(ol);
