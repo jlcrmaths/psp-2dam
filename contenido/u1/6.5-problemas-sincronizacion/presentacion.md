@@ -99,10 +99,11 @@ for (int i = 1; i &lt;= 10; i++) {
 <!-- html -->
   <h3>Ejercicio 2: fábrica de piezas</h3>
   <ul class="peque">
-    <li>3 máquinas ponen piezas en una <b>cinta</b> de capacidad 5. Una pieza cada 1–3 s</li>
-    <li>1 empaquetadora retira una pieza cada 2 s</li>
-    <li>Cinta llena: las máquinas esperan. Cinta vacía: la empaquetadora espera</li>
-    <li>Acaba al fabricar <b>50</b> piezas. Se muestra «Fábrica cerrada»</li>
+    <li>3 máquinas <b>creadoras</b> ponen piezas en una <b>cinta</b> de capacidad 5. Una pieza cada 2–3 s</li>
+    <li>1 máquina <b>empaquetadora</b> retira una pieza cada segundo</li>
+    <li>Cinta llena: las creadoras esperan. Cinta vacía: la empaquetadora espera</li>
+    <li>Se crean <b>50</b> piezas entre todas. Se muestra «Fábrica cerrada»</li>
+    <li>Las máquinas <b>no saben</b> cuántas piezas habrá: lo sabe la cinta</li>
   </ul>
   <p class="peque">Proyecto <b>FabricaPiezas</b></p>
 
@@ -112,58 +113,130 @@ for (int i = 1; i &lt;= 10; i++) {
   <h3>Cómo pensarlo</h3>
   <ul>
     <li>Es el pintor y el vendedor otra vez, pero con <b>tres productores</b> <span class="fragment">→ <code>notifyAll()</code></span></li>
-    <li>El límite de 50 es de <b>todas las máquinas juntas</b> <span class="fragment">→ el contador está en la <code>Cinta</code>, no en cada máquina</span></li>
-    <li>¿Cómo sabe una máquina que debe parar? <span class="fragment">→ <code>poner()</code>, método de la clase <code>Cinta</code>, devuelve <code>false</code></span></li>
+    <li>El límite de 50 es de <b>todas las máquinas juntas</b> <span class="fragment">→ el contador está en la <code>CintaTransportadora</code>, no en cada máquina</span></li>
+    <li>¿Cómo sabe una máquina que debe parar? <span class="fragment">→ el método de la cinta le <b>devuelve</b> <code>false</code></span></li>
+    <li>¿Cómo sabe la empaquetadora que ya no habrá más? <span class="fragment">→ la cinta le avisa con una <b>bandera</b></span></li>
   </ul>
 
 --
 
 <!-- html -->
-  <h3>Solución: la cinta</h3>
-  {{codigo: FabricaPiezas/Cinta.java :: 6-21 @@ 1|2|8-9|11-12|14}}
+  <h3>El método de resolución: dos banderas</h3>
+  <p>Una <b>bandera</b> es un <code>boolean</code> que dice «sigue» o «para».</p>
+  <ul>
+    <li><code>seguirFabricando</code>: empieza en <code>true</code>. Pasa a <code>false</code> cuando ya se han creado las 50</li>
+    <li><code>seguirEmpaquetando</code>: empieza en <code>true</code>. Pasa a <code>false</code> cuando la cinta está <b>vacía</b> y ya no se fabrica</li>
+    <li>Cada método de la cinta <b>devuelve su bandera</b>, y la máquina repite <code>while (cinta.metodo())</code></li>
+  </ul>
+  <p class="fragment caja">La máquina no cuenta nada: <b>pregunta</b> a la cinta si debe seguir.</p>
 
 --
 
 <!-- html -->
-  <h3>Línea por línea</h3>
+    <div class="nuevo">
+    <h3>Lo nuevo de este ejercicio</h3>
+    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>static final</code>: una <b>constante</b> de la clase. Su valor no cambia y se escribe en MAYÚSCULAS (<code>CAPACIDAD</code>).</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>final</code> en una variable: su valor no se puede cambiar (<code>final int numCreadoras = 3;</code>).</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Idea</span><p>Un método <code>synchronized</code> que devuelve <code>boolean</code>: la máquina repite mientras devuelva <code>true</code>. Es la <b>señal de fin</b> de 6.4, pero con banderas.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>throws InterruptedException</code> en un método: deja que el error de <code>wait()</code> lo recoja quien lo llama (aquí, la máquina).</p></div>
+    </div>
+
+---
+
+<!-- html -->
+  <h3>Solución: los datos de la cinta</h3>
+  {{codigo: FabricaPiezas/CintaTransportadora.java :: 1-10 @@ 3-4|6-8|9-10}}
   <ul class="peque">
-    <li><code>while (piezas == 5 &amp;&amp; fabricadas &lt; 50)</code>: espera si la cinta está llena <b>y</b> aún faltan piezas. Si ya se hicieron 50 no tiene sentido esperar</li>
-    <li><code>if (fabricadas == 50) return false;</code>: ya no hacen falta más piezas. La máquina recibe <code>false</code> y termina</li>
-    <li><code>piezas++; fabricadas++;</code>: <code>++</code> suma uno. Una pieza más en la cinta y una más fabricada</li>
-    <li><code>notifyAll()</code>: método de la clase <code>Object</code>. Despierta a todos. La empaquetadora ya puede retirar; las máquinas comprueban si hay hueco</li>
+    <li><code>CAPACIDAD</code> y <code>TOTAL_PIEZAS</code>: dos constantes. Para cambiar la fábrica, solo se cambian aquí</li>
+    <li>Tres contadores: las piezas que hay en la cinta, las creadas y las empaquetadas</li>
+    <li>Dos <b>banderas</b>, las dos en <code>true</code>: al empezar hay que fabricar y empaquetar</li>
   </ul>
-  <p class="peque"><code>retirar()</code>, otro método de la clase <code>Cinta</code>, es igual al revés: espera mientras <code>piezas == 0</code>, resta una y avisa.</p>
 
 --
 
 <!-- html -->
-  <h3>La máquina: sleep y Random</h3>
-  {{codigo: FabricaPiezas/Maquina.java :: 12-22 @@ 1|2|6|9}}
+  <h3>crearPieza(): la puerta de la creadora</h3>
+  {{codigo: FabricaPiezas/CintaTransportadora.java :: 12-26 @@ 2-5|6-7|8-11|13|14}}
+
+--
+
+<!-- html -->
+  <h3>Línea por línea: crearPieza()</h3>
   <ul class="peque">
-    <li><code>azar.nextInt(3)</code>: el método <code>nextInt()</code> de la clase <code>Random</code> da 0, 1 o 2. Con <code>1 + …</code> sale 1, 2 o 3</li>
-    <li>Se multiplica por 1000: <code>sleep</code> trabaja en milisegundos</li>
+    <li><code>while (piezasCinta == CAPACIDAD)</code>: la cinta está llena. La máquina lo dice y se duerme con <code>wait()</code>. Al despertar vuelve a mirar</li>
+    <li><code>if (piezasCreadas &gt;= TOTAL_PIEZAS)</code>: ya se crearon todas. <code>seguirFabricando = false;</code> y <b>no se crea nada</b></li>
+    <li><code>else { piezasCinta++; piezasCreadas++; … }</code>: una pieza más en la cinta y una más creada</li>
+    <li><code>notifyAll();</code>: avisa a todos. La empaquetadora ya puede retirar, o puede que ya no haya que fabricar</li>
+    <li><code>return seguirFabricando;</code>: <code>true</code> mientras haya que seguir y <code>false</code> la primera vez que se descubre que ya está todo</li>
   </ul>
 
 --
 
 <!-- html -->
-  <h3>Esperar a que acaben todos: join</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="1-4|6-9|11">
-m1.start();
-m2.start();
-m3.start();
-empaquetador.start();
+  <h3>empaquetar(): la puerta de la empaquetadora</h3>
+  {{codigo: FabricaPiezas/CintaTransportadora.java :: 28-42 @@ 2-5|6-7|8-13|14}}
+  <ul class="peque">
+    <li><code>while (piezasCinta == 0 &amp;&amp; seguirFabricando)</code>: espera si la cinta está vacía <b>y</b> todavía se están creando piezas</li>
+    <li><code>if (piezasCinta == 0 &amp;&amp; !seguirFabricando)</code>: la cinta está vacía y no se crea más. <code>seguirEmpaquetando = false;</code>. <code>!</code> significa «no»</li>
+    <li>Si no, hay una pieza: se retira, se cuenta y se avisa con <code>notifyAll()</code></li>
+  </ul>
 
-m1.join();
-m2.join();
-m3.join();
-empaquetador.join();
+--
+
+<!-- html -->
+  <h3>Cómo termina todo: la película del final</h3>
+  <ol>
+    <li class="fragment">Se crea la pieza 50. <code>piezasCreadas</code> vale 50 y la creadora duerme sus 2–3 s</li>
+    <li class="fragment">Al despertar, <b>cada creadora</b> vuelve a llamar a <code>crearPieza()</code>. La primera ve <code>piezasCreadas &gt;= TOTAL_PIEZAS</code> y pone <code>seguirFabricando = false</code></li>
+    <li class="fragment">Ese método llama a <code>notifyAll()</code>: despierta a la empaquetadora, si esperaba con la cinta vacía</li>
+    <li class="fragment">Las creadoras reciben <code>false</code> y <b>terminan</b></li>
+    <li class="fragment">La empaquetadora retira las piezas que queden. Con la cinta vacía y <code>seguirFabricando</code> a <code>false</code>, pone <code>seguirEmpaquetando = false</code> y recibe <code>false</code>: <b>termina</b></li>
+    <li class="fragment"><code>main</code> ya puede pasar los <code>join()</code> y mostrar «Fábrica cerrada»</li>
+  </ol>
+
+--
+
+<!-- html -->
+  <h3>¿Por qué dos banderas y no una?</h3>
+  <ul>
+    <li>Las creadoras terminan cuando <b>ya no hay que crear</b></li>
+    <li>La empaquetadora <b>no puede</b> terminar a la vez: todavía puede haber piezas en la cinta</li>
+    <li class="fragment">Por eso la empaquetadora termina cuando la cinta está <b>vacía y</b> ya no se crea más</li>
+  </ul>
+  <p class="caja">Dos papeles, dos finales: <b>una bandera por papel</b>.</p>
+
+--
+
+<!-- html -->
+  <h3>Las máquinas</h3>
+  {{codigo: FabricaPiezas/MaquinaCreadora.java :: 12-21 @@ 4|5}}
+  <ul class="peque">
+    <li><code>while (cinta.crearPieza())</code>: repite mientras la cinta diga <code>true</code>. La máquina <b>no sabe</b> cuántas piezas hay</li>
+    <li><code>nextInt(1000) + 2000</code>: el método <code>nextInt()</code> de la clase <code>Random</code> da de 0 a 999. Con 2000 más: <b>2 a 3 segundos</b>. El <code>Random</code> es <code>static final</code>: uno solo para todas</li>
+    <li>El <code>sleep</code> está <b>fuera</b> de <code>crearPieza()</code>: si no, nadie más usaría la cinta mientras una máquina duerme</li>
+    <li><code>MaquinaEmpaquetadora</code> es igual, con <code>empaquetar()</code> y <code>sleep(1000)</code></li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Crear y esperar a todos los hilos</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1-2|4-5|7-8|10-12">
+final int numCreadoras = 3;
+Thread[] maquinasCreadoras = new Thread[numCreadoras];
+
+maquinasCreadoras[i] = new Thread(new MaquinaCreadora(cinta), "Creadora" + i);
+
+for (Thread hilo : maquinasCreadoras) { hilo.start(); }
+
+for (Thread hilo : maquinasCreadoras) { hilo.join(); }
 
 System.out.println("Fábrica cerrada");
   </code></pre>
   <ul class="peque">
-    <li>El método <code>join()</code> de la clase <code>Thread</code>: «espero a que este hilo termine»</li>
-    <li>Sin los <code>join()</code>, «Fábrica cerrada» saldría <b>al principio</b>, porque <code>main</code> no espera</li>
+    <li>Los hilos se guardan en un <b>array</b> de <code>Thread</code>, y se recorre con un <code>for</code> sencillo (for-each)</li>
+    <li>Lo mismo con las empaquetadoras. Cambiar <code>numCreadoras</code> cambia cuántas hay</li>
+    <li>El método <code>join()</code> de la clase <code>Thread</code>: «espero a que este hilo termine». Sin los <code>join()</code>, «Fábrica cerrada» saldría <b>al principio</b></li>
     <li><code>main</code> declara <code>throws InterruptedException</code> para no escribir un <code>try/catch</code> en cada <code>join</code></li>
   </ul>
 
@@ -172,11 +245,23 @@ System.out.println("Fábrica cerrada");
 <!-- html -->
   <h3>Ejercicio 3: lavandería CleanFast</h3>
   <ul class="peque">
-    <li>4 lavadoras. Cada cliente lava de 5 a 10 segundos y paga 3 €</li>
+    <li>4 lavadoras. Cada cliente lava de 10 a 20 segundos y paga 3 €</li>
     <li>Sin lavadora libre, el cliente espera. <b>Solo cuenta como atendido cuando consigue una</b></li>
     <li>Menú: 1) llegan clientes, 2) estado, 3) cerrar (espera a que terminen todos)</li>
+    <li>Los clientes pueden llegar <b>en varias tandas</b>: los nombres no se repiten</li>
   </ul>
   <p class="peque">Proyecto <b>Lavanderia</b></p>
+
+--
+
+<!-- html -->
+    <div class="nuevo">
+    <h3>Lo nuevo de este ejercicio</h3>
+    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>do { … } while (condición);</code>: repite el bloque y mira la condición <b>al final</b>. Siempre se ejecuta al menos una vez: ideal para un menú.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Interfaz</span><p><code>List&lt;Thread&gt;</code>: «una lista de hilos». <code>ArrayList</code> es la lista concreta que se crea con <code>new</code>.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Operador</span><p><code>+=</code>: suma a la variable lo de la derecha. <code>dineroGanado += PRECIO;</code> es <code>dineroGanado = dineroGanado + PRECIO;</code>.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>throws Exception</code>: <code>main</code> deja pasar <b>cualquier</b> error, sin <code>try/catch</code>.</p></div>
+    </div>
 
 --
 
@@ -185,69 +270,96 @@ System.out.println("Fábrica cerrada");
   <ul>
     <li>¿Hace falta una clase por lavadora? <span class="fragment">No: solo importa <b>cuántas</b> hay libres.</span></li>
     <li>Es el almacén de un cuadro, pero con <b>4 huecos</b> en vez de 1</li>
-    <li>¿Dónde cuento al cliente como atendido? <span class="fragment">Justo <b>después</b> del <code>while</code>, cuando ya tiene lavadora.</span></li>
+    <li>¿Dónde cuento al cliente como atendido y cobro? <span class="fragment">Justo <b>después</b> del <code>while</code>, cuando ya tiene lavadora.</span></li>
+    <li>¿Qué hilos esperan a la vez? <span class="fragment">Solo <b>clientes</b>, y todos esperan <b>lo mismo</b>: una lavadora libre.</span></li>
   </ul>
 
 --
 
 <!-- html -->
-  <h3>Solución: la lavandería</h3>
-  {{codigo: Lavanderia/Lavanderia.java :: 6-26 @@ 1|3-5|6-11|12-13|17-20}}
+  <h3>Solución: los datos de la lavandería</h3>
+  {{codigo: Lavanderia/Lavanderia.java :: 1-7 @@ 3-4|5|6-7}}
+  <ul class="peque">
+    <li><code>LAVADORAS</code> y <code>PRECIO</code>: dos constantes <code>final</code>. Para cambiar la lavandería, solo se cambian aquí</li>
+    <li><code>lavadorasDisponibles</code> empieza igual que <code>LAVADORAS</code>: todas libres</li>
+    <li><code>clientesAtendidos</code> y <code>dineroGanado</code>: dos contadores para el estado</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>ponerLavadora() y quitarLavadora()</h3>
+  {{codigo: Lavanderia/Lavanderia.java :: 9-24 @@ 2-5|6-9|13-15}}
+  <ul class="peque">
+    <li><code>while (lavadorasDisponibles == 0)</code>: el cliente lo dice y se duerme con <code>wait()</code>. Al despertar, vuelve a mirar</li>
+    <li>Al salir del <code>while</code> <b>ya tiene lavadora</b>: resta una, cobra y cuenta al cliente</li>
+    <li>Al terminar, <code>quitarLavadora()</code> suma una lavadora y llama a <code>notify()</code></li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>¿<code>notify()</code> o <code>notifyAll()</code>?</h3>
+  <p>Aquí vale <code>notify()</code>: todos los que esperan son <b>clientes</b> y esperan <b>lo mismo</b> (una lavadora libre). Despertar a uno cualquiera basta, y ese puede coger la lavadora.</p>
+  <p class="fragment caja">Con papeles distintos, como el pintor y los vendedores de 6.4, <code>notify()</code> podría despertar al equivocado. Si dudas, <code>notifyAll()</code> es la opción segura.</p>
+
+--
+
+<!-- html -->
+  <h3>El estado: mostrarInfo()</h3>
+  {{codigo: Lavanderia/Lavanderia.java :: 26-31 @@ 2|3|4|5}}
+  <ul class="peque">
+    <li><code>\n</code> es un salto de línea y <code>\t</code> un tabulador, dentro de un texto</li>
+    <li>«Alquiladas» = las que están en uso: <code>LAVADORAS - lavadorasDisponibles</code></li>
+    <li>También es <code>synchronized</code>: la lectura no se mezcla con un cliente que está cogiendo o dejando una lavadora</li>
+  </ul>
 
 --
 
 <!-- html -->
   <h3>El cliente</h3>
+  {{codigo: Lavanderia/Cliente.java :: 12-21 @@ 4|5-6|7}}
   <ul class="peque">
-    <li><code>lavanderia.entrar()</code>: el método <code>entrar()</code> de la clase <code>Lavanderia</code> espera si no hay lavadora y coge una</li>
-    <li><code>Thread.sleep(…)</code>: el método <code>sleep()</code> de la clase <code>Thread</code> lava entre 5 y 10 segundos. <b>Fuera</b> de <code>synchronized</code>: las otras lavadoras siguen trabajando</li>
-    <li><code>lavanderia.salir()</code>: el método <code>salir()</code> de la clase <code>Lavanderia</code> deja la lavadora libre y avisa con el método <code>notifyAll()</code> de la clase <code>Object</code></li>
+    <li><code>ponerLavadora()</code> puede hacer esperar al cliente. Cuando sigue, ya tiene lavadora</li>
+    <li><code>10 + random.nextInt(11)</code>: el método <code>nextInt()</code> de la clase <code>Random</code> da de 0 a 10, y con 10 más sale de 10 a 20 segundos</li>
+    <li>El <code>sleep</code> está <b>fuera</b> de los métodos de la lavandería: las otras lavadoras siguen trabajando</li>
+    <li><code>quitarLavadora()</code>: deja la lavadora libre</li>
   </ul>
-  <p class="caja">Se usa <code>notifyAll()</code> porque pueden esperar varios clientes y todos buscan lo mismo: el que llegue primero a la lavadora, la coge.</p>
 
 --
 
 <!-- html -->
-  <h3>El menú</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="1-2|4-5|6-12|13-15|16-18">
-Scanner teclado = new Scanner(System.in);
-ArrayList&lt;Thread&gt; clientes = new ArrayList&lt;&gt;();
-
-int opcion = teclado.nextInt();
-switch (opcion) {
-    case 1:
-        int cuantos = teclado.nextInt();
-        for (int i = 0; i &lt; cuantos; i++) {
-            Thread c = new Thread(new Cliente(lavanderia), "Cliente " + siguiente);
-            clientes.add(c);
-            c.start();
-        }
-        break;
-    case 2:
-        lavanderia.mostrarEstado();
-        break;
-    case 3:
-        abierta = false;
-        break;
-}
-  </code></pre>
+  <h3>El menú: do while y switch</h3>
+  {{codigo: Lavanderia/Principal.java :: 18-24 @@ 1|2|4|7}}
+  <ul class="peque">
+    <li><code>do { … } while (menu != 3)</code>: el menú se repite hasta que se elige cerrar</li>
+    <li><code>switch (menu)</code>: elige qué hacer según la opción. Cada <code>case</code> acaba en <code>break</code></li>
+    <li>En la opción 1: <code>numClientes = contador + sc.nextInt();</code>. <b>Suma</b> los que llegan a los que ya habían llegado</li>
+  </ul>
 
 --
 
 <!-- html -->
-  <h3>Línea por línea</h3>
+  <h3>Los clientes llegan en varias tandas</h3>
+  {{codigo: Lavanderia/Principal.java :: 24-29 @@ 1|2|3-4}}
   <ul class="peque">
-    <li><code>Scanner</code>: lee lo que escribe el usuario. el método <code>nextInt()</code> de la clase <code>Scanner</code> lee un número</li>
-    <li><code>ArrayList&lt;Thread&gt;</code>: una lista de hilos que crece sola. Aquí no sabemos cuántos clientes llegarán, así que un array de tamaño fijo no sirve</li>
-    <li><code>switch</code>: elige qué hacer según la opción. Cada <code>case</code> acaba en <code>break</code></li>
-    <li>Cerrar = salir del bucle, y después esperar a todos los clientes:</li>
+    <li><code>contador</code>: cuántos clientes han llegado <b>en total</b></li>
+    <li>El <code>for</code> empieza en <code>contador</code>, no en 0: así el segundo grupo sigue donde acabó el primero</li>
+    <li><code>i++, contador++</code>: las dos suben a la vez. <code>contador</code> da nombre al cliente (<code>Cliente 1</code>, <code>Cliente 2</code>…) y es la <b>posición</b> del hilo en la lista</li>
+    <li><code>Hilos.add(...)</code> lo guarda y <code>Hilos.get(contador).start()</code> lo arranca</li>
   </ul>
-  <pre><code class="language-java" data-trim>
-for (Thread t : clientes) {
-    t.join();
-}
-  </code></pre>
-  <p class="peque">«Para cada hilo <code>t</code> de la lista, espera a que termine.»</p>
+
+--
+
+<!-- html -->
+  <h3>Cerrar: esperar a todos</h3>
+  {{codigo: Lavanderia/Principal.java :: 33-38 @@ 2|3-5}}
+  <ul class="peque">
+    <li>Se muestra el mensaje y <code>main</code> recorre la lista con un for-each</li>
+    <li><code>hilo.join()</code>: «espero a que este cliente termine». Así se espera a los que estaban lavando <b>y</b> a los que esperaban lavadora</li>
+    <li>Después, <code>menu</code> vale 3 y el <code>do while</code> acaba: el programa termina</li>
+  </ul>
+  <p class="caja">El menú solo se muestra <b>una vez</b>, al principio. Si lo quieres ver en cada vuelta, el <code>println</code> iría dentro del <code>do</code>.</p>
 
 ---
 
@@ -383,7 +495,7 @@ for (Thread t : clientes) {
   <h3>Probarlo en el simulador</h3>
   <p>La fábrica de piezas es un productor y consumidor con <b>varios productores</b> y un tope de piezas entre todos.</p>
   <ul>
-    <li>Escribe <code>poner()</code> y <code>retirar()</code> con las piezas del simulador</li>
+    <li>Escribe <code>poner()</code> y <code>retirar()</code> con las piezas del simulador (el simulador usa nombres propios, pero el método es el mismo)</li>
     <li>Quita el <code>if</code> con <code>return false</code>, o cambia <code>notifyAll()</code> por <code>notify()</code>, y mira <b>qué falla</b></li>
     <li>El panel <b>Experimentos</b> te propone situaciones para ejecutar y te dice si lo que has visto es lo esperado</li>
   </ul>
@@ -395,7 +507,7 @@ for (Thread t : clientes) {
   <h3>Para pensar</h3>
   <ol>
     <li>¿Qué pasa si <code>contarLineas</code> no es <code>synchronized</code>?</li>
-    <li>¿Qué pasa si la cinta usa <code>notify()</code> en vez de <code>notifyAll()</code>?</li>
+    <li>¿Qué pasa si la cinta usa <code>notify()</code> en vez de <code>notifyAll()</code>? ¿Por qué aquí funciona, si hay creadoras y empaquetadora?</li>
     <li>¿Cuándo exactamente se cuenta a un cliente como atendido? ¿Por qué ahí?</li>
     <li>¿Por qué hornea el panadero fuera de <code>synchronized</code>?</li>
     <li>¿Qué pasa si el espectador no apunta el número de partida?</li>

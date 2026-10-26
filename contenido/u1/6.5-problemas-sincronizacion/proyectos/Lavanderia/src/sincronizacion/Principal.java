@@ -1,57 +1,52 @@
 package sincronizacion;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Principal {
 
-    public static void main(String[] args) throws InterruptedException {
-        Lavanderia lavanderia = new Lavanderia();
-        // Scanner lee lo que el usuario escribe por teclado. System.in es el teclado.
-        Scanner teclado = new Scanner(System.in);
-        // ArrayList es una lista que crece sola. Se usa en vez de un array porque no sabemos
-        // cuántos clientes van a llegar. <Thread> dice qué guarda; add() añade uno; get/for lo recorren.
-        ArrayList<Thread> clientes = new ArrayList<>();
-        int siguiente = 1;
-        boolean abierta = true;
+    // throws Exception: main deja pasar cualquier error (aquí, el de join()) en vez de escribir un try/catch.
+    public static void main(String[] args) throws Exception {
+        int menu = 0;
+        int numClientes;
+        // contador: cuántos clientes han llegado en total. Da nombre a cada cliente y dice qué hilo toca arrancar.
+        int contador = 0;
+        // List es la forma general de decir «una lista de hilos»; ArrayList es la lista concreta que se crea.
+        List<Thread> Hilos = new ArrayList<>();
+        Scanner sc = new Scanner(System.in);
 
-        while (abierta) {
-            System.out.println("--- Lavandería CleanFast ---");
-            System.out.println("1. Simular llegada de clientes");
-            System.out.println("2. Mostrar estado de la lavandería");
-            System.out.println("3. Cerrar la lavandería");
-            System.out.print("Elige una opción: ");
-            int opcion = teclado.nextInt();
+        Lavanderia CleanFast = new Lavanderia();
 
-            switch (opcion) {
+        System.out.println("Bienvenido a CleanFast. Elige opción:\n 1-Llegada de clientes.\n 2-Estado de la lavandería.\n 3-Cerrar la lavandería.");
+
+        // do { … } while (condición): repite el bloque y mira la condición al final. Se ejecuta siempre al menos una vez.
+        do {
+            menu = sc.nextInt();
+
+            switch (menu) {
                 case 1:
-                    System.out.print("¿Cuántos clientes llegan? ");
-                    int cuantos = teclado.nextInt();
-                    for (int i = 0; i < cuantos; i++) {
-                        Thread cliente = new Thread(new Cliente(lavanderia), "Cliente " + siguiente);
-                        clientes.add(cliente);
-                        cliente.start();
-                        siguiente++;
+                    System.out.println("¿Cuántos clientes llegan a la vez?");
+                    numClientes = contador + sc.nextInt();
+                    for (int i = contador; i < numClientes; i++, contador++) {
+                        Hilos.add(new Thread(new Cliente(CleanFast), "Cliente " + (contador + 1)));
+                        Hilos.get(contador).start();
                     }
                     break;
                 case 2:
-                    lavanderia.mostrarEstado();
+                    CleanFast.mostrarInfo();
                     break;
                 case 3:
-                    // Se sale del menú, así que no entran más clientes.
-                    abierta = false;
+                    System.out.println("Cerramos tienda. Esperamos a que terminen de lavar");
+                    for (Thread hilo : Hilos) {
+                        hilo.join();
+                    }
                     break;
                 default:
-                    System.out.println("Opción no válida");
+                    System.out.println("Selección no válida.");
+                    break;
             }
-        }
 
-        // Este for recorre la lista: en cada vuelta, t es un hilo distinto de clientes.
-        // join() espera a que termine: así se espera a todos los que estaban esperando o lavando.
-        for (Thread t : clientes) {
-            t.join();
-        }
-        System.out.println("Lavandería cerrada. Todas las lavadoras están libres.");
-        lavanderia.mostrarEstado();
+        } while (menu != 3);
     }
 }

@@ -45,61 +45,70 @@
 </section>
 <section class="ejercicio tarjeta" id="ej-2" data-ejercicio="ej-2">
 <h2>Ejercicio 2: fábrica de piezas (proyecto <code>FabricaPiezas</code>)</h2>
-<p>Una fábrica tiene tres máquinas automáticas que generan piezas y las ponen en una cinta transportadora. Una máquina empaquetadora las recoge de la cinta.</p>
+<p>Una fábrica tiene tres máquinas creadoras que generan piezas y las ponen en una cinta transportadora. Una máquina empaquetadora las recoge de la cinta. Las máquinas se llaman &quot;Creadora0&quot;, &quot;Creadora1&quot;, &quot;Creadora2&quot; y &quot;Empaquetadora0&quot;.</p>
 <ul>
-<li>La cinta admite como máximo 5 piezas. Si está llena, las máquinas esperan a que se libere espacio.</li>
-<li>Cada máquina genera una pieza cada 1 a 3 segundos (al azar) y la pone en la cinta si hay espacio.</li>
-<li>La empaquetadora retira una pieza cada 2 segundos. Si no hay ninguna, espera.</li>
-<li>Cada vez que se pone o se retira una pieza, se muestra el estado de la cinta.</li>
-<li>La fábrica termina cuando se han fabricado 50 piezas y no queda ninguna en la cinta. Entonces se muestra <code>Fábrica cerrada</code>.</li>
+<li>La cinta admite como máximo 5 piezas. Si está llena, las creadoras esperan a que se libere espacio.</li>
+<li>Cada creadora tarda de 2 a 3 segundos (al azar) en crear una pieza y la pone en la cinta.</li>
+<li>La empaquetadora retira una pieza cada segundo. Si no hay ninguna, espera.</li>
+<li>Cada vez que se crea o se empaqueta una pieza, se muestra cuántas hay en la cinta.</li>
+<li>Entre todas las creadoras se crean 50 piezas, ni una más. Las máquinas no saben de antemano cuántas piezas habrá: lo sabe la cinta.</li>
+<li>La fábrica termina cuando se han creado y empaquetado las 50 piezas y la cinta queda vacía. Entonces se muestra <code>Fábrica cerrada</code>.</li>
 </ul>
 
 <div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
-<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>La cinta es el objeto compartido y es un problema de productor y consumidor, como el del pintor. La diferencia es que hay varios productores y un tope de piezas fabricadas entre todos. Cuando hay más de dos hilos esperando, elige bien el método para avisar. Para el mensaje final, <code>main</code> tiene que esperar a que terminen los cuatro hilos.</p>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>La cinta transportadora es el objeto compartido y es un problema de productor y consumidor, como el del pintor. La diferencia es que hay varios productores y un tope de piezas entre todos. Las máquinas no saben cuándo parar: se lo tiene que decir la cinta. Piensa qué puede devolver un método de la cinta para que la máquina sepa si debe seguir o parar, y quién tiene que guardar esa información. Piensa también cuándo debe acabar la empaquetadora: no basta con que la cinta esté vacía. Para el mensaje final, <code>main</code> tiene que esperar a que terminen todos los hilos.</p>
 </div>
-<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase <code>Cinta</code> guarda cuántas piezas hay y cuántas se han fabricado en total. El método de poner espera mientras la cinta esté llena y falten piezas por fabricar; si ya se fabricaron las 50, devuelve <code>false</code> para que la máquina termine. El método de retirar espera mientras no haya piezas. Los dos avisan con <code>notifyAll()</code>. <code>Thread.sleep()</code> simula el tiempo de cada máquina, y <code>Random</code> da el número de segundos al azar; ambos se usan fuera de los métodos <code>synchronized</code>. La empaquetadora repite 50 veces su trabajo. En <code>Principal</code>, <code>join()</code> sobre los cuatro hilos hace esperar a <code>main</code> antes de mostrar el mensaje.</p>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase <code>CintaTransportadora</code> guarda cuántas piezas hay en la cinta, cuántas se han creado y cuántas se han empaquetado, y dos banderas <code>boolean</code>: una dice si se debe seguir fabricando y otra si se debe seguir empaquetando. Las dos empiezan en <code>true</code>. La capacidad y el total de piezas son constantes de la clase. Tiene dos métodos <code>synchronized</code> que devuelven <code>boolean</code> y declaran <code>throws InterruptedException</code>. El de crear espera mientras la cinta esté llena. Después, si ya se crearon todas las piezas, apaga la bandera de fabricar; si no, crea una pieza y la pone en la cinta. Avisa con <code>notifyAll()</code> y devuelve la bandera. El de empaquetar espera mientras la cinta esté vacía y se siga fabricando. Después, si la cinta está vacía y ya no se fabrica, apaga la bandera de empaquetar; si no, retira una pieza y avisa. Devuelve su bandera. <code>MaquinaCreadora</code> y <code>MaquinaEmpaquetadora</code> implementan <code>Runnable</code> y reciben la cinta en el constructor. Cada una repite su método de la cinta con un <code>while</code> mientras devuelva <code>true</code>, y duerme con <code>Thread.sleep()</code> fuera de los métodos de la cinta. La creadora usa <code>Random</code> para el tiempo al azar. <code>Principal</code> guarda los hilos en dos arrays de <code>Thread</code>, los arranca con un for-each y hace <code>join()</code> a todos antes del mensaje final.</p>
 </div>
 <div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
 <li>Crea el proyecto <code>FabricaPiezas</code> y el paquete <code>sincronizacion</code>.</li>
-<li>Crea <code>Cinta</code> con dos atributos <code>int</code>: piezas que hay ahora y piezas fabricadas en total.</li>
-<li>Escribe el método de poner, <code>synchronized</code>, que devuelve un <code>boolean</code>. Espera con un <code>while</code> mientras la cinta tenga 5 y falten piezas por fabricar.</li>
-<li>Tras el <code>while</code>, si ya se fabricaron las 50, devuelve <code>false</code>. Si no, suma una pieza a la cinta y al total, muestra el estado, llama a <code>notifyAll()</code> y devuelve <code>true</code>.</li>
-<li>Escribe el método de retirar, <code>synchronized</code>: espera mientras no haya piezas, resta una, muestra el estado y llama a <code>notifyAll()</code>.</li>
-<li>Crea <code>Maquina</code>: en un bucle, duerme entre 1 y 3 segundos con <code>Thread.sleep</code> y pone una pieza. Repite mientras el método de poner devuelva <code>true</code>.</li>
-<li>Crea <code>Empaquetador</code>: un <code>for</code> de 50 vueltas que duerme 2 segundos y retira una pieza.</li>
-<li>En <code>Principal</code>, crea una <code>Cinta</code>, tres hilos con <code>Maquina</code> (&quot;Máquina 1&quot;, &quot;Máquina 2&quot; y &quot;Máquina 3&quot;) y un hilo con <code>Empaquetador</code>.</li>
-<li>Arranca los cuatro hilos y haz <code>join()</code> a los cuatro. <code>main</code> tendrá que declarar <code>throws InterruptedException</code>.</li>
-<li>Después de los <code>join()</code>, muestra <code>Fábrica cerrada</code>. Comprueba que salen 50 piezas puestas y 50 retiradas.</li>
+<li>Crea <code>CintaTransportadora</code> con dos constantes <code>static final</code>, la capacidad (5) y el total de piezas (50), y tres atributos <code>int</code>: las piezas en la cinta, las creadas y las empaquetadas, todos a 0.</li>
+<li>Añade dos atributos <code>boolean</code> privados: una bandera para seguir fabricando y otra para seguir empaquetando, las dos a <code>true</code>.</li>
+<li>Escribe el método de crear, <code>synchronized</code>, que devuelve un <code>boolean</code> y declara <code>throws InterruptedException</code>. Un <code>while</code> que, mientras las piezas de la cinta sean igual a la capacidad, muestre que la cinta está llena y llame a <code>wait()</code>.</li>
+<li>Tras el <code>while</code>, un <code>if</code>: si las piezas creadas ya llegan al total, pon la bandera de fabricar a <code>false</code>. Si no, suma 1 a las piezas de la cinta y a las creadas, y muestra cuántas piezas hay en la cinta.</li>
+<li>Llama a <code>notifyAll()</code> y devuelve la bandera de fabricar.</li>
+<li>Escribe el método de empaquetar, <code>synchronized</code>, que devuelve un <code>boolean</code>. Un <code>while</code> que, mientras la cinta esté vacía y se siga fabricando, muestre que la cinta está vacía y llame a <code>wait()</code>.</li>
+<li>Tras el <code>while</code>, un <code>if</code>: si la cinta está vacía y ya no se fabrica, pon la bandera de empaquetar a <code>false</code>. Si no, resta 1 a las piezas de la cinta, suma 1 a las empaquetadas, muestra cuántas hay en la cinta y llama a <code>notifyAll()</code>.</li>
+<li>Devuelve la bandera de empaquetar.</li>
+<li>Crea <code>MaquinaCreadora</code>, que implementa <code>Runnable</code> y guarda la cinta que recibe en el constructor. En <code>run()</code>, dentro de un <code>try</code>: un <code>while</code> que repita mientras el método de crear devuelva <code>true</code>, y dentro duerme un tiempo al azar de 2 a 3 segundos con <code>Thread.sleep</code> y un <code>Random</code>.</li>
+<li>Crea <code>MaquinaEmpaquetadora</code> del mismo modo: un <code>while</code> que repita mientras el método de empaquetar devuelva <code>true</code>, y dentro duerme 1 segundo.</li>
+<li>En <code>Principal</code>, crea una <code>CintaTransportadora</code>, dos arrays de <code>Thread</code> (3 creadoras y 1 empaquetadora) y crea los hilos con los nombres &quot;Creadora0&quot;… y &quot;Empaquetadora0&quot;. <code>main</code> tendrá que declarar <code>throws InterruptedException</code>.</li>
+<li>Arranca todos los hilos con un for-each. Después haz <code>join()</code> a todos, también con un for-each.</li>
+<li>Después de los <code>join()</code>, muestra <code>Fábrica cerrada</code>. Comprueba que se crean 50 piezas, que se empaquetan 50 y que ninguna máquina se queda esperando al final.</li>
 </ol>
 </div>
 </section>
 <section class="ejercicio tarjeta" id="ej-3" data-ejercicio="ej-3">
 <h2>Ejercicio 3: lavandería CleanFast (proyecto <code>Lavanderia</code>)</h2>
-<p>Una lavandería de autoservicio tiene 4 lavadoras. Los clientes llegan, esperan si no hay ninguna libre y lavan su ropa durante un tiempo al azar de entre 5 y 10 segundos. El lavado cuesta 3 euros. El cliente no paga ni cuenta como atendido hasta que consigue una lavadora.</p>
-<p>El programa muestra un menú con tres opciones:</p>
+<p>Una lavandería de autoservicio, CleanFast, tiene 4 lavadoras. Los clientes llegan, esperan si no hay ninguna libre y lavan su ropa durante un tiempo al azar de 10 a 20 segundos. El lavado cuesta 3 euros. El cliente no paga ni cuenta como atendido hasta que consigue una lavadora.</p>
+<p>Al empezar, el programa da la bienvenida y muestra un menú con tres opciones. Después lee la opción que escribe el usuario y la repite hasta que elija cerrar:</p>
 <ol>
-<li><strong>Simular llegada de clientes:</strong> pregunta cuántos llegan y lanza un hilo por cliente.</li>
-<li><strong>Mostrar estado:</strong> muestra los clientes atendidos, la ganancia total (atendidos por 3 €), las lavadoras disponibles y las que están en uso.</li>
-<li><strong>Cerrar:</strong> no se aceptan más clientes, se espera a que terminen todos los que estaban esperando o lavando y entonces acaba el programa.</li>
+<li><strong>Llegada de clientes:</strong> pregunta cuántos clientes llegan a la vez y lanza un hilo por cada uno. Pueden llegar clientes varias veces durante la misma ejecución, y los nombres (&quot;Cliente 1&quot;, &quot;Cliente 2&quot;…) no se repiten.</li>
+<li><strong>Estado:</strong> muestra los clientes totales atendidos, el dinero ganado, las lavadoras disponibles y las lavadoras alquiladas (en uso).</li>
+<li><strong>Cerrar:</strong> muestra que cierra la tienda, espera a que terminen todos los clientes que estaban esperando o lavando y acaba el programa.</li>
 </ol>
+<p>Si el usuario escribe otro número, el programa muestra <code>Selección no válida.</code></p>
+<p>Cada cliente muestra un mensaje cuando espera porque no hay lavadoras, cuando coge una y cuando termina de lavar, con las lavadoras que quedan disponibles.</p>
 
 <div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
-<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Las lavadoras son lo que comparten los clientes. No hace falta una clase por lavadora: basta con saber cuántas están libres. El menú vive en <code>main</code> y los clientes en hilos. Piensa en cómo esperar al final a todos los hilos que lanzaste, sin saber de antemano cuántos serán.</p>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Las lavadoras son lo que comparten los clientes. No hace falta una clase por lavadora: basta con saber cuántas están libres. Piensa qué datos tiene que guardar la lavandería para poder mostrar el estado: lo que necesita para mostrar el dinero ganado, los clientes atendidos y las lavadoras en uso. El menú vive en <code>main</code> y los clientes en hilos. Dos preguntas: cómo dar a cada cliente un nombre que no se repita aunque lleguen en varias tandas, y cómo esperar al final a todos los hilos que lanzaste sin saber de antemano cuántos serán. Piensa también cuándo debe contarse un cliente como atendido.</p>
 </div>
-<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase <code>Lavanderia</code> guarda cuántas lavadoras hay libres (empieza en 4) y cuántos clientes se han atendido. Un método <code>synchronized</code> para entrar espera mientras no haya ninguna libre; al conseguirla, resta una libre y suma un atendido. Otro para salir suma una libre y llama a <code>notifyAll()</code>. El cliente duerme con <code>Thread.sleep</code> entre las dos llamadas, fuera de los métodos <code>synchronized</code>. En <code>Principal</code>, <code>Scanner</code> lee la opción del menú, un <code>switch</code> elige qué hacer y un <code>ArrayList</code> de hilos guarda los clientes lanzados. Al cerrar, se recorre la lista haciendo <code>join()</code> a cada hilo.</p>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase <code>Lavanderia</code> guarda el número total de lavadoras y el precio como constantes, y tres contadores: las lavadoras disponibles (empiezan en el total), los clientes atendidos y el dinero ganado. Tiene tres métodos <code>synchronized</code>. El de poner la lavadora declara <code>throws InterruptedException</code> y espera con un <code>while</code> mientras no haya ninguna disponible, mostrando que el cliente espera; al conseguirla, resta una disponible, suma el precio al dinero, suma un atendido y lo muestra. El de quitar la lavadora suma una disponible, lo muestra y avisa con <code>notify()</code>, porque todos los que esperan esperan lo mismo. El de mostrar la información escribe el estado con los cuatro datos. <code>Cliente</code> implementa <code>Runnable</code>, recibe la lavandería en el constructor y trabaja dentro de un <code>try</code>: pone la lavadora, duerme un tiempo al azar con <code>Thread.sleep()</code> y <code>Random</code>, fuera de los métodos de la lavandería, y la quita. En <code>Principal</code>, un <code>Scanner</code> lee la opción, un <code>do while</code> repite el menú hasta que se elige cerrar, un <code>switch</code> decide qué hacer y una lista de hilos guarda los clientes lanzados. Un contador de clientes llegados sirve a la vez para el nombre de cada cliente y para saber qué hilo arrancar. Al cerrar, se recorre la lista haciendo <code>join()</code> a cada hilo.</p>
 </div>
 <div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
 <li>Crea el proyecto <code>Lavanderia</code> y el paquete <code>sincronizacion</code>.</li>
-<li>Crea <code>Lavanderia</code> con dos atributos <code>int</code>: lavadoras libres (4) y clientes atendidos (0).</li>
-<li>Escribe el método de entrar, <code>synchronized</code>: si no hay libres, muestra que el cliente espera; espera con un <code>while</code>; al salir, resta una libre, suma un atendido y muestra que paga.</li>
-<li>Escribe el método de salir, <code>synchronized</code>: suma una libre, muestra el mensaje y llama a <code>notifyAll()</code>.</li>
-<li>Escribe el método que muestra el estado, también <code>synchronized</code>, con los cuatro datos del enunciado.</li>
-<li>Crea <code>Cliente</code>, que implementa <code>Runnable</code>: entra, duerme entre 5 y 10 segundos y sale.</li>
-<li>En <code>Principal</code>, crea una sola <code>Lavanderia</code>, un <code>Scanner</code> y un <code>ArrayList&lt;Thread&gt;</code>.</li>
-<li>Escribe un bucle que muestre el menú, lea la opción y use un <code>switch</code>.</li>
-<li>En la opción 1, pregunta cuántos clientes llegan y crea un <code>Thread</code> por cada uno, con nombre &quot;Cliente&quot; y su número. Guárdalos en la lista y arráncalos.</li>
-<li>En la opción 2, muestra el estado. En la opción 3, sal del bucle.</li>
-<li>Tras el bucle, haz <code>join()</code> a todos los hilos de la lista y muestra el estado final.</li>
+<li>Crea <code>Lavanderia</code> con dos constantes <code>final</code>: las lavadoras (4) y el precio (3). Añade tres atributos <code>int</code>: lavadoras disponibles (las mismas que el total), clientes atendidos (0) y dinero ganado (0).</li>
+<li>Escribe el método de poner la lavadora, <code>synchronized</code>, con <code>throws InterruptedException</code>. Un <code>while</code> que, mientras no haya lavadoras disponibles, muestre el nombre del hilo con <code>esperando</code> y llame a <code>wait()</code>.</li>
+<li>Al salir del <code>while</code>, resta una lavadora disponible, suma el precio al dinero, suma un cliente atendido y muestra que el cliente pone una lavadora y cuántas quedan.</li>
+<li>Escribe el método de quitar la lavadora, <code>synchronized</code>: suma una lavadora disponible, muestra que el cliente terminó de lavar y llama a <code>notify()</code>.</li>
+<li>Escribe el método que muestra la información, <code>synchronized</code>, con los clientes atendidos, el dinero ganado, las lavadoras disponibles y las alquiladas (el total menos las disponibles).</li>
+<li>Crea <code>Cliente</code>, que implementa <code>Runnable</code>. Guarda la lavandería que recibe en el constructor y tiene un <code>Random</code>.</li>
+<li>En el <code>run()</code> de <code>Cliente</code>, dentro de un <code>try</code>: pone la lavadora, duerme de 10 a 20 segundos con <code>Thread.sleep</code> y quita la lavadora.</li>
+<li>En <code>Principal</code>, crea una sola <code>Lavanderia</code>, un <code>Scanner</code>, una lista de hilos y un contador de clientes a 0. <code>main</code> declara <code>throws Exception</code>.</li>
+<li>Muestra el mensaje de bienvenida con las tres opciones y abre un <code>do while</code> que lea la opción con <code>nextInt()</code> y use un <code>switch</code>. El bucle se repite mientras la opción no sea 3.</li>
+<li>En la opción 1, pregunta cuántos clientes llegan y calcula el total acumulado (el contador más los que llegan ahora). Un <code>for</code> crea cada <code>Thread</code> con el nombre &quot;Cliente&quot; y su número, lo guarda en la lista, lo arranca y suma 1 al contador.</li>
+<li>En la opción 2, muestra la información. En la opción 3, muestra que cierras la tienda y haz <code>join()</code> a todos los hilos de la lista con un for-each. En <code>default</code>, muestra <code>Selección no válida.</code></li>
+<li>Ejecuta con pocos clientes y muchos, y comprueba que nunca hay más de 4 lavando, que los nombres no se repiten y que al cerrar el programa espera a todos.</li>
 </ol>
 </div>
 </section>

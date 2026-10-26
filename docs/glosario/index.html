@@ -17,6 +17,18 @@
 <p class="suave">Términos de Java usados en las clases, en orden alfabético.</p>
 <input id="buscar" type="search" placeholder="Buscar un término…" aria-label="Buscar un término">
 <div id="lista" class="rejilla">
+<article class="ficha tarjeta" data-nombre="+=">
+<h2><code>+=</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Operador que suma a una variable lo que hay a la derecha y guarda el resultado en la misma variable.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Acumular un total sin repetir el nombre de la variable. dineroGanado += PRECIO es lo mismo que dineroGanado = dineroGanado + PRECIO.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">dineroGanado += PRECIO;
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="array (int[], Thread[])">
 <h2><code>array (int[], Thread[])</code></h2>
 <dl>
@@ -57,6 +69,43 @@ terminado = true;
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="BufferedReader">
+<h2><code>BufferedReader</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase que lee un fichero de texto de forma cómoda, línea a línea, usando un FileReader por dentro.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Recorrer un fichero con readLine(). Hay que cerrarlo con close() cuando se termina de usar.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">BufferedReader br = new BufferedReader(new FileReader(fichero));
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="BufferedWriter">
+<h2><code>BufferedWriter</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase que escribe en un fichero de texto de forma cómoda, usando un FileWriter por dentro. Guarda el texto en memoria y lo manda al disco al cerrarlo.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Escribir líneas en un fichero con write() y newLine(). Si no se vacía con flush() o no se cierra con close(), el texto puede no llegar al disco.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">BufferedWriter bw = new BufferedWriter(new FileWriter(fichero, true));
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="close()">
+<h2><code>close()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método que cierra un fichero abierto con FileReader, FileWriter, BufferedReader o BufferedWriter.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Soltar el fichero cuando se termina de usar. En un BufferedWriter, close() también vacía el buffer, igual que flush().</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">bw.write(&quot;hola&quot;);
+bw.close();
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="condición de carrera">
 <h2><code>condición de carrera</code></h2>
 <dl>
@@ -85,6 +134,20 @@ cuenta = temp + 1;
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="do while">
+<h2><code>do while</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Instrucción que repite un bloque de código y comprueba la condición al final, no al principio. El bloque se ejecuta siempre al menos una vez.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Repetir algo hasta que ocurra una cosa, como un menú que se muestra hasta que el usuario elige salir.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">do {
+    menu = sc.nextInt();
+} while (menu != 3);
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="double">
 <h2><code>double</code></h2>
 <dl>
@@ -94,6 +157,48 @@ cuenta = temp + 1;
 </dd>
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">double dinero = 0;
 dinero = dinero + 1.75;
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="else if">
+<h2><code>else if</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Una condición más que se prueba solo si la del <code>if</code> anterior no se cumplió. Se pueden encadenar varias, y un <code>else</code> final recoge todo lo demás.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Elegir entre varios caminos: solo se ejecuta uno. Aquí, según el estado del semáforo, el lector entra directamente, espera o se une a los que ya leen.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">if (estado == LIBRE) {
+    estado = CON_LECTORES;
+} else if (estado == CON_ESCRITOR) {
+    wait();
+} else {
+    // ya hay lectores: entra sin esperar
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="File">
+<h2><code>File</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase que representa un fichero del disco por su nombre. No lo abre: solo dice cuál es.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Pasar un fichero de un lado a otro sin abrirlo. Después se le pasa a FileReader o a FileWriter para leerlo o escribirlo.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">File fichero = new File(&quot;Discoteca.txt&quot;);
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="FileReader">
+<h2><code>FileReader</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase que abre un fichero de texto para leerlo. Lanza FileNotFoundException si el fichero no existe.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Se envuelve en un BufferedReader para poder leer línea a línea.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">BufferedReader br = new BufferedReader(new FileReader(fichero));
 </code></pre>
 </dd>
 </dl>
@@ -109,6 +214,32 @@ dinero = dinero + 1.75;
 fw.write(&quot;hola\n&quot;);
 fw.close();
 int lineas = Files.readAllLines(Path.of(&quot;datos.txt&quot;)).size();
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="final">
+<h2><code>final</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Palabra clave que, en una variable, impide cambiar su valor después de asignarlo.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Dejar claro que un valor no cambia, como el número de hilos que se crean. Si se intenta cambiar, el programa no compila.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">final int numLectores = 5;
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="flush()">
+<h2><code>flush()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de la clase BufferedWriter. Vacía el buffer: manda al fichero todo el texto que se había guardado en memoria.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Un BufferedWriter no escribe en el fichero cada vez que se llama a write(): guarda el texto en memoria y lo manda de golpe. Sin flush() (o sin close()), el texto puede no llegar nunca al fichero.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">bw.write(&quot;Escritor0&quot;);
+bw.newLine();
+bw.flush();
 </code></pre>
 </dd>
 </dl>
@@ -254,6 +385,19 @@ System.out.println(numeros.length);   // 10
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="List">
+<h2><code>List</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Interfaz de Java que representa una lista de elementos. ArrayList es una clase concreta que la implementa y es la que se crea con new.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Declarar una lista sin atarse a un tipo concreto: List<Thread> hilos = new ArrayList&lt;&gt;(); Se usan add() para añadir, get() para obtener por posición y un for-each para recorrerla.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">List&lt;Thread&gt; hilos = new ArrayList&lt;&gt;();
+hilos.add(new Thread(new Cliente(lavanderia)));
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="main">
 <h2><code>main</code></h2>
 <dl>
@@ -375,6 +519,33 @@ int segundos = 1 + azar.nextInt(3); // 1, 2 o 3
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="random() de Math">
+<h2><code>random() de Math</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de la clase <code>Math</code> que devuelve un número decimal al azar, mayor o igual que 0 y menor que 1.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Conseguir tiempos o valores distintos en cada ejecución. Hay que multiplicar antes de pasar a <code>int</code>: <code>(int) (Math.random() * 500)</code> da de 0 a 499, pero <code>(int) (Math.random()) * 500</code> da siempre 0.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread.sleep((int) (Math.random() * 500));
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="readLine()">
+<h2><code>readLine()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de la clase BufferedReader. Lee una línea del fichero y la devuelve como texto. Cuando ya no quedan líneas, devuelve null.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Contar o procesar las líneas de un fichero con un while que se repite hasta que devuelve null.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">int lineas = 0;
+while (br.readLine() != null) {
+    lineas++;
+}
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="return">
 <h2><code>return</code></h2>
 <dl>
@@ -434,6 +605,21 @@ int opcion = teclado.nextInt();
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="semáforo">
+<h2><code>semáforo</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Concepto, no una instrucción de Java: un objeto compartido que guarda en qué estado están unos datos y decide quién puede entrar en cada momento.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Coordinar hilos con papeles distintos. En lectores y escritores, el semáforo guarda un estado (libre, con lectores o con escritor) y un contador de lectores; hace esperar con <code>wait()</code> a quien no puede entrar y avisa con <code>notify()</code> cuando el estado vuelve a estar libre.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">if (estado == LIBRE) {
+    estado = CON_LECTORES;
+}
+tLectores++;
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="setPriority()">
 <h2><code>setPriority()</code></h2>
 <dl>
@@ -457,6 +643,19 @@ h1.start();
 </dd>
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread h1 = new Thread(new Contador(), &quot;Hilo 1&quot;);
 h1.start();
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="static final">
+<h2><code>static final</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Dos palabras clave juntas que crean una constante de la clase: <code>static</code> hace que pertenezca a la clase y no a cada objeto, y <code>final</code> hace que su valor no se pueda cambiar.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Dar nombre a valores fijos para no escribir números sueltos. Por convención se escriben en mayúsculas: <code>LIBRE</code> se lee mejor que <code>0</code>.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">public static final int LIBRE = 0;
+public static final int CON_ESCRITOR = 2;
 </code></pre>
 </dd>
 </dl>
@@ -629,6 +828,20 @@ System.out.println(actual.getName());
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">while (numCuadros == numMaxCuadros) {
     wait();
 }
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="write() y newLine()">
+<h2><code>write() y newLine()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Métodos de la clase BufferedWriter. write() escribe un texto en el fichero y newLine() añade un salto de línea.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Escribir un texto por línea. Primero write() y después newLine() para que lo siguiente salga en otra línea.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">bw.write(&quot;Escritor0&quot;);
+bw.newLine();
+bw.flush();
 </code></pre>
 </dd>
 </dl>

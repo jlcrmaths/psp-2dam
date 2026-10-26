@@ -40,3 +40,6 @@ body.presentacion { background: var(--fondo); }
 .esquema .flecha-aviso { stroke: var(--aviso-borde); stroke-width: 3.5; fill: none; }
 .esquema .punta { fill: var(--acento); }
 .esquema .punta-aviso { fill: var(--aviso-borde); }
+.reveal table { margin: .6em auto; border-collapse: collapse; font-size: .8em; }
+.reveal table th, .reveal table td { border-bottom: 1px solid var(--suave); padding: .35em .7em; text-align: left; }
+.reveal table th { color: var(--acento); }
