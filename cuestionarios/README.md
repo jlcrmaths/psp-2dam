@@ -1,16 +1,16 @@
 # Cuestionario de repaso – Unidad 1 (Moodle)
 
-Archivo: `repaso-u1-moodle.xml` (119 preguntas, 7 categorías). Se genera con `node cuestionarios/generar-cuestionario.mjs`.
+Archivo: `repaso-u1-moodle.xml` (149 preguntas, 9 categorías). Se genera con `node cuestionarios/generar-cuestionario.mjs`.
 
-Las preguntas siguen las presentaciones de `contenido/u1/*/presentacion.md` (mismo vocabulario: «cerrojo», «recurso compartido», «señal de fin») y las «Preguntas» de cada enunciado.
+Las preguntas usan **otros contextos distintos de los ejercicios** (taller, cobertizo, cabina de fotos, muelle, peluquería…): son las mismas ideas, pero no se pueden contestar de memoria recordando el ejercicio. Siguen las presentaciones de `contenido/u1/*/presentacion.md` (mismo vocabulario: «cerrojo», «recurso compartido», «señal de fin») y las «Preguntas» de cada enunciado.
 
 ## Presentación para repasar en clase
-`repaso-u1-presentacion.html`: 119 preguntas, cada una con su diapositiva de pregunta y la siguiente con la respuesta y la explicación (246 diapositivas). Se abre en el navegador (necesita internet para cargar reveal.js). Flechas para avanzar, `O` para el índice, `F` para pantalla completa. Las opciones salen barajadas, igual siempre.
+`repaso-u1-presentacion.html`: 149 preguntas, cada una con su diapositiva de pregunta y la siguiente con la respuesta y la explicación (308 diapositivas). Se abre en el navegador (necesita internet para cargar reveal.js). Flechas para avanzar, `O` para el índice, `F` para pantalla completa. Las opciones salen barajadas, igual siempre.
 
 ## Importar
 1. Curso → Banco de preguntas → Importar.
 2. Formato: **Formato Moodle XML**. Elegir el archivo. Dejar «Obtener categoría desde el archivo» activado.
-3. Se crea `Repaso PSP Unidad 1` con una subcategoría por apartado (6.1 a 6.6) y el simulacro.
+3. Se crea `Repaso PSP Unidad 1` con una subcategoría por apartado (6.1 a 6.8) y el simulacro.
 
 ## Montar el cuestionario
 - Un cuestionario por apartado: añadir «preguntas aleatorias» de cada categoría, o todas.

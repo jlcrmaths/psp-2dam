@@ -58,6 +58,7 @@
   </ul>
   <div class="salida">Lector0: Leyendo fichero. Lectores: 1<br>Lector1: Hay alguien usando el fichero. Espero.<br>Escritor0: Hay alguien usando el fichero. Espero.<br>Lector0: He terminado de leer. Lectores: 0<br>Lector1: Leyendo fichero. Lectores: 1<br>…</div>
   <p class="peque">Proyecto <b>LeerYEscribir</b></p>
+  <p class="aviso">El enunciado completo, con las pistas y el paso a paso, está en el <a href="enunciado.html" target="_blank" rel="noopener">enunciado del apartado 6.6</a> (se abre en otra pestaña).</p>
 
 --
 

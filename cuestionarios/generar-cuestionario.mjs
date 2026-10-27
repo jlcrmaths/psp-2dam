@@ -313,7 +313,7 @@ function mostrar(nom, java) {
 }
 
 // ---------- código reutilizado ----------
-const CONTADOR = `class Contador implements Runnable {
+const CONTADOR = `class Pasos implements Runnable {
     @Override
     public void run() {
         for (int i = 1; i <= 10; i++) {
@@ -338,7 +338,7 @@ vf(A, 'El hilo main',
   'Verdadero. Los hilos que creas se suman a `main`.');
 
 test(A, 'start() crea el hilo',
-  'Tienes una clase `Contador` que implementa `Runnable` y escribes `Thread h = new Thread(new Contador(), "Hilo 1");`. ¿Qué ocurre exactamente al ejecutar `h.start();`?',
+  'Tienes una clase `Pasos` que implementa `Runnable` y escribes `Thread h = new Thread(new Pasos(), "Hilo 1");`. ¿Qué ocurre exactamente al ejecutar `h.start();`?',
   [
     ['Java crea un hilo nuevo y llama a `run()` dentro de ese hilo.', true],
     ['Java llama a `run()` dentro del hilo `main`, como cualquier otro método.', false],
@@ -359,7 +359,7 @@ multi(A, 'Qué es Runnable',
     ['Si tu clase lo firma con `implements`, Java sabe que puede ejecutarla en un hilo.', true],
     ['El método `run()` lo escribes tú, pero no lo llamas tú: lo llama Java después de `start()`.', true],
     ['Una clase que implementa `Runnable` ya tiene su propio método `start()`.', false],
-    ['Al hacer `new Contador()` Java crea el hilo automáticamente.', false],
+    ['Al hacer `new Pasos()` Java crea el hilo automáticamente.', false],
   ],
   'Es el contrato con un único método, `run()`. El hilo lo crea `Thread` y se arranca con `start()` sobre el `Thread`.');
 
@@ -381,9 +381,9 @@ numerica(A, 'Cuántos hilos hay',
 
 class Principal {
     public static void main(String[] args) {
-        Thread h1 = new Thread(new Contador(), "Hilo 1");
-        Thread h2 = new Thread(new Contador(), "Hilo 2");
-        Thread h3 = new Thread(new Contador(), "Hilo 3");
+        Thread h1 = new Thread(new Pasos(), "Hilo 1");
+        Thread h2 = new Thread(new Pasos(), "Hilo 2");
+        Thread h3 = new Thread(new Pasos(), "Hilo 3");
         h1.start();
         h2.start();
         h3.start();
@@ -434,9 +434,9 @@ class Principal {
     }
 }`) });
 
-completar(A, 'Escribe la clase Contador',
+completar(A, 'Escribe la clase Pasos',
   'Completa el código escribiendo (o eligiendo) lo que falta. Respeta mayúsculas y minúsculas y **no pongas paréntesis** salvo que se indique.',
-  `class Contador ⟦mc:implements|extends|import|instanceof⟧ ⟦sa:Runnable⟧ {
+  `class Pasos ⟦mc:implements|extends|import|instanceof⟧ ⟦sa:Runnable⟧ {
     ⟦sa:@Override|Override⟧
     public void ⟦sa:run⟧() {
         for (int i = 1; i <= 10; i++) {
@@ -447,14 +447,14 @@ completar(A, 'Escribe la clase Contador',
 
 class Principal {
     public static void main(String[] args) {
-        Thread h1 = new ⟦sa:Thread⟧(new Contador(), "Hilo 1");
+        Thread h1 = new ⟦sa:Thread⟧(new Pasos(), "Hilo 1");
         h1.⟦sa:start⟧();
     }
 }`,
-  '`Contador` implementa `Runnable`, su método obligatorio es `run()`, `getName()` devuelve el nombre del hilo y `start()` lo pone en marcha.');
+  '`Pasos` implementa `Runnable`, su método obligatorio es `run()`, `getName()` devuelve el nombre del hilo y `start()` lo pone en marcha.');
 
 multi(A, 'Salidas mezcladas',
-  'Este programa crea tres hilos con la misma clase `Contador` (cada uno muestra su nombre y los números del 1 al 10) y los arranca uno tras otro. Lo ejecutas varias veces. Marca lo que es **cierto**:',
+  'Este programa crea tres hilos con la misma clase `Pasos` (cada uno muestra su nombre y los números del 1 al 10) y los arranca uno tras otro. Lo ejecutas varias veces. Marca lo que es **cierto**:',
   [
     ['Las líneas de los tres hilos pueden salir mezcladas.', true],
     ['El orden de salida cambia de una ejecución a otra: el sistema decide quién avanza.', true],
@@ -466,98 +466,98 @@ multi(A, 'Salidas mezcladas',
 
 class Principal {
     public static void main(String[] args) {
-        Thread h1 = new Thread(new Contador(), "Hilo 1");
-        Thread h2 = new Thread(new Contador(), "Hilo 2");
-        Thread h3 = new Thread(new Contador(), "Hilo 3");
+        Thread h1 = new Thread(new Pasos(), "Hilo 1");
+        Thread h2 = new Thread(new Pasos(), "Hilo 2");
+        Thread h3 = new Thread(new Pasos(), "Hilo 3");
         h1.start();
         h2.start();
         h3.start();
     }
 }`) });
 
-vf(A, 'Miau siempre primero',
-  'Tienes dos hilos: uno (`hGato`) muestra `Miau!` y otro (`hPerro`) muestra `Guau!`. Los arrancas con `hGato.start();` y justo después `hPerro.start();`. Entonces `Miau!` siempre sale antes que `Guau!`.',
+vf(A, 'Pío siempre primero',
+  'Tienes dos hilos: uno (`hPajaro`) muestra `Pío!` y otro (`hRana`) muestra `Croac!`. Los arrancas con `hPajaro.start();` y justo después `hRana.start();`. Entonces `Pío!` siempre sale antes que `Croac!`.',
   false,
   'Falso. Se lanzan en orden, pero no tienen por qué terminar en orden. Ejecútalo varias veces y cambia.');
 
 completarTexto(A, 'Posiciones de un array',
-  'Con `Thread[] gatos = new Thread[5];` el array tiene ⟦num:5⟧ cajas. La primera es `gatos[⟦num:0⟧]` y la última es `gatos[⟦num:4⟧]`.',
+  'Con `Thread[] pajaros = new Thread[5];` el array tiene ⟦num:5⟧ cajas. La primera es `pajaros[⟦num:0⟧]` y la última es `pajaros[⟦num:4⟧]`.',
   'Se empieza a contar en 0, no en 1. Un array de 5 tiene posiciones del 0 al 4.');
 
 test(A, 'for con <= 5',
-  'La clase `Gato` implementa `Runnable`. El array `gatos` tiene 5 posiciones. ¿Qué ocurre con este `for`?',
+  'La clase `Pajaro` implementa `Runnable`. El array `pajaros` tiene 5 posiciones. ¿Qué ocurre con este `for`?',
   [
-    ['En la sexta vuelta, `gatos[5]` no existe y Java lanza `ArrayIndexOutOfBoundsException`.', true],
+    ['En la sexta vuelta, `pajaros[5]` no existe y Java lanza `ArrayIndexOutOfBoundsException`.', true],
     ['Funciona bien: da 5 vueltas.', false],
     ['No compila.', false],
     ['Crea un hilo de más sin ningún error.', false],
   ],
   '`i <= 5` da 6 vueltas (0, 1, 2, 3, 4, 5). Un array de 5 tiene posiciones del 0 al 4.',
-  { codigo: `Thread[] gatos = new Thread[5];
+  { codigo: `Thread[] pajaros = new Thread[5];
 
 for (int i = 0; i <= 5; i++) {
-    gatos[i] = new Thread(new Gato(), "Gato " + (i + 1));
-    gatos[i].start();
+    pajaros[i] = new Thread(new Pajaro(), "Pajaro " + (i + 1));
+    pajaros[i].start();
 }` });
 
-huecosSelect(A, 'El for de los gatos',
-  'Completa con los desplegables el `for` que crea y lanza los 5 hilos Gato. El primer gato debe llamarse «Gato 1».',
-  `class Gato implements Runnable {
+huecosSelect(A, 'El for de los pájaros',
+  'Completa con los desplegables el `for` que crea y lanza los 5 hilos Pajaro. El primer pájaro debe llamarse «Pajaro 1».',
+  `class Pajaro implements Runnable {
     @Override
     public void run() {
-        System.out.println(Thread.currentThread().getName() + ": Miau!");
+        System.out.println(Thread.currentThread().getName() + ": Pío!");
     }
 }
 
 class Principal {
     public static void main(String[] args) {
-        Thread[] gatos = new Thread[5];
+        Thread[] pajaros = new Thread[5];
 
         for (int i = [[1]]; i [[2]] 5; i++) {
-            gatos[i] = new Thread(new Gato(), "Gato " + (i + [[3]]));
-            gatos[i].start();
+            pajaros[i] = new Thread(new Pajaro(), "Pajaro " + (i + [[3]]));
+            pajaros[i].start();
         }
     }
 }`,
   [['0', '1'], ['<', '<='], ['1', '0']],
-  '`i` empieza en 0 (primera caja), sigue mientras `i < 5` y al nombre se le suma 1 para que el primero sea «Gato 1».');
+  '`i` empieza en 0 (primera caja), sigue mientras `i < 5` y al nombre se le suma 1 para que el primero sea «Pajaro 1».');
 
 test(A, 'Cómo entra el array',
-  'Quieres que un hilo sume los elementos de un array de enteros. El método `run()` no tiene parámetros. ¿Cómo recibe el hilo el array?',
+  'Quieres que un hilo calcule el total de un array de enteros con precios. El método `run()` no tiene parámetros. ¿Cómo recibe el hilo el array?',
   [
     ['Por el constructor de la clase del hilo: la clase lo guarda en un atributo y `run()` lo usa después.', true],
-    ['Como parámetro de `run(int[] numeros)`.', false],
+    ['Como parámetro de `run(int[] precios)`.', false],
     ['Como parámetro de `start()`.', false],
     ['Java se lo pasa solo al crear el hilo.', false],
   ],
-  'Orden: `new HiloSuma(numeros)` guarda el array; más tarde `start()` llama a `run()`, que lo usa.');
+  'Orden: `new HiloTotal(precios)` guarda el array; más tarde `start()` llama a `run()`, que lo usa.');
 
-completar(A, 'HiloSuma',
-  'Un hilo debe sumar los elementos de un array de enteros que recibe por el constructor. Completa la clase `HiloSuma`. Respeta mayúsculas y minúsculas.',
-  `class HiloSuma implements Runnable {
-    private int[] numeros;
+completar(A, 'HiloTotal',
+  'Un hilo debe sumar los precios de un array de enteros que recibe por el constructor. Completa la clase `HiloTotal`. Respeta mayúsculas y minúsculas.',
+  `class HiloTotal implements Runnable {
+    private int[] precios;
 
-    public HiloSuma(int[] numeros) {
-        this.⟦sa:numeros⟧ = numeros;
+    public HiloTotal(int[] precios) {
+        this.⟦sa:precios⟧ = precios;
     }
 
     @Override
     public void run() {
         int total = ⟦num:0⟧;
-        for (int i = 0; i < numeros.⟦sa:length⟧; i++) {
-            total = total + numeros[i];
+        for (int i = 0; i < precios.⟦sa:length⟧; i++) {
+            total = total + precios[i];
         }
-        System.out.println(Thread.currentThread().getName() + ": suma = " + total);
+        System.out.println(Thread.currentThread().getName() + ": total = " + total);
     }
 }`,
-  '`this.numeros` es la caja de la clase; `numeros` a secas es lo que llega. `length` dice cuántos elementos tiene el array. La suma empieza en 0 porque sumar 0 no cambia nada.');
+  '`this.precios` es la caja de la clase; `precios` a secas es lo que llega. `length` dice cuántos elementos tiene el array. La suma empieza en 0 porque sumar 0 no cambia nada.');
 
 completarTexto(A, 'Valores iniciales y resultados',
-  'Tres hilos recorren el mismo array {1, 2, ..., 10}: uno **suma** todos los elementos, otro los **multiplica** y otro **resta** (al primer elemento le resta todos los demás). La suma empieza en ⟦num:0⟧ y da ⟦num:55⟧. La multiplicación empieza en ⟦num:1⟧ y da ⟦num:3628800⟧. La resta empieza con el elemento `numeros[⟦num:0⟧]`, su `for` empieza en `i = ⟦num:1⟧` y da ⟦num:-53⟧.',
-  'La multiplicación empieza en 1 (con 0 todo daría 0). La resta empieza con el primer número y resta los demás: 1 − 2 − … − 10 = −53.');
+  'Tres hilos recorren el mismo array {1, 2, ..., 10}: uno **cuenta los pares**, otro **multiplica** todos los elementos y otro busca el **menor**. El contador de pares empieza en ⟦num:0⟧ y da ⟦num:5⟧. La multiplicación empieza en ⟦num:1⟧ y da ⟦num:3628800⟧. La búsqueda del menor empieza con el elemento `precios[⟦num:0⟧]`, su `for` empieza en `i = ⟦num:1⟧` y da ⟦num:1⟧.',
+  'El contador empieza en 0 (aún no ha contado nada). La multiplicación empieza en 1 (con 0 todo daría 0). El menor empieza con el primer elemento del array, no con un número inventado.');
 
 vf(A, 'Tres hilos, un array',
-  'Tres hilos reciben el **mismo** array de enteros: uno lo suma, otro lo multiplica y otro lo resta. Los tres solo **leen** el array; ninguno lo modifica. Entonces no hay ningún problema de sincronización.',
+  'Tres hilos reciben el **mismo** array de enteros: uno cuenta los pares, otro multiplica los elementos y otro busca el menor. Los tres solo **leen** el array; ninguno lo modifica. Entonces no hay ningún problema de sincronización.',
   true,
   'Verdadero. Leer a la vez no estropea nada; el problema aparece cuando alguien **modifica** el dato compartido (6.3).');
 
@@ -572,62 +572,62 @@ test(A, 'switch y break',
   '`switch` mira el valor y salta al `case` que coincide. `break` evita seguir con el siguiente.');
 
 completar(A, 'HiloMaximo',
-  'Completa el hilo que calcula la nota máxima. Respeta mayúsculas y minúsculas.',
+  'Completa el hilo que calcula la temperatura máxima registrada en un día. Respeta mayúsculas y minúsculas.',
   `class HiloMaximo implements Runnable {
-    private int[] notas;
+    private int[] temperaturas;
 
-    public HiloMaximo(int[] notas) {
-        this.notas = notas;
+    public HiloMaximo(int[] temperaturas) {
+        this.temperaturas = temperaturas;
     }
 
     @Override
     public void run() {
-        int maximo = notas[⟦num:0⟧];
-        for (int i = 1; i < notas.length; i++) {
-            ⟦mc:if|while|for|switch⟧ (notas[i] > maximo) {
-                maximo = ⟦sa:notas[i]⟧;
+        int maximo = temperaturas[⟦num:0⟧];
+        for (int i = 1; i < temperaturas.length; i++) {
+            ⟦mc:if|while|for|switch⟧ (temperaturas[i] > maximo) {
+                maximo = ⟦sa:temperaturas[i]⟧;
             }
         }
         System.out.println(Thread.currentThread().getName() + ": máximo = " + maximo);
     }
 }`,
-  'El máximo provisional es la primera nota. El `for` empieza en 1 porque la posición 0 ya está guardada. Si la nota es mayor, pasa a ser el máximo.');
+  'El máximo provisional es la primera temperatura. El `for` empieza en 1 porque la posición 0 ya está guardada. Si la temperatura es mayor, pasa a ser el máximo.');
 
 test(A, 'Mínimo empezando en 0',
-  'Un hilo calcula la nota **mínima** de un array `notas` con notas de 0 a 10 (de 3 a 10 en este caso). ¿Qué pasa si `minimo` empieza en `0` en lugar de `notas[0]`?',
+  'Un hilo calcula la temperatura **mínima** de un array `temperaturas` con valores entre 12 y 30 grados. ¿Qué pasa si `minimo` empieza en `0` en lugar de `temperaturas[0]`?',
   [
-    ['Siempre saldría 0, porque ninguna nota es menor que 0.', true],
+    ['Siempre saldría 0, porque ninguna temperatura es menor que 0.', true],
     ['Funciona igual de bien.', false],
-    ['Siempre saldría 10.', false],
+    ['Siempre saldría 30.', false],
     ['Java lanza una excepción.', false],
   ],
-  'Máximo y mínimo empiezan siempre en **una nota del array**, no en un número inventado.',
+  'Máximo y mínimo empiezan siempre en **un valor del array**, no en un número inventado.',
   { codigo: `int minimo = 0;
-for (int i = 1; i < notas.length; i++) {
-    if (notas[i] < minimo) {
-        minimo = notas[i];
+for (int i = 1; i < temperaturas.length; i++) {
+    if (temperaturas[i] < minimo) {
+        minimo = temperaturas[i];
     }
 }` });
 
 completarTexto(A, 'Media con int y con double',
-  'Las 10 notas suman 65. Con `int`, la división 65 / 10 da ⟦num:6⟧ (se descartan los decimales). Con `double` da ⟦num:6.5⟧.',
+  'Las 8 temperaturas suman 180. Con `int`, la división 180 / 8 da ⟦num:22⟧ (se descartan los decimales). Con `double` da ⟦num:22.5⟧.',
   'La división entre enteros descarta los decimales. Por eso el total de la media es `double`.');
 
 redaccion(A, 'Programa tus hilos',
-  'Escribe el código completo (dos clases) de un programa que lance **2 hilos** llamados «Hilo 1» y «Hilo 2». Cada hilo debe mostrar 5 veces `Hola desde <nombre del hilo>`. Usa `Runnable` y la clase `Principal`.',
-  `public class Saludo implements Runnable {
+  'Escribe el código completo (dos clases) de un programa que lance **2 hilos** llamados «Alfa» y «Beta». Cada hilo debe mostrar 4 veces `Soy <nombre del hilo>`. Usa `Runnable` y la clase `Principal`.',
+  `public class Eco implements Runnable {
     @Override
     public void run() {
-        for (int i = 1; i <= 5; i++) {
-            System.out.println("Hola desde " + Thread.currentThread().getName());
+        for (int i = 1; i <= 4; i++) {
+            System.out.println("Soy " + Thread.currentThread().getName());
         }
     }
 }
 
 public class Principal {
     public static void main(String[] args) {
-        Thread h1 = new Thread(new Saludo(), "Hilo 1");
-        Thread h2 = new Thread(new Saludo(), "Hilo 2");
+        Thread h1 = new Thread(new Eco(), "Alfa");
+        Thread h2 = new Thread(new Eco(), "Beta");
         h1.start();
         h2.start();
     }
@@ -796,38 +796,38 @@ test(C, 'Condición de carrera',
   'Lo peor: el programa no da error. A veces sale bien y a veces mal, y no se puede predecir.');
 
 arrastrar(C, 'Sumar 1 son tres pasos',
-  'Aunque `cuenta++` se escribe en una línea, para el ordenador son tres pasos. Ordénalos.',
+  'Aunque `puntos++` se escribe en una línea, para el ordenador son tres pasos. Ordénalos.',
   `1. [[1]]
 2. [[2]]
 3. [[3]]`,
-  ['Leer la cuenta', 'Calcular el nuevo valor', 'Guardar la cuenta'],
+  ['Leer los puntos', 'Calcular el nuevo valor', 'Guardar los puntos'],
   'Otro hilo puede colarse entre dos pasos: ahí se produce la condición de carrera.',
   { esCodigo: false });
 
 completarTexto(C, 'Traza de una carrera',
-  'Una variable compartida `cuenta` vale 100. Dos hilos ejecutan a la vez `cuenta++`, que son tres pasos: leer, calcular y guardar. Ocurre este orden: A lee 100, B lee 100, A guarda 101 y B guarda 101. Se han ejecutado ⟦num:2⟧ incrementos, pero `cuenta` vale ⟦num:101⟧. Debería valer ⟦num:102⟧.',
+  'Una variable compartida `puntos` vale 40. Dos hilos ejecutan a la vez `puntos++`, que son tres pasos: leer, calcular y guardar. Ocurre este orden: A lee 40, B lee 40, A guarda 41 y B guarda 41. Se han ejecutado ⟦num:2⟧ incrementos, pero `puntos` vale ⟦num:41⟧. Debería valer ⟦num:42⟧.',
   'B guarda el mismo resultado que A: uno de los dos incrementos **se pierde**.');
 
-vf(C, 'Si hoy sale 100',
-  'Un programa tiene 2000 hilos que comparten una variable `cuenta` que empieza en 100: 1000 hilos le suman 1 y 1000 hilos le restan 1, **sin sincronizar**. Hoy, al ejecutarlo, el valor final es 100. Entonces el programa es correcto.',
+vf(C, 'Si hoy sale bien',
+  'Un programa tiene 800 hilos que comparten una variable `puntos` que empieza en 50: 400 hilos le suman 1 y 400 hilos le restan 1, **sin sincronizar**. Hoy, al ejecutarlo, el valor final es 50. Entonces el programa es correcto.',
   false,
   'Falso. Con una condición de carrera a veces sale bien y a veces mal. Que hoy salga bien no demuestra nada.');
 
 completarTexto(C, 'Los hilos y el valor final',
-  'Una variable compartida empieza en 100. Se lanzan 1000 hilos que le suman 1 y 1000 hilos que le restan 1. En total hay ⟦num:2000⟧ hilos y, si todo funciona bien, el valor final es ⟦num:100⟧.',
-  '1000 + 1000 = 2000 hilos; 100 + 1000 − 1000 = 100.');
+  'Una variable compartida empieza en 50. Se lanzan 400 hilos que le suman 1 y 400 hilos que le restan 1. En total hay ⟦num:800⟧ hilos y, si todo funciona bien, el valor final es ⟦num:50⟧.',
+  '400 + 400 = 800 hilos; 50 + 400 − 400 = 50.');
 
 completar(C, 'Recurso sincronizado',
-  'Una clase guarda un contador que usan muchos hilos a la vez. Completa la clase para que los dos métodos sean seguros entre hilos.',
-  `class Contador {
-    private int cuenta = 100;
+  'Una clase guarda el marcador de un partido que usan muchos hilos a la vez. Completa la clase para que los dos métodos sean seguros entre hilos.',
+  `class Marcador {
+    private int puntos = 0;
 
-    public ⟦mc:synchronized|static|final|abstract⟧ void sumar() {
-        cuenta++;
+    public ⟦mc:synchronized|static|final|abstract⟧ void sumarPunto() {
+        puntos++;
     }
 
-    public ⟦mc:synchronized|static|final|abstract⟧ void restar() {
-        cuenta--;
+    public ⟦mc:synchronized|static|final|abstract⟧ void quitarPunto() {
+        puntos--;
     }
 }`,
   '`synchronized` en la cabecera del método: solo deja entrar a un hilo a la vez; los demás esperan fuera.');
@@ -843,24 +843,24 @@ test(C, 'Qué es el cerrojo',
   'Es como una puerta de una sola persona: el que está dentro lee, calcula y guarda sin que nadie se cuele.');
 
 vf(C, 'Dos objetos, dos cerrojos',
-  'La clase `Contador` tiene un método `synchronized void sumar()`. Dos hilos usan dos objetos `Contador` **distintos** (cada hilo con el suyo). Entonces uno puede estar dentro de `sumar()` mientras el otro también lo está en su objeto.',
+  'La clase `Marcador` tiene un método `synchronized void sumarPunto()`. Dos hilos usan dos objetos `Marcador` **distintos** (cada hilo con el suyo). Entonces uno puede estar dentro de `sumarPunto()` mientras el otro también lo está en su objeto.',
   true,
   'Verdadero. Cada objeto tiene su cerrojo. Para que se excluyan, los hilos deben compartir **el mismo objeto**.');
 
 test(C, 'Synchronized en los dos métodos',
-  'Una clase tiene un contador con dos métodos: `sumar()` (hace `cuenta++`) y `restar()` (hace `cuenta--`). Muchos hilos los usan a la vez. ¿Por qué hay que poner `synchronized` en **los dos**?',
+  'Una clase tiene un marcador con dos métodos: `sumarPunto()` (hace `puntos++`) y `quitarPunto()` (hace `puntos--`). Muchos hilos los usan a la vez. ¿Por qué hay que poner `synchronized` en **los dos**?',
   [
     ['Porque los dos tocan la misma variable: si solo uno estuviera sincronizado, el otro podría colarse entre sus tres pasos.', true],
     ['Porque Java obliga a que todos los métodos de una clase sean `synchronized`.', false],
-    ['Porque si no, `restar()` no compila.', false],
+    ['Porque si no, `quitarPunto()` no compila.', false],
     ['Porque así el método va más rápido.', false],
   ],
-  'Quien suma y quien resta modifican la misma variable: los dos métodos deben usar el mismo cerrojo.');
+  'Quien suma y quien quita modifican la misma variable: los dos métodos deben usar el mismo cerrojo.');
 
 test(C, 'Dónde va synchronized',
-  'Un programa tiene dos clases de hilos, `Suma` y `Resta` (`Runnable`), que comparten un objeto `Contador` y modifican su variable `cuenta`. Para evitar la condición de carrera, ¿qué hay que cambiar?',
+  'Un programa tiene dos clases de hilos, `Anotador` y `Penalizador` (`Runnable`), que comparten un objeto `Marcador` y modifican su variable `puntos`. Para evitar la condición de carrera, ¿qué hay que cambiar?',
   [
-    ['Solo la clase `Contador`: sus métodos pasan a ser `synchronized`.', true],
+    ['Solo la clase `Marcador`: sus métodos pasan a ser `synchronized`.', true],
     ['El método `run()` de cada hilo.', false],
     ['El método `main`.', false],
     ['Hay que reescribir las tres clases.', false],
@@ -878,31 +878,31 @@ test(C, 'Qué se pierde al sincronizar',
   'Sincronizar da un resultado correcto, pero quita la ventaja de hacer varias cosas a la vez.');
 
 test(C, 'Sale el valor esperado sin synchronized',
-  'Cuatro hilos suman 1 a un contador compartido, 20 veces cada uno (el valor correcto es 80). Quitas `synchronized` del método que suma y en una ejecución sale 80. ¿Significa que no hace falta?',
+  'Cinco hilos suman 1 a un contador de visitas compartido, 30 veces cada uno (el valor correcto es 150). Quitas `synchronized` del método que suma y en una ejecución sale 150. ¿Significa que no hace falta?',
   [
-    ['No: la condición de carrera es impredecible; que salga 80 hoy no demuestra que sea seguro.', true],
-    ['Sí: si sale 80, el programa es correcto.', false],
-    ['Sí, porque 80 es el valor correcto.', false],
+    ['No: la condición de carrera es impredecible; que salga 150 hoy no demuestra que sea seguro.', true],
+    ['Sí: si sale 150, el programa es correcto.', false],
+    ['Sí, porque 150 es el valor correcto.', false],
     ['No, porque sin `synchronized` el programa no compila.', false],
   ],
-  'Con varios hilos puede salir 80 y fallar en otra ejecución o en otro ordenador.');
+  'Con varios hilos puede salir 150 y fallar en otra ejecución o en otro ordenador.');
 
 numerica(C, 'Valor final con synchronized',
-  'Cuatro hilos suman 1 a un contador compartido que empieza en 0, 20 veces cada uno. El método que suma es `synchronized`. ¿Qué valor tiene el contador al terminar?',
-  80,
-  '4 × 20 = 80, y con `synchronized` sale siempre.');
+  'Cinco hilos suman 1 a un contador de visitas compartido que empieza en 0, 30 veces cada uno. El método que suma es `synchronized`. ¿Qué valor tiene el contador al terminar?',
+  150,
+  '5 × 30 = 150, y con `synchronized` sale siempre.');
 
-completarTexto(C, 'Cocina y sleep',
-  'Una cocina tiene 5 cuchillos compartidos y 4 cocineros (hilos). Cada cocinero repite 4 veces: coge un cuchillo con el método `coger()` (que es `synchronized`), cocina durante 3 segundos y lo suelta. En total se llama a `coger()` ⟦num:16⟧ veces. Si el `sleep(3000)` está **dentro** de `coger()`, el programa tarda unos ⟦num:48⟧ segundos. Si el `sleep` está **fuera**, en el hilo del cocinero, tarda unos ⟦num:12⟧.',
-  '16 × 3 = 48 s si van de uno en uno; 4 vueltas × 3 s = 12 s si cocinan a la vez.');
+completarTexto(C, 'Taller y sleep',
+  'Un taller tiene 4 llaves inglesas compartidas y 4 mecánicos (hilos). Cada mecánico repite 3 veces: toma una llave con el método `tomar()` (que es `synchronized`), trabaja durante 2 segundos y la deja. En total se llama a `tomar()` ⟦num:12⟧ veces. Si el `sleep(2000)` está **dentro** de `tomar()`, el programa tarda unos ⟦num:24⟧ segundos. Si el `sleep` está **fuera**, en el hilo del mecánico, tarda unos ⟦num:6⟧.',
+  '12 × 2 = 24 s si van de uno en uno; 3 vueltas × 2 s = 6 s si trabajan a la vez.');
 
 test(C, 'sleep dentro de synchronized',
-  'Una cocina tiene 5 cuchillos y 4 cocineros (hilos). Cada cocinero llama a un método `synchronized coger()` que descuenta un cuchillo y después **duerme 3 segundos dentro del propio método**. Aunque quedan cuchillos libres, los cocineros van de uno en uno. ¿Por qué?',
+  'Un taller tiene 4 llaves inglesas y 4 mecánicos (hilos). Cada mecánico llama a un método `synchronized tomar()` que descuenta una llave y después **duerme 2 segundos dentro del propio método**. Aunque quedan llaves libres, los mecánicos van de uno en uno. ¿Por qué?',
   [
-    ['Porque el cocinero duerme **dentro** de un método `synchronized`: tiene el cerrojo y los demás no pueden ni entrar.', true],
+    ['Porque el mecánico duerme **dentro** de un método `synchronized`: tiene el cerrojo y los demás no pueden ni entrar.', true],
     ['Porque `sleep` bloquea todos los hilos del programa.', false],
-    ['Porque `coger()` es más lento que `soltar()`.', false],
-    ['Porque solo hay un cuchillo bueno.', false],
+    ['Porque `tomar()` es más lento que `dejar()`.', false],
+    ['Porque solo hay una llave buena.', false],
   ],
   'Regla: el `sleep` va **fuera** de `synchronized`.');
 
@@ -940,14 +940,14 @@ huecosSelect(C, 'Pausa con sleep',
   [['try', 'throw'], ['sleep', 'wait'], ['catch', 'finally']],
   '`sleep` puede lanzar `InterruptedException` si despiertan al hilo mientras duerme, así que va dentro de un `try` con su `catch`.');
 
-completarTexto(C, 'Cocina sin wait',
-  'Una cocina tiene 5 cuchillos. Su método `coger()` resta 1 a `libres` **sin comprobar** si queda alguno, y 7 cocineros lo llaman sin soltar ningún cuchillo. El cocinero 6 muestra «Libres: ⟦num:-1⟧» y el cocinero 7 muestra «Libres: ⟦num:-2⟧».',
-  '`coger()` resta 1 sin mirar si queda alguno: coge cuchillos que no existen.');
+completarTexto(C, 'Taller sin wait',
+  'Un taller tiene 4 llaves. Su método `tomar()` resta 1 a `libres` **sin comprobar** si queda alguna, y 6 mecánicos lo llaman sin dejar ninguna llave. El mecánico 5 muestra «Libres: ⟦num:-1⟧» y el mecánico 6 muestra «Libres: ⟦num:-2⟧».',
+  '`tomar()` resta 1 sin mirar si queda alguna: toma llaves que no existen.');
 
 test(C, 'wait suelta el cerrojo',
-  'Un hilo está dentro de un método `synchronized coger()` y espera con `wait()` porque no quedan cuchillos. Otro hilo tiene que entrar en el método `synchronized soltar()` para avisarle. ¿Por qué `wait()` **suelta el cerrojo** mientras espera?',
+  'Un hilo está dentro de un método `synchronized tomar()` y espera con `wait()` porque no quedan llaves. Otro hilo tiene que entrar en el método `synchronized dejar()` para avisarle. ¿Por qué `wait()` **suelta el cerrojo** mientras espera?',
   [
-    ['Si no lo soltara, nadie podría entrar en `soltar()` y el hilo esperaría para siempre.', true],
+    ['Si no lo soltara, nadie podría entrar en `dejar()` y el hilo esperaría para siempre.', true],
     ['Para que el hilo se despierte antes.', false],
     ['Porque `wait()` termina el programa.', false],
     ['No lo suelta: sigue con el cerrojo mientras espera.', false],
@@ -1008,12 +1008,12 @@ test(C, 'Parking sin notifyAll',
   ],
   '`wait()` duerme hasta que lo avisen. Sin `notifyAll()` nadie despierta a los que esperan.');
 
-arrastrar(C, 'Ordena el método coger()',
-  'Una cocina comparte un contador de cuchillos libres entre varios cocineros. Ordena las líneas del método `coger()`. Reglas: primero esperar mientras no haya cuchillos; después coger uno y por último mostrar el mensaje.',
-  `class Cocina {
-    private int libres = 5;
+arrastrar(C, 'Ordena el método tomar()',
+  'Un taller comparte un contador de llaves libres entre varios mecánicos. Ordena las líneas del método `tomar()`. Reglas: primero esperar mientras no haya llaves; después tomar una y por último mostrar el mensaje.',
+  `class Taller {
+    private int libres = 4;
 
-    public synchronized void coger() throws InterruptedException {
+    public synchronized void tomar() throws InterruptedException {
         [[1]]
             [[2]]
         [[3]]
@@ -1021,8 +1021,8 @@ arrastrar(C, 'Ordena el método coger()',
         [[5]]
     }
 }`,
-  ['while (libres == 0) {', 'wait();', '}', 'libres--;', 'System.out.println("coge un cuchillo");'],
-  'Se espera con `while` + `wait()`, se cierra el bucle y solo entonces se coge el cuchillo.',
+  ['while (libres == 0) {', 'wait();', '}', 'libres--;', 'System.out.println("toma una llave");'],
+  'Se espera con `while` + `wait()`, se cierra el bucle y solo entonces se toma la llave.',
   { grado: 2 });
 
 redaccion(C, 'Escribe tu propio recurso',
@@ -1063,25 +1063,25 @@ emparejar(D, 'wait, notify y compañía',
   '`notify()` despierta a uno; `notifyAll()`, a todos. Los dos son métodos de la clase `Object`.');
 
 multi(D, 'Los dos papeles',
-  'Un pintor (hilo) deja cuadros en un almacén donde caben **3 cuadros** (el almacén guarda cuántos hay, `numCuadros`, y cuántos caben, `numMaxCuadros`), y un vendedor (hilo) los saca para venderlos. El almacén es un objeto compartido con métodos `synchronized`. Marca lo que es **correcto**:',
+  'Un granjero (hilo) deja sacos en un cobertizo donde caben **3 sacos** (el cobertizo guarda cuántos hay, `numSacos`, y cuántos caben, `numMaxSacos`), y un repartidor (hilo) los saca para repartirlos. El cobertizo es un objeto compartido con métodos `synchronized`. Marca lo que es **correcto**:',
   [
-    ['El pintor espera si el almacén está lleno.', true],
-    ['El vendedor espera si el almacén está vacío.', true],
+    ['El granjero espera si el cobertizo está lleno.', true],
+    ['El repartidor espera si el cobertizo está vacío.', true],
     ['Cuando uno termina, avisa al otro con `notify()`.', true],
-    ['Solo el pintor necesita esperar; el vendedor nunca espera.', false],
-    ['Cada hilo debe tener su propio almacén.', false],
+    ['Solo el granjero necesita esperar; el repartidor nunca espera.', false],
+    ['Cada hilo debe tener su propio cobertizo.', false],
   ],
-  'Cada hilo tiene un papel distinto: uno espera a que el otro haga algo. Se crea **un solo** almacén; si cada hilo tuviera el suyo, no se comunicarían.');
+  'Cada hilo tiene un papel distinto: uno espera a que el otro haga algo. Se crea **un solo** cobertizo; si cada hilo tuviera el suyo, no se comunicarían.');
 
 test(D, 'notify con 2 hilos',
-  'Un pintor y **un** vendedor comparten un almacén de capacidad 1 y con ellos basta `notify()`. ¿Y si hubiera un pintor y **dos** vendedores?',
+  'Un granjero y **un** repartidor comparten un cobertizo de capacidad 1 y con ellos basta `notify()`. ¿Y si hubiera un granjero y **dos** repartidores?',
   [
     ['Hay tres hilos que pueden esperar: `notify()` despierta a uno cualquiera y puede ser el equivocado; hace falta `notifyAll()`.', true],
     ['Sigue valiendo `notify()` igual.', false],
     ['No se puede usar `notify()` nunca.', false],
     ['Hay que usar `sleep()` en lugar de avisar.', false],
   ],
-  'Si despierta al que no puede avanzar, el pintor se queda dormido para siempre. Con `notify()` a veces funciona y a veces se cuelga.');
+  'Si despierta al que no puede avanzar, el granjero se queda dormido para siempre. Con `notify()` a veces funciona y a veces se cuelga.');
 
 vf(D, 'notify elige al más antiguo',
   '`notify()` despierta siempre al hilo que lleva más tiempo esperando.',
@@ -1089,65 +1089,65 @@ vf(D, 'notify elige al más antiguo',
   'Falso. Despierta a uno cualquiera de los que esperan.');
 
 test(D, 'Qué es la señal de fin',
-  'Varios vendedores sacan cuadros de un almacén compartido y un pintor los va dejando, pero los vendedores **no saben cuántos cuadros** les tocan. ¿Cómo saben que ya no habrá más?',
+  'Varios repartidores sacan sacos de un cobertizo compartido y un granjero los va dejando, pero los repartidores **no saben cuántos sacos** les tocan. ¿Cómo saben que ya no habrá más?',
   [
-    ['El almacén cuenta los cuadros pintados y los vendidos (datos compartidos), y los vendedores paran cuando ya se ha pintado todo y no queda ninguno.', true],
-    ['Cada vendedor cuenta hasta 10 por su cuenta.', false],
-    ['Java termina los hilos vendedores automáticamente.', false],
+    ['El cobertizo cuenta los sacos preparados y los repartidos (datos compartidos), y los repartidores paran cuando ya se ha preparado todo y no queda ninguno.', true],
+    ['Cada repartidor cuenta hasta 12 por su cuenta.', false],
+    ['Java termina los hilos repartidores automáticamente.', false],
     ['Esperan 20 segundos y salen.', false],
   ],
-  'La señal de fin es un dato compartido (aquí, los contadores del almacén) que permite a los que esperan saber que ya no habrá más.');
+  'La señal de fin es un dato compartido (aquí, los contadores del cobertizo) que permite a los que esperan saber que ya no habrá más.');
 
-test(D, 'Vender sin mirar los pintados',
-  'Los vendedores esperan con `while (numCuadros == 0) wait();`, sin mirar `numCuadrosPintados`. El pintor pinta sus 10 cuadros y se marcha, los vendedores venden todos los cuadros que hay, pero uno de ellos llega a `vender()` cuando el almacén ya está vacío. ¿Qué ocurre?',
+test(D, 'Repartir sin mirar los preparados',
+  'Los repartidores esperan con `while (numSacos == 0) wait();`, sin mirar `numSacosPreparados`. El granjero prepara sus 12 sacos y se marcha, los repartidores reparten todos los sacos que hay, pero uno de ellos llega a `repartir()` cuando el cobertizo ya está vacío. ¿Qué ocurre?',
   [
-    ['Ese vendedor se queda esperando para siempre y el programa no termina.', true],
-    ['Ese vendedor se marcha solo al ver que no hay cuadros.', false],
-    ['Java lanza una excepción en el pintor.', false],
+    ['Ese repartidor se queda esperando para siempre y el programa no termina.', true],
+    ['Ese repartidor se marcha solo al ver que no hay sacos.', false],
+    ['Java lanza una excepción en el granjero.', false],
     ['El programa termina normalmente.', false],
   ],
-  'Nadie va a avisar a ese vendedor: el pintor ya terminó. Por eso el `while` también mira si faltan cuadros por pintar (`numCuadrosPintados < 10`), y así el vendedor sale del `wait()` cuando ya no habrá más.');
+  'Nadie va a avisar a ese repartidor: el granjero ya terminó. Por eso el `while` también mira si faltan sacos por preparar (`numSacosPreparados < 12`), y así el repartidor sale del `wait()` cuando ya no habrá más.');
 
-test(D, 'Pintados antes que cuadros',
-  'En `vender()`, después del `while`, un programador comprueba **primero** si ya se han pintado los 10 cuadros y, si es así, el vendedor se marcha sin vender; solo **después** mira si hay cuadros. ¿Qué problema puede ocurrir?',
+test(D, 'Preparados antes que sacos',
+  'En `repartir()`, después del `while`, un programador comprueba **primero** si ya se han preparado los 12 sacos y, si es así, el repartidor se marcha sin repartir; solo **después** mira si hay sacos. ¿Qué problema puede ocurrir?',
   [
-    ['Se pierden los cuadros que quedan en el almacén: el pintor termina y los vendedores se van sin venderlos.', true],
-    ['Se venden dos cuadros a la vez.', false],
+    ['Se pierden los sacos que quedan en el cobertizo: el granjero termina y los repartidores se van sin repartirlos.', true],
+    ['Se reparten dos sacos a la vez.', false],
     ['No pasa nada: da igual el orden.', false],
     ['El programa no compila.', false],
   ],
-  'Hay que mirar primero si hay cuadros (`numCuadros > 0`): si el pintor termina con cuadros en el almacén, esos cuadros se venden igualmente.');
+  'Hay que mirar primero si hay sacos (`numSacos > 0`): si el granjero termina con sacos en el cobertizo, esos sacos se reparten igualmente.');
 
-completar(D, 'Almacén: vender()',
-  'Un almacén de cuadros lo comparten un pintor y varios vendedores. Completa `vender()`: los vendedores esperan mientras **no haya cuadros y todavía falten cuadros por pintar** (el pintor pinta 10).',
-  `class Almacen {
-    private int numCuadros = 0;
-    private int numCuadrosPintados = 0;
-    private int numCuadrosVendidos = 0;
+completar(D, 'Cobertizo: repartir()',
+  'Un cobertizo de sacos lo comparten un granjero y varios repartidores. Completa `repartir()`: los repartidores esperan mientras **no haya sacos y todavía falten sacos por preparar** (el granjero prepara 12).',
+  `class Cobertizo {
+    private int numSacos = 0;
+    private int numSacosPreparados = 0;
+    private int numSacosRepartidos = 0;
 
-    public synchronized void vender() {
-        while (⟦mc:numCuadros == 0|numCuadros > 0|numCuadrosPintados == 0⟧ && ⟦mc:numCuadrosPintados < 10|numCuadrosPintados > 10|numCuadrosVendidos < 10⟧) {
+    public synchronized void repartir() {
+        while (⟦mc:numSacos == 0|numSacos > 0|numSacosPreparados == 0⟧ && ⟦mc:numSacosPreparados < 12|numSacosPreparados > 12|numSacosRepartidos < 12⟧) {
             try {
                 wait();
             } catch (InterruptedException e) {
             }
         }
-        if (⟦mc:numCuadros > 0|numCuadros == 0|numCuadrosPintados < 10⟧) {
-            numCuadros--;
-            ⟦mc:numCuadrosVendidos++|numCuadrosPintados++|numCuadrosVendidos--⟧;
+        if (⟦mc:numSacos > 0|numSacos == 0|numSacosPreparados < 12⟧) {
+            numSacos--;
+            ⟦mc:numSacosRepartidos++|numSacosPreparados++|numSacosRepartidos--⟧;
             ⟦sa:notifyAll⟧();
         }
     }
 }`,
-  'Esperan si no hay cuadros **y** todavía faltan por pintar. Al salir del `while`, si hay cuadros se vende uno, se cuenta como vendido y se avisa con `notifyAll()`; si no, es que ya se pintaron todos y el vendedor se va.');
+  'Esperan si no hay sacos **y** todavía faltan por preparar. Al salir del `while`, si hay sacos se reparte uno, se cuenta como repartido y se avisa con `notifyAll()`; si no, es que ya se prepararon todos y el repartidor se va.');
 
-arrastrar(D, 'Ordena depositar()',
-  'Ordena las líneas de `depositar()`. Reglas: primero esperar si el almacén está lleno; después actualizar el estado; luego escribir el mensaje y **por último** avisar a los demás.',
-  `class Almacen {
-    private int numCuadros = 0;
-    private int numMaxCuadros = 1;
+arrastrar(D, 'Ordena dejar()',
+  'Ordena las líneas de `dejar()`. Reglas: primero esperar si el cobertizo está lleno; después actualizar el estado; luego escribir el mensaje y **por último** avisar a los demás.',
+  `class Cobertizo {
+    private int numSacos = 0;
+    private int numMaxSacos = 1;
 
-    public synchronized void depositar(int numero) throws InterruptedException {
+    public synchronized void dejar(int numero) throws InterruptedException {
         [[1]]
             [[2]]
         [[3]]
@@ -1156,7 +1156,7 @@ arrastrar(D, 'Ordena depositar()',
         [[6]]
     }
 }`,
-  ['while (numCuadros == numMaxCuadros) {', 'wait();', '}', 'numCuadros++;', 'System.out.println("deja el cuadro " + numero);', 'notifyAll();'],
+  ['while (numSacos == numMaxSacos) {', 'wait();', '}', 'numSacos++;', 'System.out.println("deja el saco " + numero);', 'notifyAll();'],
   'Esperar, cambiar el estado, mostrar y avisar.',
   { grado: 3 });
 
@@ -1179,44 +1179,44 @@ arrastrar(D, 'Ordena el aviso',
   'Es el ciclo completo del patrón `while + wait` / cambiar estado + `notifyAll`.',
   { esCodigo: false, grado: 2 });
 
-vf(D, 'Salida con un pintor y un vendedor',
-  'Un pintor deja 10 cuadros en un almacén donde caben 3 (`new Almacen(3)`) y un vendedor los vende. Los mensajes («deja el cuadro 1», «vende el cuadro 1», «deja el cuadro 2»...) salen **siempre en el mismo orden** en todas las ejecuciones.',
+vf(D, 'Salida con un granjero y un repartidor',
+  'Un granjero deja 12 sacos en un cobertizo donde caben 3 (`new Cobertizo(3)`) y un repartidor los reparte. Los mensajes («deja el saco 1», «reparte el saco 1», «deja el saco 2»...) salen **siempre en el mismo orden** en todas las ejecuciones.',
   false,
-  'Falso. Los cuadros salen del 1 al 10 y el almacén nunca pasa de 3 ni baja de 0, pero el pintor puede dejar hasta 3 antes de que el vendedor venda, y el orden de los mensajes cambia de una ejecución a otra.');
+  'Falso. Los sacos salen del 1 al 12 y el cobertizo nunca pasa de 3 ni baja de 0, pero el granjero puede dejar hasta 3 antes de que el repartidor reparta, y el orden de los mensajes cambia de una ejecución a otra.');
 
-multi(D, 'Salida con un pintor y dos vendedores',
-  'Un pintor deja 10 cuadros en un almacén de capacidad 3 y **dos** vendedores compiten por venderlos (cada cuadro lo vende uno solo). Marca lo que es **cierto**:',
+multi(D, 'Salida con un granjero y dos repartidores',
+  'Un granjero deja 12 sacos en un cobertizo de capacidad 3 y **dos** repartidores compiten por repartirlos (cada saco lo reparte uno solo). Marca lo que es **cierto**:',
   [
-    ['Cada cuadro del 1 al 10 se vende una sola vez.', true],
-    ['Quién vende cada cuadro cambia entre ejecuciones.', true],
-    ['A veces un solo vendedor vende todos y también es correcto.', true],
-    ['Los dos vendedores venden siempre 5 cuadros cada uno.', false],
-    ['El mismo cuadro se vende dos veces.', false],
+    ['Cada saco del 1 al 12 se reparte una sola vez.', true],
+    ['Quién reparte cada saco cambia entre ejecuciones.', true],
+    ['A veces un solo repartidor reparte todos y también es correcto.', true],
+    ['Los dos repartidores reparten siempre 5 sacos cada uno.', false],
+    ['El mismo saco se reparte dos veces.', false],
   ],
-  'Se reparten los cuadros sin que se sepa cuántos vende cada uno.');
+  'Se reparten los sacos sin que se sepa cuántos reparte cada uno.');
 
-completarTexto(D, 'Cuántos cuadros',
-  'El pintor pinta 10 cuadros y hay 2 vendedores. Entre los dos venden ⟦num:10⟧ cuadros. El mensaje «deja el cuadro» sale ⟦num:10⟧ veces.',
-  'Cada cuadro se deposita una vez y se vende una vez.');
+completarTexto(D, 'Cuántos sacos',
+  'El granjero prepara 10 sacos y hay 2 repartidores. Entre los dos reparten ⟦num:12⟧ sacos. El mensaje «deja el saco» sale ⟦num:12⟧ veces.',
+  'Cada saco se deposita una vez y se reparte una vez.');
 
 test(D, 'Error: if en lugar de while',
-  'Este `vender()` usa `if` en lugar de `while`. Con **dos vendedores**, ¿qué problema puede ocurrir?',
+  'Este `repartir()` usa `if` en lugar de `while`. Con **dos repartidores**, ¿qué problema puede ocurrir?',
   [
-    ['Un vendedor despierta, pero otro ya vendió el cuadro: vendería un cuadro que no existe.', true],
+    ['Un repartidor despierta, pero otro ya repartió el saco: repartiría un saco que no existe.', true],
     ['El programa no compila.', false],
-    ['El pintor nunca puede depositar.', false],
+    ['El granjero nunca puede dejar.', false],
     ['Ninguno: `if` y `while` hacen lo mismo aquí.', false],
   ],
   'Tras `wait()` el hilo debe volver a mirar la condición: cuando se despierta, el estado pudo cambiar.',
-  { codigo: mostrar('6.4 if en vez de while', `class Almacen {
-    private int numCuadros = 0;
+  { codigo: mostrar('6.4 if en vez de while', `class Cobertizo {
+    private int numSacos = 0;
 
-    public synchronized void vender() throws InterruptedException {
-        if (numCuadros == 0) {
+    public synchronized void repartir() throws InterruptedException {
+        if (numSacos == 0) {
             wait();
         }
-        numCuadros--;
-        System.out.println("vende el cuadro");
+        numSacos--;
+        System.out.println("reparte el saco");
         notifyAll();
     }
 }`) });
@@ -1251,23 +1251,23 @@ multi(E, 'Qué hacen los hilos',
   'El `wait()`, el `notifyAll()` y los datos viven en el objeto compartido.');
 
 test(E, 'sleep fuera de synchronized',
-  'Una lavandería tiene varias lavadoras compartidas. Cada cliente (hilo) llama a `entrar()` (coge una lavadora), lava durante 5 a 10 segundos con `sleep` y llama a `salir()`. ¿Por qué el `sleep` va **fuera** de los métodos `synchronized` `entrar()` y `salir()`?',
+  'Una piscina tiene varias calles compartidas. Cada nadador (hilo) llama a `entrar()` (ocupa una calle), nada durante 5 a 10 segundos con `sleep` y llama a `salir()`. ¿Por qué el `sleep` va **fuera** de los métodos `synchronized` `entrar()` y `salir()`?',
   [
-    ['Si un hilo duerme dentro, los demás no pueden ni entrar; fuera, las otras lavadoras siguen trabajando.', true],
+    ['Si un hilo duerme dentro, los demás no pueden ni entrar; fuera, las otras calles siguen funcionando.', true],
     ['Porque `sleep` no se puede usar dentro de `synchronized`.', false],
-    ['Para que los clientes lleguen antes.', false],
-    ['Porque así el cliente no paga.', false],
+    ['Para que los nadadores lleguen antes.', false],
+    ['Porque así el nadador no se cansa.', false],
   ],
   'Regla: `sleep` va fuera de `synchronized`.');
 
 completarTexto(E, 'Random y sleep',
-  '`azar.nextInt(3)` da ⟦num:0⟧, 1 o 2. Con `(1 + azar.nextInt(3)) * 1000` la máquina duerme como mínimo ⟦num:1000⟧ milisegundos y como máximo ⟦num:3000⟧.',
-  '`sleep` trabaja en milisegundos: por eso se multiplica por 1000.');
+  '`azar.nextInt(4)` da ⟦num:0⟧, 1, 2 o 3. Con `(2 + azar.nextInt(4)) * 500` el robot duerme como mínimo ⟦num:1000⟧ milisegundos y como máximo ⟦num:2500⟧.',
+  '`sleep` trabaja en milisegundos: por eso se multiplica. 2 × 500 = 1000 y 5 × 500 = 2500.');
 
 emparejar(E, 'Clases nuevas de 6.5',
   'Une cada clase o método con lo que hace:',
   [
-    ['`Random` y `nextInt(3)`', 'Da al azar 0, 1 o 2'],
+    ['`Random` y `nextInt(4)`', 'Da al azar 0, 1, 2 o 3'],
     ['`Scanner` y `nextInt()`', 'Lee un número que escribe el usuario'],
     ['`ArrayList<Thread>`', 'Una lista de hilos que crece sola'],
     ['`FileWriter`', 'Escribe en un fichero'],
@@ -1275,25 +1275,25 @@ emparejar(E, 'Clases nuevas de 6.5',
   ],
   'Son las clases nuevas del apartado 6.5.');
 
-test(E, 'Lectores: hace falta wait',
-  'Varios hilos **escritores** añaden su nombre a un fichero de texto compartido y varios hilos **lectores** cuentan cuántas líneas tiene. Los métodos `escribir()` y `contarLineas()` del objeto que representa el fichero son `synchronized`. ¿Hace falta usar `wait()`?',
+test(E, 'Libro de visitas: hace falta wait',
+  'Varios hilos **visitantes** añaden su nombre a un libro de visitas (un fichero de texto compartido) y varios hilos **recepcionistas** cuentan cuántas firmas tiene. Los métodos `firmar()` y `contarFirmas()` del objeto que representa el libro son `synchronized`. ¿Hace falta además `wait()` y `notifyAll()`?',
   [
     ['No: nadie tiene que esperar a que ocurra nada concreto. Solo no pisarse.', true],
-    ['Sí, los escritores esperan a los lectores.', false],
+    ['Sí, los visitantes esperan a los recepcionistas.', false],
     ['Sí, porque los ficheros siempre requieren `wait()`.', false],
-    ['Sí, los lectores esperan a que haya escritores.', false],
+    ['Sí, los recepcionistas esperan a que haya visitantes.', false],
   ],
   'Con `synchronized` basta: mientras uno trabaja, los demás esperan fuera.');
 
-test(E, 'contarLineas synchronized',
-  'Varios escritores añaden líneas a un fichero compartido con un método `synchronized escribir()`. Los lectores cuentan sus líneas con `contarLineas()`, un método que **solo lee** pero que también es `synchronized`. ¿Por qué?',
+test(E, 'contarFirmas synchronized',
+  'Varios visitantes añaden firmas a un libro compartido con un método `synchronized firmar()`. Los recepcionistas cuentan las firmas con `contarFirmas()`, un método que **solo lee** pero que también es `synchronized`. ¿Por qué?',
   [
-    ['Para que un lector no lea datos a medias mientras un escritor escribe.', true],
+    ['Para que un recepcionista no lea datos a medias mientras alguien firma.', true],
     ['Porque leer un fichero siempre exige `synchronized`.', false],
-    ['Para que los lectores escriban más rápido.', false],
+    ['Para que los recepcionistas firmen más rápido.', false],
     ['Porque si no, no compila.', false],
   ],
-  'Un lector tampoco entra si hay un escritor dentro: los dos métodos comparten el cerrojo.');
+  'Quien lee tampoco entra si hay alguien escribiendo: los dos métodos comparten el cerrojo.');
 
 test(E, 'FileWriter con true',
   '¿Qué significa el segundo argumento `true` en `new FileWriter(ruta, true)`?',
@@ -1305,104 +1305,126 @@ test(E, 'FileWriter con true',
   ],
   'Sin el `true` borraría lo anterior.');
 
-completar(E, 'Fichero.escribir()',
-  'Completa el método que escribe un nombre al final del fichero compartido.',
+completar(E, 'Registro.firmar()',
+  'Completa el método que escribe un nombre al final del libro de visitas compartido.',
   `import java.io.FileWriter;
 import java.io.IOException;
 
-class Fichero {
-    private String ruta = "salida.txt";
+class Registro {
+    private String ruta = "visitas.txt";
 
-    public ⟦sa:synchronized⟧ void escribir(String nombre) {
+    public ⟦sa:synchronized⟧ void firmar(String nombre) {
         try {
             FileWriter fw = new FileWriter(ruta, ⟦mc:true|false⟧);
             fw.write(nombre + "\\n");
-            fw.⟦sa:close⟧();
+            fw.⟦sa:flush⟧();
+            fw.close();
         } catch (⟦sa:IOException⟧ e) {
             System.out.println("No se ha podido escribir");
         }
     }
 }`,
-  '`synchronized` para que no se mezclen escrituras, `true` para añadir, `close()` para guardar y `IOException` porque Java obliga a prever que un fichero puede fallar.');
+  '`synchronized` para que no se mezclen escrituras, `true` para añadir, `flush()` (o `close()`) para que lo escrito llegue al fichero e `IOException` porque Java obliga a prever que un fichero puede fallar.');
 
 emparejar(E, 'Qué hace esperar a cada hilo',
   'Une cada situación con la condición que hace **esperar** al hilo:',
   [
-    ['Una cinta con capacidad para 5 piezas: un hilo quiere poner una pieza', 'Espera mientras la cinta esté llena'],
-    ['La misma cinta: otro hilo quiere retirar una pieza', 'Espera mientras la cinta esté vacía'],
-    ['Hay 4 lavadoras compartidas: un cliente quiere usar una', 'Espera mientras no haya ninguna libre'],
-    ['Un cliente de una panadería pide 7 barras de pan', 'Espera hasta que haya al menos 7 barras'],
-    ['Una sala admite un solo jugador y los espectadores solo ven partidas en marcha: un espectador quiere entrar', 'Espera mientras no haya una partida en marcha'],
+    ['Un buzón de sugerencias con espacio para 5 notas: un alumno quiere dejar una', 'Espera mientras el buzón esté lleno'],
+    ['El mismo buzón: el director quiere leer una nota', 'Espera mientras el buzón esté vacío y se sigan dejando notas'],
+    ['Una pista de tenis compartida: una pareja quiere jugar', 'Espera mientras la pista esté ocupada'],
+    ['Una frutería tiene existencias de naranjas y un cliente pide 3 kilos', 'Espera hasta que haya al menos 3 kilos'],
+    ['Una radio emite en directo y los oyentes solo pueden llamar durante el programa: un oyente quiere llamar', 'Espera mientras no haya un programa en directo'],
   ],
   'En todos el hilo espera con `while (no puedo) wait();` y se le avisa con `notifyAll()` cuando cambia el estado.',
   { grado: 2 });
 
-test(E, 'El contador de 50 piezas',
-  'Tres máquinas (hilos) ponen piezas en una cinta compartida y la fábrica debe parar al llegar a 50 piezas fabricadas **entre las tres**. ¿Dónde se cuenta?',
+test(E, 'El contador de 200 entradas',
+  'Cuatro taquillas (hilos) venden entradas de un concierto y se deben dejar de vender al llegar a 200 entradas vendidas **entre las cuatro**. ¿Dónde se cuenta?',
   [
-    ['En la cinta (objeto compartido), no en cada máquina.', true],
-    ['En cada máquina, y cada una para a las 50.', false],
+    ['En el objeto compartido (el concierto), no en cada taquilla.', true],
+    ['En cada taquilla, y cada una para a las 200.', false],
     ['En `Principal`, con un `for`.', false],
-    ['En el empaquetador.', false],
+    ['En el hilo del público.', false],
   ],
-  'El límite de 50 es de todas las máquinas juntas. Contar el límite en cada hilo en vez de en el objeto compartido es un error típico.');
+  'El límite de 200 es de todas las taquillas juntas. Contar el límite en cada hilo en vez de en el objeto compartido es un error típico.');
 
-completar(E, 'Cinta: poner()',
-  'Completa `poner()` de la cinta (capacidad 5; la fábrica para al llegar a 50 piezas).',
-  `class Cinta {
-    private int piezas = 0;
-    private int fabricadas = 0;
+completar(E, 'Muelle: apilar()',
+  'Completa `apilar()` del muelle (capacidad 4; se apilan 30 contenedores en total). Devuelve `true` mientras la grúa deba seguir.',
+  `class Muelle {
+    private static final int CAPACIDAD = 4;
+    private static final int TOTAL_CONTENEDORES = 30;
+    private int enMuelle = 0;
+    private int apilados = 0;
+    private boolean seguirApilando = true;
 
-    public synchronized boolean poner() {
-        while (piezas == ⟦num:5⟧ && fabricadas < ⟦num:50⟧) {
-            try {
-                wait();
-            } catch (InterruptedException e) {
-            }
+    public synchronized boolean apilar() throws InterruptedException {
+        while (enMuelle == ⟦sa:CAPACIDAD⟧) {
+            wait();
         }
-        if (fabricadas == 50) {
-            return false;
+        if (apilados >= TOTAL_CONTENEDORES) {
+            seguirApilando = ⟦sa:false⟧;
+        } else {
+            enMuelle++;
+            apilados++;
         }
-        piezas++;
-        fabricadas++;
         ⟦sa:notifyAll⟧();
-        return true;
+        return ⟦sa:seguirApilando⟧;
     }
 }`,
-  'La máquina espera si la cinta está llena **y** aún faltan piezas. Si ya se hicieron 50 devuelve `false` y la máquina termina.');
+  'La grúa espera si el muelle está lleno. Si ya se apilaron todos los contenedores, apaga la bandera `seguirApilando`; si no, apila uno. Siempre avisa y devuelve la bandera: `true` mientras haya que seguir y `false` la primera vez que se descubre que ya está todo.');
 
-test(E, 'notifyAll en la fábrica',
-  'Tres hilos que ponen piezas en una cinta y un hilo que las retira esperan con `wait()` sobre la **misma cinta**. ¿Qué pasa si al cambiar el estado se usa `notify()` en vez de `notifyAll()`?',
+test(E, 'Cuándo termina el camión',
+  'En el muelle, un camión (hilo) se lleva los contenedores con el método `descargar()`. ¿Cuándo debe devolver `false` ese método para que el camión termine?',
   [
-    ['Podría despertarse un hilo que no puede avanzar y dejar sin avisar al que sí; a veces funciona y a veces se cuelga.', true],
-    ['Nada: es exactamente igual.', false],
-    ['La cinta se rompe y Java lanza una excepción.', false],
-    ['Solo se despierta al hilo que retira, siempre.', false],
+    ['Cuando el muelle está vacío **y** ya no se apilan más contenedores.', true],
+    ['Cuando el muelle está vacío.', false],
+    ['Cuando ya se han apilado los 30 contenedores.', false],
+    ['Cuando ha pasado un tiempo fijo.', false],
   ],
-  'Con `notifyAll()` se despiertan todos y cada uno mira su condición.');
+  'Si terminara con el muelle vacío, podría irse antes de que lleguen los últimos contenedores. Y si terminara al apilarse los 30, quedarían contenedores sin llevar en el muelle.');
 
-test(E, 'Fábrica cerrada y join',
-  '¿Cuándo aparece «Fábrica cerrada»?',
+test(E, 'Dos banderas',
+  'El muelle tiene dos banderas, `seguirApilando` y `seguirDescargando`. ¿Por qué hacen falta dos?',
+  [
+    ['Porque cada papel termina en un momento distinto: las grúas al apilar los 30 y el camión cuando ya no queda ningún contenedor.', true],
+    ['Porque una `boolean` no puede valer `false`.', false],
+    ['Porque así se evita usar `synchronized`.', false],
+    ['Para que las grúas cuenten los contenedores.', false],
+  ],
+  'Los hilos no cuentan nada: preguntan al muelle si deben seguir. Una bandera por papel.');
+
+test(E, 'notify o notifyAll en el muelle',
+  'En el muelle, las grúas esperan con el muelle lleno y el camión espera con el muelle vacío. Si `apilar()` y `descargar()` usan `notify()` en vez de `notifyAll()`, ¿funciona?',
+  [
+    ['Sí: un muelle no puede estar lleno y vacío a la vez, así que los que esperan son siempre del mismo tipo y despertar a uno basta. `notifyAll()` es lo más seguro.', true],
+    ['No: se cuelga siempre.', false],
+    ['No compila.', false],
+    ['Solo funciona con una grúa.', false],
+  ],
+  'Con papeles que esperan **a la vez**, como el granjero y los repartidores de 6.4, `notify()` puede despertar al equivocado. Aquí no esperan a la vez.');
+
+test(E, 'Muelle cerrado y join',
+  '¿Cuándo aparece «Muelle cerrado»?',
   [
     ['Siempre la última línea, porque `join()` hace que `main` espere al hilo.', true],
     ['Siempre la primera línea, porque `main` va antes que los hilos.', false],
     ['En cualquier posición: `join()` no influye en el orden.', false],
     ['Nunca: `join()` impide que `main` imprima.', false],
   ],
-  '«Espero aquí hasta que ese hilo termine». Sin los `join()`, «Fábrica cerrada» saldría al principio, porque `main` no espera.',
-  { codigo: mostrar('6.5 fabrica cerrada', `class Maquina implements Runnable {
+  '«Espero aquí hasta que ese hilo termine». Sin los `join()`, «Muelle cerrado» saldría al principio, porque `main` no espera.',
+  { codigo: mostrar('6.5 muelle cerrado', `class Grua implements Runnable {
     @Override
     public void run() {
-        System.out.println(Thread.currentThread().getName() + " fabrica");
+        System.out.println(Thread.currentThread().getName() + " apila");
     }
 }
 
 class Principal {
     public static void main(String[] args) throws InterruptedException {
-        Thread m1 = new Thread(new Maquina(), "M1");
-        m1.start();
-        m1.join();
-        System.out.println("Fábrica cerrada");
+        Thread g1 = new Thread(new Grua(), "G1");
+        g1.start();
+        g1.join();
+        System.out.println("Muelle cerrado");
     }
 }`) });
 
@@ -1412,25 +1434,25 @@ vf(E, 'throws en main',
   'Verdadero.');
 
 numerica(E, 'Qué línea los serializa',
-  '`Contador` es un `Runnable` que cuenta del 1 al 10. Con este código, los dos contadores salen **uno detrás de otro**, sin mezclarse. ¿Qué número de línea lo provoca?',
+  '`Pasos` es un `Runnable` que cuenta del 1 al 10. Con este código, los dos hilos salen **uno detrás de otro**, sin mezclarse. ¿Qué número de línea lo provoca?',
   4,
   'La línea 4: `h1.join()` hace que `main` espere a que `h1` termine **antes** de llegar a `h2.start()` en la línea 5.',
-  { codigo: `1  Thread h1 = new Thread(new Contador(), "Hilo 1");
-2  Thread h2 = new Thread(new Contador(), "Hilo 2");
+  { codigo: `1  Thread h1 = new Thread(new Pasos(), "Hilo 1");
+2  Thread h2 = new Thread(new Pasos(), "Hilo 2");
 3  h1.start();
 4  h1.join();
 5  h2.start();` });
 
 test(E, 'Atendido tras el while',
-  'En una lavandería con lavadoras compartidas, un cliente solo debe contarse como **atendido** cuando consigue una lavadora (no mientras espera). ¿Dónde se incrementa `atendidos` en `entrar()`?',
+  'En una peluquería con sillones compartidos, un cliente solo debe contarse como **atendido** cuando consigue un sillón (no mientras espera). ¿Dónde se incrementa `atendidos` en `sentar()`?',
   [
-    ['Justo después del `while`, cuando ya tiene lavadora.', true],
+    ['Justo después del `while`, cuando ya tiene sillón.', true],
     ['Nada más llegar, antes del `while`.', false],
-    ['Cuando termina de lavar.', false],
+    ['Cuando termina el corte.', false],
     ['Cuando paga al salir.', false],
   ],
-  'Después del `while` el cliente ya ha conseguido lavadora; antes, todavía puede estar esperando.',
-  { codigo: `public synchronized void entrar() {
+  'Después del `while` el cliente ya ha conseguido sillón; antes, todavía puede estar esperando.',
+  { codigo: `public synchronized void sentar() {
     // ¿aquí?
     while (libres == 0) {
         try {
@@ -1442,72 +1464,92 @@ test(E, 'Atendido tras el while',
     libres--;
 }` });
 
-test(E, 'ArrayList de clientes',
-  'Un menú permite que lleguen grupos de clientes (cada cliente es un hilo) sin saber cuántos llegarán en total. Quieres guardar los hilos para hacerles `join()` al cerrar. ¿Por qué usar un `ArrayList<Thread>` y no un array `Thread[]`?',
+test(E, 'Cuándo se mira la condición del do while',
+  'Un programa muestra un menú con `do { opcion = sc.nextInt(); … } while (opcion != 0);`. El usuario escribe 0 la primera vez. ¿Qué ocurre?',
   [
-    ['No sabemos cuántos clientes llegarán, así que un array de tamaño fijo no sirve: la lista crece sola.', true],
+    ['El bloque se ejecuta una vez y después termina: la condición se mira al final.', true],
+    ['El bloque no se ejecuta ninguna vez.', false],
+    ['El bloque se ejecuta para siempre.', false],
+    ['El programa no compila.', false],
+  ],
+  'El `do while` siempre ejecuta el bloque al menos una vez y mira la condición al final. Con `while` a secas, no se ejecutaría ninguna.');
+
+test(E, 'Tandas de participantes',
+  'Los participantes de una carrera se apuntan en varias tandas. `total` cuenta los apuntados hasta ahora y `n` es cuántos llegan en esta tanda. Los hilos se guardan en una lista. ¿Con qué `for` se crean **solo los nuevos** sin repetir nombres?',
+  [
+    ['`for (int i = total; i < total + n; i++)`', true],
+    ['`for (int i = 0; i < n; i++)`', false],
+    ['`for (int i = 0; i < total; i++)`', false],
+    ['`for (int i = total; i < n; i++)`', false],
+  ],
+  'Si cada tanda empezara en 0, los nombres se repetirían y se intentarían arrancar hilos que ya están en marcha.');
+
+test(E, 'ArrayList de participantes',
+  'Un menú permite que se apunten grupos de participantes a una carrera (cada participante es un hilo) sin saber cuántos serán en total. Quieres guardar los hilos para hacerles `join()` al terminar. ¿Por qué usar un `ArrayList<Thread>` y no un array `Thread[]`?',
+  [
+    ['No sabemos cuántos participantes habrá, así que un array de tamaño fijo no sirve: la lista crece sola.', true],
     ['Porque los arrays no pueden guardar hilos.', false],
     ['Porque `ArrayList` hace que los hilos vayan más rápido.', false],
     ['Porque `join()` solo funciona con `ArrayList`.', false],
   ],
-  'Después, `for (Thread t : clientes) { t.join(); }` espera a todos.');
+  'Después, `for (Thread t : participantes) { t.join(); }` espera a todos.');
 
-completarTexto(E, 'Lavandería',
-  'La lavandería tiene 4 lavadoras y llegan 10 clientes a la vez. Al principio esperan en la cola ⟦num:6⟧ clientes. Cada uno paga 3 €: cuando se han atendido los 10, la ganancia total es de ⟦num:30⟧ €.',
-  '10 − 4 = 6 esperan; 10 × 3 = 30 €.');
+completarTexto(E, 'Peluquería',
+  'La peluquería tiene 3 sillones y llegan 8 clientes a la vez. Al principio esperan en la cola ⟦num:5⟧ clientes. Cada uno paga 12 €: cuando se han atendido los 8, la recaudación total es de ⟦num:96⟧ €.',
+  '8 − 3 = 5 esperan; 8 × 12 = 96 €.');
 
-test(E, 'Hornear fuera de synchronized',
-  'Un panadero hornea 20 barras (tarda 20 segundos, con `sleep`) y luego las añade a un mostrador compartido con un método `synchronized reponer()`. Los clientes compran con otro método `synchronized comprar()`. ¿Por qué el panadero hornea **fuera** de los métodos `synchronized`?',
+test(E, 'Fabricar fuera de synchronized',
+  'Un alfarero (hilo) fabrica una tanda de 20 jarrones (tarda 15 segundos, con `sleep`) y luego los añade a un estante compartido con un método `synchronized colocar()`. Los clientes compran con otro método `synchronized comprar()`. ¿Por qué el alfarero fabrica **fuera** de los métodos `synchronized`?',
   [
-    ['Para que los clientes puedan seguir comprando mientras se hornea.', true],
+    ['Para que los clientes puedan seguir comprando mientras se fabrica.', true],
     ['Porque `sleep` no se puede usar dentro de `synchronized`.', false],
-    ['Porque los clientes nunca compran mientras el panadero hornea.', false],
-    ['Para que el panadero termine antes.', false],
+    ['Porque los clientes nunca compran mientras el alfarero trabaja.', false],
+    ['Para que el alfarero termine antes.', false],
   ],
-  'Hornear tarda 20 s: dentro de `synchronized`, los clientes no podrían comprar mientras tanto.');
+  'Fabricar tarda 15 s: dentro de `synchronized`, los clientes no podrían comprar mientras tanto.');
 
-numerica(E, 'Precio panadería',
-  'Una panadería cobra la primera barra a 1 € y cada una de las demás a 0,75 €. Un cliente compra **4 barras**. ¿Cuántos euros paga? (usa punto o coma decimal)',
-  3.25,
-  '1 + 0,75 × 3 = 3,25 €. (Con 3 barras serían 1 + 0,75 × 2 = 2,50 €.)',
+numerica(E, 'Precio en la cafetería',
+  'Una cafetería cobra el primer café a 1,50 € y cada uno de los demás a 1 €. Un cliente toma **4 cafés**. ¿Cuántos euros paga? (usa punto o coma decimal)',
+  4.5,
+  '1,50 + 1 × 3 = 4,50 €. (Con 3 cafés serían 1,50 + 1 × 2 = 3,50 €.)',
   { tolerancia: 0.001 });
 
-test(E, 'Cliente espera tantas como pide',
-  'En una panadería, un cliente pide `cuantas` barras (de 1 a 10) al mostrador compartido y debe **esperar** si no hay suficientes. ¿Qué condición usa el `while` de `comprar(int cuantas)`?',
+test(E, 'Cliente espera tantos como pide',
+  'En una frutería, un cliente pide `kilos` de naranjas (de 1 a 10) a las existencias compartidas y debe **esperar** si no hay suficientes. ¿Qué condición usa el `while` de `comprar(int kilos)`?',
   [
-    ['`while (barras < cuantas)`: espera hasta que haya tantas como pide, no solo «alguna».', true],
-    ['`while (barras == 0)`: espera hasta que haya alguna.', false],
-    ['`while (barras > cuantas)`.', false],
+    ['`while (existencias < kilos)`: espera hasta que haya tantos como pide, no solo «alguno».', true],
+    ['`while (existencias == 0)`: espera hasta que haya alguno.', false],
+    ['`while (existencias > kilos)`.', false],
     ['No usa `while`: usa `if`.', false],
   ],
-  'Un cliente que pide 7 barras espera hasta que haya 7.');
+  'Un cliente que pide 7 kilos espera hasta que haya 7.');
 
-arrastrar(E, 'Cerrar la panadería',
-  'En una panadería, un hilo panadero hornea sin parar y vigila el mostrador; los clientes son hilos. Algunos clientes siguen esperando pan cuando se decide cerrar. Ordena los pasos para **cerrar** la panadería.',
+arrastrar(E, 'Cerrar la pizzería',
+  'En una pizzería, un hilo pizzero hornea sin parar y vigila el mostrador; los repartidores son hilos. Algunos repartidores siguen esperando pizzas cuando se decide cerrar. Ordena los pasos para **cerrar** la pizzería.',
   `1. [[1]]
 2. [[2]]
 3. [[3]]
 4. [[4]]
 5. [[5]]`,
   [
-    'Salir del menú: no se aceptan más clientes',
-    'join() a todos los clientes: los que esperan pan se atienden',
-    'mostrador.cerrar(): avisa al panadero',
-    'El panadero sale de su bucle, se lleva lo que queda y hornea el último lote',
-    'join() al panadero y resumen final',
+    'Salir del menú: no se aceptan más pedidos',
+    'join() a todos los repartidores: los que esperan pizza se atienden',
+    'mostrador.cerrar(): avisa al pizzero',
+    'El pizzero sale de su bucle, se lleva lo que queda y hornea la última tanda',
+    'join() al pizzero y resumen final',
   ],
-  'El orden importa: si se avisara al panadero **antes**, vaciaría el mostrador y los clientes que esperan se quedarían colgados.',
+  'El orden importa: si se avisara al pizzero **antes**, vaciaría el mostrador y los repartidores que esperan se quedarían colgados.',
   { esCodigo: false, grado: 3 });
 
-test(E, 'Espectador sin número de partida',
-  'En una sala de stream juega un solo jugador a la vez y cada partida tiene un **número**. Un espectador entra a ver una partida y debe irse cuando termine **esa** partida, aunque ya haya empezado otra. ¿Qué pasa si el espectador no apunta el número de su partida y solo comprueba si hay alguna en marcha?',
+test(E, 'Espectador sin número de sesión',
+  'En un cine con una sola sala, cada sesión tiene un **número**. Un espectador entra a ver una sesión y debe irse cuando termine **esa** sesión, aunque ya haya empezado otra. ¿Qué pasa si el espectador no apunta el número de su sesión y solo comprueba si hay alguna película en marcha?',
   [
-    ['Se quedaría a ver la siguiente partida sin darse cuenta, en vez de irse cuando acaba la suya.', true],
+    ['Se quedaría a ver la siguiente sesión sin darse cuenta, en vez de irse cuando acaba la suya.', true],
     ['No podría entrar a la sala.', false],
-    ['Saldría antes de que empiece la partida.', false],
+    ['Saldría antes de que empiece la sesión.', false],
     ['No pasa nada: se comporta igual.', false],
   ],
-  'Se queda mientras `jugando && partida == mi número`.');
+  'Se queda mientras `proyectando && sesion == miNumero`.');
 
 redaccion(E, 'Diseña tu propio problema',
   'Una biblioteca tiene **3 ordenadores**. Muchos alumnos (hilos) los usan. Escribe la clase `Biblioteca` con los métodos `entrar()` (espera si no hay ordenador libre y ocupa uno) y `salir()` (libera uno y avisa). Debe ser segura entre hilos.',
@@ -1536,53 +1578,53 @@ redaccion(E, 'Diseña tu propio problema',
 const F = '6.6';
 categoria('Repaso PSP Unidad 1/6.6 Lectores y escritores');
 
-completar(F, 'El método leerFichero',
-  'El lector entra al fichero solo si no hay nadie dentro. Completa `leerFichero()`:',
-  `public ⟦sa:synchronized⟧ void leerFichero() throws InterruptedException {
-    while (lectores > 0 ⟦sa:||⟧ escritores > 0) {
+completar(F, 'La puerta de la cabina',
+  'Una cabina de fotos la usan clientes y técnicos de mantenimiento, y solo puede haber **una persona dentro**, sea quien sea. Completa `entrarCliente()`:',
+  `public ⟦sa:synchronized⟧ void entrarCliente() throws InterruptedException {
+    while (clientes > 0 ⟦sa:||⟧ tecnicos > 0) {
         ⟦sa:wait⟧();
     }
-    lectores++;
+    clientes++;
 }`,
-  'El lector espera mientras haya algún lector **o** algún escritor dentro. Después se apunta con `lectores++`.',
+  'El cliente espera mientras haya algún cliente **o** algún técnico dentro. Después se apunta con `clientes++`.',
   { compilar: false });
 
 test(F, 'Qué significa ||',
-  '¿Qué significa `||` en `while (lectores > 0 || escritores > 0)`?',
+  'En `if (edad < 12 || edad > 65) precio = 5;`, ¿qué edad paga 5 €?',
   [
-    ['«o»: basta con que se cumpla una de las dos condiciones.', true],
-    ['«y»: tienen que cumplirse las dos a la vez.', false],
-    ['«distinto de».', false],
-    ['Es un comentario.', false],
+    ['70', true],
+    ['30', false],
+    ['12', false],
+    ['65', false],
   ],
-  '`||` es «o» y `&&` es «y». Aquí el hilo espera si hay algún lector o algún escritor dentro.');
+  '`||` es «o»: basta con que se cumpla una de las dos condiciones. 70 es mayor que 65. Con `&&` («y») no pagaría nadie, porque nadie es menor de 12 y mayor de 65 a la vez.');
 
 test(F, 'Hilos dentro a la vez',
-  'En esta solución, el `while` de `leerFichero()` y el de `escribirFichero()` son `while (lectores > 0 || escritores > 0)`. ¿Cuántos hilos como máximo usan el fichero a la vez?',
+  'En la cabina, los `while` de `entrarCliente()` y de `entrarTecnico()` son los dos `while (clientes > 0 || tecnicos > 0)`. ¿Cuántos hilos como máximo están dentro a la vez?',
   [
-    ['Uno solo, sea lector o escritor.', true],
-    ['Varios lectores, pero un solo escritor.', false],
-    ['Todos los lectores y un escritor.', false],
+    ['Uno solo, sea cliente o técnico.', true],
+    ['Varios clientes, pero un solo técnico.', false],
+    ['Todos los clientes y un técnico.', false],
     ['Ninguno: se quedan esperando para siempre.', false],
   ],
   'Los dos `while` miran los dos contadores: mientras haya alguien dentro, el resto espera. Por eso entra uno solo cada vez.');
 
-test(F, 'Condición del escritor',
-  '¿Qué condición debe tener el `while` de `escribirFichero()` para que un escritor no entre con nadie dentro?',
+test(F, 'Condición del técnico',
+  '¿Qué condición debe tener el `while` de `entrarTecnico()` para que un técnico no entre con nadie dentro de la cabina?',
   [
-    ['`while (lectores > 0 || escritores > 0)`', true],
-    ['`while (escritores > 0)`', false],
-    ['`while (lectores > 0 && escritores > 0)`', false],
-    ['`while (lectores == 0)`', false],
+    ['`while (clientes > 0 || tecnicos > 0)`', true],
+    ['`while (tecnicos > 0)`', false],
+    ['`while (clientes > 0 && tecnicos > 0)`', false],
+    ['`while (clientes == 0)`', false],
   ],
-  'Con `while (escritores > 0)` el escritor entraría con un lector leyendo. Con `&&` solo esperaría si hubiera lectores **y** escritores a la vez, algo imposible.');
+  'Con `while (tecnicos > 0)` el técnico entraría con un cliente dentro. Con `&&` solo esperaría si hubiera clientes **y** técnicos a la vez, algo imposible.');
 
 test(F, 'sleep dentro del método',
-  'El lector hace `fich.leerFichero();`, luego `Thread.sleep(...)` y luego `fich.terminaLeer();`. ¿Qué pasaría si el `sleep` estuviera **dentro** del método `synchronized` `leerFichero()`?',
+  'El cliente hace `cabina.entrarCliente();`, luego `Thread.sleep(...)` (se hace las fotos) y luego `cabina.salirCliente();`. ¿Qué pasaría si el `sleep` estuviera **dentro** del método `synchronized` `entrarCliente()`?',
   [
-    ['El lector dormiría con el fichero bloqueado y los demás hilos ni siquiera podrían entrar a mirar.', true],
+    ['El cliente dormiría con el cerrojo de la cabina y los demás hilos ni siquiera podrían entrar a mirar.', true],
     ['No compilaría.', false],
-    ['Los lectores leerían más rápido.', false],
+    ['Los clientes se harían las fotos más rápido.', false],
     ['No cambiaría nada.', false],
   ],
   'Regla de siempre: `sleep` va fuera de los métodos `synchronized`, entre la llamada de entrar y la de salir.');
@@ -1590,51 +1632,51 @@ test(F, 'sleep dentro del método',
 vf(F, 'throws InterruptedException',
   'Un método con `throws InterruptedException` no necesita `try/catch` dentro: el error lo recoge quien llama al método.',
   true,
-  'Verdadero. Por eso el `try/catch` está en `run()` de `Lector` y de `Escritor`.');
+  'Verdadero. Por eso el `try/catch` está en `run()` de `Cliente` y de `Tecnico`, que son quienes llaman a `entrarCliente()`.');
 
 test(F, 'notify en vez de notifyAll',
-  'En este ejercicio, todos los hilos que esperan esperan lo mismo: que el fichero quede libre. Si `terminaLeer()` y `terminaEscribir()` usan `notify()` en vez de `notifyAll()`, ¿el programa funciona?',
+  'En la cabina, todos los hilos que esperan esperan lo mismo: que la cabina quede libre. Si `salirCliente()` y `salirTecnico()` usan `notify()` en vez de `notifyAll()`, ¿el programa funciona?',
   [
     ['Sí: despertar a uno cualquiera basta, porque ese hilo puede entrar. `notifyAll()` es la opción segura.', true],
     ['No: se cuelga siempre.', false],
     ['No compila.', false],
-    ['Sí, pero solo con un lector.', false],
+    ['Sí, pero solo con un cliente.', false],
   ],
-  'Con papeles distintos, como el pintor y los vendedores de 6.4, `notify()` puede despertar al equivocado. Aquí no, pero `notifyAll()` sigue siendo lo más seguro.');
+  'Con papeles que esperan cosas distintas a la vez, como el granjero y los repartidores de 6.4, `notify()` puede despertar al equivocado. Aquí no, pero `notifyAll()` sigue siendo lo más seguro.');
 
-arrastrar(F, 'Qué hace el hilo lector',
-  'Ordena lo que hace `Lector.run()`:',
+arrastrar(F, 'Qué hace el hilo cliente',
+  'Ordena lo que hace `Cliente.run()`:',
   `1. [[1]]
 2. [[2]]
 3. [[3]]`,
   [
-    'fich.leerFichero();',
-    'Thread.sleep((r.nextInt(9) + 2) * 1000);',
-    'fich.terminaLeer();',
+    'cabina.entrarCliente();',
+    'Thread.sleep((r.nextInt(5) + 1) * 1000);',
+    'cabina.salirCliente();',
   ],
-  'Primero se pide permiso, después se duerme (es el tiempo de leer, fuera de los métodos `synchronized`) y por último se avisa de que se termina.',
+  'Primero se pide permiso, después se duerme (es el tiempo de hacerse las fotos, fuera de los métodos `synchronized`) y por último se avisa de que se sale.',
   { esCodigo: false });
 
 emparejar(F, 'Contadores y métodos',
-  'Une cada método con lo que hace:',
+  'Une cada método de la cabina con lo que hace:',
   [
-    ['`leerFichero()`', 'Espera si hay alguien dentro y suma 1 a `lectores`'],
-    ['`escribirFichero()`', 'Espera si hay alguien dentro y suma 1 a `escritores`'],
-    ['`terminaLeer()`', 'Resta 1 a `lectores` y avisa con `notifyAll()`'],
-    ['`terminaEscribir()`', 'Resta 1 a `escritores` y avisa con `notifyAll()`'],
+    ['`entrarCliente()`', 'Espera si hay alguien dentro y suma 1 a `clientes`'],
+    ['`entrarTecnico()`', 'Espera si hay alguien dentro y suma 1 a `tecnicos`'],
+    ['`salirCliente()`', 'Resta 1 a `clientes` y avisa con `notifyAll()`'],
+    ['`salirTecnico()`', 'Resta 1 a `tecnicos` y avisa con `notifyAll()`'],
   ],
   'Los cuatro métodos son `synchronized`. Los de entrar esperan con `wait()`; los de salir avisan con `notifyAll()`.');
 
-redaccion(F, 'Escribe el escritor',
-  'Escribe la clase `Escritor` del ejercicio de lectores y escritores. Implementa `Runnable`, recibe el `Fichero` en el constructor y en `run()` entra al fichero para escribir, duerme de 2 a 10 segundos y sale.',
+redaccion(F, 'Escribe el técnico',
+  'Escribe la clase `Tecnico` de la cabina de fotos. Implementa `Runnable`, recibe la `Cabina` en el constructor y en `run()` entra a revisar la cabina, duerme de 1 a 5 segundos y sale.',
   `import java.util.Random;
 
-public class Escritor implements Runnable {
+public class Tecnico implements Runnable {
 
-    private Fichero fich;
+    private Cabina cabina;
 
-    public Escritor(Fichero f) {
-        this.fich = f;
+    public Tecnico(Cabina cabina) {
+        this.cabina = cabina;
     }
 
     private Random r = new Random();
@@ -1642,13 +1684,313 @@ public class Escritor implements Runnable {
     @Override
     public void run() {
         try {
-            fich.escribirFichero();
-            Thread.sleep((r.nextInt(9) + 2) * 1000);
-            fich.terminaEscribir();
+            cabina.entrarTecnico();
+            Thread.sleep((r.nextInt(5) + 1) * 1000);
+            cabina.salirTecnico();
         } catch (InterruptedException ex) {
         }
     }
 }`, '', { grado: 4 });
+
+// =====================================================================
+// 6.7 SEMÁFORO: VARIOS LECTORES A LA VEZ
+// =====================================================================
+const G = '6.7';
+categoria('Repaso PSP Unidad 1/6.7 Varios a la vez: semáforo y ficheros');
+
+completar(G, 'Estados de la piscina',
+  'Una piscina la usan **varios nadadores a la vez**, pero el operario de limpieza necesita la piscina vacía y para él solo. Completa los estados y la puerta del nadador:',
+  `class Piscina {
+    public ⟦sa:static⟧ ⟦sa:final⟧ int LIBRE = 0;
+    public static final int CON_NADADORES = 1;
+    public static final int CON_LIMPIEZA = 2;
+
+    private int estado = LIBRE;
+    private int nadadores = 0;
+
+    public synchronized void entrarNadador() throws InterruptedException {
+        while (estado == ⟦sa:CON_LIMPIEZA⟧) {
+            wait();
+        }
+        estado = ⟦sa:CON_NADADORES⟧;
+        nadadores++;
+    }
+}`,
+  '`static final` crea una constante con nombre. El nadador solo espera si hay limpieza: con otros nadadores dentro, entra. Al entrar, el estado pasa a `CON_NADADORES` y suma uno.');
+
+test(G, 'Qué es una constante static final',
+  '¿Qué significa `public static final int LIBRE = 0;` dentro de una clase?',
+  [
+    ['Una constante de la clase: su valor no se puede cambiar y se escribe en mayúsculas.', true],
+    ['Una variable que cambia en cada hilo.', false],
+    ['Un método que devuelve 0.', false],
+    ['Un hilo que se ejecuta una sola vez.', false],
+  ],
+  '`static` hace que pertenezca a la clase y `final` que no pueda cambiar. Sirve para dar nombre a los valores en vez de escribir números sueltos.');
+
+emparejar(G, 'Estado y quién puede entrar',
+  'Une cada estado de la piscina con lo que ocurre:',
+  [
+    ['`LIBRE`', 'Puede entrar un nadador o el operario de limpieza'],
+    ['`CON_NADADORES`', 'Pueden entrar más nadadores, pero el operario espera'],
+    ['`CON_LIMPIEZA`', 'No puede entrar nadie: todos esperan'],
+  ],
+  'El estado resume lo que el objeto necesita saber para decidir quién entra.',
+  { grado: 2 });
+
+vf(G, 'Varios nadadores a la vez',
+  'Si la puerta del nadador es `while (estado == CON_LIMPIEZA) wait();`, un nadador puede entrar aunque ya haya otros nadadores dentro.',
+  true,
+  'Verdadero. A un nadador solo le molesta el operario. Al operario, en cambio, le molesta cualquiera.');
+
+test(G, 'Quién pone LIBRE',
+  'En `salirNadador()`, el hilo hace `nadadores--;`. ¿Cuándo debe poner el estado en `LIBRE` y avisar a los que esperan?',
+  [
+    ['Solo cuando `nadadores` llega a 0: es el último en salir.', true],
+    ['Siempre que sale un nadador.', false],
+    ['Nunca: lo hace el operario.', false],
+    ['Cuando entra el siguiente nadador.', false],
+  ],
+  'Si pusiera `LIBRE` al salir cada nadador, el operario podría entrar con nadadores todavía dentro.');
+
+test(G, 'Operario entra con nadadores dentro',
+  'Alguien programa `salirNadador()` poniendo `estado = LIBRE;` cada vez que sale un nadador, aunque queden otros. ¿Qué fallo puede ocurrir?',
+  [
+    ['El operario entra a limpiar con nadadores todavía en la piscina.', true],
+    ['Los nadadores no pueden entrar nunca.', false],
+    ['El programa no compila.', false],
+    ['El contador `nadadores` sale negativo siempre.', false],
+  ],
+  'El contador de nadadores decide cuándo está de verdad vacía la piscina.');
+
+test(G, 'notify o notifyAll con varios esperando',
+  'El operario termina de limpiar y hay 6 nadadores esperando. ¿Qué ventaja tiene `notifyAll()` frente a `notify()`?',
+  [
+    ['Despierta a todos: los 6 nadadores pueden entrar a la vez. Con `notify()` despierta a uno y los demás esperan más.', true],
+    ['`notify()` hace que se cuelgue el programa siempre.', false],
+    ['No hay ninguna diferencia.', false],
+    ['`notifyAll()` impide que entre el operario.', false],
+  ],
+  'Con `notify()` no se cuelga, pero entran de uno en uno: es menos eficiente.');
+
+test(G, 'Inanición',
+  'En la piscina llegan nadadores sin parar, y siempre hay alguien dentro. ¿Qué le puede ocurrir al operario de limpieza?',
+  [
+    ['Esperar indefinidamente: nunca llega a quedar la piscina vacía (inanición).', true],
+    ['Entrar enseguida, porque tiene prioridad.', false],
+    ['Que Java lance una excepción.', false],
+    ['Nada: el operario siempre entra primero.', false],
+  ],
+  'Si los que entran a la vez se solapan para siempre, el estado nunca vuelve a `LIBRE`. Se llama inanición.');
+
+test(G, 'Contador desfasado',
+  'Un nadador suma `nadadores++` al entrar, pero justo después falla al abrir su taquilla (excepción) y nunca llama a `salirNadador()`. ¿Qué pasa con el operario?',
+  [
+    ['Ve siempre un nadador dentro y espera para siempre.', true],
+    ['Entra igualmente.', false],
+    ['El contador se corrige solo.', false],
+    ['Java resta el nadador automáticamente.', false],
+  ],
+  'Si el hilo se interrumpe antes de salir, el contador queda mal. Conviene sumar el contador solo cuando ya está todo listo, o asegurar que se llama a salir.');
+
+test(G, 'El texto sigue en el buffer',
+  'Un programa guarda tareas en `tareas.txt` con un `BufferedWriter bw`: hace `bw.write("Comprar pan");` y `bw.newLine();`, pero **no** llama a `flush()` ni a `close()`. Después se abre el fichero. ¿Qué se ve?',
+  [
+    ['Nada: el texto sigue en el buffer y no ha llegado al fichero.', true],
+    ['La línea «Comprar pan».', false],
+    ['La línea «Comprar pan» dos veces.', false],
+    ['El programa da error al abrir el fichero.', false],
+  ],
+  '`flush()` manda al fichero lo que hay en el buffer, y `close()` también lo hace al cerrar. Sin ninguno de los dos, el texto puede no llegar nunca.');
+
+completar(G, 'Contar líneas de un fichero',
+  'Completa el código que cuenta las líneas de `tareas.txt`. Respeta mayúsculas y minúsculas.',
+  `import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+class Contar {
+    public static void main(String[] args) throws IOException {
+        BufferedReader br = new BufferedReader(new FileReader("tareas.txt"));
+        int n = ⟦num:0⟧;
+        while (br.⟦sa:readLine⟧() != ⟦sa:null⟧) {
+            n++;
+        }
+        br.⟦sa:close⟧();
+        System.out.println("Líneas: " + n);
+    }
+}`,
+  '`readLine()` lee una línea y devuelve `null` cuando ya no quedan más. El contador empieza en 0 y `close()` cierra el fichero.');
+
+numerica(G, 'Vueltas del while con readLine',
+  'El fichero `notas.txt` tiene 7 líneas. ¿Cuántas veces se ejecuta el cuerpo de `while (br.readLine() != null) { n++; }`?',
+  7,
+  'Una vuelta por cada línea. A la octava llamada, `readLine()` devuelve `null` y el bucle termina.');
+
+redaccion(G, 'Escribe la salida de la limpieza',
+  'Escribe los métodos `entrarLimpieza()` y `salirLimpieza()` de la `Piscina` (con `nadadores` y `estado`, y las constantes `LIBRE`, `CON_NADADORES` y `CON_LIMPIEZA`). La limpieza solo entra si el estado es `LIBRE`; al salir, deja el estado `LIBRE` y avisa a todos. Deben ser seguros entre hilos.',
+  `public synchronized void entrarLimpieza() throws InterruptedException {
+    while (estado != LIBRE) {
+        wait();
+    }
+    estado = CON_LIMPIEZA;
+}
+
+public synchronized void salirLimpieza() {
+    estado = LIBRE;
+    notifyAll();
+}`, '', { grado: 4 });
+
+// =====================================================================
+// 6.8 INTERBLOQUEO
+// =====================================================================
+const H = '6.8';
+categoria('Repaso PSP Unidad 1/6.8 Interbloqueo');
+
+test(H, 'Qué es un interbloqueo',
+  '¿Qué es un **interbloqueo** (deadlock)?',
+  [
+    ['Dos o más hilos esperan cada uno algo que tiene otro, y ninguno puede avanzar.', true],
+    ['Un hilo que termina antes de tiempo con una excepción.', false],
+    ['Un hilo que duerme demasiado con `sleep()`.', false],
+    ['Un error de compilación por tener dos clases `synchronized`.', false],
+  ],
+  'El programa no da error: se queda parado para siempre porque los hilos se esperan en círculo.');
+
+multi(H, 'Las cuatro condiciones',
+  'Para que haya interbloqueo tienen que cumplirse **todas** estas condiciones. Marca las que lo son:',
+  [
+    ['Exclusión mutua: el recurso solo lo puede usar un hilo cada vez.', true],
+    ['Retener y esperar: un hilo se queda con un recurso mientras pide otro.', true],
+    ['Sin quitárselo: nadie puede arrebatar el recurso al hilo que lo tiene.', true],
+    ['Espera en círculo: A espera a B y B espera a A.', true],
+    ['Que haya más hilos que núcleos en el procesador.', false],
+    ['Que los hilos usen `Thread.sleep()`.', false],
+  ],
+  'Si se evita una sola, no puede haber interbloqueo. `sleep()` y el número de núcleos no son condiciones.');
+
+test(H, 'Dos robots y dos herramientas',
+  'En un taller, el robot 1 coge el destornillador y después necesita el martillo. El robot 2 coge el martillo y después necesita el destornillador. Cada herramienta la usa un solo robot a la vez y ningún robot suelta la suya hasta terminar. ¿Qué puede ocurrir?',
+  [
+    ['Interbloqueo: cada robot espera la herramienta que tiene el otro.', true],
+    ['Nada: cada robot acaba sin problema.', false],
+    ['Una condición de carrera: se pierde un cambio.', false],
+    ['El programa no compila.', false],
+  ],
+  'Cada uno retiene una herramienta y pide la del otro: espera en círculo.');
+
+completar(H, 'Pedir las cuentas en orden',
+  'Un banco mueve dinero entre dos cuentas. Para evitar el interbloqueo, **todos** los hilos piden las cuentas en el mismo orden: primero la `cuenta1` y después la `cuenta2`. Completa el bloque.',
+  `public void mover(Cuenta cuenta1, Cuenta cuenta2) {
+    ⟦sa:synchronized⟧ (⟦sa:cuenta1⟧) {
+        synchronized (⟦sa:cuenta2⟧) {
+            cuenta1.restar(10);
+            cuenta2.sumar(10);
+        }
+    }
+}`,
+  'Se coge el cerrojo de la primera cuenta y, sin soltarlo, el de la segunda. Si todos los hilos piden primero la misma, no puede haber espera en círculo.',
+  { compilar: false });
+
+test(H, 'Transferencias cruzadas',
+  'Dos hilos hacen una transferencia a la vez: el hilo 1 llama a `transferir(cuentaA, cuentaB)` y el hilo 2 a `transferir(cuentaB, cuentaA)`. Dentro, el método coge primero el cerrojo de la cuenta de origen y después el de la de destino. ¿Qué puede ocurrir?',
+  [
+    ['Interbloqueo: el hilo 1 tiene A y pide B, y el hilo 2 tiene B y pide A.', true],
+    ['Nada: dos hilos nunca se molestan.', false],
+    ['Se transfiere el dinero dos veces.', false],
+    ['El programa lanza `IllegalMonitorStateException`.', false],
+  ],
+  'Cada hilo pide las cuentas en orden contrario. Es el interbloqueo clásico de las transferencias.');
+
+test(H, 'Cómo evitar el interbloqueo',
+  'Las transferencias entre cuentas provocan interbloqueo a veces. ¿Qué cambio lo evita?',
+  [
+    ['Que todos los hilos cojan los cerrojos en el mismo orden, por ejemplo siempre primero la cuenta de número menor.', true],
+    ['Añadir `Thread.sleep()` dentro de la transferencia.', false],
+    ['Quitar el `synchronized` de todos los métodos.', false],
+    ['Subir la prioridad de los hilos.', false],
+  ],
+  'Con el mismo orden no hay espera en círculo. Quitar `synchronized` evitaría el bloqueo, pero volvería la condición de carrera.');
+
+test(H, 'sleep y el cerrojo',
+  'Un hilo está dentro de un método `synchronized` y llama a `Thread.sleep(2000)`. ¿Qué pasa con el cerrojo del objeto durante esos 2 segundos?',
+  [
+    ['Sigue en su poder: `sleep()` no lo suelta, y los demás hilos no pueden entrar.', true],
+    ['Lo suelta mientras duerme.', false],
+    ['Lo suelta solo si otro hilo se lo pide.', false],
+    ['Desaparece y se crea uno nuevo al despertar.', false],
+  ],
+  'Solo `wait()` suelta el cerrojo. Por eso se puede provocar un interbloqueo durmiendo con un cerrojo cogido.');
+
+test(H, 'Estado de un hilo interbloqueado',
+  'Dos hilos están interbloqueados esperando cada uno el cerrojo que tiene el otro. ¿Qué devuelve `getState()` para cualquiera de ellos?',
+  [
+    ['`BLOCKED`', true],
+    ['`TERMINATED`', false],
+    ['`NEW`', false],
+    ['`TIMED_WAITING`', false],
+  ],
+  '`BLOCKED` es esperar el cerrojo de un objeto. `TIMED_WAITING` es `sleep()` y `WAITING` es `wait()` o `join()`.');
+
+emparejar(H, 'Estados de un hilo',
+  'Une cada situación con el estado de `Thread` que devuelve `getState()`:',
+  [
+    ['Un hilo creado con `new Thread(...)` al que aún no se le ha llamado a `start()`', '`NEW`'],
+    ['Un hilo que está en marcha ejecutando su código', '`RUNNABLE`'],
+    ['Un hilo que espera entrar en un método `synchronized` ocupado', '`BLOCKED`'],
+    ['Un hilo que ha llamado a `wait()` y espera un aviso', '`WAITING`'],
+    ['Un hilo que está en `Thread.sleep(500)`', '`TIMED_WAITING`'],
+    ['Un hilo que ya ha terminado su `run()`', '`TERMINATED`'],
+  ],
+  'Los seis estados de un hilo. `BLOCKED` y `WAITING` parecen iguales, pero uno espera un cerrojo y el otro un aviso.',
+  { grado: 3 });
+
+vf(H, 'Programa parado igual a interbloqueo',
+  'Si un programa con hilos se queda parado sin terminar, siempre es un interbloqueo.',
+  false,
+  'Falso. También se queda parado si un hilo espera con `wait()` un `notify()` que nadie hace (estado `WAITING`). Con el interbloqueo, los hilos están en `BLOCKED`.');
+
+vf(H, 'El interbloqueo depende del momento',
+  'Un programa con riesgo de interbloqueo puede funcionar bien en una ejecución y bloquearse en otra.',
+  true,
+  'Verdadero. Depende de en qué momento llega cada hilo a pedir el segundo recurso. Que salga bien una vez no demuestra nada.');
+
+arrastrar(H, 'La película de un interbloqueo',
+  'Ordena los pasos de lo que ocurre cuando dos robots se bloquean con un destornillador y un martillo.',
+  `1. [[1]]
+2. [[2]]
+3. [[3]]
+4. [[4]]
+5. [[5]]`,
+  [
+    'El robot 1 coge el destornillador y el robot 2 coge el martillo',
+    'Cada robot sigue trabajando un rato sin soltar su herramienta',
+    'El robot 1 pide el martillo y el robot 2 pide el destornillador',
+    'Cada uno espera a que el otro suelte la suya',
+    'Ninguno suelta nada y los dos se quedan parados para siempre',
+  ],
+  'Es el ciclo completo: retener, pedir el otro recurso, esperar en círculo y quedarse bloqueados.',
+  { esCodigo: false, grado: 2 });
+
+redaccion(H, 'Escribe la transferencia sin interbloqueo',
+  'Escribe el método `mover(Cuenta origen, Cuenta destino, int cantidad)` de una clase de transferencias, de forma que **no haya interbloqueo** aunque dos hilos muevan dinero entre las mismas cuentas en sentido contrario. Las cuentas tienen un `getNumero()`, un `restar(int)` y un `sumar(int)`. Pista: coge siempre primero el cerrojo de la cuenta de número menor.',
+  `public void mover(Cuenta origen, Cuenta destino, int cantidad) {
+    Cuenta primera;
+    Cuenta segunda;
+    if (origen.getNumero() < destino.getNumero()) {
+        primera = origen;
+        segunda = destino;
+    } else {
+        primera = destino;
+        segunda = origen;
+    }
+    synchronized (primera) {
+        synchronized (segunda) {
+            origen.restar(cantidad);
+            destino.sumar(cantidad);
+        }
+    }
+}`, '', { grado: 5 });
 
 // =====================================================================
 // SIMULACRO DE EXAMEN

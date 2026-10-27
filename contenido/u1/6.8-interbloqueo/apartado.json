@@ -1,0 +1,5 @@
+{
+  "titulo": "6.8 Interbloqueo",
+  "orden": 8,
+  "resumen": "Dos hilos, dos recursos, y cada uno espera al otro. El programa no da error, pero no termina nunca. ¿Cómo se llega ahí y cómo se evita?"
+}

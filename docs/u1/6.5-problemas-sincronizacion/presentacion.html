@@ -640,11 +640,12 @@ System.out.println("Fábrica cerrada");
 </section>
 <section>
 <h3>Probarlo en el simulador</h3>
-  <p>La fábrica de piezas es un productor y consumidor con <b>varios productores</b> y un tope de piezas entre todos.</p>
+  <p>La fábrica de piezas es un productor y consumidor con <b>varios productores</b>, un tope de piezas entre todos y <b>dos banderas</b> para terminar.</p>
   <ul>
-    <li>Escribe <code>poner()</code> y <code>retirar()</code> con las piezas del simulador (el simulador usa nombres propios, pero el método es el mismo)</li>
-    <li>Quita el <code>if</code> con <code>return false</code>, o cambia <code>notifyAll()</code> por <code>notify()</code>, y mira <b>qué falla</b></li>
-    <li>El panel <b>Experimentos</b> te propone situaciones para ejecutar y te dice si lo que has visto es lo esperado</li>
+    <li>Escribe <code>crearPieza()</code> y <code>empaquetar()</code> con las piezas del simulador, y después <code>MaquinaCreadora.run()</code> y <code>MaquinaEmpaquetadora.run()</code></li>
+    <li>Quita una de las dos banderas o el <code>&amp;&amp; seguirFabricando</code> del <code>while</code> de <code>empaquetar()</code> y mira <b>qué falla</b></li>
+    <li>El panel <b>Experimentos</b> te propone situaciones para ejecutar y, poco a poco, te hace escribir la cinta y las dos máquinas</li>
+    <li>Prueba <code>notify()</code> en vez de <code>notifyAll()</code>: aquí funciona. ¿Por qué?</li>
   </ul>
   <p class="aviso"><a href="../../simulador/index.html#fabrica&experimentos" target="_blank" rel="noopener">Abrir el simulador de hilos</a> (se abre en otra pestaña).</p>
 </section>
