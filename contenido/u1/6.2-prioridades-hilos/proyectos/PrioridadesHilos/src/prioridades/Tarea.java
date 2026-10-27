@@ -6,7 +6,7 @@ public class Tarea implements Runnable {
     @Override
     public void run() {
         String cadena = "";
-        for (int i = 0; i < 20000; i++) {
+        for (int i = 0; i < 200000; i++) {
             cadena += "A";
             // yield() sugiere al planificador que deje pasar a otro hilo. Es solo una sugerencia: Java puede ignorarla.
             Thread.yield();

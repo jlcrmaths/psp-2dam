@@ -43,3 +43,16 @@ body.presentacion { background: var(--fondo); }
 .reveal table { margin: .6em auto; border-collapse: collapse; font-size: .8em; }
 .reveal table th, .reveal table td { border-bottom: 1px solid var(--suave); padding: .35em .7em; text-align: left; }
 .reveal table th { color: var(--acento); }
+
+/* Animación del interbloqueo (6.8): Ana, Luis, la pala y el cubo. Se mueve con los fragmentos de reveal.js */
+.reveal .escena-ib { display: flex; justify-content: space-around; gap: 1em; margin: .4em 0; }
+.reveal .escena-ib .nino { display: flex; flex-direction: column; align-items: center; width: 45%; }
+.reveal .escena-ib .dichos { display: flex; flex-direction: column; gap: .2em; min-height: 3.4em; align-items: center; }
+.reveal .escena-ib .dicho { background: var(--caja-fondo); border: 2px solid var(--acento); border-radius: 14px; padding: .1em .6em; font-size: .75em; }
+.reveal .escena-ib .dicho.no { background: var(--aviso-fondo); border-color: var(--aviso-borde); }
+.reveal .escena-ib .cara { font-size: 2.2em; line-height: 1.1; display: inline-block; }
+.reveal .escena-ib .cosa { margin-top: .2em; padding: .1em .6em; border: 3px solid var(--borde); border-radius: 10px; font-size: .7em; }
+.reveal .fragment.sacude { opacity: 1; visibility: inherit; }
+.reveal .escena-ib .cara.sacude.visible { animation: ib-sacude .35s 4; }
+.reveal .escena-ib .cosa.sacude.visible { border-color: #ef4444; background: color-mix(in srgb, #ef4444 18%, transparent); }
+@keyframes ib-sacude { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px) rotate(-6deg); } 75% { transform: translateX(10px) rotate(6deg); } }

@@ -85,7 +85,7 @@
     private int escritores = 0;
 
     public synchronized void leerFichero() throws InterruptedException {
-        while (lectores &gt; 0 || escritores &gt; 0) {
+        while (lectores &gt; 0) {
             System.out.println(Thread.currentThread().getName() + &quot;: Hay alguien usando el fichero. Espero.&quot;);
             wait();
         }
