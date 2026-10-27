@@ -544,7 +544,7 @@ const BUILD = {
     ok:S => (S.cnt.decL || 0) === p.lectores && (S.cnt.decE || 0) === p.escritores && S.v.lectores === 0 && S.v.escritores === 0 && !S.anomalia,
     okMsg:S => '✔ Termina bien. Han usado el fichero ' + (S.cnt.decL || 0) + ' lectores y ' + (S.cnt.decE || 0) + ' escritores, de uno en uno',
     summary:S => 'leído por ' + (S.cnt.decL || 0) + ' de ' + p.lectores + ', escrito por ' + (S.cnt.decE || 0) + ' de ' + p.escritores,
-    mainLines:['public static void main(String[] args) {', '    Fichero f = new Fichero();', '    // ' + p.lectores + ' hilos Lector ("Lector0"…) y ' + p.escritores + ' hilos Escritor ("Escritor0"…)', '    // en dos arrays de Thread; los lectores se arrancan con un for', '    // y los escritores con un for-each', '}'],
+    mainLines:['public static void main(String[] args) {', '    Fichero f = new Fichero();', '', '    int numLectores = ' + p.lectores + ';', '    int numEscritores = ' + p.escritores + ';', '', '    Thread[] lectores = new Thread[numLectores];', '    Thread[] escritores = new Thread[numEscritores];', '', '    for (int i = 0; i < numLectores; i++) {', '        lectores[i] = new Thread(new Lector(f), "Lector" + i);', '    }', '    for (int i = 0; i < numEscritores; i++) {', '        escritores[i] = new Thread(new Escritor(f), "Escritor" + i);', '    }', '', '    for (int i = 0; i < numLectores; i++) {', '        lectores[i].start();', '    }', '    for (Thread escr : escritores) {', '        escr.start();', '    }', '}'],
     hiloLines:['// Lector.run(): leerFichero(); sleep(' + p.sleepL + '); terminaLeer();', '// Escritor.run(): escribirFichero(); sleep(' + p.sleepE + '); terminaEscribir();'],
     solution:() => ({
       m:{leerFichero:{mod:'synchronized', body:[blk('while', 'lectores > 0 || escritores > 0', [st('wait')]), st('incL')]},
@@ -601,61 +601,68 @@ const BUILD = {
     })
   }; },
   fabrica:p => ({
-    titulo:'6.5 Fábrica: ' + p.maquinas + ' máquinas, cinta de ' + p.capacidad + ', ' + p.total + ' piezas',
-    clase:'Cinta', recurso:'Cinta', icono:'📦', max:p.capacidad,
-    vars:{piezas:0, fabricadas:0}, consts:{maximo:p.capacidad, total:p.total},
-    fields:['private int piezas = 0;', 'private final int maximo = ' + p.capacidad + ';', 'private int fabricadas = 0;', 'private final int total = ' + p.total + ';'],
-    methods:[{name:'poner', ret:'boolean'}, {name:'retirar', ret:'void'}],
+    titulo:'6.5 Fábrica: ' + p.creadoras + ' creadoras, ' + p.empaquetadoras + ' empaquetadora' + (p.empaquetadoras === 1 ? '' : 's') + ', cinta de ' + p.capacidad + ', ' + p.total + ' piezas',
+    clase:'CintaTransportadora', recurso:'Cinta', icono:'📦', max:p.capacidad,
+    vars:{piezasCinta:0, piezasCreadas:0, piezasEmpaquetadas:0, seguirFabricando:true, seguirEmpaquetando:true}, consts:{CAPACIDAD:p.capacidad, TOTAL_PIEZAS:p.total},
+    fields:['private static final int CAPACIDAD = ' + p.capacidad + ';', 'private static final int TOTAL_PIEZAS = ' + p.total + ';', '', 'private int piezasCinta = 0;', 'private int piezasCreadas = 0;', 'private int piezasEmpaquetadas = 0;', 'private boolean seguirFabricando = true;', 'private boolean seguirEmpaquetando = true;', ''],
+    methods:[{name:'crearPieza', ret:'boolean'}, {name:'empaquetar', ret:'boolean'}],
     ops:[
-      {g:'Datos', key:'inc', label:'piezas++;', anim:{emoji:'📦', hold:'none'}, fx:S => {
-        if (S.v.piezas >= p.capacidad) S.pend = '¡no cabe: ' + (S.v.piezas + 1) + ' piezas en una cinta de ' + p.capacidad + '!';
-        S.v.piezas++; return 'piezas++ → ' + S.v.piezas; }},
-      {g:'Datos', key:'dec', label:'piezas--;', anim:{emoji:'📦', hold:'none'}, fx:S => {
-        if (S.v.piezas <= 0) S.pend = '¡retira una pieza que no existe!'; else S.ven++;
-        S.v.piezas--; return 'piezas-- → ' + S.v.piezas; }},
-      {g:'Datos', key:'fab', label:'fabricadas++;', fx:S => { S.v.fabricadas++; return 'fabricadas++ → ' + S.v.fabricadas; }}
+      {g:'Datos', key:'incP', label:'piezasCinta++;', anim:{emoji:'📦', hold:'none'}, fx:S => {
+        if (S.v.piezasCinta >= p.capacidad) S.pend = '¡no cabe: ' + (S.v.piezasCinta + 1) + ' piezas en una cinta de ' + p.capacidad + '!';
+        S.v.piezasCinta++; return 'piezasCinta++ → ' + S.v.piezasCinta; }},
+      {g:'Datos', key:'decP', label:'piezasCinta--;', anim:{emoji:'📦', hold:'none'}, fx:S => {
+        if (S.v.piezasCinta <= 0) S.pend = '¡empaqueta una pieza que no existe!';
+        S.v.piezasCinta--; return 'piezasCinta-- → ' + S.v.piezasCinta; }},
+      {g:'Datos', key:'incC', label:'piezasCreadas++;', fx:S => {
+        if (S.v.piezasCreadas >= p.total) S.pend = '¡se crea una pieza de más: ya se habían creado las ' + p.total + '!';
+        S.v.piezasCreadas++; return 'piezasCreadas++ → ' + S.v.piezasCreadas; }},
+      {g:'Datos', key:'incE', label:'piezasEmpaquetadas++;', fx:S => { S.v.piezasEmpaquetadas++; return 'piezasEmpaquetadas++ → ' + S.v.piezasEmpaquetadas; }},
+      {g:'Datos', key:'stopF', label:'seguirFabricando = false;', fx:S => { S.v.seguirFabricando = false; return 'seguirFabricando = false'; }},
+      {g:'Datos', key:'stopE', label:'seguirEmpaquetando = false;', fx:S => { S.v.seguirEmpaquetando = false; return 'seguirEmpaquetando = false'; }},
+      {g:'Salida', key:'retSF', label:'return seguirFabricando;', retVar:'seguirFabricando', retTipo:'boolean'},
+      {g:'Salida', key:'retSE', label:'return seguirEmpaquetando;', retVar:'seguirEmpaquetando', retTipo:'boolean'}
     ],
     groups:[
-      {t:'m', n:p.maquinas, name:'Máquina', emoji:'🏭', extra:a => ' · puestas: ' + a.done,
-       proc:function*(a){
-         for (;;){
-           yield* sleepTicks(a, ticksDe(p.sleepM));
-           const r = yield* invoke(a, 'poner');
-           if (r === true){ a.done++; continue; }
-           if (S.v.fabricadas >= p.total) log(a.n + ': poner() devolvió false, ya se fabricaron todas, termina');
-           else { S.anomalia = true; log(a.n + ': poner() devolvió false antes de tiempo, se va', true); }
-           break;
-         }
-         a.state = 'fin'; a.cur = null;
-       }},
-      {t:'e', n:1, name:'Empaquetador', emoji:'📮', extra:a => ' · retiradas: ' + a.done + '/' + p.total,
-       proc:function*(a){
-         for (let i = 0; i < p.total; i++){ yield* sleepTicks(a, ticksDe(p.sleepE)); yield* invoke(a, 'retirar'); a.done++; }
-         a.state = 'fin'; a.cur = null;
-       }}
+      {t:'m', n:p.creadoras, name:'Creadora', emoji:'🏭', extra:a => ' · piezas: ' + a.done,
+       proc:a => runHilo(a, 'Creadora')},
+      {t:'e', n:p.empaquetadoras, name:'Empaquetadora', emoji:'📮', extra:a => ' · empaquetadas: ' + a.done,
+       proc:a => runHilo(a, 'Empaquetadora')}
     ],
-    filled:S => S.v.piezas,
+    hiloObj:'cinta', sleepFijo:true,
+    hilos:[{k:'Creadora', n:'MaquinaCreadora.run()', ops:['sleepFix'], sleep:'sleepC', ms:p.sleepC},
+           {k:'Empaquetadora', n:'MaquinaEmpaquetadora.run()', ops:['sleepFix'], sleep:'sleepE', ms:p.sleepE}],
+    hiloOps:[],
+    onCall:(a, nm, r) => { if ((nm === 'crearPieza' || nm === 'empaquetar') && r === true) a.done++; },
+    filled:S => Math.max(0, S.v.piezasCinta),
     anomaly:S => { const m = S.pend; S.pend = null; return m; },
-    stats:S => 'En la cinta: <span class="' + ((S.v.piezas > p.capacidad || S.v.piezas < 0) ? 'bad' : '') + '">' + S.v.piezas + '</span> / ' + p.capacidad + ' · Fabricadas: ' + S.v.fabricadas + ' / ' + p.total + ' · Retiradas: ' + S.ven + ' / ' + p.total,
-    ok:S => S.v.fabricadas === p.total && S.ven === p.total && S.v.piezas === 0 && !S.anomalia,
-    okMsg:S => '✔ Termina bien. Fábrica cerrada: ' + S.v.fabricadas + ' fabricadas y ' + S.ven + ' retiradas',
-    summary:S => 'fabricadas ' + S.v.fabricadas + ' de ' + p.total + ', retiradas ' + S.ven + ', en la cinta ' + S.v.piezas,
-    mainLines:['public static void main(String[] args) {', '    Cinta cinta = new Cinta();', '    // ' + p.maquinas + ' hilos Maquina y 1 hilo Empaquetador, cada uno con su new Thread(...).start()', '    // join de los ' + (p.maquinas + 1) + ' hilos', '    System.out.println("Fábrica cerrada");', '}'],
-    hiloLines:['// Maquina.run(): sleep(' + p.sleepM + '); y repite mientras cinta.poner() sea true', '// Empaquetador.run(): ' + p.total + ' veces sleep(' + p.sleepE + '); y cinta.retirar()'],
+    stats:S => 'En la cinta: <span class="' + ((S.v.piezasCinta > p.capacidad || S.v.piezasCinta < 0) ? 'bad' : '') + '">' + S.v.piezasCinta + '</span> / ' + p.capacidad + ' · Creadas: ' + S.v.piezasCreadas + ' / ' + p.total + ' · Empaquetadas: ' + S.v.piezasEmpaquetadas + ' / ' + p.total,
+    ok:S => S.v.piezasCreadas === p.total && S.v.piezasEmpaquetadas === p.total && S.v.piezasCinta === 0 && !S.anomalia,
+    okMsg:S => '✔ Termina bien. Fábrica cerrada: ' + S.v.piezasCreadas + ' creadas y ' + S.v.piezasEmpaquetadas + ' empaquetadas',
+    summary:S => 'creadas ' + S.v.piezasCreadas + ' de ' + p.total + ', empaquetadas ' + S.v.piezasEmpaquetadas + ', en la cinta ' + S.v.piezasCinta,
+    mainLines:['public static void main(String[] args) throws InterruptedException {', '    CintaTransportadora cinta = new CintaTransportadora();', '    // ' + p.creadoras + ' hilos MaquinaCreadora y ' + p.empaquetadoras + ' MaquinaEmpaquetadora,', '    // en dos arrays de Thread, con new Thread(...) y start() en un for-each', '    // join() a todos los hilos', '    System.out.println("Fábrica cerrada");', '}'],
+    hiloLines:['// MaquinaCreadora.run(): mientras cinta.crearPieza() sea true, sleep(' + p.sleepC + ')', '// MaquinaEmpaquetadora.run(): mientras cinta.empaquetar() sea true, sleep(' + p.sleepE + ')'],
     solution:() => ({
-      m:{poner:{mod:'synchronized', body:[blk('while', 'piezas == maximo && fabricadas < total', [st('wait')]), blk('if', 'fabricadas == total', [st('retF')]), st('inc'), st('fab'), st('notifyAll'), st('retT')]},
-         retirar:{mod:'synchronized', body:[blk('while', 'piezas == 0', [st('wait')]), st('dec'), st('notifyAll')]}},
-      principal:{body:[]}
+      m:{crearPieza:{mod:'synchronized', body:[blk('while', 'piezasCinta == CAPACIDAD', [st('wait')]),
+          Object.assign(blk('ifelse', 'piezasCreadas >= TOTAL_PIEZAS', [st('stopF')]), {els:[st('incP'), st('incC')]}),
+          st('notifyAll'), st('retSF')]},
+         empaquetar:{mod:'synchronized', body:[blk('while', 'piezasCinta == 0 && seguirFabricando', [st('wait')]),
+          Object.assign(blk('ifelse', 'piezasCinta == 0 && !seguirFabricando', [st('stopE')]), {els:[st('decP'), st('incE'), st('notifyAll')]}),
+          st('retSE')]}},
+      principal:{body:[]},
+      h:{Creadora:{body:[blk('while', 'cinta.crearPieza()', [st('sleepFix')])]},
+         Empaquetadora:{body:[blk('while', 'cinta.empaquetar()', [st('sleepFix')])]}}
     })
-  })
+  }),
 };
 /* enunciado de cada problema (depende de los contadores) */
 const ENUN = {
-  fabrica:p => '<p>Una fábrica con <b>' + p.maquinas + ' máquinas</b> que ponen piezas en una cinta donde caben como máximo <b>' + p.capacidad + '</b>. Una empaquetadora las retira.</p>' +
-    '<ul><li>Si la cinta está llena, las máquinas esperan. Si está vacía, la empaquetadora espera.</li>' +
-    '<li>Cada máquina tarda ' + p.sleepM + ' ms en hacer una pieza y la empaquetadora ' + p.sleepE + ' ms en retirarla.</li>' +
-    '<li>Entre todas las máquinas se fabrican <b>' + p.total + '</b> piezas, ni una más. Cuando se alcanza ese total, <code>poner()</code> devuelve <code>false</code> y las máquinas terminan.</li>' +
-    '<li>La fábrica termina cuando se han fabricado y retirado las ' + p.total + ' piezas y la cinta queda vacía.</li></ul>',
+  fabrica:p => '<p>Una fábrica con <b>' + p.creadoras + ' máquinas creadoras</b> que ponen piezas en una cinta transportadora donde caben como máximo <b>' + p.capacidad + '</b>. ' + (p.empaquetadoras === 1 ? 'Una máquina empaquetadora las recoge' : p.empaquetadoras + ' máquinas empaquetadoras las recogen') + '.</p>' +
+    '<ul><li>Si la cinta está llena, las creadoras esperan. Si está vacía, la empaquetadora espera.</li>' +
+    '<li>Cada creadora tarda ' + p.sleepC + ' ms en crear una pieza y la empaquetadora ' + p.sleepE + ' ms en empaquetarla.</li>' +
+    '<li>Entre todas las creadoras se crean <b>' + p.total + '</b> piezas, ni una más. Las máquinas no saben cuántas habrá: lo sabe la cinta.</li>' +
+    '<li><code>crearPieza()</code> y <code>empaquetar()</code> devuelven <code>true</code> mientras la máquina deba seguir y <code>false</code> cuando ya no hay nada más que hacer. Cada máquina repite su método con un <code>while</code>.</li>' +
+    '<li>Hay dos banderas: <code>seguirFabricando</code> y <code>seguirEmpaquetando</code>. La empaquetadora termina cuando la cinta está vacía y ya no se fabrica.</li>' +
+    '<li>Los hilos también los escribes tú, en sus pestañas: <code>MaquinaCreadora.run()</code> y <code>MaquinaEmpaquetadora.run()</code>.</li></ul>',
   cocina:p => '<p>Una cocina con <b>' + p.cocineros + ' cocineros</b> y <b>' + p.cuchillos + ' cuchillos</b>. Cada cocinero coge un cuchillo, corta durante ' + p.sleep + ' ms y lo suelta. Lo hace 4 veces.</p>' +
     '<ul><li>Si no queda ningún cuchillo libre, el cocinero espera a que otro suelte uno.</li>' +
     '<li>Los cuchillos libres nunca pueden ser menos de 0.</li>' +
@@ -712,9 +719,9 @@ const HINTS = {
   pintor2:['Ahora hay tres hilos esperando sobre el mismo almacén y notify() solo despierta a uno cualquiera. Además, los vendedores necesitan saber cuándo ya no habrá más: el almacén cuenta los cuadros pintados y los vendidos.',
     'Cambia notify() por notifyAll(). En depositar() cuenta también los pintados. vender() espera mientras no haya cuadros y todavía falten cuadros por pintar; al salir del while, si hay cuadros vende uno (y cuenta el vendido) y avisa a todos. Escribe también getCuadrosVendidos(), que devuelve los vendidos: cada vendedor repite vender() mientras no se hayan vendido todos.',
     ['depositar(): while (numCuadros == numMaxCuadros) wait(); numCuadros++; numCuadrosPintados++; notifyAll();', 'vender(): while (numCuadros == 0 && numCuadrosPintados < total) wait();', 'Después, un if (numCuadros > 0) { … }', 'Dentro del if: numCuadros--; numCuadrosVendidos++; notifyAll();', 'getCuadrosVendidos(): synchronized, return numCuadrosVendidos; (lo usa el Vendedor para saber si debe seguir)', 'Ejecuta varias veces: siempre termina y se venden todos.']],
-  fabrica:['Es un productor y consumidor con varios productores y un tope de piezas fabricadas entre todos. Cuando hay más de dos hilos esperando, elige bien cómo avisar.',
-    'poner() espera mientras la cinta está llena y faltan piezas por fabricar; si ya se fabricaron todas, devuelve false para que la máquina termine. retirar() espera mientras no hay piezas. Los dos avisan con notifyAll().',
-    ['poner(): synchronized, while (piezas == maximo && fabricadas < total) wait();', 'Después, if (fabricadas == total) return false;', 'Después, piezas++; fabricadas++; notifyAll(); return true;', 'retirar(): synchronized, while (piezas == 0) wait();', 'Después, piezas--; notifyAll();', 'Ejecuta: se fabrican y retiran todas y la cinta acaba vacía.']],
+  fabrica:['Es el pintor y el vendedor otra vez, pero con varios productores y un tope de piezas entre todos. Las máquinas no saben cuándo parar: ¿qué puede devolver un método de la cinta para decírselo? ¿Y cuándo debe parar la empaquetadora?',
+    'La cinta cuenta las piezas que hay, las creadas y las empaquetadas, y tiene dos banderas boolean: seguirFabricando y seguirEmpaquetando, las dos en true. crearPieza() espera si la cinta está llena; si ya se crearon todas apaga seguirFabricando, y si no crea una pieza; avisa con notifyAll() y devuelve seguirFabricando. empaquetar() espera si la cinta está vacía y se sigue fabricando; si la cinta está vacía y ya no se fabrica apaga seguirEmpaquetando, y si no empaqueta una pieza y avisa; devuelve seguirEmpaquetando. Las máquinas repiten su método con un while.',
+    ['crearPieza(): synchronized; while (piezasCinta == CAPACIDAD) wait();', 'Después, un if/else: if (piezasCreadas >= TOTAL_PIEZAS) seguirFabricando = false; else piezasCinta++ y piezasCreadas++.', 'Después, notifyAll(); y return seguirFabricando;', 'empaquetar(): synchronized; while (piezasCinta == 0 && seguirFabricando) wait();', 'Después, un if/else: if (piezasCinta == 0 && !seguirFabricando) seguirEmpaquetando = false; else piezasCinta--, piezasEmpaquetadas++ y notifyAll().', 'Después, return seguirEmpaquetando;', 'MaquinaCreadora.run(): while (cinta.crearPieza()) { Thread.sleep(ms); }. MaquinaEmpaquetadora.run(): lo mismo con cinta.empaquetar().']],
   lectores:['Hay dos papeles pero una sola regla: el fichero lo usa un hilo cada vez. ¿Qué tiene que saber el fichero para decidir si un hilo puede entrar?',
     'El fichero cuenta los lectores y los escritores que lo están usando. leerFichero() y escribirFichero() esperan con un while mientras haya algún lector o algún escritor; después suman uno a su contador. terminaLeer() y terminaEscribir() restan uno y avisan. Los cuatro métodos llevan synchronized.',
     ['Escribe synchronized en los cuatro métodos.', 'En leerFichero(), un while con lectores > 0 || escritores > 0 y dentro wait();', 'Después del while, lectores++;', 'En escribirFichero(), lo mismo, pero con escritores++;', 'En terminaLeer(), lectores--; y notifyAll();', 'En terminaEscribir(), escritores--; y notifyAll();', 'En Lector.run(): leerFichero(), sleep y terminaLeer(). En Escritor.run(): escribirFichero(), sleep y terminaEscribir().']]
@@ -735,7 +742,7 @@ const PARAMS = {
   parking:[{k:'coches', label:'Coches', min:1, max:12, def:8}, {k:'plazas', label:'Plazas', min:1, max:6, def:3}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:2000}],
   bicis:[{k:'mecanicos', label:'Mecánicos', min:1, max:5, def:3}, {k:'clientes', label:'Clientes', min:1, max:5, def:2}, {k:'capacidad', label:'Capacidad del estante', min:1, max:6, def:3}, {k:'sleepM', label:'sleep mecánico', inline:true, min:0, max:5000, def:700}, {k:'sleepC', label:'sleep cliente', inline:true, min:0, max:5000, def:1200}],
   pintor:[{k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}],
-  fabrica:[{k:'maquinas', label:'Máquinas', min:1, max:5, def:3}, {k:'total', label:'Piezas a fabricar', min:4, max:50, def:20}, {k:'capacidad', label:'Capacidad de la cinta', min:1, max:8, def:5}, {k:'sleepM', label:'sleep máquina', unit:' ms', step:100, min:0, max:5000, def:1200}, {k:'sleepE', label:'sleep empaquetador', unit:' ms', step:100, min:0, max:5000, def:800}],
+  fabrica:[{k:'creadoras', label:'Creadoras', min:1, max:5, def:3}, {k:'empaquetadoras', label:'Empaquetadoras', min:1, max:3, def:1}, {k:'total', label:'Piezas a crear', min:4, max:50, def:20}, {k:'capacidad', label:'Capacidad de la cinta', min:1, max:8, def:5}, {k:'sleepC', label:'sleep creadora', unit:' ms', step:100, min:0, max:5000, def:1200}, {k:'sleepE', label:'sleep empaquetadora', unit:' ms', step:100, min:0, max:5000, def:800}],
   lectores:[{k:'lectores', label:'Lectores', min:1, max:8, def:5}, {k:'escritores', label:'Escritores', min:1, max:4, def:2}, {k:'sleepL', label:'sleep lector', inline:true, min:0, max:5000, def:1600}, {k:'sleepE', label:'sleep escritor', inline:true, min:0, max:5000, def:2400}],
   tema:[{k:'vendedores', inline:true, min:1, max:5, def:2}, {k:'total', inline:true, min:1, max:20, def:10}, {k:'capacidad', inline:true, min:1, max:5, def:1}, {k:'sleepP', inline:true, min:0, max:5000, def:0}, {k:'sleepV', inline:true, min:0, max:5000, def:400}],
   pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}, {k:'sleepP', label:'sleep pintor', inline:true, min:0, max:5000, def:0}, {k:'sleepV', label:'sleep vendedor', inline:true, min:0, max:5000, def:400}]
@@ -806,7 +813,7 @@ function checkList(list, where, add, tipo){
       if (n.op === 'terminarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "almacen"; eso se llama desde Pintor.run()', n.id);
       if (spec && spec.err) add(where + '()', spec.err, n.id);
       if ((n.op === 'retT' || n.op === 'retF') && tipo !== 'boolean') add(where + '()', tipo === 'int' ? 'return true/false en un método que devuelve int' : 'return con valor en un método void', n.id);
-      if (spec && spec.retVar && tipo !== 'int') add(where + '()', tipo === 'boolean' ? 'aquí se devuelve true o false, no un int' : 'return con valor en un método void', n.id);
+      if (spec && spec.retVar && tipo !== (spec.retTipo || 'int')) add(where + '()', tipo === 'boolean' ? 'aquí se devuelve true o false, no un int' : tipo === 'int' ? 'aquí se devuelve un int, no un boolean' : 'return con valor en un método void', n.id);
       if (n.op === 'retT' || n.op === 'retF' || (spec && spec.retVar)) ret = true;
     }
   }
@@ -876,11 +883,12 @@ function compile(){
     checkList(m.body, me.name, add, me.ret);
     if (isBool){
       const real = m.body.filter(n => n.kind !== 'empty'), last = real[real.length - 1];
-      if (!last || last.kind !== 'stmt' || (last.op !== 'retT' && last.op !== 'retF')) add(me.name + '()', 'falta un return al final', null);
+      const spB = last && last.kind === 'stmt' && sc.ops.find(o => o.key === last.op);
+      if (!last || last.kind !== 'stmt' || (last.op !== 'retT' && last.op !== 'retF' && !(spB && spB.retVar && spB.retTipo === 'boolean'))) add(me.name + '()', 'falta un return al final', null);
     }
     if (isInt){
       const real = m.body.filter(n => n.kind !== 'empty'), last = real[real.length - 1], sp = last && last.kind === 'stmt' && sc.ops.find(o => o.key === last.op);
-      if (!sp || !sp.retVar) add(me.name + '()', 'falta un return al final', null);
+      if (!sp || !sp.retVar || sp.retTipo === 'boolean') add(me.name + '()', 'falta un return al final', null);
     }
   }
   if (sc.hasPrincipal) checkList(prog.principal.body, 'Principal', add, 'void');
@@ -1739,7 +1747,15 @@ const MUT = {
   sinIfVender:pr => { const b = pr.m.vender.body, k = b.findIndex(n => n.kind === 'if'); if (k >= 0) b.splice(k, 1, ...b[k].body); return pr; },
   sinGetter:pr => { pr.m.getCuadrosVendidos = {mod:'', body:[]}; return pr; },
   sinPintados:pr => { walk(pr.m.vender.body, n => { if (n.kind === 'while') n.cond = 'numCuadros == 0'; }); return pr; },
-  sinTopar:pr => { pr.m.poner.body = pr.m.poner.body.filter(n => n.kind !== 'if'); return pr; },
+  sinTopar:pr => { const b = pr.m.crearPieza.body, k = b.findIndex(n => n.kind === 'ifelse'); if (k >= 0) b.splice(k, 1, ...b[k].els); return pr; },
+  sinFinEmp:pr => { walk(pr.m.empaquetar.body, n => { if (n.kind === 'while') n.cond = 'piezasCinta == 0'; }); return pr; },
+  sinStopE:pr => { walk(pr.m.empaquetar.body, n => { if (n.kind === 'ifelse') n.body = []; }); return pr; },
+  sinCondE:pr => { walk(pr.m.empaquetar.body, n => { if (n.kind === 'while') n.cond = ''; }); return pr; },
+  sinCrear:pr => { pr.m.crearPieza = {mod:'', body:[]}; return pr; },
+  sinEmpaq:pr => { pr.m.empaquetar = {mod:'', body:[]}; return pr; },
+  sinCinta:pr => { pr.m.crearPieza = {mod:'', body:[]}; pr.m.empaquetar = {mod:'', body:[]}; return pr; },
+  sinCreadora:pr => { pr.h.Creadora = {body:[]}; return pr; },
+  sinEmpaquetadora:pr => { pr.h.Empaquetadora = {body:[]}; return pr; },
   sinCerrar:pr => { pr.principal = {body:[]}; return pr; },
   sinCerrarM:pr => { pr.m.cerrar = {mod:'', body:[]}; return pr; },
   sinMontar:pr => { pr.m.montar = {mod:'', body:[]}; return pr; },
@@ -1927,31 +1943,64 @@ const EXPS = {
      why:'Cada hilo sabe cuántos cuadros le tocan, así que los dos usan un for que repite esa cantidad de veces: el pintor llama a depositar() y el vendedor a vender().'}
   ],
   fabrica:[
-    {id:'solucion', tipo:'ver', titulo:'Cuántas se fabrican',
-     cfg:() => ({maquinas:randInt(2, 4), total:randInt(8, 14), capacidad:randInt(1, 3), sleepM:pick([500, 1000]), sleepE:500}),
-     instr:c => 'Ejecuta la solución: ' + c.maquinas + ' máquinas, una cinta de ' + c.capacidad + ' y ' + c.total + ' piezas en total. Fíjate en que las máquinas fabrican entre todas.',
+    {id:'solucion', nivel:1, tipo:'ver', titulo:'Cuántas se crean',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 14), capacidad:randInt(1, 3), sleepC:pick([400, 800]), sleepE:400}),
+     instr:c => 'Ejecuta la solución: ' + c.creadoras + ' creadoras, una cinta de ' + c.capacidad + ' y ' + c.total + ' piezas en total. Fíjate en que las creadoras crean entre todas.',
      prog:SOL,
-     q:(r, c) => { const ops = [c.total, c.total + c.maquinas, c.total * c.maquinas].filter((v, i, a) => a.indexOf(v) === i);
-       return {txt:'¿Cuántas piezas se fabrican en total al acabar?', ops:ops.map(v => v + ' piezas'), ok:0, why:'Hay un tope compartido: entre todas las máquinas se fabrican ' + c.total + ', no ' + c.total + ' cada una. Por eso poner() cuenta las fabricadas y devuelve false cuando se alcanza el total.'}; }},
-    {id:'sinTopar', tipo:'ver', titulo:'Sin parar en el total',
-     cfg:() => ({maquinas:randInt(2, 4), total:randInt(8, 12), capacidad:randInt(1, 3), sleepM:500, sleepE:500}),
-     instr:c => 'Aquí poner() no comprueba si ya se fabricaron las ' + c.total + ' piezas (falta el if con return false).',
-     prog:() => MUT.sinTopar(SOL()),
-     q:qResultado('¿Qué ocurre?', 'Sin ese if las máquinas nunca saben que ya está todo fabricado: siguen poniendo piezas y el programa no termina o termina con piezas de más. El return false es la señal de fin de las máquinas.')},
-    {id:'notify', tipo:'ver', titulo:'notify() con varios papeles',
-     cfg:() => ({maquinas:randInt(2, 4), total:randInt(8, 12), capacidad:randInt(1, 2), sleepM:500, sleepE:500}),
-     instr:c => 'Aquí se usa notify() en vez de notifyAll(). Hay ' + c.maquinas + ' máquinas, una empaquetadora y una cinta de ' + c.capacidad + '.',
-     prog:() => MUT.swap(SOL(), 'notifyAll', 'notify'), reps:20,
-     q:qResultado('¿Funciona siempre?', 'Esperan hilos con dos papeles: máquinas (cinta llena) y empaquetadora (cinta vacía). notify() puede despertar a uno que no puede avanzar y la señal se pierde. Con notifyAll() se despiertan todos y cada uno comprueba si le toca.')},
-    {id:'if', tipo:'ver', titulo:'if en vez de while',
-     cfg:() => ({maquinas:randInt(3, 4), total:randInt(8, 12), capacidad:randInt(1, 2), sleepM:500, sleepE:500}),
-     instr:c => 'Aquí hay if en lugar de while antes de los wait(). Hay ' + c.maquinas + ' máquinas.',
-     prog:() => MUT.ifPorWhile(SOL()), reps:20,
-     q:qResultado('¿Falla?', 'Con varias máquinas, notifyAll() las despierta a todas y solo cabe una pieza. La primera la pone y las demás, sin volver a mirar, ponen otra: la cinta se pasa de su capacidad. El while obliga a comprobarlo de nuevo.')},
-    {id:'montar', tipo:'montar', titulo:'Móntalo tú',
-     cfg:() => ({maquinas:randInt(2, 4), total:randInt(8, 12), capacidad:randInt(1, 3), sleepM:500, sleepE:500}),
-     instr:c => 'Escribe poner() y retirar() para ' + c.maquinas + ' máquinas, una cinta de ' + c.capacidad + ' y ' + c.total + ' piezas. Recuerda que poner() devuelve boolean. Pulsa «Comprobar» cuando creas que está.',
-     prog:null, why:'poner(): while (piezas == maximo && fabricadas < total) wait(); si fabricadas == total, return false; después piezas++, fabricadas++, notifyAll() y return true. retirar(): while (piezas == 0) wait(); piezas--; notifyAll().'}
+     q:(r, c) => { const ops = [c.total, c.total + c.creadoras, c.total * c.creadoras].filter((v, i, a) => a.indexOf(v) === i);
+       return {txt:'¿Cuántas piezas se crean en total al acabar?', ops:ops.map(v => v + ' piezas'), ok:0, why:'Hay un tope compartido: entre todas las creadoras se crean ' + c.total + ', no ' + c.total + ' cada una. Por eso la cinta cuenta las piezasCreadas y apaga seguirFabricando al llegar al total.'}; }},
+    {id:'sinTopar', nivel:2, tipo:'ver', titulo:'Sin parar en el total',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 3), sleepC:800, sleepE:400}),
+     instr:c => 'Aquí crearPieza() no comprueba si ya se crearon las ' + c.total + ' piezas: falta el if con seguirFabricando = false.',
+     prog:() => MUT.sinTopar(SOL()), q:qResultado('¿Qué ocurre?', 'Sin ese if nadie apaga seguirFabricando: crearPieza() devuelve siempre true y las creadoras siguen creando piezas de más. La bandera es la señal de fin de las creadoras.')},
+    {id:'sinFinEmp', nivel:3, tipo:'ver', titulo:'La empaquetadora no mira si se sigue fabricando',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 3), sleepC:800, sleepE:400}),
+     instr:c => 'Aquí el while de empaquetar() solo mira piezasCinta == 0: no mira seguirFabricando. Hay ' + c.creadoras + ' creadoras y se crean ' + c.total + ' piezas.',
+     prog:() => MUT.sinFinEmp(SOL()), q:qResultado('¿Qué ocurre?', 'Cuando ya no se crean más piezas y la cinta se vacía, la empaquetadora sigue esperando en wait() y nadie la despierta. Con && seguirFabricando sale del while, ve que no queda nada y apaga seguirEmpaquetando.')},
+    {id:'sinStopE', nivel:4, tipo:'ver', titulo:'La empaquetadora no apaga su bandera',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 3), sleepC:800, sleepE:400}),
+     instr:c => 'Aquí empaquetar() no pone seguirEmpaquetando = false cuando ya está todo. Hay ' + c.creadoras + ' creadoras y se crean ' + c.total + ' piezas.',
+     prog:() => MUT.sinStopE(SOL()), q:qResultado('¿Qué ocurre?', 'La empaquetadora recibe true siempre: repite su while para siempre aunque la cinta esté vacía y no se cree nada. Cada papel necesita su propia bandera para terminar.')},
+    {id:'notify', nivel:5, tipo:'ver', titulo:'Solo notify()',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 3), sleepC:800, sleepE:400}),
+     instr:c => 'Aquí se usa notify() en vez de notifyAll(). Hay ' + c.creadoras + ' creadoras, una empaquetadora y una cinta de ' + c.capacidad + '.',
+     prog:() => MUT.swap(SOL(), 'notifyAll', 'notify'), reps:20, q:qResultado('¿Funciona siempre?', 'Aquí sí, aunque haya dos papeles: las creadoras esperan con la cinta llena y la empaquetadora con la cinta vacía, y una cinta no está llena y vacía a la vez. Los que esperan en cada momento son del mismo tipo, y despertar a uno basta. notifyAll() sigue siendo la opción segura.')},
+    {id:'if', nivel:6, tipo:'ver', titulo:'if en vez de while',
+     cfg:() => ({creadoras:randInt(3, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 2), sleepC:800, sleepE:400}),
+     instr:c => 'Aquí hay if en lugar de while antes de los wait(). Hay ' + c.creadoras + ' creadoras.',
+     prog:() => MUT.ifPorWhile(SOL()), reps:20, q:qResultado('¿Falla?', 'Con varias creadoras, notifyAll() las despierta a todas y solo cabe una pieza. La primera la pone y las demás, sin volver a mirar, ponen otra: la cinta se pasa de su capacidad. El while obliga a comprobarlo de nuevo.')},
+    {id:'sinSync', nivel:7, tipo:'ver', titulo:'Sin synchronized',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 3), sleepC:800, sleepE:400}),
+     instr:c => 'Aquí se han quitado los synchronized de crearPieza() y empaquetar(). Hay ' + c.creadoras + ' creadoras.',
+     prog:() => MUT.sinSync(SOL()), q:qResultado('¿Qué ocurre?', 'wait() y notifyAll() solo se pueden llamar con la llave del objeto, y la llave solo se tiene dentro de un método synchronized. Sin él, Java lanza IllegalMonitorStateException.')},
+    {id:'condE', nivel:8, tipo:'montar', titulo:'Completa el while de empaquetar()',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 3), sleepC:800, sleepE:400}),
+     instr:c => 'A empaquetar() le falta la condición del while: la empaquetadora no espera cuando la cinta está vacía. Escríbela en la pestaña CintaTransportadora y pulsa «Comprobar».',
+     prog:() => MUT.sinCondE(SOL()), tab:0, why:'La empaquetadora espera mientras la cinta esté vacía Y se siga fabricando: while (piezasCinta == 0 && seguirFabricando) wait(); Así, cuando ya no se crea nada, sale del while y puede terminar.'},
+    {id:'crear', nivel:9, tipo:'montar', titulo:'Escribe crearPieza()',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 3), sleepC:800, sleepE:400}),
+     instr:c => 'Todo está escrito menos crearPieza(): el método que usa cada creadora para poner una pieza en la cinta de ' + c.capacidad + '. Escríbelo en la pestaña CintaTransportadora y pulsa «Comprobar».',
+     prog:() => MUT.sinCrear(SOL()), tab:0, why:'crearPieza(): synchronized; while (piezasCinta == CAPACIDAD) wait(); if (piezasCreadas >= TOTAL_PIEZAS) seguirFabricando = false; else { piezasCinta++; piezasCreadas++; } notifyAll(); return seguirFabricando;'},
+    {id:'empaquetar', nivel:10, tipo:'montar', titulo:'Escribe empaquetar()',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 3), sleepC:800, sleepE:400}),
+     instr:c => 'Todo está escrito menos empaquetar(): el método de la empaquetadora. Escríbelo en la pestaña CintaTransportadora y pulsa «Comprobar».',
+     prog:() => MUT.sinEmpaq(SOL()), tab:0, why:'empaquetar(): synchronized; while (piezasCinta == 0 && seguirFabricando) wait(); if (piezasCinta == 0 && !seguirFabricando) seguirEmpaquetando = false; else { piezasCinta--; piezasEmpaquetadas++; notifyAll(); } return seguirEmpaquetando;'},
+    {id:'todo', nivel:11, tipo:'montar', titulo:'Móntalo tú',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 3), sleepC:800, sleepE:400}),
+     instr:c => 'Los hilos ya están escritos. Escribe crearPieza() y empaquetar() en la cinta: hay ' + c.creadoras + ' creadoras y se crean ' + c.total + ' piezas. Pulsa «Comprobar».',
+     prog:() => MUT.sinCinta(SOL()), tab:0, why:'crearPieza() espera con la cinta llena, apaga seguirFabricando al llegar al total y si no crea una pieza; empaquetar() espera con la cinta vacía mientras se fabrica, apaga seguirEmpaquetando cuando ya no queda nada y si no empaqueta una pieza. Los dos son synchronized, avisan con notifyAll() y devuelven su bandera.'},
+    {id:'hCreadora', nivel:12, tipo:'montar', titulo:'Escribe MaquinaCreadora.run()',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 3), sleepC:800, sleepE:400}),
+     instr:c => 'La cinta y la empaquetadora ya están escritas. Escribe en la pestaña MaquinaCreadora.run() lo que hace una creadora. Recuerda que no sabe cuántas piezas habrá. Pulsa «Comprobar».',
+     prog:() => MUT.sinCreadora(SOL()), tab:2, why:'La creadora no sabe cuándo parar: repite con while (cinta.crearPieza()) y duerme dentro. Cuando la cinta devuelve false, termina.'},
+    {id:'hEmpaquetadora', nivel:13, tipo:'montar', titulo:'Escribe MaquinaEmpaquetadora.run()',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 3), sleepC:800, sleepE:400}),
+     instr:c => 'Todo está escrito menos lo que hace la empaquetadora. Escribe en la pestaña MaquinaEmpaquetadora.run() un bucle que empaquete. Pulsa «Comprobar».',
+     prog:() => MUT.sinEmpaquetadora(SOL()), tab:3, why:'Igual que la creadora, con el otro método: while (cinta.empaquetar()) y el sleep dentro. Cuando la cinta devuelve false, ya no queda nada.'},
+    {id:'hilos', nivel:14, tipo:'montar', titulo:'Escribe los dos while',
+     cfg:() => ({creadoras:randInt(2, 4), empaquetadoras:1, total:randInt(8, 12), capacidad:randInt(1, 3), sleepC:800, sleepE:400}),
+     instr:c => 'La cinta ya está escrita. Escribe en las pestañas MaquinaCreadora.run() y MaquinaEmpaquetadora.run() lo que hace cada máquina. Hay ' + c.creadoras + ' creadoras y se crean ' + c.total + ' piezas. Pulsa «Comprobar».',
+     prog:() => { const pr = SOL(); pr.h = emptyProg(sc).h; return pr; }, tab:2, why:'Las dos máquinas hacen lo mismo con su método: mientras la cinta diga true, repiten y duermen. Ninguna cuenta nada: la cinta lo sabe todo.'}
   ],
   lectores:[
     {id:'unoAUno', nivel:1, tipo:'ver', titulo:'¿Cuántos a la vez?',

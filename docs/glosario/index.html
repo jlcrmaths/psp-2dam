@@ -297,6 +297,19 @@ System.out.println(h.getName());   // Hilo 1
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="getState()">
+<h2><code>getState()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de la clase Thread. Devuelve el estado en que está un hilo: NEW, RUNNABLE, BLOCKED, WAITING, TIMED_WAITING o TERMINATED.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Comprobar qué hace un hilo. Un hilo que espera el cerrojo de un objeto synchronized está en BLOCKED; uno dormido con sleep(), en TIMED_WAITING; uno que espera un wait() o un join(), en WAITING.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread h = new Thread(new Tarea(), &quot;Hilo 1&quot;);
+System.out.println(h.getState());   // NEW
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="if">
 <h2><code>if</code></h2>
 <dl>
@@ -321,6 +334,19 @@ System.out.println(h.getName());   // Hilo 1
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">import static java.lang.Thread.sleep;
 
 sleep(3000);
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="interbloqueo">
+<h2><code>interbloqueo</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Concepto, no una instrucción: situación en la que dos o más hilos esperan cada uno algo que tiene otro, y ninguno puede avanzar. En inglés, deadlock.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Explica por qué un programa se queda parado sin dar ningún error. Se produce cuando hay exclusión mutua, un hilo retiene un recurso mientras pide otro, nadie puede quitárselo y los hilos esperan en círculo. Se evita pidiendo los recursos siempre en el mismo orden.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">a.metodoA(b);   // el hilo 1 tiene A y pide B
+b.metodoB(a);   // el hilo 2 tiene B y pide A
 </code></pre>
 </dd>
 </dl>
@@ -688,6 +714,22 @@ public static final int CON_ESCRITOR = 2;
 </dd>
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">public synchronized void depositar(int numero) {
     // solo un hilo a la vez entra aquí
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="synchronized (objeto)">
+<h2><code>synchronized (objeto)</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Forma de usar synchronized no en un método entero, sino en un bloque: el hilo coge el cerrojo del objeto que se escribe entre paréntesis solo mientras dura el bloque.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Proteger solo una parte del código, o coger el cerrojo de otro objeto distinto de this. Se pueden anidar para pedir dos cerrojos, siempre en el mismo orden para evitar un interbloqueo.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">synchronized (primero) {
+    synchronized (segundo) {
+        // trabaja con los dos
+    }
 }
 </code></pre>
 </dd>
