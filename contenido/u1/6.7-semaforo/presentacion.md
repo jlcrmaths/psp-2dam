@@ -239,6 +239,19 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
 ---
 
 <!-- html -->
+  <h3>Probarlo en el simulador</h3>
+  <p>Con los lectores y los escritores verás cómo cambia el estado de los datos: <code>LIBRE</code>, <code>CON_LECTORES</code> y <code>CON_ESCRITOR</code>.</p>
+  <ul>
+    <li>Arrastra o pulsa las piezas para escribir los cuatro métodos del <code>Semaforo</code> y los dos hilos</li>
+    <li>Fíjate en que <b>varios lectores</b> están dentro a la vez, pero el escritor siempre entra <b>solo</b></li>
+    <li>Quita el <code>if (tLectores == 0)</code>, el <code>notify()</code> o la marca <code>CON_LECTORES</code> y mira <b>qué falla</b></li>
+    <li>El panel <b>Experimentos</b> te propone situaciones para ejecutar y, poco a poco, te hace escribir cada método y cada hilo</li>
+  </ul>
+  <p class="aviso"><a href="../../simulador/index.html#semaforo&experimentos" target="_blank" rel="noopener">Semáforo de lectores y escritores</a> (se abre en otra pestaña).</p>
+
+---
+
+<!-- html -->
   <h3>Ahora, un ejercicio: la discoteca</h3>
   <ul>
     <li><b>5 hilos lectores</b> y <b>2 hilos escritores</b> comparten el fichero <code>Discoteca.txt</code></li>
