@@ -35,6 +35,27 @@
 --
 
 <!-- html -->
+  <h3>Ana, Luis, la pala y el cubo</h3>
+  <div class="escena-ib">
+    <div class="nino">
+      <div class="dichos"><span class="dicho fragment" data-fragment-index="1">«Dame el cubo»</span><span class="dicho no fragment" data-fragment-index="2">«No suelto la pala»</span></div>
+      <span class="cara fragment sacude" data-fragment-index="3">👧</span>
+      <b>Ana</b>
+      <span class="cosa fragment sacude" data-fragment-index="3">⛏️ pala</span>
+    </div>
+    <div class="nino">
+      <div class="dichos"><span class="dicho fragment" data-fragment-index="1">«Dame la pala»</span><span class="dicho no fragment" data-fragment-index="2">«No suelto el cubo»</span></div>
+      <span class="cara fragment sacude" data-fragment-index="3">👦</span>
+      <b>Luis</b>
+      <span class="cosa fragment sacude" data-fragment-index="3">🪣 cubo</span>
+    </div>
+  </div>
+  <p class="aviso fragment" data-fragment-index="3">⏳ Los dos esperan <b>para siempre</b>. Eso es un <b>interbloqueo</b>.</p>
+  <p class="caja fragment" data-fragment-index="4"><b>Arreglo:</b> los dos piden en el mismo orden, primero la pala y luego el cubo. Luis espera su turno sin quitarle nada a Ana.</p>
+
+--
+
+<!-- html -->
     <div class="nuevo">
     <h3>Lo nuevo de hoy</h3>
     <div class="nuevo-item"><span class="etiqueta">Concepto</span><p><b>Interbloqueo</b>: dos o más hilos esperan cada uno algo que tiene otro, y ninguno puede avanzar.</p></div>
