@@ -112,7 +112,7 @@
     private int escritores = 0;
 
     public synchronized void leerFichero() throws InterruptedException {
-        while (lectores &gt; 0 || escritores &gt; 0) {
+        while (escritores &gt; 0) {
             System.out.println(Thread.currentThread().getName() + &quot;: Hay alguien usando el fichero. Espero.&quot;);
             wait();
         }
@@ -542,17 +542,17 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 <section>
 <h3>Solución: el escritor</h3>
   <pre><code class="language-java" data-trim data-line-numbers="3|4-5|6|7|8">    public void run() {
-        try {
+         try {
             BufferedWriter bw = fich.escribirFichero();
             bw.write(Thread.currentThread().getName());
             bw.newLine();
             bw.flush();
             System.out.println(Thread.currentThread().getName() + &quot;: He escrito mi nombre en el fichero&quot;);
             fich.terminaEscribir();
-        } catch (InterruptedException ex) {
-        } catch (IOException ex) {
-            System.out.println(ex);
+        } catch (InterruptedException interruptedException) {
+        } catch (IOException iOException) {
         }
+       
     }</code></pre>
   <ul class="peque">
     <li><code>escribirFichero()</code> hace esperar al escritor hasta que esté solo</li>
@@ -950,7 +950,7 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
     public static void main(String[] args) throws InterruptedException {
         Semaforo smfro = new Semaforo();
 
-        for (int i = 1; i &lt;= 4; i++) {
+        for (int i = 1; i &lt;= 10; i++) {
             new Thread(new Lector(smfro), &quot;Lector&quot; + i).start();
             Thread.sleep(50);
         }
