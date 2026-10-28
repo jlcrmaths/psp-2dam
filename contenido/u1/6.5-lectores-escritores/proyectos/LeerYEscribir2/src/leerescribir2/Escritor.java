@@ -1,4 +1,4 @@
-package varios;
+package leerescribir2;
 
 import java.util.Random;
 
