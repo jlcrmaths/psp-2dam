@@ -22,13 +22,12 @@
 <h3>Objetivo de la clase</h3>
   <ul>
     <li>Sincronizar y comunicar hilos con <b>papeles distintos</b>: lectores y escritores</li>
-    <li>Contar quién usa un recurso con <b>dos contadores</b> y esperar con <code>wait()</code> y <code>notifyAll()</code></li>
+    <li>Resolverlo <b>como el productor y el consumidor</b>: contadores, <code>wait()</code> y <code>notifyAll()</code></li>
     <li>Saber dónde va el tiempo de leer o escribir: <b>fuera</b> de <code>synchronized</code></li>
+    <li>Preguntarnos si la regla que hemos escrito es la <b>mejor</b> posible</li>
     <li>Pasar de <b>simular</b> la lectura con <code>sleep</code> a usar un <b>fichero de verdad</b></li>
-    <li>Entender la clase <code>Semaforo</code>: el <b>estado</b> de los datos y <b>varios lectores a la vez</b></li>
-    <li>Leer la <b>salida</b> del programa y saber qué ha pasado</li>
-    <li>Practicar con un ejercicio: la <b>discoteca</b></li>
-    <li>Reconocer la <b>inanición</b> y evitarla</li>
+    <li>Entender la clase <code>Semaforo</code> y leer su <b>salida</b></li>
+    <li>Descubrir un problema que <b>no da ningún error</b></li>
   </ul>
 </section>
 <section>
@@ -38,12 +37,12 @@
 </section>
 <section>
 <h3>El plan de hoy</h3>
-  <p>Un solo problema, <b>cuatro pasos</b>. Cada uno arregla algo del anterior.</p>
   <ol>
-    <li><b>El problema</b> y su solución con <code>wait()</code> y <code>notifyAll()</code>. Leer y escribir se <b>simulan</b> con <code>sleep</code></li>
+    <li><b>El problema</b>, resuelto como el del productor y el consumidor. Leer y escribir se <b>simulan</b> con <code>sleep</code></li>
+    <li><b>¿Qué cambia?</b> Una pregunta sobre lo que acabamos de hacer</li>
     <li><b>El fichero de verdad</b>: cómo se escribe y cómo se lee</li>
-    <li><b>Varios lectores a la vez</b>: la clase <code>Semaforo</code> y el ejercicio de la <b>discoteca</b></li>
-    <li>La <b>inanición</b>: un escritor que no entra nunca, y cómo se arregla</li>
+    <li>La clase <b><code>Semaforo</code></b></li>
+    <li>Un problema que <b>no se ve</b> a la primera</li>
   </ol>
   <p class="aviso">Cada paso tiene su <b>proyecto de NetBeans</b> y su <b>simulador</b>.</p>
 </section>
@@ -56,21 +55,12 @@
     <li class="fragment">Cada uno mira si ya puede cogerlo. Si no, sigue esperando</li>
   </ul>
 </section>
-<section>
-<h3>Leer no estropea, escribir sí</h3>
-  <p>Un <b>cuaderno</b> en la mesa de una biblioteca.</p>
-  <ul>
-    <li class="fragment">Quien <b>lee</b> solo mira. Quien <b>escribe</b> cambia el cuaderno</li>
-    <li class="fragment">Si dos escriben a la vez, o uno lee mientras otro escribe, el cuaderno queda <b>mezclado</b></li>
-    <li class="fragment">Hace falta una <b>regla</b> que diga quién puede coger el cuaderno en cada momento</li>
-  </ul>
-</section>
 </section>
 <section>
 <section>
 <h2>Paso 1</h2>
   <h3>El problema, con <code>sleep</code></h3>
-  <p class="peque">Proyecto <b>LeerYEscribir</b> · apartado 6.6</p>
+  <p class="peque">Proyecto <b>LeerYEscribir</b> · como el del pintor y el vendedor</p>
 </section>
 <section>
 <div class="nuevo">
@@ -267,21 +257,140 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
   </ul>
   <p class="aviso"><a href="../../simulador/index.html#lectores&experimentos" target="_blank" rel="noopener">Lectores y escritores</a> (se abre en otra pestaña).</p>
 </section>
+<section>
+<h3>Para pensar</h3>
+  <ol>
+    <li>Pon el <code>sleep</code> dentro de <code>leerFichero()</code>. ¿Qué ves?</li>
+    <li>Cambia <code>notifyAll()</code> por <code>notify()</code> y ejecuta diez veces. ¿Siempre termina? ¿Por qué, si en 6.4 no valía?</li>
+  </ol>
+</section>
 </section>
 <section>
 <section>
 <h2>Paso 2</h2>
+  <h3>¿Qué cambia?</h3>
+  <p class="peque">Proyecto <b>LectoresVarios</b></p>
+</section>
+<section>
+<h3>Una pregunta</h3>
+  <p>Ejecuta de nuevo el ejercicio del paso 1 y mira la salida. El fichero lo usa <b>un hilo cada vez</b>.</p>
+  <ul>
+    <li>¿Qué hace un <b>lector</b> con el fichero? ¿Y un <b>escritor</b>?</li>
+    <li>Si dos lectores usan el fichero <b>a la vez</b>, ¿se estropea algo?</li>
+    <li>¿Y si <b>uno lee</b> mientras <b>otro escribe</b>?</li>
+  </ul>
+  <p class="caja">Piénsalo un par de minutos. <b>¿Qué cambiarías en las reglas?</b></p>
+</section>
+<section>
+<h3>La respuesta</h3>
+  <ul>
+    <li class="fragment">Un lector <b>solo mira</b>: leer no cambia el fichero</li>
+    <li class="fragment">Por eso <b>varios lectores pueden leer a la vez</b>: no se estorban</li>
+    <li class="fragment">Un escritor <b>sí lo cambia</b>: tiene que estar <b>solo</b></li>
+  </ul>
+  <table class="peque fragment">
+    <tr><th>Quien llega</th><th>¿Con quién puede estar?</th></tr>
+    <tr><td>Un <b>lector</b></td><td>Con otros lectores. <b>No</b> con un escritor</td></tr>
+    <tr><td>Un <b>escritor</b></td><td>Con <b>nadie</b></td></tr>
+  </table>
+</section>
+<section>
+<h3>¿Qué cambia en el código?</h3>
+  <p>Seguimos con los mismos <b>dos contadores</b>. Piensa:</p>
+  <ul>
+    <li>¿Cuándo tiene que esperar un <b>lector</b> ahora?</li>
+    <li>¿Cuándo tiene que esperar un <b>escritor</b>?</li>
+    <li>Cuando <b>un lector</b> termina, ¿hay que avisar siempre? ¿A quién?</li>
+  </ul>
+  <p class="caja">Los cuatro métodos del <code>Fichero</code> son los mismos. Cambian <b>dos condiciones</b>.</p>
+</section>
+<section>
+<h3>La regla nueva: entrar</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="2|11">    public synchronized void leerFichero() throws InterruptedException {
+        while (escritores &gt; 0) {
+            System.out.println(Thread.currentThread().getName() + &quot;: Hay un escritor. Espero.&quot;);
+            wait();
+        }
+        lectores++;
+        System.out.println(Thread.currentThread().getName() + &quot;: Leyendo fichero. Lectores: &quot; + lectores);
+    }
+
+    public synchronized void escribirFichero() throws InterruptedException {
+        while (lectores &gt; 0 || escritores &gt; 0) {
+            System.out.println(Thread.currentThread().getName() + &quot;: Hay alguien usando el fichero. Espero.&quot;);
+            wait();
+        }
+        escritores++;
+        System.out.println(Thread.currentThread().getName() + &quot;: Escribiendo fichero.&quot;);
+    }</code></pre>
+  <ul class="peque">
+    <li><code>leerFichero()</code>: ahora el lector espera <b>solo si hay un escritor</b>. Con otros lectores, entra</li>
+    <li><code>escribirFichero()</code>: igual que antes. Al escritor le molesta <b>cualquiera</b></li>
+  </ul>
+</section>
+<section>
+<h3>La regla nueva: salir y avisar</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="4-6|10-12">    public synchronized void terminaLeer() {
+        lectores--;
+        System.out.println(Thread.currentThread().getName() + &quot;: He terminado de leer. Lectores: &quot; + lectores);
+        if (lectores == 0) {
+            notifyAll();
+        }
+    }
+
+    public synchronized void terminaEscribir() {
+        escritores--;
+        System.out.println(Thread.currentThread().getName() + &quot;: He terminado de escribir&quot;);
+        notifyAll();
+    }</code></pre>
+  <ul class="peque">
+    <li><code>terminaLeer()</code>: solo el <b>último</b> lector avisa. Si quedan lectores, el escritor no puede entrar todavía</li>
+    <li><code>terminaEscribir()</code>: avisa a <b>todos</b>, porque pueden entrar lectores <b>y</b> escritores</li>
+  </ul>
+</section>
+<section>
+<h3>Qué debes ver</h3>
+  <ul>
+    <li><code>Lectores:</code> sube a 2, 3, 4, 5: <b>varios leyendo a la vez</b></li>
+    <li>Los escritores dicen <code>Hay alguien usando el fichero. Espero.</code> hasta que sale el <b>último</b> lector</li>
+    <li>Un escritor entra <b>solo</b>: nunca sale <code>Leyendo</code> entre su <code>Escribiendo</code> y su <code>He terminado de escribir</code></li>
+  </ul>
+  <p class="aviso">Con una regla mejor, el programa <b>hace lo mismo en menos tiempo</b>.</p>
+</section>
+<section>
+<h3>Probarlo en el simulador</h3>
+  <ul>
+    <li>Fíjate en cuántos hilos hay dentro del fichero a la vez</li>
+    <li>Cambia la condición del lector por la del paso 1 y mira qué cambia</li>
+    <li>El panel <b>Experimentos</b> te hace escribir los cuatro métodos con la regla nueva</li>
+  </ul>
+  <p class="aviso"><a href="../../simulador/index.html#varios&experimentos" target="_blank" rel="noopener">Simulador: varios lectores a la vez</a> (se abre en otra pestaña)</p>
+</section>
+</section>
+<section>
+<section>
+<h2>Paso 3</h2>
   <h3>El fichero de verdad</h3>
-  <p class="peque">Proyecto <b>LectoresFichero</b></p>
+  <p class="peque">Proyecto <b>Discoteca</b> · ejercicio</p>
 </section>
 <section>
 <h3>Qué cambia</h3>
   <ul>
-    <li>La <b>regla no cambia</b>: un hilo cada vez, mismos contadores, mismo <code>wait()</code> y <code>notifyAll()</code></li>
+    <li>La <b>regla no cambia</b>: varios lectores a la vez, el escritor solo, mismos contadores, mismo <code>wait()</code> y <code>notifyAll()</code></li>
     <li>Cambia lo que hace el hilo <b>cuando ya tiene permiso</b>: en vez de dormir, <b>lee o escribe un fichero de verdad</b></li>
-    <li>Los escritores escriben su <b>nombre</b> en una línea nueva. Los lectores <b>cuentan las líneas</b> que hay</li>
+    <li>Los escritores escriben su <b>nombre</b> en una línea nueva. Los lectores <b>cuentan las líneas</b></li>
   </ul>
   <p class="aviso">Ya sabemos coordinar. Ahora vemos <b>cómo se usa el fichero</b>.</p>
+</section>
+<section>
+<h3>Ahora, un ejercicio: la discoteca</h3>
+  <ul>
+    <li><b>5 hilos lectores</b> y <b>2 hilos escritores</b> comparten el fichero <code>Discoteca.txt</code></li>
+    <li>Los escritores escriben su nombre en una <b>línea nueva</b></li>
+    <li>Los lectores cuentan cuántas <b>líneas</b> tiene el fichero en ese momento</li>
+    <li>Varios lectores a la vez, sí. Un escritor, <b>solo</b></li>
+  </ul>
+  <p class="peque">Proyecto <b>Discoteca</b>. Es el mismo problema del paso 2, con un <b>fichero de verdad</b>. Ahora lo haces tú.</p>
 </section>
 <section>
 <div class="nuevo">
@@ -313,62 +422,84 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
   </ul>
 </section>
 <section>
-<h3>El fichero, ahora de verdad</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="11|15-18|20-28|30-38">import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-
-public class Fichero {
+<h3>Cómo pensarlo</h3>
+  <ul>
+    <li>¿Qué es lo que comparten los siete hilos? <span class="fragment">La discoteca, o sea, el fichero. Será una clase: <code>Discoteca</code>.</span></li>
+    <li>¿Qué debe recordar? <span class="fragment">Cuántos lectores hay (<code>lectores</code>) y cuántos escritores (<code>escritores</code>).</span></li>
+    <li>¿Cuándo espera un <b>lector</b>? <span class="fragment">Solo si hay algún <b>escritor</b>.</span></li>
+    <li>¿Cuándo espera un <b>escritor</b>? <span class="fragment">Si hay algún <b>lector o</b> algún <b>escritor</b>.</span></li>
+  </ul>
+</section>
+<section>
+<h3>Solución: los datos y el constructor</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="3|4-5|7-10">public class Discoteca {
 
     private final File fichero;
     private int lectores = 0;
     private int escritores = 0;
 
-    public Fichero(String nombre) throws IOException {
-        this.fichero = new File(nombre);
+    public Discoteca(String nombreFichero) throws IOException {
+        this.fichero = new File(nombreFichero);
         new FileWriter(fichero).close();
-    }
-
-    public synchronized BufferedReader leerFichero() throws InterruptedException, FileNotFoundException {
-        while (lectores &gt; 0 || escritores &gt; 0) {
-            System.out.println(Thread.currentThread().getName() + &quot;: Hay alguien usando el fichero. Espero.&quot;);
+    }</code></pre>
+  <ul class="peque">
+    <li><code>private final File fichero;</code> el fichero (<code>final</code>: no se puede cambiar; se fija en el constructor)</li>
+    <li><code>lectores</code> y <code>escritores</code>: dos contadores, como en el paso 2</li>
+    <li>El constructor recibe el <b>nombre</b>, crea el <code>File</code> y deja el fichero <b>vacío</b>: <code>new FileWriter(fichero).close();</code></li>
+  </ul>
+</section>
+<section>
+<h3>leer(): la puerta del lector</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="2-5|6-8">    public synchronized BufferedReader leer() throws InterruptedException, FileNotFoundException {
+        while (escritores &gt; 0) {
+            System.out.println(Thread.currentThread().getName() + &quot; no puedo leer. Esperando&quot;);
             wait();
         }
         lectores++;
-        System.out.println(Thread.currentThread().getName() + &quot;: Leyendo fichero. Lectores: &quot; + lectores);
+        System.out.println(Thread.currentThread().getName() + &quot; entro a leer. Lectores activos: &quot; + lectores);
         return new BufferedReader(new FileReader(fichero));
-    }
-
-    public synchronized BufferedWriter escribirFichero() throws InterruptedException, IOException {
+    }</code></pre>
+  <ul class="peque">
+    <li><code>while (escritores &gt; 0)</code>: el lector espera <b>solo</b> si hay un escritor. Con otros lectores, entra</li>
+    <li>Entra: <code>lectores++</code> y mensaje con los lectores activos</li>
+    <li><b>Devuelve el fichero abierto</b> (<code>BufferedReader</code>). Así el lector lo recorre <b>fuera</b> del método <code>synchronized</code>, sin bloquear a los demás</li>
+  </ul>
+</section>
+<section>
+<h3>terminaLeer()</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="2-3|4-6">    public synchronized void terminaLeer() {
+        lectores--;
+        System.out.println(Thread.currentThread().getName() + &quot; termino de leer. Lectores activos: &quot; + lectores);
+        if (lectores == 0) {
+            notifyAll();
+        }
+    }</code></pre>
+  <ul class="peque">
+    <li>Un lector menos, y lo dice</li>
+    <li><code>if (lectores == 0)</code>: solo el <b>último</b> lector avisa. Si quedan lectores, los que esperan (escritores) no pueden entrar todavía</li>
+  </ul>
+</section>
+<section>
+<h3>escribir() y terminaEscribir()</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="2-5|6-8|11-14">    public synchronized BufferedWriter escribir() throws InterruptedException, IOException {
         while (lectores &gt; 0 || escritores &gt; 0) {
-            System.out.println(Thread.currentThread().getName() + &quot;: Hay alguien usando el fichero. Espero.&quot;);
+            System.out.println(Thread.currentThread().getName() + &quot; no puedo escribir. Esperando&quot;);
             wait();
         }
+        System.out.println(Thread.currentThread().getName() + &quot; entro a escribir.&quot;);
         escritores++;
-        System.out.println(Thread.currentThread().getName() + &quot;: Escribiendo fichero.&quot;);
         return new BufferedWriter(new FileWriter(fichero, true));
     }
 
-    public synchronized void terminaLeer() {
-        lectores--;
-        System.out.println(Thread.currentThread().getName() + &quot;: He terminado de leer. Lectores: &quot; + lectores);
-        notifyAll();
-    }
-
     public synchronized void terminaEscribir() {
-        escritores--;
         System.out.println(Thread.currentThread().getName() + &quot;: He terminado de escribir&quot;);
+        escritores--;
         notifyAll();
-    }
-}</code></pre>
+    }</code></pre>
   <ul class="peque">
-    <li>El constructor crea el fichero <b>vacío</b>: <code>new FileWriter(fichero).close()</code>. Así cada ejecución empieza desde cero</li>
-    <li><code>leerFichero()</code> y <code>escribirFichero()</code> ya no son <code>void</code>: <b>devuelven el fichero abierto</b></li>
-    <li>El <code>while</code>, el <code>wait()</code> y los contadores son <b>los mismos</b> de antes</li>
+    <li><code>while (lectores &gt; 0 || escritores &gt; 0)</code>: el escritor espera si hay <b>cualquiera</b> dentro</li>
+    <li>Entra: <code>escritores++</code> y devuelve un <code>BufferedWriter</code>. <code>true</code> en <code>new FileWriter(fichero, true)</code> significa <b>añadir al final</b> en vez de borrar</li>
+    <li>Al terminar: <code>escritores--</code> y <code>notifyAll()</code>. Avisa a <b>todos</b>, porque ahora pueden entrar lectores <b>y</b> escritores</li>
   </ul>
 </section>
 <section>
@@ -384,121 +515,98 @@ public class Fichero {
   <p class="caja">Por eso el constructor crea el fichero vacío, y por eso el escritor vacía el buffer (con <code>flush()</code> o con <code>close()</code>).</p>
 </section>
 <section>
-<h3>El lector</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="16|17-19|20|21|22">import java.io.BufferedReader;
-import java.io.IOException;
-
-public class Lector implements Runnable {
-
-    private Fichero fich;
-
-    public Lector(Fichero f) {
-        this.fich = f;
-    }
-
-    @Override
-    public void run() {
+<h3>Solución: el lector</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="3|4|5-7|8|9|10">    public void run() {
         try {
             int lineas = 0;
-            BufferedReader br = fich.leerFichero();
+            BufferedReader br = Granada10.leer();
             while (br.readLine() != null) {
                 lineas++;
             }
             br.close();
-            System.out.println(Thread.currentThread().getName() + &quot;: He leído &quot; + lineas + &quot; líneas&quot;);
-            fich.terminaLeer();
+            System.out.println(Thread.currentThread().getName() + &quot; he leído &quot; + lineas + &quot; líneas en el fichero&quot;);
+            Granada10.terminaLeer();
         } catch (InterruptedException ex) {
         } catch (IOException ex) {
             System.out.println(ex);
         }
-    }
-}</code></pre>
+    }</code></pre>
   <ul class="peque">
-    <li><code>fich.leerFichero()</code> espera si hace falta y devuelve el <code>BufferedReader</code></li>
-    <li>Cuenta las líneas, cierra el fichero, lo muestra y <b>después</b> avisa con <code>terminaLeer()</code></li>
-    <li><code>IOException</code>: error al leer. Se muestra y ya</li>
+    <li><code>leer()</code> puede hacer esperar al lector. Cuando entra, recibe el fichero abierto</li>
+    <li>El <code>while</code> con <code>readLine()</code> cuenta las líneas hasta que devuelve <code>null</code></li>
+    <li><code>close()</code> cierra el fichero. Después, muestra el resultado y avisa con <code>terminaLeer()</code></li>
+    <li>Los <code>catch</code> recogen las excepciones de <code>wait()</code> y del fichero</li>
   </ul>
 </section>
 <section>
-<h3>El escritor</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="15|16|17|18|19-20">import java.io.BufferedWriter;
-import java.io.IOException;
-
-public class Escritor implements Runnable {
-
-    private Fichero fich;
-
-    public Escritor(Fichero f) {
-        this.fich = f;
-    }
-
-    @Override
-    public void run() {
+<h3>Solución: el escritor</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="3|4-5|6|7|8">    public void run() {
         try {
-            BufferedWriter bw = fich.escribirFichero();
+            BufferedWriter bw = Granada10.escribir();
             bw.write(Thread.currentThread().getName());
             bw.newLine();
-            bw.close();
-            System.out.println(Thread.currentThread().getName() + &quot;: He escrito mi nombre en el fichero&quot;);
-            fich.terminaEscribir();
+            bw.flush();
+            System.out.println(Thread.currentThread().getName() + &quot; he escrito mi nombre en el fichero&quot;);
+            Granada10.terminaEscribir();
         } catch (InterruptedException ex) {
         } catch (IOException ex) {
             System.out.println(ex);
         }
-    }
-}</code></pre>
+    }</code></pre>
   <ul class="peque">
-    <li>Pide el fichero, escribe su nombre, <code>close()</code> y avisa de que termina</li>
-    <li>El orden importa: <b>cerrar antes</b> de llamar a <code>terminaEscribir()</code>, para que el siguiente lector vea la línea ya escrita</li>
+    <li><code>escribir()</code> hace esperar al escritor hasta que esté solo</li>
+    <li><code>write()</code> escribe el nombre del hilo y <code>newLine()</code> pasa a la línea siguiente</li>
+    <li><code>flush()</code> <b>manda al fichero</b> lo escrito: sin él se quedaría en el buffer. Después avisa con <code>terminaEscribir()</code></li>
   </ul>
 </section>
 <section>
-<h3>Principal: ¿quién empieza?</h3>
-  <pre><code class="language-java" data-trim>import java.io.IOException;
+<h3>Principal: quién empieza</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="6|8-9|21-26">import java.io.IOException;
 
 public class Principal {
 
     public static void main(String[] args) throws IOException {
-        Fichero f = new Fichero(&quot;Lectores.txt&quot;);
+        Discoteca Granada10 = new Discoteca(&quot;Discoteca.txt&quot;);
 
-        int numLectores = 5;
-        int numEscritores = 2;
+        final int numLectores = 5;
+        final int numEscritores = 2;
 
-        Thread[] lectores = new Thread[numLectores];
-        Thread[] escritores = new Thread[numEscritores];
+        Thread[] Lectores = new Thread[numLectores];
+        Thread[] Escritores = new Thread[numEscritores];
 
         for (int i = 0; i &lt; numLectores; i++) {
-            lectores[i] = new Thread(new Lector(f), &quot;Lector&quot; + i);
+            Lectores[i] = new Thread(new Lector(Granada10), &quot;Lector&quot; + i);
         }
         for (int i = 0; i &lt; numEscritores; i++) {
-            escritores[i] = new Thread(new Escritor(f), &quot;Escritor&quot; + i);
+            Escritores[i] = new Thread(new Escritor(Granada10), &quot;Escritor&quot; + i);
         }
 
-        for (Thread escr : escritores) {
-            escr.start();
-        }
         for (int i = 0; i &lt; numLectores; i++) {
-            lectores[i].start();
+            Lectores[i].start();
+        }
+        for (Thread escr : Escritores) {
+            escr.start();
         }
     }
 }</code></pre>
   <ul class="peque">
-    <li>Se crea <code>Lectores.txt</code> vacío. <code>main</code> declara <code>throws IOException</code></li>
-    <li>Aquí arrancan <b>primero los escritores</b>. Aun así, un lector puede entrar antes: el número de líneas que cuenta cada lector <b>cambia</b> de una ejecución a otra</li>
+    <li>Se crea <b>una sola</b> <code>Discoteca</code>, que deja <code>Discoteca.txt</code> vacío. <code>main</code> declara <code>throws IOException</code></li>
+    <li>Los lectores arrancan <b>antes</b> que los escritores: algunos cuentan <b>0 líneas</b>, porque el fichero aún está vacío. Es correcto: cada lector cuenta las líneas que hay <b>en el momento de leer</b></li>
   </ul>
 </section>
 <section>
-<h3>Qué debes ver</h3>
-  <ul>
-    <li>Los mismos mensajes del paso 1, más <code>He leído N líneas</code></li>
-    <li>Cada lector cuenta <b>0, 1 o 2</b> líneas: las que hay en el momento de leer</li>
-    <li>Al terminar, abre <code>Lectores.txt</code>: tiene <code>Escritor0</code> y <code>Escritor1</code>, cada uno en su línea. Nunca mezclados</li>
+<h3>Probamos la discoteca</h3>
+  <div class="salida">Lector0 entro a leer. Lectores activos: 1<br>Lector1 entro a leer. Lectores activos: 2<br>Lector0 he leído 0 líneas en el fichero<br>…<br>Lector4 termino de leer. Lectores activos: 0<br>Escritor0 entro a escribir.<br>Escritor1 no puedo escribir. Esperando<br>Escritor0 he escrito mi nombre en el fichero<br>Escritor0: He terminado de escribir<br>Escritor1 entro a escribir.<br>…</div>
+  <ul class="peque">
+    <li>Varios <code>Lectores activos</code> a la vez: el contador sube</li>
+    <li>El escritor entra solo cuando el contador llega a <b>0</b></li>
+    <li>Al final, <code>Discoteca.txt</code> tiene <b>2 líneas</b>: <code>Escritor0</code> y <code>Escritor1</code></li>
   </ul>
 </section>
 <section>
 <h3>Probarlo en el simulador</h3>
   <ul>
-    <li>Ahora los hilos usan el fichero entre las dos llamadas: escribe <code>Lector.run()</code> y <code>Escritor.run()</code></li>
+    <li>Los hilos usan el fichero entre las dos llamadas: escribe <code>Lector.run()</code> y <code>Escritor.run()</code></li>
     <li>El panel de arriba cuenta las <b>líneas del fichero</b> y cada lector muestra cuántas ha leído</li>
     <li>Prueba a <b>leer antes de pedir permiso</b> y mira el error</li>
   </ul>
@@ -507,19 +615,14 @@ public class Principal {
 </section>
 <section>
 <section>
-<h2>Paso 3</h2>
-  <h3>Varios lectores a la vez: el semáforo</h3>
-  <p class="peque">Proyecto <b>LectoresEscritoresSemaforo</b> · apartado 6.7</p>
+<h2>Paso 4</h2>
+  <h3>El semáforo</h3>
+  <p class="peque">Proyecto <b>LectoresEscritoresSemaforo</b></p>
 </section>
 <section>
-<h3>Un fallo de eficacia</h3>
-  <p>En los pasos 1 y 2 <b>dos lectores nunca leen a la vez</b>. Pero leer no cambia el fichero: no hay motivo para hacerlos esperar.</p>
-  <table>
-    <tr><th>Quién entra</th><th>¿Con quién puede estar?</th></tr>
-    <tr><td>Un <b>lector</b></td><td>Con otros lectores. <b>No</b> con un escritor</td></tr>
-    <tr><td>Un <b>escritor</b></td><td>Con <b>nadie</b></td></tr>
-  </table>
-  <p class="caja fragment">Dos contadores ya no bastan. Hace falta recordar en <b>qué estado</b> están los datos.</p>
+<h3>Otra forma de guardar la regla</h3>
+  <p>Hasta ahora el fichero sabía quién puede entrar con <b>dos contadores</b>: <code>lectores</code> y <code>escritores</code>.</p>
+  <p class="fragment">Hay otra forma, más cercana a la realidad: guardar <b>en qué estado están los datos</b> y cuántos lectores hay dentro. Eso es la clase <code>Semaforo</code>.</p>
 </section>
 <section>
 <h3>Una idea para recordarlo</h3>
@@ -743,7 +846,7 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
   </ul>
 </section>
 <section>
-<h3>El mismo ejercicio, con fichero de verdad</h3>
+<h3>El mismo ejercicio de la discoteca, con la clase Semaforo</h3>
   <p>Proyecto <b>SemaforoConFichero</b>: lo del paso 2 (escritores que escriben su nombre, lectores que cuentan líneas) con el <b>semáforo</b>.</p>
 </section>
 <section>
@@ -820,158 +923,6 @@ public class Lector implements Runnable {
   </ul>
   <p class="aviso"><a href="../../simulador/index.html#semaforo&experimentos" target="_blank" rel="noopener">Semáforo de lectores y escritores</a> (se abre en otra pestaña).</p>
 </section>
-</section>
-<section>
-<section>
-<h2>Ejercicio</h2>
-  <h3>La discoteca</h3>
-  <p class="peque">Proyecto <b>Discoteca</b> · apartado 6.7</p>
-</section>
-<section>
-<h3>Ahora, un ejercicio: la discoteca</h3>
-  <ul>
-    <li><b>5 hilos lectores</b> y <b>2 hilos escritores</b> comparten el fichero <code>Discoteca.txt</code></li>
-    <li>Los escritores escriben su nombre en una <b>línea nueva</b></li>
-    <li>Los lectores cuentan cuántas <b>líneas</b> tiene el fichero en ese momento</li>
-    <li>Varios lectores a la vez, sí. Un escritor, <b>solo</b></li>
-  </ul>
-  <p class="peque">Proyecto <b>Discoteca</b>. Es el mismo problema del semáforo, con un <b>fichero de verdad</b>, pero <b>sin la clase <code>Semaforo</code></b>: lo resuelves con dos contadores. Ahora lo haces tú.</p>
-</section>
-<section>
-<h3>Cómo pensarlo</h3>
-  <ul>
-    <li>¿Qué es lo que comparten los siete hilos? <span class="fragment">La discoteca, o sea, el fichero. Será una clase: <code>Discoteca</code>.</span></li>
-    <li>¿Qué debe recordar? <span class="fragment">Cuántos lectores hay (<code>lectores</code>) y cuántos escritores (<code>escritores</code>). Sin estado: con los dos contadores basta.</span></li>
-    <li>¿Cuándo espera un <b>lector</b>? <span class="fragment">Solo si hay algún <b>escritor</b>.</span></li>
-    <li>¿Cuándo espera un <b>escritor</b>? <span class="fragment">Si hay algún <b>lector o</b> algún <b>escritor</b>.</span></li>
-  </ul>
-</section>
-<section>
-<h3>Solución: los datos y el constructor</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="3|4-5|7-10">public class Discoteca {
-
-    private final File fichero;
-    private int lectores = 0;
-    private int escritores = 0;
-
-    public Discoteca(String nombreFichero) throws IOException {
-        this.fichero = new File(nombreFichero);
-        new FileWriter(fichero).close();
-    }</code></pre>
-  <ul class="peque">
-    <li><code>private final File fichero;</code> el fichero (<code>final</code>: no se puede cambiar; se fija en el constructor)</li>
-    <li><code>lectores</code> y <code>escritores</code>: dos contadores, como en el semáforo pero sin estado</li>
-    <li>El constructor recibe el <b>nombre</b>, crea el <code>File</code> y deja el fichero <b>vacío</b>: <code>new FileWriter(fichero).close();</code></li>
-  </ul>
-</section>
-<section>
-<h3>leer(): la puerta del lector</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="2-5|6-8">    public synchronized BufferedReader leer() throws InterruptedException, FileNotFoundException {
-        while (escritores &gt; 0) {
-            System.out.println(Thread.currentThread().getName() + &quot; no puedo leer. Esperando&quot;);
-            wait();
-        }
-        lectores++;
-        System.out.println(Thread.currentThread().getName() + &quot; entro a leer. Lectores activos: &quot; + lectores);
-        return new BufferedReader(new FileReader(fichero));
-    }</code></pre>
-  <ul class="peque">
-    <li><code>while (escritores &gt; 0)</code>: el lector espera <b>solo</b> si hay un escritor. Con otros lectores, entra</li>
-    <li>Entra: <code>lectores++</code> y mensaje con los lectores activos</li>
-    <li><b>Devuelve el fichero abierto</b> (<code>BufferedReader</code>). Así el lector lo recorre <b>fuera</b> del método <code>synchronized</code>, sin bloquear a los demás</li>
-  </ul>
-</section>
-<section>
-<h3>terminaLeer()</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="2-3|4-6">    public synchronized void terminaLeer() {
-        lectores--;
-        System.out.println(Thread.currentThread().getName() + &quot; termino de leer. Lectores activos: &quot; + lectores);
-        if (lectores == 0) {
-            notifyAll();
-        }
-    }</code></pre>
-  <ul class="peque">
-    <li>Un lector menos, y lo dice</li>
-    <li><code>if (lectores == 0)</code>: solo el <b>último</b> lector avisa. Si quedan lectores, los que esperan (escritores) no pueden entrar todavía</li>
-  </ul>
-</section>
-<section>
-<h3>escribir() y terminaEscribir()</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="2-5|6-8|11-14">    public synchronized BufferedWriter escribir() throws InterruptedException, IOException {
-        while (lectores &gt; 0 || escritores &gt; 0) {
-            System.out.println(Thread.currentThread().getName() + &quot; no puedo escribir. Esperando&quot;);
-            wait();
-        }
-        System.out.println(Thread.currentThread().getName() + &quot; entro a escribir.&quot;);
-        escritores++;
-        return new BufferedWriter(new FileWriter(fichero, true));
-    }
-
-    public synchronized void terminaEscribir() {
-        System.out.println(Thread.currentThread().getName() + &quot;: He terminado de escribir&quot;);
-        escritores--;
-        notifyAll();
-    }</code></pre>
-  <ul class="peque">
-    <li><code>while (lectores &gt; 0 || escritores &gt; 0)</code>: el escritor espera si hay <b>cualquiera</b> dentro</li>
-    <li>Entra: <code>escritores++</code> y devuelve un <code>BufferedWriter</code>. <code>true</code> en <code>new FileWriter(fichero, true)</code> significa <b>añadir al final</b> en vez de borrar</li>
-    <li>Al terminar: <code>escritores--</code> y <code>notifyAll()</code>. Avisa a <b>todos</b>, porque ahora pueden entrar lectores <b>y</b> escritores</li>
-  </ul>
-</section>
-<section>
-<h3>Solución: el lector</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="3|4|5-7|8|9|10">    public void run() {
-        try {
-            int lineas = 0;
-            BufferedReader br = Granada10.leer();
-            while (br.readLine() != null) {
-                lineas++;
-            }
-            br.close();
-            System.out.println(Thread.currentThread().getName() + &quot; he leído &quot; + lineas + &quot; líneas en el fichero&quot;);
-            Granada10.terminaLeer();
-        } catch (InterruptedException ex) {
-        } catch (IOException ex) {
-            System.out.println(ex);
-        }
-    }</code></pre>
-  <ul class="peque">
-    <li><code>leer()</code> puede hacer esperar al lector. Cuando entra, recibe el fichero abierto</li>
-    <li>El <code>while</code> con <code>readLine()</code> cuenta las líneas hasta que devuelve <code>null</code></li>
-    <li><code>close()</code> cierra el fichero. Después, muestra el resultado y avisa con <code>terminaLeer()</code></li>
-    <li>Los <code>catch</code> recogen las excepciones de <code>wait()</code> y del fichero</li>
-  </ul>
-</section>
-<section>
-<h3>Solución: el escritor</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="3|4-5|6|7|8">    public void run() {
-        try {
-            BufferedWriter bw = Granada10.escribir();
-            bw.write(Thread.currentThread().getName());
-            bw.newLine();
-            bw.flush();
-            System.out.println(Thread.currentThread().getName() + &quot; he escrito mi nombre en el fichero&quot;);
-            Granada10.terminaEscribir();
-        } catch (InterruptedException ex) {
-        } catch (IOException ex) {
-            System.out.println(ex);
-        }
-    }</code></pre>
-  <ul class="peque">
-    <li><code>escribir()</code> hace esperar al escritor hasta que esté solo</li>
-    <li><code>write()</code> escribe el nombre del hilo y <code>newLine()</code> pasa a la línea siguiente</li>
-    <li><code>flush()</code> <b>manda al fichero</b> lo escrito: sin él se quedaría en el buffer. Después avisa con <code>terminaEscribir()</code></li>
-  </ul>
-</section>
-<section>
-<h3>Probamos la discoteca</h3>
-  <div class="salida">Lector0 entro a leer. Lectores activos: 1<br>Lector1 entro a leer. Lectores activos: 2<br>Lector0 he leído 0 líneas en el fichero<br>…<br>Lector4 termino de leer. Lectores activos: 0<br>Escritor0 entro a escribir.<br>Escritor1 no puedo escribir. Esperando<br>Escritor0 he escrito mi nombre en el fichero<br>Escritor0: He terminado de escribir<br>Escritor1 entro a escribir.<br>…</div>
-  <ul class="peque">
-    <li>Varios <code>Lectores activos</code> a la vez: el contador sube</li>
-    <li>El escritor entra solo cuando el contador llega a <b>0</b></li>
-    <li>Al final, <code>Discoteca.txt</code> tiene <b>2 líneas</b>: <code>Escritor0</code> y <code>Escritor1</code></li>
-  </ul>
-</section>
 <section>
 <h3>Discoteca y semáforo: el mismo problema</h3>
   <table class="peque">
@@ -998,8 +949,8 @@ public class Lector implements Runnable {
 </section>
 <section>
 <section>
-<h2>Paso 4</h2>
-  <h3>La inanición</h3>
+<h2>Paso 5</h2>
+  <h3>Un problema que no da error</h3>
   <p class="peque">Proyectos <b>LectoresInanicion</b> y <b>LectoresInanicionResuelta</b></p>
 </section>
 <section>
@@ -1153,14 +1104,14 @@ public class Lector implements Runnable {
 </section>
 <section>
 <section>
-<h3>Resumen: las cuatro versiones</h3>
+<h3>Resumen: las versiones</h3>
   <table>
     <tr><th>Paso</th><th>Quién puede entrar</th><th>Qué guarda</th><th>Qué arregla</th></tr>
-    <tr><td>1 · Simulado</td><td>Uno cada vez</td><td>2 contadores</td><td>Que no se pisen</td></tr>
-    <tr><td>2 · Fichero</td><td>Uno cada vez</td><td>2 contadores</td><td>Usar un fichero de verdad</td></tr>
-    <tr><td>3 · Semáforo</td><td>Varios lectores</td><td>Estado + lectores</td><td>Lectores esperando sin necesidad</td></tr>
-    <tr><td>Discoteca</td><td>Varios lectores</td><td>2 contadores</td><td>Lo mismo, sin clase <code>Semaforo</code></td></tr>
-    <tr><td>4 · Sin inanición</td><td>Varios lectores</td><td>+ escritores esperando</td><td>Escritor que no entra</td></tr>
+    <tr><td>1 · Uno cada vez</td><td>Uno cada vez</td><td>2 contadores</td><td>Que no se pisen</td></tr>
+    <tr><td>2 · Varios lectores</td><td>Varios lectores</td><td>2 contadores</td><td>Lectores esperando sin necesidad</td></tr>
+    <tr><td>3 · Fichero de verdad</td><td>Varios lectores</td><td>2 contadores</td><td>Usar un fichero real</td></tr>
+    <tr><td>4 · Semáforo</td><td>Varios lectores</td><td>Estado + lectores</td><td>La misma regla, con una clase</td></tr>
+    <tr><td>5 · Sin inanición</td><td>Varios lectores</td><td>+ escritores esperando</td><td>Escritor que no entra</td></tr>
   </table>
 </section>
 <section>
@@ -1174,16 +1125,6 @@ public class Lector implements Runnable {
     <li>Olvidar <code>escritoresEsperando--</code>: los lectores se duermen para siempre</li>
     <li>Usar <code>notify()</code> en la versión sin inanición</li>
   </ul>
-</section>
-<section>
-<h3>Para pensar</h3>
-  <ol>
-    <li>En esta solución, ¿pueden leer dos lectores a la vez? ¿Tendría sentido que pudieran?</li>
-    <li>¿Qué cambiarías en <code>leerFichero()</code> para que varios lectores lean a la vez y el escritor siga entrando solo?</li>
-    <li>Pon el <code>sleep</code> dentro de <code>leerFichero()</code>. ¿Qué ves?</li>
-    <li>Cambia <code>notifyAll()</code> por <code>notify()</code> y ejecuta diez veces. ¿Siempre termina? ¿Por qué, si en 6.4 no valía?</li>
-    <li>Si llegaran lectores sin parar, ¿podría un escritor <b>no entrar nunca</b>?</li>
-  </ol>
 </section>
 <section>
 <h3>Para pensar: semáforo y discoteca</h3>
@@ -1204,6 +1145,7 @@ public class Lector implements Runnable {
     <li>Si hay <b>dos escritores</b> esperando, ¿quién entra primero? ¿Sale de la solución en qué orden?</li>
     <li>¿Por qué en el paso 2 el escritor llama a <code>close()</code> <b>antes</b> de <code>terminaEscribir()</code>?</li>
     <li>Quita <code>escritoresEsperando &gt; 0</code> del <code>while</code> del lector. ¿Qué vuelve a pasar?</li>
+      <li>Si llegaran lectores sin parar, ¿podría un escritor <b>no entrar nunca</b>? ¿Cómo lo evitarías?</li>
   </ol>
 </section>
 </section>
