@@ -1222,10 +1222,10 @@ test(D, 'Error: if en lugar de while',
 }`) });
 
 // =====================================================================
-// 6.5 PROBLEMAS DE SINCRONIZACIÓN
+// 6.6 PROBLEMAS DE SINCRONIZACIÓN
 // =====================================================================
-const E = '6.5';
-categoria('Repaso PSP Unidad 1/6.5 Problemas de sincronización');
+const E = '6.6';
+categoria('Repaso PSP Unidad 1/6.6 Problemas de sincronización');
 
 completar(E, 'El patrón de un objeto compartido',
   'Casi todos los problemas de sincronización siguen el mismo esquema: un objeto compartido con métodos `synchronized`. Completa el esquema de uno de sus métodos (las palabras `no puedo continuar` son solo una descripción).',
@@ -1264,7 +1264,7 @@ completarTexto(E, 'Random y sleep',
   '`azar.nextInt(4)` da ⟦num:0⟧, 1, 2 o 3. Con `(2 + azar.nextInt(4)) * 500` el robot duerme como mínimo ⟦num:1000⟧ milisegundos y como máximo ⟦num:2500⟧.',
   '`sleep` trabaja en milisegundos: por eso se multiplica. 2 × 500 = 1000 y 5 × 500 = 2500.');
 
-emparejar(E, 'Clases nuevas de 6.5',
+emparejar(E, 'Clases nuevas de 6.6',
   'Une cada clase o método con lo que hace:',
   [
     ['`Random` y `nextInt(4)`', 'Da al azar 0, 1, 2 o 3'],
@@ -1273,7 +1273,7 @@ emparejar(E, 'Clases nuevas de 6.5',
     ['`FileWriter`', 'Escribe en un fichero'],
     ['`Files.readAllLines(...)`', 'Lee un fichero y devuelve una lista con una entrada por línea'],
   ],
-  'Son las clases nuevas del apartado 6.5.');
+  'Son las clases nuevas del apartado 6.6.');
 
 test(E, 'Libro de visitas: hace falta wait',
   'Varios hilos **visitantes** añaden su nombre a un libro de visitas (un fichero de texto compartido) y varios hilos **recepcionistas** cuentan cuántas firmas tiene. Los métodos `firmar()` y `contarFirmas()` del objeto que representa el libro son `synchronized`. ¿Hace falta además `wait()` y `notifyAll()`?',
@@ -1412,7 +1412,7 @@ test(E, 'Muelle cerrado y join',
     ['Nunca: `join()` impide que `main` imprima.', false],
   ],
   '«Espero aquí hasta que ese hilo termine». Sin los `join()`, «Muelle cerrado» saldría al principio, porque `main` no espera.',
-  { codigo: mostrar('6.5 muelle cerrado', `class Grua implements Runnable {
+  { codigo: mostrar('6.6 muelle cerrado', `class Grua implements Runnable {
     @Override
     public void run() {
         System.out.println(Thread.currentThread().getName() + " apila");
@@ -1573,10 +1573,10 @@ redaccion(E, 'Diseña tu propio problema',
 }`, '', { grado: 5 });
 
 // =====================================================================
-// 6.6 LECTORES Y ESCRITORES
+// 6.5 LECTORES Y ESCRITORES
 // =====================================================================
-const F = '6.6';
-categoria('Repaso PSP Unidad 1/6.6 Lectores y escritores');
+const F = '6.5';
+categoria('Repaso PSP Unidad 1/6.5 Lectores y escritores');
 
 completar(F, 'La puerta de la cabina',
   'Una cabina de fotos la usan clientes y técnicos de mantenimiento, y solo puede haber **una persona dentro**, sea quien sea. Completa `entrarCliente()`:',
@@ -1693,10 +1693,10 @@ public class Tecnico implements Runnable {
 }`, '', { grado: 4 });
 
 // =====================================================================
-// 6.7 SEMÁFORO: VARIOS LECTORES A LA VEZ
+// 6.5 (antes 6.7) SEMÁFORO: VARIOS LECTORES A LA VEZ
 // =====================================================================
-const G = '6.7';
-categoria('Repaso PSP Unidad 1/6.7 Varios a la vez: semáforo y ficheros');
+const G = '6.5';
+categoria('Repaso PSP Unidad 1/6.5 Varios a la vez: semáforo y ficheros');
 
 completar(G, 'Estados de la piscina',
   'Una piscina la usan **varios nadadores a la vez**, pero el operario de limpieza necesita la piscina vacía y para él solo. Completa los estados y la puerta del nadador:',
