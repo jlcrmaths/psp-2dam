@@ -1,5 +1,5 @@
 {
-  "titulo": "6.6 Lectores y escritores",
+  "titulo": "6.6 y 6.7 Lectores y escritores",
   "orden": 6,
-  "resumen": "Cinco hilos leen y dos escriben el mismo fichero. ¿Qué pasa si leen o escriben a la vez? ¿Cómo se enteran de que ya pueden entrar?"
+  "resumen": "Cinco hilos leen y dos escriben el mismo fichero. Del sleep al fichero de verdad, del uno cada vez al semáforo con varios lectores, y de ahí a la inanición: un escritor que no entra nunca."
 }
