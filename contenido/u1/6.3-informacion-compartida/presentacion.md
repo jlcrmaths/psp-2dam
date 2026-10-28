@@ -589,24 +589,25 @@ public synchronized void coger() {
     <h3>¿Qué sale en pantalla?</h3>
     <div class="salida">Cocinero 1 coge un cuchillo. Libres: 4<br><i>(3 segundos)</i><br>Cocinero 1 suelta el cuchillo. Libres: 5<br>Cocinero 2 coge un cuchillo. Libres: 4<br><i>(3 segundos)</i><br>…</div>
     <p class="aviso">Los cocineros van <b>de uno en uno</b> y el programa tarda unos <b>48 segundos</b> (16 cuchillos cogidos, 3 segundos cada uno).</p>
-    <p class="fragment caja">Hay 5 cuchillos y solo 4 cocineros: ¿por qué esperan unos a otros?</p>
+
+--
+
+<!-- html -->
+    <h3>¿Por qué esperan unos a otros?</h3>
+    <p class="caja">Hay 5 cuchillos y solo 4 cocineros: ¿por qué esperan unos a otros?</p>
     <p class="fragment">Porque <code>coger()</code> es <code>synchronized</code> y el cocinero <b>duerme dentro</b>: mientras duerme, los demás no pueden ni entrar al método, aunque queden cuchillos libres.</p>
 
 --
 
 <!-- html -->
     <h3>Segundo intento: dormir en Cocinero</h3>
-    <pre><code class="language-java" data-trim data-line-numbers="1|5-9|13|14|15-18|19">
+    <pre><code class="language-java" data-trim data-line-numbers="1|3-6|9|10|11-14|15">
 import static java.lang.Thread.sleep;
-
 public class Cocinero implements Runnable {
-
     private Cocina cocina;
-
     public Cocinero(Cocina cocina) {
         this.cocina = cocina;
     }
-
     @Override
     public void run() {
         for (int i = 1; i &lt;= 4; i++) {
@@ -620,10 +621,13 @@ public class Cocinero implements Runnable {
     }
 }
     </code></pre>
-    <ul class="peque">
-      <li>Quitamos el <code>sleep</code> de <code>Cocina</code> y lo ponemos en el hilo, entre <code>coger()</code> y <code>soltar()</code>.</li>
-      <li>El <code>sleep</code> queda <b>fuera</b> de los métodos <code>synchronized</code>: mientras uno cocina, los otros pueden coger su cuchillo.</li>
-    </ul>
+    <p class="peque">Quitamos el <code>sleep</code> de <code>Cocina</code> y lo ponemos en el hilo, entre <code>coger()</code> y <code>soltar()</code>.</p>
+
+--
+
+<!-- html -->
+    <h3>¿Qué cambia al dormir fuera?</h3>
+    <p class="caja">El <code>sleep</code> queda <b>fuera</b> de los métodos <code>synchronized</code>: mientras uno cocina, los otros pueden coger su cuchillo.</p>
 
 --
 
@@ -745,13 +749,20 @@ public synchronized void soltar() {
 ---
 
 <!-- html -->
-  <h3>Resumen</h3>
+  <h3>Resumen (1)</h3>
   <ul>
     <li>Un <b>recurso compartido</b> es un objeto que usan varios hilos a la vez: todos reciben la misma referencia</li>
     <li>Sumar 1 son tres pasos: leer, calcular y guardar</li>
     <li>Si dos hilos se cuelan entre los pasos, se pierden cambios: <b>condición de carrera</b></li>
     <li>El registro sale desordenado y el resultado puede ser incorrecto, aunque a veces salga 100</li>
     <li>Los hilos se crean y se arrancan con <code>new Thread(...).start()</code>: aquí 2000 hilos sobre un solo jardín</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Resumen (2)</h3>
+  <ul>
     <li>Se arregla con la palabra <code>synchronized</code> en los métodos del jardín: un solo hilo a la vez</li>
     <li>Los tornos de un museo: 4 hilos suman a la misma cuenta y, con <code>synchronized</code>, salen 80 accesos siempre</li>
     <li>Una cocina con 4 cocineros y 5 cuchillos: dormir dentro de <code>synchronized</code> hace que esperen todos (48 s) y fuera tardan 12 s; con más cocineros que cuchillos, <code>wait()</code> y <code>notifyAll()</code> evitan los cuchillos negativos</li>

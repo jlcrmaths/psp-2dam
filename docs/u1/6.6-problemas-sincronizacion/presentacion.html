@@ -221,9 +221,9 @@ for (int i = 1; i &lt;= 10; i++) {
         return seguirEmpaquetando;
     }</code></pre>
   <ul class="peque">
-    <li><code>while (piezasCinta == 0 &amp;&amp; seguirFabricando)</code>: espera si la cinta está vacía <b>y</b> todavía se están creando piezas</li>
-    <li><code>if (piezasCinta == 0 &amp;&amp; !seguirFabricando)</code>: la cinta está vacía y no se crea más. <code>seguirEmpaquetando = false;</code>. <code>!</code> significa «no»</li>
-    <li>Si no, hay una pieza: se retira, se cuenta y se avisa con <code>notifyAll()</code></li>
+    <li><code>while (piezasCinta == 0 &amp;&amp; seguirFabricando)</code>: espera si está vacía <b>y</b> todavía se crean piezas</li>
+    <li><code>if (piezasCinta == 0 &amp;&amp; !seguirFabricando)</code>: vacía y no se crea más: <code>seguirEmpaquetando = false;</code>. <code>!</code> = «no»</li>
+    <li>Si no, hay una pieza: se retira, se cuenta y se avisa</li>
   </ul>
 </section>
 <section>
@@ -496,7 +496,7 @@ System.out.println("Fábrica cerrada");
 </section>
 <section>
 <h3>El panadero</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="2|4-5|8-9|12-16|18-23">    public void run() {
+  <pre><code class="language-java" data-trim data-line-numbers="2|4-5|8-9">    public void run() {
         while (!mostrador.estaCerrando()) {
             dormir(1000);
             if (!mostrador.estaCerrando() &amp;&amp; mostrador.hacenFalta()) {
@@ -505,9 +505,11 @@ System.out.println("Fábrica cerrada");
         }
         mostrador.vaciar();
         hornear();
-    }
-
-    private void hornear() {
+    }</code></pre>
+</section>
+<section>
+<h3>El panadero: <code>hornear()</code> y <code>dormir()</code></h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1-5|7-12">    private void hornear() {
         System.out.println(&quot;Panadero horneando 20 barras...&quot;);
         dormir(20000);
         mostrador.reponer(20);
@@ -585,7 +587,7 @@ System.out.println("Fábrica cerrada");
 </section>
 <section>
 <h3>Los espectadores</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="6-11|12-14|15-17|21-26|27-28">    public synchronized int entrarEspectador() {
+  <pre><code class="language-java" data-trim data-line-numbers="6-11|12-14|15-17">    public synchronized int entrarEspectador() {
         String nombre = Thread.currentThread().getName();
         if (!jugando &amp;&amp; !cerrada) {
             System.out.println(nombre + &quot; espera a que empiece una partida&quot;);
@@ -602,9 +604,14 @@ System.out.println("Fábrica cerrada");
         espectadores++;
         System.out.println(nombre + &quot; entra a ver la partida &quot; + partida + &quot; (espectadores: &quot; + espectadores + &quot;)&quot;);
         return partida;
-    }
-
-    public synchronized void ver(int numeroPartida) {
+    }</code></pre>
+  <ul class="peque">
+    <li><code>entrarEspectador()</code> devuelve el número de partida que va a ver (o 0 si ya no habrá más)</li>
+  </ul>
+</section>
+<section>
+<h3>Los espectadores: <code>ver()</code></h3>
+  <pre><code class="language-java" data-trim data-line-numbers="2-7|8-9">    public synchronized void ver(int numeroPartida) {
         while (jugando &amp;&amp; partida == numeroPartida) {
             try {
                 wait();
@@ -615,7 +622,6 @@ System.out.println("Fábrica cerrada");
         System.out.println(Thread.currentThread().getName() + &quot; sale de la sala (espectadores: &quot; + espectadores + &quot;)&quot;);
     }</code></pre>
   <ul class="peque">
-    <li><code>entrarEspectador()</code> devuelve el número de partida que va a ver (o 0 si ya no habrá más)</li>
     <li><code>ver(n)</code> espera mientras <b>esa</b> partida siga en marcha, y entonces sale</li>
     <li><code>cerrar()</code>, método de la clase <code>Sala</code>, lo llama <code>main</code> al acabar los jugadores: libera a los espectadores que esperaban una partida que ya no llegará</li>
   </ul>
