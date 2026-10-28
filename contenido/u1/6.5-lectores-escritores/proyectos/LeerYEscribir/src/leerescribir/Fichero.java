@@ -11,7 +11,7 @@ public class Fichero {
     // en vez de escribir un try/catch dentro. Lo recoge quien llama al método.
     public synchronized void leerFichero() throws InterruptedException {
         // || significa "o": basta con que se cumpla una de las dos condiciones.
-        while (lectores > 0 || escritores > 0) {
+        while (escritores > 0) {
             System.out.println(Thread.currentThread().getName() + ": Hay alguien usando el fichero. Espero.");
             wait();
         }
