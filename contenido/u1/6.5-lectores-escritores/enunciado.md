@@ -1,4 +1,4 @@
-# Apartados 6.6 y 6.7 – Lectores y escritores
+# Apartado 6.5 – Lectores y escritores
 
 Cada ejercicio es un proyecto de NetBeans con el nombre que se indica. Las clases van en el paquete que se indica en cada ejercicio.
 

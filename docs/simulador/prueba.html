@@ -514,7 +514,7 @@ const BUILD = {
     })
   }),
   lectores:p => ({
-    titulo:'6.6 Lectores y escritores: ' + p.lectores + ' lectores y ' + p.escritores + ' escritores',
+    titulo:'6.5 Lectores y escritores: ' + p.lectores + ' lectores y ' + p.escritores + ' escritores',
     clase:'Fichero', recurso:'Fichero', icono:'📄', max:1,
     vars:{lectores:0, escritores:0}, consts:{},
     fields:['private int lectores = 0;', 'private int escritores = 0;', ''],
@@ -566,7 +566,7 @@ const BUILD = {
   semaforo:p => {
     const NOM = ['LIBRE', 'CON_LECTORES', 'CON_ESCRITOR'];
     return {
-    titulo:'6.7 Semáforo: ' + p.lectores + ' lectores y ' + p.escritores + ' escritores',
+    titulo:'6.5 Semáforo: ' + p.lectores + ' lectores y ' + p.escritores + ' escritores',
     clase:'Semaforo', recurso:'Datos', icono:'📄', max:p.lectores,
     vars:{estado:0, tLectores:0}, consts:{LIBRE:0, CON_LECTORES:1, CON_ESCRITOR:2},
     fields:['public static final int LIBRE = 0;', 'public static final int CON_LECTORES = 1;', 'public static final int CON_ESCRITOR = 2;', '', 'private int estado = LIBRE;', 'private int tLectores = 0;', ''],
@@ -637,7 +637,7 @@ const BUILD = {
   }; },
   varios:p => { const b = BUILD.lectores(p), sol0 = b.solution;
     return Object.assign(b, {
-    titulo:'6.6 Lectores y escritores, otra regla: ' + p.lectores + ' lectores y ' + p.escritores + ' escritores',
+    titulo:'6.5 Lectores y escritores, otra regla: ' + p.lectores + ' lectores y ' + p.escritores + ' escritores',
     max:p.lectores,
     ops:[
       {g:'Datos', key:'incL', label:'lectores++;', anim:{emoji:'📄', hold:'none'}, fx:S => {
@@ -664,7 +664,7 @@ const BUILD = {
   ficherolr:p => { const b = BUILD.varios(p), ok0 = b.ok, sum0 = b.summary, sol0 = b.solution;
     const mal = (a, m) => { if (!S.anomalia){ S.anomalia = true; log(a.n + ': ' + m, true); } };
     return Object.assign(b, {
-    titulo:'6.6 Fichero de verdad: ' + p.lectores + ' lectores y ' + p.escritores + ' escritores',
+    titulo:'6.5 Fichero de verdad: ' + p.lectores + ' lectores y ' + p.escritores + ' escritores',
     groups:[
       {t:'l', n:p.lectores, name:'Lector', emoji:'📖', extra:a => a.lin == null ? ' · sin leer' : ' · ha leído ' + a.lin + ' línea' + (a.lin === 1 ? '' : 's'),
        proc:a => runHilo(a, 'Lector')},
@@ -699,7 +699,7 @@ const BUILD = {
   inanicion:p => { const b = BUILD.semaforo(p), ok0 = b.ok, on0 = b.onCall;
     const NOM = ['LIBRE', 'CON_LECTORES', 'CON_ESCRITOR'];
     return Object.assign(b, {
-    titulo:'6.7 Inanición: ' + p.lectores + ' lectores que leen ' + p.vueltas + ' veces y ' + p.escritores + ' escritor' + (p.escritores === 1 ? '' : 'es'),
+    titulo:'6.5 Inanición: ' + p.lectores + ' lectores que leen ' + p.vueltas + ' veces y ' + p.escritores + ' escritor' + (p.escritores === 1 ? '' : 'es'),
     vars:{estado:0, tLectores:0, escritoresEsperando:0},
     fields:b.fields.concat(['private int escritoresEsperando = 0;', '']),
     ops:b.ops.concat([
@@ -780,7 +780,7 @@ const BUILD = {
     })
   }; },
   fabrica:p => ({
-    titulo:'6.5 Fábrica: ' + p.creadoras + ' creadoras, ' + p.empaquetadoras + ' empaquetadora' + (p.empaquetadoras === 1 ? '' : 's') + ', cinta de ' + p.capacidad + ', ' + p.total + ' piezas',
+    titulo:'6.6 Fábrica: ' + p.creadoras + ' creadoras, ' + p.empaquetadoras + ' empaquetadora' + (p.empaquetadoras === 1 ? '' : 's') + ', cinta de ' + p.capacidad + ', ' + p.total + ' piezas',
     clase:'CintaTransportadora', recurso:'Cinta', icono:'📦', max:p.capacidad,
     vars:{piezasCinta:0, piezasCreadas:0, piezasEmpaquetadas:0, seguirFabricando:true, seguirEmpaquetando:true}, consts:{CAPACIDAD:p.capacidad, TOTAL_PIEZAS:p.total},
     fields:['private static final int CAPACIDAD = ' + p.capacidad + ';', 'private static final int TOTAL_PIEZAS = ' + p.total + ';', '', 'private int piezasCinta = 0;', 'private int piezasCreadas = 0;', 'private int piezasEmpaquetadas = 0;', 'private boolean seguirFabricando = true;', 'private boolean seguirEmpaquetando = true;', ''],
@@ -888,7 +888,7 @@ const ENUN = {
     '<li>Los hilos ya están escritos. Escribe los cuatro métodos del <code>Fichero</code>.</li></ul>',
   inanicion:p => '<p><b>' + p.lectores + ' lectores</b> leen unos datos <b>' + p.vueltas + ' veces cada uno</b>, sin parar, y llega <b>' + p.escritores + ' escritor' + (p.escritores === 1 ? '' : 'es') + '</b> que quiere escribir.</p>' +
     '<ul><li>Varios lectores pueden leer a la vez. Un escritor escribe siempre solo.</li>' +
-    '<li>Con el semáforo de 6.7 siempre hay algún lector dentro: el escritor <b>espera y espera</b>. Eso es la <b>inanición</b>.</li>' +
+    '<li>Con el semáforo de antes siempre hay algún lector dentro: el escritor <b>espera y espera</b>. Eso es la <b>inanición</b>.</li>' +
     '<li>Solución: el semáforo cuenta los escritores que esperan (<code>escritoresEsperando</code>). Mientras haya alguno, los lectores <b>nuevos</b> no entran. Los que ya están dentro terminan y el escritor entra.</li>' +
     '<li>El contador de arriba muestra cuántos lectores han entrado con un escritor esperando. Con la solución tiene que quedar en 0.</li>' +
     '<li>Los hilos ya están escritos. Escribe los cuatro métodos del <code>Semaforo</code>.</li></ul>',
@@ -935,7 +935,7 @@ const HINTS = {
   varios:['La regla es otra: no todos los hilos se estorban entre sí. ¿A quién le molesta un lector que llega? ¿Y un escritor? ¿Quién tiene que avisar y cuándo?',
     'leerFichero() espera solo mientras haya un escritor. escribirFichero() espera mientras haya algún lector o algún escritor. terminaLeer() resta un lector y avisa solo si era el último. terminaEscribir() resta un escritor y avisa a todos. Los cuatro llevan synchronized.',
     ['Escribe synchronized en los cuatro métodos.', 'En leerFichero(), un while con escritores > 0 y dentro wait(); después lectores++;', 'En escribirFichero(), un while con lectores > 0 || escritores > 0 y dentro wait(); después escritores++;', 'En terminaLeer(), lectores--; y, si lectores == 0, notifyAll();', 'En terminaEscribir(), escritores--; y notifyAll();']],
-  ficherolr:['Es la regla de 6.6, un hilo cada vez, pero ahora hay un fichero de verdad. ¿Qué hace cada hilo con el fichero que le devuelve el método? ¿Dentro o fuera del synchronized?',
+  ficherolr:['Es la regla de antes, un hilo cada vez, pero ahora hay un fichero de verdad. ¿Qué hace cada hilo con el fichero que le devuelve el método? ¿Dentro o fuera del synchronized?',
     'Cada hilo hace tres cosas, en este orden: pedir permiso (leerFichero() o escribirFichero(), que devuelven el fichero abierto), usar el fichero y avisar de que termina. El lector recorre el fichero con readLine() contando líneas y lo cierra; el escritor escribe su nombre con write(), añade el salto con newLine() y cierra con close(). Usar el fichero va entre las dos llamadas.',
     ['Lector.run(): br = fich.leerFichero();', 'Después, cuenta las líneas con readLine() hasta que devuelva null.', 'Después, fich.terminaLeer();', 'Escritor.run(): bw = fich.escribirFichero();', 'Después, bw.write(nombre); bw.newLine(); bw.close();', 'Después, fich.terminaEscribir();']],
   inanicion:['Los lectores entran y salen sin parar y siempre queda alguno dentro. ¿Qué tendría que saber el semáforo para dejar de admitir lectores nuevos cuando un escritor está esperando?',
@@ -951,7 +951,7 @@ const pistasHTML = id => {
     '<details><summary>Pista 3 · paso a paso</summary>' + pasos + '</details></div>';
 };
 const enunHTML = id => ENUN[id](cfg[id]) + pistasHTML(id);
-const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2', 'fabrica', 'lectores', 'varios', 'ficherolr', 'semaforo', 'inanicion', 'tema'];
+const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2', 'lectores', 'varios', 'ficherolr', 'semaforo', 'inanicion', 'fabrica', 'tema'];
 const MENU = ORDER.filter(k => k !== 'tema');   /* «tema» solo se usa desde Ponte a prueba */
 const PARAMS = {
   cocina:[{k:'cocineros', label:'Cocineros', min:1, max:12, def:9}, {k:'cuchillos', label:'Cuchillos', min:1, max:6, def:2}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:3000}],
@@ -2477,7 +2477,7 @@ const EXPS = {
   inanicion:[
     {id:'espera', nivel:1, tipo:'ver', titulo:'El escritor espera',
      cfg:() => ({lectores:4, escritores:1, vueltas:3, sleepL:1200, sleepE:800}),
-     instr:c => 'Aquí el semáforo es el de 6.7: no cuenta los escritores que esperan. Hay ' + c.lectores + ' lectores que leen ' + c.vueltas + ' veces cada uno y llega un escritor. Mira el contador «Lectores que han entrado con un escritor esperando».',
+     instr:c => 'Aquí el semáforo es el de antes: no cuenta los escritores que esperan. Hay ' + c.lectores + ' lectores que leen ' + c.vueltas + ' veces cada uno y llega un escritor. Mira el contador «Lectores que han entrado con un escritor esperando».',
      prog:() => MUT.sinEsperando(SOL()), reps:5,
      q:r => ({txt:'¿Qué le pasa al escritor?', ops:['Entra enseguida: los lectores le dejan paso', 'Espera mientras siguen entrando lectores nuevos delante de él', 'No escribe nunca y el programa se cuelga'], ok:r.maxColados > 0 ? 1 : 0,
        why:'Mientras haya algún lector dentro, el estado es CON_LECTORES y entran más lectores. El escritor solo entra cuando por casualidad no hay ninguno. Aquí los lectores acaban y por eso termina, pero con lectores sin fin no escribiría nunca: eso es la inanición.'})},

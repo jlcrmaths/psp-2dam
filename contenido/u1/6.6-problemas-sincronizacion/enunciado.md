@@ -1,4 +1,4 @@
-# Apartado 6.5 – Problemas de sincronización
+# Apartado 6.6 – Problemas de sincronización
 
 Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete `sincronizacion`. Los ejercicios van de menos a más difícil.
 
