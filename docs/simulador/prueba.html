@@ -635,6 +635,80 @@ const BUILD = {
          Escritor:{body:[st('accesoEscribirCall'), st('sleepFix'), st('escrituraFinalizadaCall')]}}
     })
   }; },
+  ficherolr:p => { const b = BUILD.lectores(p), ok0 = b.ok, sum0 = b.summary, sol0 = b.solution;
+    const mal = (a, m) => { if (!S.anomalia){ S.anomalia = true; log(a.n + ': ' + m, true); } };
+    return Object.assign(b, {
+    titulo:'6.6 Fichero de verdad: ' + p.lectores + ' lectores y ' + p.escritores + ' escritores',
+    groups:[
+      {t:'l', n:p.lectores, name:'Lector', emoji:'📖', extra:a => a.lin == null ? ' · sin leer' : ' · ha leído ' + a.lin + ' línea' + (a.lin === 1 ? '' : 's'),
+       proc:a => runHilo(a, 'Lector')},
+      {t:'e', n:p.escritores, name:'Escritor', emoji:'✏️', extra:a => ' · ' + (a.done ? 'ya ha escrito' : 'sin escribir'),
+       proc:a => runHilo(a, 'Escritor')}
+    ],
+    hilos:[{k:'Lector', n:'Lector.run()', ops:['leerCall', 'leerLineas', 'terminaLeerCall']},
+           {k:'Escritor', n:'Escritor.run()', ops:['escribirCall', 'escribirLinea', 'terminaEscribirCall']}],
+    hiloOps:[
+      {key:'leerCall', label:'BufferedReader br = fich.leerFichero();', m:'leerFichero'},
+      {key:'leerLineas', label:'while (br.readLine() != null) lineas++;', local:true, run:a => {
+        if (S.v.lectores === 0) mal(a, '¡lee el fichero sin haber pedido permiso a fich.leerFichero()!');
+        else if (S.v.escritores > 0) mal(a, '¡lee el fichero mientras alguien escribe!');
+        a.lin = S.lineas || 0; S.lecturas = (S.lecturas || 0) + 1;
+        log(a.n + ': readLine() → ha leído ' + a.lin + ' línea' + (a.lin === 1 ? '' : 's') + ' del fichero'); }},
+      {key:'terminaLeerCall', label:'fich.terminaLeer();', m:'terminaLeer'},
+      {key:'escribirCall', label:'BufferedWriter bw = fich.escribirFichero();', m:'escribirFichero'},
+      {key:'escribirLinea', label:'bw.write(nombre); bw.newLine(); bw.close();', local:true, run:a => {
+        if (S.v.escritores === 0) mal(a, '¡escribe en el fichero sin haber pedido permiso a fich.escribirFichero()!');
+        else if (S.v.lectores > 0) mal(a, '¡escribe mientras hay ' + S.v.lectores + ' lector(es) leyendo!');
+        S.lineas = (S.lineas || 0) + 1; S.nombres = (S.nombres || []).concat(a.n);
+        log(a.n + ': escribe su nombre → el fichero tiene ' + S.lineas + ' línea' + (S.lineas === 1 ? '' : 's')); }},
+      {key:'terminaEscribirCall', label:'fich.terminaEscribir();', m:'terminaEscribir'}],
+    stats:S => 'Dentro: <span class="' + ((S.v.lectores + S.v.escritores > 1 || S.v.lectores < 0 || S.v.escritores < 0) ? 'bad' : '') + '">' + S.v.lectores + ' lectores y ' + S.v.escritores + ' escritores</span> · Líneas en el fichero: ' + (S.lineas || 0) + ' · Han leído: ' + (S.cnt.decL || 0) + ' / ' + p.lectores + ' · Han escrito: ' + (S.cnt.decE || 0) + ' / ' + p.escritores,
+    ok:S => ok0(S) && (S.lineas || 0) === p.escritores && (S.lecturas || 0) === p.lectores,
+    okMsg:S => '✔ Termina bien. Los ' + p.escritores + ' escritores escribieron su nombre (' + S.lineas + ' línea' + (S.lineas === 1 ? '' : 's') + ') y los ' + p.lectores + ' lectores leyeron el fichero, de uno en uno',
+    summary:S => sum0(S) + ', líneas en el fichero ' + (S.lineas || 0) + ', lecturas ' + (S.lecturas || 0),
+    mainLines:['public static void main(String[] args) throws IOException {', '    Fichero f = new Fichero("Lectores.txt");', '', '    int numLectores = ' + p.lectores + ';', '    int numEscritores = ' + p.escritores + ';', '', '    Thread[] lectores = new Thread[numLectores];', '    Thread[] escritores = new Thread[numEscritores];', '', '    // los hilos se crean como antes', '', '    for (Thread escr : escritores) {', '        escr.start();', '    }', '    for (int i = 0; i < numLectores; i++) {', '        lectores[i].start();', '    }', '}'],
+    hiloLines:['// Lector.run(): br = fich.leerFichero(); cuenta las líneas con readLine(); br.close(); fich.terminaLeer();', '// Escritor.run(): bw = fich.escribirFichero(); write(nombre); newLine(); close(); fich.terminaEscribir();'],
+    solution:() => { const s = sol0(); s.h = {Lector:{body:[st('leerCall'), st('leerLineas'), st('terminaLeerCall')]}, Escritor:{body:[st('escribirCall'), st('escribirLinea'), st('terminaEscribirCall')]}}; return s; }
+  }); },
+  inanicion:p => { const b = BUILD.semaforo(p), ok0 = b.ok, on0 = b.onCall;
+    const NOM = ['LIBRE', 'CON_LECTORES', 'CON_ESCRITOR'];
+    return Object.assign(b, {
+    titulo:'6.7 Inanición: ' + p.lectores + ' lectores que leen ' + p.vueltas + ' veces y ' + p.escritores + ' escritor' + (p.escritores === 1 ? '' : 'es'),
+    vars:{estado:0, tLectores:0, escritoresEsperando:0},
+    fields:b.fields.concat(['private int escritoresEsperando = 0;', '']),
+    ops:b.ops.concat([
+      {g:'Datos', key:'incEsp', label:'escritoresEsperando++;', fx:S => { S.v.escritoresEsperando++; return 'escritoresEsperando++ → ' + S.v.escritoresEsperando; }},
+      {g:'Datos', key:'decEsp', label:'escritoresEsperando--;', fx:S => {
+        if (S.v.escritoresEsperando <= 0) S.pend = '¡sale un escritor de la espera y no había ninguno contado!';
+        S.v.escritoresEsperando--; return 'escritoresEsperando-- → ' + S.v.escritoresEsperando; }}]),
+    groups:[
+      {t:'l', n:p.lectores, name:'Lector', emoji:'📖', extra:a => ' · lecturas: ' + a.done + '/' + p.vueltas,
+       proc:a => runHilo(a, 'Lector')},
+      {t:'e', n:p.escritores, name:'Escritor', emoji:'✏️', extra:a => ' · ' + (a.done ? 'ya ha escrito' : 'sin escribir'),
+       proc:a => (function*(){ for (let i = 0; i < 2; i++){ a.state = 'trabaja'; yield; } yield* runHilo(a, 'Escritor'); })()}
+    ],
+    hilos:[{k:'Lector', n:'Lector.run()', ops:['accesoLeerCall', 'sleepFix', 'lecturaFinalizadaCall'], sleep:'sleepL', ms:p.sleepL},
+           {k:'Escritor', n:'Escritor.run()', ops:['accesoEscribirCall', 'sleepFix', 'escrituraFinalizadaCall'], sleep:'sleepE', ms:p.sleepE}],
+    onCall:(a, nm) => {
+      on0(a, nm);
+      if (nm === 'accesoLeer' && agents.some(x => x.t === 'e' && x.state === 'espera')) S.colados = (S.colados || 0) + 1;
+    },
+    stats:S => 'Dentro: <span class="' + (((S.dl || 0) > 0 && (S.de || 0) > 0) || (S.de || 0) > 1 ? 'bad' : '') + '">' + (S.dl || 0) + ' lectores y ' + (S.de || 0) + ' escritores</span> · Lectores que han entrado con un escritor esperando: <span class="' + ((S.colados || 0) > 0 ? 'bad' : '') + '">' + (S.colados || 0) + '</span> · Han leído: ' + (S.cnt.leidos || 0) + ' / ' + (p.lectores * p.vueltas) + ' · Han escrito: ' + (S.cnt.escritos || 0) + ' / ' + p.escritores,
+    ok:S => (S.cnt.leidos || 0) === p.lectores * p.vueltas && (S.cnt.escritos || 0) === p.escritores && (S.cnt.incT || 0) === p.lectores * p.vueltas && (S.cnt.setCE || 0) === p.escritores && S.v.estado === 0 && S.v.tLectores === 0 && !S.anomalia && !(S.colados > 0),
+    okMsg:S => '✔ Termina bien. Todos leyeron y escribieron, y ningún lector se coló delante de un escritor que esperaba',
+    summary:S => 'leído ' + (S.cnt.leidos || 0) + ' de ' + (p.lectores * p.vueltas) + ', escrito por ' + (S.cnt.escritos || 0) + ' de ' + p.escritores + (S.colados > 0 ? ', ' + S.colados + ' lectores se colaron delante de un escritor que esperaba (inanición)' : '') + ', estado ' + NOM[S.v.estado] + ', tLectores = ' + S.v.tLectores,
+    mainLines:['public static void main(String[] args) throws InterruptedException {', '    Semaforo smfro = new Semaforo();', '', '    // ' + p.lectores + ' lectores, con un sleep(50) entre uno y otro', '    // ' + p.escritores + ' escritor' + (p.escritores === 1 ? '' : 'es') + ', que llega un poco más tarde', '}'],
+    hiloLines:['// Lector.run(): ' + p.vueltas + ' veces: accesoLeer(); sleep(' + p.sleepL + '); lecturaFinalizada();', '// Escritor.run(): espera un poco; accesoEscribir(); sleep(' + p.sleepE + '); escrituraFinalizada();'],
+    solution:() => ({
+      m:{accesoLeer:{mod:'synchronized', body:[blk('while', 'estado == CON_ESCRITOR || escritoresEsperando > 0', [st('wait')]), st('setCL'), st('incT')]},
+         accesoEscribir:{mod:'synchronized', body:[st('incEsp'), blk('while', 'estado != LIBRE', [st('wait')]), st('decEsp'), st('setCE')]},
+         lecturaFinalizada:{mod:'synchronized', body:[st('decT'), blk('if', 'tLectores == 0', [st('setLibre'), st('notifyAll')])]},
+         escrituraFinalizada:{mod:'synchronized', body:[st('setLibre'), st('notifyAll')]}},
+      principal:{body:[]},
+      h:{Lector:{body:[blk('for', 'int i = 1; i <= ' + p.vueltas + '; i++', [st('accesoLeerCall'), st('sleepFix'), st('lecturaFinalizadaCall')])]},
+         Escritor:{body:[st('accesoEscribirCall'), st('sleepFix'), st('escrituraFinalizadaCall')]}}
+    })
+  }); },
   tema:p => { const T = TEMA, C = T.cnt, M = T.max, H = T.hechos, V = T.vend, un = n => n === 1 ? T.unidad : T.plural; return {
     titulo:'Ponte a prueba · ' + T.nombre,
     clase:T.clase, recurso:T.clase, icono:T.icono, max:p.capacidad, hiloObj:T.obj,
@@ -774,6 +848,18 @@ const ENUN = {
     '<li>El escritor, al terminar, deja los datos <code>LIBRE</code> y avisa. El lector, solo si es el último que sale.</li>' +
     '<li>El programa termina cuando han usado los datos los ' + p.lectores + ' lectores y los ' + p.escritores + ' escritores.</li>' +
     '<li>Los hilos también los escribes tú, en sus pestañas: <code>accesoLeer()</code>, <code>sleep</code> y <code>lecturaFinalizada()</code>, y lo mismo con el escritor.</li></ul>',
+  ficherolr:p => '<p><b>' + p.lectores + ' hilos lectores</b> y <b>' + p.escritores + ' hilos escritores</b> usan un fichero de texto de verdad. Cada hilo lo usa una sola vez.</p>' +
+    '<ul><li>El fichero lo usa un hilo cada vez, como en 6.6.</li>' +
+    '<li>Cada escritor escribe su nombre en una línea nueva. Cada lector cuenta cuántas líneas tiene el fichero en ese momento.</li>' +
+    '<li><code>leerFichero()</code> y <code>escribirFichero()</code> ya no devuelven nada: devuelven el fichero <b>abierto</b> (<code>BufferedReader</code> o <code>BufferedWriter</code>). Leer y escribir se hace <b>fuera</b> del método <code>synchronized</code>, entre las dos llamadas.</li>' +
+    '<li>El programa termina cuando han usado el fichero los ' + p.lectores + ' lectores y los ' + p.escritores + ' escritores, y el fichero tiene ' + p.escritores + ' línea' + (p.escritores === 1 ? '' : 's') + '.</li>' +
+    '<li>El <code>Fichero</code> ya está escrito. Escribe lo que hacen los hilos en sus pestañas.</li></ul>',
+  inanicion:p => '<p><b>' + p.lectores + ' lectores</b> leen unos datos <b>' + p.vueltas + ' veces cada uno</b>, sin parar, y llega <b>' + p.escritores + ' escritor' + (p.escritores === 1 ? '' : 'es') + '</b> que quiere escribir.</p>' +
+    '<ul><li>Varios lectores pueden leer a la vez. Un escritor escribe siempre solo.</li>' +
+    '<li>Con el semáforo de 6.7 siempre hay algún lector dentro: el escritor <b>espera y espera</b>. Eso es la <b>inanición</b>.</li>' +
+    '<li>Solución: el semáforo cuenta los escritores que esperan (<code>escritoresEsperando</code>). Mientras haya alguno, los lectores <b>nuevos</b> no entran. Los que ya están dentro terminan y el escritor entra.</li>' +
+    '<li>El contador de arriba muestra cuántos lectores han entrado con un escritor esperando. Con la solución tiene que quedar en 0.</li>' +
+    '<li>Los hilos ya están escritos. Escribe los cuatro métodos del <code>Semaforo</code>.</li></ul>',
   tema:p => { const T = TEMA, dificil = typeof pp !== 'undefined' && pp && pp.activo && pp.nivel === 3; return '<p>Un <b>' + T.prodL + '</b> y <b>' + p.vendedores + ' ' + (p.vendedores === 1 ? T.consL : T.consPl) + '</b> comparten ' + T.lugar + ' donde ' + (p.capacidad === 1 ? 'cabe <b>1 ' + T.unidad : 'caben <b>' + p.capacidad + ' ' + T.plural) + '</b>.</p>' +
     '<ul><li>El ' + T.prodL + ' espera si ' + T.el + ' está ' + T.lleno + ' para poder ' + T.mProd + '.</li>' +
     '<li>' + (p.vendedores === 1 ? 'El ' + T.consL + ' espera' : 'Los ' + T.consPl + ' esperan') + ' si ' + T.el + ' está ' + T.vacio + ' para poder ' + T.mCons + '.</li>' +
@@ -813,7 +899,13 @@ const HINTS = {
     ['Escribe synchronized en los cuatro métodos.', 'En leerFichero(), un while con lectores > 0 || escritores > 0 y dentro wait();', 'Después del while, lectores++;', 'En escribirFichero(), lo mismo, pero con escritores++;', 'En terminaLeer(), lectores--; y notifyAll();', 'En terminaEscribir(), escritores--; y notifyAll();', 'En Lector.run(): leerFichero(), sleep y terminaLeer(). En Escritor.run(): escribirFichero(), sleep y terminaEscribir().']],
   semaforo:['Aquí varios lectores pueden leer a la vez, pero un escritor necesita los datos para él solo. ¿Qué tiene que recordar el semáforo para saberlo? Y cuando sale un lector, ¿siempre quedan los datos libres?',
     'El semáforo recuerda el estado de los datos (LIBRE, CON_LECTORES o CON_ESCRITOR) y cuántos lectores hay dentro. accesoLeer(): si hay un escritor escribiendo, espera; después marca CON_LECTORES y suma un lector. accesoEscribir(): espera mientras los datos no estén LIBRES; después marca CON_ESCRITOR. lecturaFinalizada(): resta un lector y, si era el último, deja los datos LIBRES y avisa. escrituraFinalizada(): deja los datos LIBRES y avisa. Los cuatro llevan synchronized.',
-    ['Escribe synchronized en los cuatro métodos.', 'accesoLeer(): if (estado == LIBRE) { estado = CON_LECTORES; } else { if (estado == CON_ESCRITOR) { while (estado == CON_ESCRITOR) wait(); estado = CON_LECTORES; } }', 'Después del if, tLectores++;', 'accesoEscribir(): while (estado != LIBRE) wait(); y después estado = CON_ESCRITOR;', 'lecturaFinalizada(): tLectores--; y if (tLectores == 0) { estado = LIBRE; notify(); }', 'escrituraFinalizada(): estado = LIBRE; y notify();', 'En Lector.run(): accesoLeer(), sleep y lecturaFinalizada(). En Escritor.run(): accesoEscribir(), sleep y escrituraFinalizada().', 'Atajo: en accesoLeer() basta while (estado == CON_ESCRITOR) wait(); estado = CON_LECTORES; tLectores++; hace lo mismo.']]
+    ['Escribe synchronized en los cuatro métodos.', 'accesoLeer(): if (estado == LIBRE) { estado = CON_LECTORES; } else { if (estado == CON_ESCRITOR) { while (estado == CON_ESCRITOR) wait(); estado = CON_LECTORES; } }', 'Después del if, tLectores++;', 'accesoEscribir(): while (estado != LIBRE) wait(); y después estado = CON_ESCRITOR;', 'lecturaFinalizada(): tLectores--; y if (tLectores == 0) { estado = LIBRE; notify(); }', 'escrituraFinalizada(): estado = LIBRE; y notify();', 'En Lector.run(): accesoLeer(), sleep y lecturaFinalizada(). En Escritor.run(): accesoEscribir(), sleep y escrituraFinalizada().', 'Atajo: en accesoLeer() basta while (estado == CON_ESCRITOR) wait(); estado = CON_LECTORES; tLectores++; hace lo mismo.']],
+  ficherolr:['Es la regla de 6.6, un hilo cada vez, pero ahora hay un fichero de verdad. ¿Qué hace cada hilo con el fichero que le devuelve el método? ¿Dentro o fuera del synchronized?',
+    'Cada hilo hace tres cosas, en este orden: pedir permiso (leerFichero() o escribirFichero(), que devuelven el fichero abierto), usar el fichero y avisar de que termina. El lector recorre el fichero con readLine() contando líneas y lo cierra; el escritor escribe su nombre con write(), añade el salto con newLine() y cierra con close(). Usar el fichero va entre las dos llamadas.',
+    ['Lector.run(): br = fich.leerFichero();', 'Después, cuenta las líneas con readLine() hasta que devuelva null.', 'Después, fich.terminaLeer();', 'Escritor.run(): bw = fich.escribirFichero();', 'Después, bw.write(nombre); bw.newLine(); bw.close();', 'Después, fich.terminaEscribir();']],
+  inanicion:['Los lectores entran y salen sin parar y siempre queda alguno dentro. ¿Qué tendría que saber el semáforo para dejar de admitir lectores nuevos cuando un escritor está esperando?',
+    'El semáforo cuenta los escritores que esperan: accesoEscribir() suma uno antes de esperar y lo resta cuando entra. accesoLeer() espera mientras haya un escritor escribiendo o algún escritor esperando. Al terminar, los dos métodos despiertan a todos con notifyAll(): si despertaran a un lector, este vería que hay un escritor esperando y se volvería a dormir.',
+    ['Escribe synchronized en los cuatro métodos.', 'accesoLeer(): while (estado == CON_ESCRITOR || escritoresEsperando > 0) wait(); después estado = CON_LECTORES; tLectores++;', 'accesoEscribir(): escritoresEsperando++; while (estado != LIBRE) wait(); escritoresEsperando--; estado = CON_ESCRITOR;', 'lecturaFinalizada(): tLectores--; y, si tLectores == 0, estado = LIBRE; notifyAll();', 'escrituraFinalizada(): estado = LIBRE; notifyAll();']]
 };
 const pistasHTML = id => {
   const hs = HINTS[id]; if (!hs) return '';
@@ -824,7 +916,7 @@ const pistasHTML = id => {
     '<details><summary>Pista 3 · paso a paso</summary>' + pasos + '</details></div>';
 };
 const enunHTML = id => ENUN[id](cfg[id]) + pistasHTML(id);
-const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2', 'fabrica', 'lectores', 'semaforo', 'tema'];
+const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2', 'fabrica', 'lectores', 'ficherolr', 'semaforo', 'inanicion', 'tema'];
 const MENU = ORDER.filter(k => k !== 'tema');   /* «tema» solo se usa desde Ponte a prueba */
 const PARAMS = {
   cocina:[{k:'cocineros', label:'Cocineros', min:1, max:12, def:9}, {k:'cuchillos', label:'Cuchillos', min:1, max:6, def:2}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:3000}],
@@ -834,6 +926,8 @@ const PARAMS = {
   fabrica:[{k:'creadoras', label:'Creadoras', min:1, max:5, def:3}, {k:'empaquetadoras', label:'Empaquetadoras', min:1, max:3, def:1}, {k:'total', label:'Piezas a crear', min:4, max:50, def:20}, {k:'capacidad', label:'Capacidad de la cinta', min:1, max:8, def:5}, {k:'sleepC', label:'sleep creadora', unit:' ms', step:100, min:0, max:5000, def:1200}, {k:'sleepE', label:'sleep empaquetadora', unit:' ms', step:100, min:0, max:5000, def:800}],
   lectores:[{k:'lectores', label:'Lectores', min:1, max:8, def:5}, {k:'escritores', label:'Escritores', min:1, max:4, def:2}, {k:'sleepL', label:'sleep lector', inline:true, min:0, max:5000, def:1600}, {k:'sleepE', label:'sleep escritor', inline:true, min:0, max:5000, def:2400}],
   semaforo:[{k:'lectores', label:'Lectores', min:1, max:8, def:5}, {k:'escritores', label:'Escritores', min:1, max:4, def:2}, {k:'sleepL', label:'sleep lector', inline:true, min:0, max:5000, def:1600}, {k:'sleepE', label:'sleep escritor', inline:true, min:0, max:5000, def:2000}],
+  ficherolr:[{k:'lectores', label:'Lectores', min:1, max:8, def:5}, {k:'escritores', label:'Escritores', min:1, max:4, def:2}],
+  inanicion:[{k:'lectores', label:'Lectores', min:2, max:6, def:4}, {k:'escritores', label:'Escritores', min:1, max:2, def:1}, {k:'vueltas', label:'Lecturas por lector', min:1, max:6, def:3}, {k:'sleepL', label:'sleep lector', inline:true, min:0, max:5000, def:1200}, {k:'sleepE', label:'sleep escritor', inline:true, min:0, max:5000, def:800}],
   tema:[{k:'vendedores', inline:true, min:1, max:5, def:2}, {k:'total', inline:true, min:1, max:20, def:10}, {k:'capacidad', inline:true, min:1, max:5, def:1}, {k:'sleepP', inline:true, min:0, max:5000, def:0}, {k:'sleepV', inline:true, min:0, max:5000, def:400}],
   pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}, {k:'sleepP', label:'sleep pintor', inline:true, min:0, max:5000, def:0}, {k:'sleepV', label:'sleep vendedor', inline:true, min:0, max:5000, def:400}]
 };
@@ -1040,7 +1134,10 @@ function* execH(a, list, hd, env){
       else if (n.els) yield* execH(a, n.els, hd, env);
     } else if (n.kind === 'stmt'){
       const op = (sc.hiloOps || []).find(o => o.key === n.op);
-      if (op){
+      if (op && op.local){
+        op.run(a);
+        yield;
+      } else if (op){
         const antes = a.dec || 0;
         const r = yield* invoke(a, op.m);
         a.cur = n.id;
@@ -1875,7 +1972,12 @@ const MUT = {
   quitaDeep:(pr, op) => { const rm = l => { for (let i = l.length - 1; i >= 0; i--){ const n = l[i]; if (n.kind === 'stmt' && n.op === op) l.splice(i, 1); else { rm(n.body); if (n.els) rm(n.els); } } }; bodies(pr).forEach(rm); return pr; },
   sinIfLect:pr => { const b = pr.m.lecturaFinalizada.body, k = b.findIndex(n => n.kind === 'if'); if (k >= 0) b.splice(k, 1, ...b[k].body); return pr; },
   escritorNoMira:pr => { walk(pr.m.accesoEscribir.body, n => { if (n.kind === 'while') n.cond = 'estado == CON_ESCRITOR'; }); return pr; },
-  sinCondEsc:pr => { walk(pr.m.accesoEscribir.body, n => { if (n.kind === 'while') n.cond = ''; }); return pr; }
+  sinCondEsc:pr => { walk(pr.m.accesoEscribir.body, n => { if (n.kind === 'while') n.cond = ''; }); return pr; },
+  /* fichero de verdad e inanición */
+  leeSinPermiso:pr => { pr.h.Lector.body = [pr.h.Lector.body[1], pr.h.Lector.body[0], pr.h.Lector.body[2]]; return pr; },
+  escribeSinPermiso:pr => { pr.h.Escritor.body = [pr.h.Escritor.body[1], pr.h.Escritor.body[0], pr.h.Escritor.body[2]]; return pr; },
+  sinEsperando:pr => { walk(pr.m.accesoLeer.body, n => { if (n.kind === 'while') n.cond = 'estado == CON_ESCRITOR'; }); MUT.quitaDeep(pr, 'incEsp'); MUT.quitaDeep(pr, 'decEsp'); return pr; },
+  sinCondLeer:pr => { walk(pr.m.accesoLeer.body, n => { if (n.kind === 'while') n.cond = ''; }); return pr; }
 };
 const SOL = () => sc.solution();
 
@@ -2265,6 +2367,83 @@ const EXPS = {
      prog:() => { const pr = SOL(); pr.h = emptyProg(sc).h; return pr; }, tab:2,
      why:'Cada hilo hace tres cosas, en este orden: pedir acceso (accesoLeer() o accesoEscribir()), dormir mientras lee o escribe, y avisar de que termina (lecturaFinalizada() o escrituraFinalizada()).'}
   ],
+  ficherolr:[
+    {id:'cuantas', nivel:1, tipo:'ver', titulo:'¿Cuántas líneas lee cada lector?',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2)}),
+     instr:c => 'Ejecuta la solución con ' + c.lectores + ' lectores y ' + c.escritores + ' escritores. Mira en el registro cuántas líneas lee cada lector y las líneas del fichero en el panel de arriba.',
+     prog:SOL, reps:5,
+     q:r => ({txt:'¿Sabes de antemano cuántas líneas leerá cada lector?', ops:['Sí, siempre las mismas', 'No: depende de cuántos escritores hayan escrito antes de que él lea'], ok:1,
+       why:'El fichero se va llenando: cada escritor añade una línea. Un lector cuenta las que hay en el momento de leer. Si lee antes que los escritores, cuenta 0.'})},
+    {id:'leeSin', nivel:2, tipo:'ver', titulo:'Leer sin pedir permiso',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2)}),
+     instr:c => 'Aquí el lector lee el fichero antes de llamar a leerFichero(). Hay ' + c.lectores + ' lectores y ' + c.escritores + ' escritores.',
+     prog:() => MUT.leeSinPermiso(SOL()),
+     q:qResultado('¿Qué ocurre?', 'El lector lee sin que el fichero sepa que está dentro: puede leer mientras un escritor escribe. El permiso (leerFichero()) tiene que ir antes de usar el fichero.')},
+    {id:'escribeSin', nivel:3, tipo:'ver', titulo:'Escribir sin pedir permiso',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2)}),
+     instr:c => 'Aquí el escritor escribe en el fichero antes de llamar a escribirFichero(). Hay ' + c.lectores + ' lectores y ' + c.escritores + ' escritores.',
+     prog:() => MUT.escribeSinPermiso(SOL()),
+     q:qResultado('¿Qué ocurre?', 'El escritor escribe sin que el fichero sepa que está dentro: puede escribir mientras otros leen o escriben. El permiso (escribirFichero()) tiene que ir antes de usar el fichero.')},
+    {id:'hLector', nivel:4, tipo:'montar', titulo:'Escribe Lector.run()',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2)}),
+     instr:c => 'Todo está escrito menos lo que hace el lector. Escribe en la pestaña Lector.run(): pedir el fichero, contar las líneas y avisar de que termina. Pulsa «Comprobar».',
+     prog:() => MUT.sinLector(SOL()), tab:2,
+     why:'Primero br = fich.leerFichero(); después se cuentan las líneas con readLine(); al final fich.terminaLeer(). Leer va entre las dos llamadas.'},
+    {id:'hEscritor', nivel:5, tipo:'montar', titulo:'Escribe Escritor.run()',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2)}),
+     instr:c => 'Todo está escrito menos lo que hace el escritor. Escribe en la pestaña Escritor.run(): pedir el fichero, escribir su nombre y avisar de que termina. Pulsa «Comprobar».',
+     prog:() => MUT.sinEscritor(SOL()), tab:3,
+     why:'Primero bw = fich.escribirFichero(); después write(), newLine() y close(); al final fich.terminaEscribir().'},
+    {id:'hilos', nivel:6, tipo:'montar', titulo:'Escribe los dos hilos',
+     cfg:() => ({lectores:randInt(3, 5), escritores:randInt(1, 2)}),
+     instr:c => 'El Fichero ya está escrito. Escribe en las pestañas Lector.run() y Escritor.run() lo que hace cada hilo. Hay ' + c.lectores + ' lectores y ' + c.escritores + ' escritores. Pulsa «Comprobar».',
+     prog:() => { const pr = SOL(); pr.h = emptyProg(sc).h; return pr; }, tab:2,
+     why:'Los dos hacen tres cosas, en este orden: pedir permiso (el fichero abierto), usarlo y avisar de que terminan.'}
+  ],
+  inanicion:[
+    {id:'espera', nivel:1, tipo:'ver', titulo:'El escritor espera',
+     cfg:() => ({lectores:4, escritores:1, vueltas:3, sleepL:1200, sleepE:800}),
+     instr:c => 'Aquí el semáforo es el de 6.7: no cuenta los escritores que esperan. Hay ' + c.lectores + ' lectores que leen ' + c.vueltas + ' veces cada uno y llega un escritor. Mira el contador «Lectores que han entrado con un escritor esperando».',
+     prog:() => MUT.sinEsperando(SOL()), reps:5,
+     q:r => ({txt:'¿Qué le pasa al escritor?', ops:['Entra enseguida: los lectores le dejan paso', 'Espera mientras siguen entrando lectores nuevos delante de él', 'No escribe nunca y el programa se cuelga'], ok:r.maxColados > 0 ? 1 : 0,
+       why:'Mientras haya algún lector dentro, el estado es CON_LECTORES y entran más lectores. El escritor solo entra cuando por casualidad no hay ninguno. Aquí los lectores acaban y por eso termina, pero con lectores sin fin no escribiría nunca: eso es la inanición.'})},
+    {id:'solucion', nivel:2, tipo:'ver', titulo:'Con escritoresEsperando',
+     cfg:() => ({lectores:4, escritores:1, vueltas:3, sleepL:1200, sleepE:800}),
+     instr:c => 'Ahora el semáforo cuenta los escritores que esperan y accesoLeer() mira ese contador. Mira de nuevo el contador de lectores que se cuelan.',
+     prog:SOL, reps:5,
+     q:r => ({txt:'¿Cuántos lectores nuevos entran con un escritor esperando?', ops:['Ninguno: los que están dentro terminan y entra el escritor', 'Todos los que quieran', 'Solo uno'], ok:r.maxColados > 0 ? 1 : 0,
+       why:'Con escritoresEsperando > 0 los lectores nuevos esperan. Los que ya estaban dentro terminan, el último deja los datos LIBRES y avisa, y el escritor entra.'})},
+    {id:'notify', nivel:3, tipo:'ver', titulo:'notify() en vez de notifyAll()',
+     cfg:() => ({lectores:4, escritores:1, vueltas:3, sleepL:1200, sleepE:800}),
+     instr:c => 'Aquí lecturaFinalizada() y escrituraFinalizada() usan notify() y no notifyAll(). Hay ' + c.lectores + ' lectores y un escritor.',
+     prog:() => MUT.swap(SOL(), 'notifyAll', 'notify'), reps:20,
+     q:qResultado('¿Funciona siempre?', 'notify() despierta a uno cualquiera. Si despierta a un lector, este ve que hay un escritor esperando y se vuelve a dormir: el aviso se pierde y el escritor sigue dormido. Ahora hace falta notifyAll().')},
+    {id:'sinDec', nivel:4, tipo:'ver', titulo:'Olvidar escritoresEsperando--',
+     cfg:() => ({lectores:4, escritores:1, vueltas:3, sleepL:1200, sleepE:800}),
+     instr:c => 'Aquí accesoEscribir() suma uno a escritoresEsperando pero nunca lo resta. Hay ' + c.lectores + ' lectores y un escritor.',
+     prog:() => MUT.quitaDeep(SOL(), 'decEsp'), reps:10,
+     q:qResultado('¿Qué ocurre?', 'El contador se queda en 1 para siempre: los lectores que quedan por leer creen que hay un escritor esperando y se duermen sin que nadie los despierte. El programa se cuelga.')},
+    {id:'condLeer', nivel:5, tipo:'montar', titulo:'Completa el while de accesoLeer()',
+     cfg:() => ({lectores:4, escritores:1, vueltas:3, sleepL:1200, sleepE:800}),
+     instr:c => 'A accesoLeer() le falta la condición del while: los lectores entran sin esperar. Escríbela en la pestaña Semaforo y pulsa «Comprobar».',
+     prog:() => MUT.sinCondLeer(SOL()), tab:0,
+     why:'El lector espera si hay un escritor escribiendo O hay algún escritor esperando: while (estado == CON_ESCRITOR || escritoresEsperando > 0) wait();'},
+    {id:'accesoEsc', nivel:6, tipo:'montar', titulo:'Escribe accesoEscribir()',
+     cfg:() => ({lectores:4, escritores:1, vueltas:3, sleepL:1200, sleepE:800}),
+     instr:c => 'Todo está escrito menos accesoEscribir(). Recuerda que el escritor tiene que apuntarse como «esperando» antes de esperar. Escríbelo en la pestaña Semaforo y pulsa «Comprobar».',
+     prog:() => MUT.vacia(SOL(), 'accesoEscribir'), tab:0,
+     why:'accesoEscribir(): synchronized; escritoresEsperando++; while (estado != LIBRE) wait(); escritoresEsperando--; estado = CON_ESCRITOR;'},
+    {id:'accesoLec', nivel:7, tipo:'montar', titulo:'Escribe accesoLeer()',
+     cfg:() => ({lectores:4, escritores:1, vueltas:3, sleepL:1200, sleepE:800}),
+     instr:c => 'Todo está escrito menos accesoLeer(). Escríbelo en la pestaña Semaforo y pulsa «Comprobar».',
+     prog:() => MUT.vacia(SOL(), 'accesoLeer'), tab:0,
+     why:'accesoLeer(): synchronized; while (estado == CON_ESCRITOR || escritoresEsperando > 0) wait(); estado = CON_LECTORES; tLectores++;'},
+    {id:'todo', nivel:8, tipo:'montar', titulo:'Móntalo tú',
+     cfg:() => ({lectores:4, escritores:1, vueltas:3, sleepL:1200, sleepE:800}),
+     instr:c => 'Los hilos ya están escritos. Escribe los cuatro métodos del Semaforo para que el escritor no sufra inanición. Pulsa «Comprobar».',
+     prog:() => MUT.vacia(SOL(), 'accesoLeer', 'accesoEscribir', 'lecturaFinalizada', 'escrituraFinalizada'), tab:0,
+     why:'accesoLeer() espera con escritor escribiendo o esperando; accesoEscribir() se apunta como esperando antes de esperar y se borra al entrar; los dos «finalizada» dejan los datos LIBRES cuando toca y avisan con notifyAll().'}
+  ],
   pintor2:[
     {id:'notify', nivel:1, tipo:'ver', titulo:'notify() con dos papeles',
      cfg:() => ({vendedores:randInt(2, 3), total:randInt(6, 10), capacidad:1, }),
@@ -2378,6 +2557,7 @@ function correr(n){
       resetSim();
       for (let t = 0; t < 4000 && !S.fin; t++) tick();
       r.maxL = Math.max(r.maxL || 0, S.maxL || 0);
+      r.maxColados = Math.max(r.maxColados || 0, S.colados || 0);
       const res = S.result || 'infinito';
       r[res] = (r[res] || 0) + 1;
       firmas.add(S.entradas.slice(0, 8).join(','));

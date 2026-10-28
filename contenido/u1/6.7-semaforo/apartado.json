@@ -1,5 +1,0 @@
-{
-  "titulo": "6.7 Varios lectores a la vez: semáforo y discoteca",
-  "orden": 7,
-  "resumen": "Varios lectores pueden leer a la vez, pero un escritor necesita estar solo. ¿Cómo lo controla un semáforo? ¿Y qué pasa con un fichero de verdad?"
-}

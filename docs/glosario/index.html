@@ -338,6 +338,20 @@ sleep(3000);
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="inanición">
+<h2><code>inanición</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Concepto, no una instrucción: situación en la que un hilo espera su turno mucho tiempo, o para siempre, porque otros hilos pasan siempre por delante. En inglés, starvation. No hay bloqueo: el programa sigue funcionando, pero ese hilo no avanza.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Explica por qué, con varios lectores que entran y salen sin parar, un escritor puede quedarse esperando: siempre hay algún lector dentro. Se evita dando prioridad al que espera: el semáforo cuenta los escritores que esperan y, mientras haya alguno, no deja entrar lectores nuevos.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">while (estado == CON_ESCRITOR || escritoresEsperando &gt; 0) {
+    wait();
+}
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="interbloqueo">
 <h2><code>interbloqueo</code></h2>
 <dl>
