@@ -2,33 +2,7 @@
 
 Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete `sincronizacion`. Los ejercicios van de menos a más difícil.
 
-## Ejercicio 1: lectores y escritores (proyecto `LectoresEscritores`)
-
-Hay 10 hilos escritores y 10 hilos lectores.
-
-- Cada escritor escribe su nombre en una línea nueva de un fichero de texto.
-- Cada lector lee cuántas líneas tiene el fichero en el momento de la lectura y lo muestra por pantalla.
-
-Ejemplo de salida: `Lector 4 lee: el fichero tiene 6 líneas`.
-
-### Pistas
-El fichero es lo que comparten los 20 hilos, así que debe estar en su propia clase y todos deben usar el mismo objeto. Piensa qué podría salir mal si un lector leyera mientras un escritor está escribiendo. Aquí basta con `synchronized`.
-
-### Más ayuda
-Crea una clase `Fichero` que guarde la ruta del fichero y tenga dos métodos `synchronized`: uno que añade una línea al final y otro que cuenta las líneas. Para escribir sirve `FileWriter` con el segundo argumento a `true`, que añade en vez de borrar. Para contar sirve `Files.readAllLines`, que devuelve una lista con una entrada por línea. Los dos obligan a escribir un `try` con `catch (IOException e)`. `Escritor` y `Lector` implementan `Runnable`, reciben el `Fichero` en el constructor y llaman a su método. En `Principal`, un `for` crea y arranca un escritor y un lector en cada vuelta.
-
-### Paso a paso
-1. Crea el proyecto `LectoresEscritores` y el paquete `sincronizacion`.
-2. Crea la clase `Fichero` con un atributo privado `String` para la ruta.
-3. En el constructor, guarda la ruta y crea el fichero vacío con un `FileWriter`, para que cada ejecución empiece desde cero.
-4. Escribe el método `escribir`, `synchronized`, que añade el nombre del hilo y un salto de línea al final del fichero y cierra el fichero.
-5. Escribe el método `contarLineas`, `synchronized`, que lee todas las líneas y muestra cuántas hay.
-6. Crea `Escritor` y `Lector`, que implementan `Runnable` y reciben el `Fichero` en el constructor.
-7. En el `run()` de cada una, llama al método correspondiente pasando `Thread.currentThread().getName()`.
-8. En `Principal`, crea un solo `Fichero` y un `for` de 1 a 10 que cree y arranque un `Escritor` y un `Lector` con nombres como "Escritor 3" y "Lector 3".
-9. Ejecuta varias veces y comprueba que cada lector ve entre 0 y 10 líneas y que al final el fichero tiene 10.
-
-## Ejercicio 2: fábrica de piezas (proyecto `FabricaPiezas`)
+## Ejercicio 1: fábrica de piezas (proyecto `FabricaPiezas`)
 
 Una fábrica tiene tres máquinas creadoras que generan piezas y las ponen en una cinta transportadora. Una máquina empaquetadora las recoge de la cinta. Las máquinas se llaman "Creadora0", "Creadora1", "Creadora2" y "Empaquetadora0".
 
@@ -61,7 +35,7 @@ La clase `CintaTransportadora` guarda cuántas piezas hay en la cinta, cuántas 
 13. Arranca todos los hilos con un for-each. Después haz `join()` a todos, también con un for-each.
 14. Después de los `join()`, muestra `Fábrica cerrada`. Comprueba que se crean 50 piezas, que se empaquetan 50 y que ninguna máquina se queda esperando al final.
 
-## Ejercicio 3: lavandería CleanFast (proyecto `Lavanderia`)
+## Ejercicio 2: lavandería CleanFast (proyecto `Lavanderia`)
 
 Una lavandería de autoservicio, CleanFast, tiene 4 lavadoras. Los clientes llegan, esperan si no hay ninguna libre y lavan su ropa durante un tiempo al azar de 10 a 20 segundos. El lavado cuesta 3 euros. El cliente no paga ni cuenta como atendido hasta que consigue una lavadora.
 
@@ -96,7 +70,7 @@ La clase `Lavanderia` guarda el número total de lavadoras y el precio como cons
 12. En la opción 2, muestra la información. En la opción 3, muestra que cierras la tienda y haz `join()` a todos los hilos de la lista con un for-each. En `default`, muestra `Selección no válida.`
 13. Ejecuta con pocos clientes y muchos, y comprueba que nunca hay más de 4 lavando, que los nombres no se repiten y que al cerrar el programa espera a todos.
 
-## Ejercicio 4: panadería self-service (proyecto `Panaderia`)
+## Ejercicio 3: panadería self-service (proyecto `Panaderia`)
 
 Se simula una panadería donde los clientes toman las barras de pan directamente del mostrador.
 
@@ -128,7 +102,7 @@ La clase `Mostrador` guarda las barras, las horneadas, las vendidas, el dinero (
 10. En `Principal`, arranca el hilo del panadero y muestra el menú con un `switch`. En la opción 1, pregunta el número de clientes y las barras de cada uno (vuelve a preguntar si no está entre 1 y 10) y lanza los hilos.
 11. En la opción 3, haz `join()` a todos los clientes, marca que se cierra, haz `join()` al panadero y muestra el resumen.
 
-## Ejercicio 5: sala de partida de stream (proyecto `SalaStream`)
+## Ejercicio 4: sala de partida de stream (proyecto `SalaStream`)
 
 Una sala de stream de un juego tiene jugadores y espectadores, todos hilos.
 
@@ -158,8 +132,7 @@ La clase `Sala` guarda si hay partida en marcha (`boolean`), el número de la pa
 
 ## Preguntas
 
-1. Ejercicio 1: ¿qué podría pasar si `contarLineas` no fuera `synchronized`?
-2. Ejercicio 2: ¿qué pasa si en la cinta se usa `notify()` en vez de `notifyAll()`?
-3. Ejercicio 3: ¿en qué momento exacto se cuenta a un cliente como atendido? ¿Por qué ahí?
-4. Ejercicio 4: ¿por qué el panadero hornea fuera de un método `synchronized`?
-5. Ejercicio 5: ¿qué pasa si el espectador no apunta el número de partida y solo mira si hay una en marcha?
+1. Ejercicio 1: ¿qué pasa si en la cinta se usa `notify()` en vez de `notifyAll()`?
+2. Ejercicio 2: ¿en qué momento exacto se cuenta a un cliente como atendido? ¿Por qué ahí?
+3. Ejercicio 3: ¿por qué el panadero hornea fuera de un método `synchronized`?
+4. Ejercicio 4: ¿qué pasa si el espectador no apunta el número de partida y solo mira si hay una en marcha?
