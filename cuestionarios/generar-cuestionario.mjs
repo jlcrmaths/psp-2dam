@@ -1270,61 +1270,8 @@ emparejar(E, 'Clases nuevas de 6.6',
     ['`Random` y `nextInt(4)`', 'Da al azar 0, 1, 2 o 3'],
     ['`Scanner` y `nextInt()`', 'Lee un número que escribe el usuario'],
     ['`ArrayList<Thread>`', 'Una lista de hilos que crece sola'],
-    ['`FileWriter`', 'Escribe en un fichero'],
-    ['`Files.readAllLines(...)`', 'Lee un fichero y devuelve una lista con una entrada por línea'],
   ],
   'Son las clases nuevas del apartado 6.6.');
-
-test(E, 'Libro de visitas: hace falta wait',
-  'Varios hilos **visitantes** añaden su nombre a un libro de visitas (un fichero de texto compartido) y varios hilos **recepcionistas** cuentan cuántas firmas tiene. Los métodos `firmar()` y `contarFirmas()` del objeto que representa el libro son `synchronized`. ¿Hace falta además `wait()` y `notifyAll()`?',
-  [
-    ['No: nadie tiene que esperar a que ocurra nada concreto. Solo no pisarse.', true],
-    ['Sí, los visitantes esperan a los recepcionistas.', false],
-    ['Sí, porque los ficheros siempre requieren `wait()`.', false],
-    ['Sí, los recepcionistas esperan a que haya visitantes.', false],
-  ],
-  'Con `synchronized` basta: mientras uno trabaja, los demás esperan fuera.');
-
-test(E, 'contarFirmas synchronized',
-  'Varios visitantes añaden firmas a un libro compartido con un método `synchronized firmar()`. Los recepcionistas cuentan las firmas con `contarFirmas()`, un método que **solo lee** pero que también es `synchronized`. ¿Por qué?',
-  [
-    ['Para que un recepcionista no lea datos a medias mientras alguien firma.', true],
-    ['Porque leer un fichero siempre exige `synchronized`.', false],
-    ['Para que los recepcionistas firmen más rápido.', false],
-    ['Porque si no, no compila.', false],
-  ],
-  'Quien lee tampoco entra si hay alguien escribiendo: los dos métodos comparten el cerrojo.');
-
-test(E, 'FileWriter con true',
-  '¿Qué significa el segundo argumento `true` en `new FileWriter(ruta, true)`?',
-  [
-    ['Añadir al final del fichero.', true],
-    ['Borra el fichero y empieza de cero.', false],
-    ['Abre el fichero solo para leer.', false],
-    ['Crea un fichero nuevo y falla si ya existe.', false],
-  ],
-  'Sin el `true` borraría lo anterior.');
-
-completar(E, 'Registro.firmar()',
-  'Completa el método que escribe un nombre al final del libro de visitas compartido.',
-  `import java.io.FileWriter;
-import java.io.IOException;
-
-class Registro {
-    private String ruta = "visitas.txt";
-
-    public ⟦sa:synchronized⟧ void firmar(String nombre) {
-        try {
-            FileWriter fw = new FileWriter(ruta, ⟦mc:true|false⟧);
-            fw.write(nombre + "\\n");
-            fw.⟦sa:flush⟧();
-            fw.close();
-        } catch (⟦sa:IOException⟧ e) {
-            System.out.println("No se ha podido escribir");
-        }
-    }
-}`,
-  '`synchronized` para que no se mezclen escrituras, `true` para añadir, `flush()` (o `close()`) para que lo escrito llegue al fichero e `IOException` porque Java obliga a prever que un fichero puede fallar.');
 
 emparejar(E, 'Qué hace esperar a cada hilo',
   'Une cada situación con la condición que hace **esperar** al hilo:',

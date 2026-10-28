@@ -1389,81 +1389,9 @@ class Principal {
 <subquestion format="html"><text><![CDATA[<code>Random</code> y <code>nextInt(4)</code>]]></text><answer><text>Da al azar 0, 1, 2 o 3</text></answer></subquestion>
 <subquestion format="html"><text><![CDATA[<code>Scanner</code> y <code>nextInt()</code>]]></text><answer><text>Lee un número que escribe el usuario</text></answer></subquestion>
 <subquestion format="html"><text><![CDATA[<code>ArrayList&lt;Thread&gt;</code>]]></text><answer><text>Una lista de hilos que crece sola</text></answer></subquestion>
-<subquestion format="html"><text><![CDATA[<code>FileWriter</code>]]></text><answer><text>Escribe en un fichero</text></answer></subquestion>
-<subquestion format="html"><text><![CDATA[<code>Files.readAllLines(...)</code>]]></text><answer><text>Lee un fichero y devuelve una lista con una entrada por línea</text></answer></subquestion>
-</question>
-<question type="multichoice">
-<name><text>6.6-83 Libro de visitas: hace falta wait</text></name>
-<questiontext format="html"><text><![CDATA[<p>Varios hilos <b>visitantes</b> añaden su nombre a un libro de visitas (un fichero de texto compartido) y varios hilos <b>recepcionistas</b> cuentan cuántas firmas tiene. Los métodos <code>firmar()</code> y <code>contarFirmas()</code> del objeto que representa el libro son <code>synchronized</code>. ¿Hace falta además <code>wait()</code> y <code>notifyAll()</code>?</p>]]></text></questiontext>
-<generalfeedback format="html"><text><![CDATA[<p>Con <code>synchronized</code> basta: mientras uno trabaja, los demás esperan fuera.</p>]]></text></generalfeedback>
-<defaultgrade>1</defaultgrade>
-<penalty>0.3333333</penalty>
-<hidden>0</hidden>
-<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
-<correctfeedback format="html"><text></text></correctfeedback>
-<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
-<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
-<answer fraction="100" format="html"><text><![CDATA[No: nadie tiene que esperar a que ocurra nada concreto. Solo no pisarse.]]></text><feedback format="html"><text></text></feedback></answer>
-<answer fraction="0" format="html"><text><![CDATA[Sí, los visitantes esperan a los recepcionistas.]]></text><feedback format="html"><text></text></feedback></answer>
-<answer fraction="0" format="html"><text><![CDATA[Sí, porque los ficheros siempre requieren <code>wait()</code>.]]></text><feedback format="html"><text></text></feedback></answer>
-<answer fraction="0" format="html"><text><![CDATA[Sí, los recepcionistas esperan a que haya visitantes.]]></text><feedback format="html"><text></text></feedback></answer>
-</question>
-<question type="multichoice">
-<name><text>6.6-84 contarFirmas synchronized</text></name>
-<questiontext format="html"><text><![CDATA[<p>Varios visitantes añaden firmas a un libro compartido con un método <code>synchronized firmar()</code>. Los recepcionistas cuentan las firmas con <code>contarFirmas()</code>, un método que <b>solo lee</b> pero que también es <code>synchronized</code>. ¿Por qué?</p>]]></text></questiontext>
-<generalfeedback format="html"><text><![CDATA[<p>Quien lee tampoco entra si hay alguien escribiendo: los dos métodos comparten el cerrojo.</p>]]></text></generalfeedback>
-<defaultgrade>1</defaultgrade>
-<penalty>0.3333333</penalty>
-<hidden>0</hidden>
-<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
-<correctfeedback format="html"><text></text></correctfeedback>
-<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
-<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
-<answer fraction="100" format="html"><text><![CDATA[Para que un recepcionista no lea datos a medias mientras alguien firma.]]></text><feedback format="html"><text></text></feedback></answer>
-<answer fraction="0" format="html"><text><![CDATA[Porque leer un fichero siempre exige <code>synchronized</code>.]]></text><feedback format="html"><text></text></feedback></answer>
-<answer fraction="0" format="html"><text><![CDATA[Para que los recepcionistas firmen más rápido.]]></text><feedback format="html"><text></text></feedback></answer>
-<answer fraction="0" format="html"><text><![CDATA[Porque si no, no compila.]]></text><feedback format="html"><text></text></feedback></answer>
-</question>
-<question type="multichoice">
-<name><text>6.6-85 FileWriter con true</text></name>
-<questiontext format="html"><text><![CDATA[<p>¿Qué significa el segundo argumento <code>true</code> en <code>new FileWriter(ruta, true)</code>?</p>]]></text></questiontext>
-<generalfeedback format="html"><text><![CDATA[<p>Sin el <code>true</code> borraría lo anterior.</p>]]></text></generalfeedback>
-<defaultgrade>1</defaultgrade>
-<penalty>0.3333333</penalty>
-<hidden>0</hidden>
-<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
-<correctfeedback format="html"><text></text></correctfeedback>
-<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
-<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
-<answer fraction="100" format="html"><text><![CDATA[Añadir al final del fichero.]]></text><feedback format="html"><text></text></feedback></answer>
-<answer fraction="0" format="html"><text><![CDATA[Borra el fichero y empieza de cero.]]></text><feedback format="html"><text></text></feedback></answer>
-<answer fraction="0" format="html"><text><![CDATA[Abre el fichero solo para leer.]]></text><feedback format="html"><text></text></feedback></answer>
-<answer fraction="0" format="html"><text><![CDATA[Crea un fichero nuevo y falla si ya existe.]]></text><feedback format="html"><text></text></feedback></answer>
-</question>
-<question type="cloze">
-<name><text>6.6-86 Registro.firmar()</text></name>
-<questiontext format="html"><text><![CDATA[<p>Completa el método que escribe un nombre al final del libro de visitas compartido.</p><pre>import java.io.FileWriter;
-import java.io.IOException;
-
-class Registro {
-    private String ruta = "visitas.txt";
-
-    public {1:SHORTANSWER_C:=synchronized} void firmar(String nombre) {
-        try {
-            FileWriter fw = new FileWriter(ruta, {1:MULTICHOICE_S:=true~false});
-            fw.write(nombre + "\n");
-            fw.{1:SHORTANSWER_C:=flush}();
-            fw.close();
-        } catch ({1:SHORTANSWER_C:=IOException} e) {
-            System.out.println("No se ha podido escribir");
-        }
-    }
-}</pre>]]></text></questiontext>
-<generalfeedback format="html"><text><![CDATA[<p><code>synchronized</code> para que no se mezclen escrituras, <code>true</code> para añadir, <code>flush()</code> (o <code>close()</code>) para que lo escrito llegue al fichero e <code>IOException</code> porque Java obliga a prever que un fichero puede fallar.</p>]]></text></generalfeedback>
-<penalty>0.3333333</penalty><hidden>0</hidden>
 </question>
 <question type="matching">
-<name><text>6.6-87 Qué hace esperar a cada hilo</text></name>
+<name><text>6.6-83 Qué hace esperar a cada hilo</text></name>
 <questiontext format="html"><text><![CDATA[<p>Une cada situación con la condición que hace <b>esperar</b> al hilo:</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>En todos el hilo espera con <code>while (no puedo) wait();</code> y se le avisa con <code>notifyAll()</code> cuando cambia el estado.</p>]]></text></generalfeedback>
 <defaultgrade>2</defaultgrade>
@@ -1480,7 +1408,7 @@ class Registro {
 <subquestion format="html"><text><![CDATA[Una radio emite en directo y los oyentes solo pueden llamar durante el programa: un oyente quiere llamar]]></text><answer><text>Espera mientras no haya un programa en directo</text></answer></subquestion>
 </question>
 <question type="multichoice">
-<name><text>6.6-88 El contador de 200 entradas</text></name>
+<name><text>6.6-84 El contador de 200 entradas</text></name>
 <questiontext format="html"><text><![CDATA[<p>Cuatro taquillas (hilos) venden entradas de un concierto y se deben dejar de vender al llegar a 200 entradas vendidas <b>entre las cuatro</b>. ¿Dónde se cuenta?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>El límite de 200 es de todas las taquillas juntas. Contar el límite en cada hilo en vez de en el objeto compartido es un error típico.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1496,7 +1424,7 @@ class Registro {
 <answer fraction="0" format="html"><text><![CDATA[En el hilo del público.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="cloze">
-<name><text>6.6-89 Muelle: apilar()</text></name>
+<name><text>6.6-85 Muelle: apilar()</text></name>
 <questiontext format="html"><text><![CDATA[<p>Completa <code>apilar()</code> del muelle (capacidad 4; se apilan 30 contenedores en total). Devuelve <code>true</code> mientras la grúa deba seguir.</p><pre>class Muelle {
     private static final int CAPACIDAD = 4;
     private static final int TOTAL_CONTENEDORES = 30;
@@ -1522,7 +1450,7 @@ class Registro {
 <penalty>0.3333333</penalty><hidden>0</hidden>
 </question>
 <question type="multichoice">
-<name><text>6.6-90 Cuándo termina el camión</text></name>
+<name><text>6.6-86 Cuándo termina el camión</text></name>
 <questiontext format="html"><text><![CDATA[<p>En el muelle, un camión (hilo) se lleva los contenedores con el método <code>descargar()</code>. ¿Cuándo debe devolver <code>false</code> ese método para que el camión termine?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Si terminara con el muelle vacío, podría irse antes de que lleguen los últimos contenedores. Y si terminara al apilarse los 30, quedarían contenedores sin llevar en el muelle.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1538,7 +1466,7 @@ class Registro {
 <answer fraction="0" format="html"><text><![CDATA[Cuando ha pasado un tiempo fijo.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.6-91 Dos banderas</text></name>
+<name><text>6.6-87 Dos banderas</text></name>
 <questiontext format="html"><text><![CDATA[<p>El muelle tiene dos banderas, <code>seguirApilando</code> y <code>seguirDescargando</code>. ¿Por qué hacen falta dos?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Los hilos no cuentan nada: preguntan al muelle si deben seguir. Una bandera por papel.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1554,7 +1482,7 @@ class Registro {
 <answer fraction="0" format="html"><text><![CDATA[Para que las grúas cuenten los contenedores.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.6-92 notify o notifyAll en el muelle</text></name>
+<name><text>6.6-88 notify o notifyAll en el muelle</text></name>
 <questiontext format="html"><text><![CDATA[<p>En el muelle, las grúas esperan con el muelle lleno y el camión espera con el muelle vacío. Si <code>apilar()</code> y <code>descargar()</code> usan <code>notify()</code> en vez de <code>notifyAll()</code>, ¿funciona?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Con papeles que esperan <b>a la vez</b>, como el granjero y los repartidores de 6.4, <code>notify()</code> puede despertar al equivocado. Aquí no esperan a la vez.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1570,7 +1498,7 @@ class Registro {
 <answer fraction="0" format="html"><text><![CDATA[Solo funciona con una grúa.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.6-93 Muelle cerrado y join</text></name>
+<name><text>6.6-89 Muelle cerrado y join</text></name>
 <questiontext format="html"><text><![CDATA[<p>¿Cuándo aparece «Muelle cerrado»?</p><pre>class Grua implements Runnable {
     @Override
     public void run() {
@@ -1600,7 +1528,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[Nunca: <code>join()</code> impide que <code>main</code> imprima.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="truefalse">
-<name><text>6.6-94 throws en main</text></name>
+<name><text>6.6-90 throws en main</text></name>
 <questiontext format="html"><text><![CDATA[<p><code>main</code> declara <code>throws InterruptedException</code> para no escribir un <code>try/catch</code> en cada <code>join</code>.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Verdadero.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1610,7 +1538,7 @@ class Principal {
 <answer fraction="0" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="numerical">
-<name><text>6.6-95 Qué línea los serializa</text></name>
+<name><text>6.6-91 Qué línea los serializa</text></name>
 <questiontext format="html"><text><![CDATA[<p><code>Pasos</code> es un <code>Runnable</code> que cuenta del 1 al 10. Con este código, los dos hilos salen <b>uno detrás de otro</b>, sin mezclarse. ¿Qué número de línea lo provoca?</p><pre>1  Thread h1 = new Thread(new Pasos(), "Hilo 1");
 2  Thread h2 = new Thread(new Pasos(), "Hilo 2");
 3  h1.start();
@@ -1624,7 +1552,7 @@ class Principal {
 <unitgradingtype>0</unitgradingtype><unitpenalty>0.1000000</unitpenalty><showunits>3</showunits><unitsleft>0</unitsleft>
 </question>
 <question type="multichoice">
-<name><text>6.6-96 Atendido tras el while</text></name>
+<name><text>6.6-92 Atendido tras el while</text></name>
 <questiontext format="html"><text><![CDATA[<p>En una peluquería con sillones compartidos, un cliente solo debe contarse como <b>atendido</b> cuando consigue un sillón (no mientras espera). ¿Dónde se incrementa <code>atendidos</code> en <code>sentar()</code>?</p><pre>public synchronized void sentar() {
     // ¿aquí?
     while (libres == 0) {
@@ -1650,7 +1578,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[Cuando paga al salir.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.6-97 Cuándo se mira la condición del do while</text></name>
+<name><text>6.6-93 Cuándo se mira la condición del do while</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un programa muestra un menú con <code>do { opcion = sc.nextInt(); … } while (opcion != 0);</code>. El usuario escribe 0 la primera vez. ¿Qué ocurre?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>El <code>do while</code> siempre ejecuta el bloque al menos una vez y mira la condición al final. Con <code>while</code> a secas, no se ejecutaría ninguna.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1666,7 +1594,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[El programa no compila.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.6-98 Tandas de participantes</text></name>
+<name><text>6.6-94 Tandas de participantes</text></name>
 <questiontext format="html"><text><![CDATA[<p>Los participantes de una carrera se apuntan en varias tandas. <code>total</code> cuenta los apuntados hasta ahora y <code>n</code> es cuántos llegan en esta tanda. Los hilos se guardan en una lista. ¿Con qué <code>for</code> se crean <b>solo los nuevos</b> sin repetir nombres?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Si cada tanda empezara en 0, los nombres se repetirían y se intentarían arrancar hilos que ya están en marcha.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1682,7 +1610,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[<code>for (int i = total; i &lt; n; i++)</code>]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.6-99 ArrayList de participantes</text></name>
+<name><text>6.6-95 ArrayList de participantes</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un menú permite que se apunten grupos de participantes a una carrera (cada participante es un hilo) sin saber cuántos serán en total. Quieres guardar los hilos para hacerles <code>join()</code> al terminar. ¿Por qué usar un <code>ArrayList&lt;Thread&gt;</code> y no un array <code>Thread[]</code>?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Después, <code>for (Thread t : participantes) { t.join(); }</code> espera a todos.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1698,13 +1626,13 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[Porque <code>join()</code> solo funciona con <code>ArrayList</code>.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="cloze">
-<name><text>6.6-100 Peluquería</text></name>
+<name><text>6.6-96 Peluquería</text></name>
 <questiontext format="html"><text><![CDATA[<p>La peluquería tiene 3 sillones y llegan 8 clientes a la vez. Al principio esperan en la cola {1:NUMERICAL:=5} clientes. Cada uno paga 12 €: cuando se han atendido los 8, la recaudación total es de {1:NUMERICAL:=96} €.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>8 − 3 = 5 esperan; 8 × 12 = 96 €.</p>]]></text></generalfeedback>
 <penalty>0.3333333</penalty><hidden>0</hidden>
 </question>
 <question type="multichoice">
-<name><text>6.6-101 Fabricar fuera de synchronized</text></name>
+<name><text>6.6-97 Fabricar fuera de synchronized</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un alfarero (hilo) fabrica una tanda de 20 jarrones (tarda 15 segundos, con <code>sleep</code>) y luego los añade a un estante compartido con un método <code>synchronized colocar()</code>. Los clientes compran con otro método <code>synchronized comprar()</code>. ¿Por qué el alfarero fabrica <b>fuera</b> de los métodos <code>synchronized</code>?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Fabricar tarda 15 s: dentro de <code>synchronized</code>, los clientes no podrían comprar mientras tanto.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1720,7 +1648,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[Para que el alfarero termine antes.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="numerical">
-<name><text>6.6-102 Precio en la cafetería</text></name>
+<name><text>6.6-98 Precio en la cafetería</text></name>
 <questiontext format="html"><text><![CDATA[<p>Una cafetería cobra el primer café a 1,50 € y cada uno de los demás a 1 €. Un cliente toma <b>4 cafés</b>. ¿Cuántos euros paga? (usa punto o coma decimal)</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>1,50 + 1 × 3 = 4,50 €. (Con 3 cafés serían 1,50 + 1 × 2 = 3,50 €.)</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1730,7 +1658,7 @@ class Principal {
 <unitgradingtype>0</unitgradingtype><unitpenalty>0.1000000</unitpenalty><showunits>3</showunits><unitsleft>0</unitsleft>
 </question>
 <question type="multichoice">
-<name><text>6.6-103 Cliente espera tantos como pide</text></name>
+<name><text>6.6-99 Cliente espera tantos como pide</text></name>
 <questiontext format="html"><text><![CDATA[<p>En una frutería, un cliente pide <code>kilos</code> de naranjas (de 1 a 10) a las existencias compartidas y debe <b>esperar</b> si no hay suficientes. ¿Qué condición usa el <code>while</code> de <code>comprar(int kilos)</code>?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Un cliente que pide 7 kilos espera hasta que haya 7.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1746,7 +1674,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[No usa <code>while</code>: usa <code>if</code>.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="ddwtos">
-<name><text>6.6-104 Cerrar la pizzería</text></name>
+<name><text>6.6-100 Cerrar la pizzería</text></name>
 <questiontext format="html"><text><![CDATA[<p>En una pizzería, un hilo pizzero hornea sin parar y vigila el mostrador; los repartidores son hilos. Algunos repartidores siguen esperando pizzas cuando se decide cerrar. Ordena los pasos para <b>cerrar</b> la pizzería.</p><p>1. [[1]]<br/>2. [[2]]<br/>3. [[3]]<br/>4. [[4]]<br/>5. [[5]]</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>El orden importa: si se avisara al pizzero <b>antes</b>, vaciaría el mostrador y los repartidores que esperan se quedarían colgados.</p>]]></text></generalfeedback>
 <defaultgrade>3</defaultgrade>
@@ -1763,7 +1691,7 @@ class Principal {
 <dragbox><text>join() al pizzero y resumen final</text><group>1</group></dragbox>
 </question>
 <question type="multichoice">
-<name><text>6.6-105 Espectador sin número de sesión</text></name>
+<name><text>6.6-101 Espectador sin número de sesión</text></name>
 <questiontext format="html"><text><![CDATA[<p>En un cine con una sola sala, cada sesión tiene un <b>número</b>. Un espectador entra a ver una sesión y debe irse cuando termine <b>esa</b> sesión, aunque ya haya empezado otra. ¿Qué pasa si el espectador no apunta el número de su sesión y solo comprueba si hay alguna película en marcha?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Se queda mientras <code>proyectando &amp;&amp; sesion == miNumero</code>.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1779,7 +1707,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[No pasa nada: se comporta igual.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="essay">
-<name><text>6.6-106 Diseña tu propio problema</text></name>
+<name><text>6.6-102 Diseña tu propio problema</text></name>
 <questiontext format="html"><text><![CDATA[<p>Una biblioteca tiene <b>3 ordenadores</b>. Muchos alumnos (hilos) los usan. Escribe la clase <code>Biblioteca</code> con los métodos <code>entrar()</code> (espera si no hay ordenador libre y ocupa uno) y <code>salir()</code> (libera uno y avisa). Debe ser segura entre hilos.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Solución de ejemplo:</p><pre>public class Biblioteca {
     private int libres = 3;
@@ -1824,7 +1752,7 @@ class Principal {
 </question>
 <question type="category"><category><text>$course$/top/Repaso PSP Unidad 1/6.5 Lectores y escritores</text></category></question>
 <question type="cloze">
-<name><text>6.5-107 La puerta de la cabina</text></name>
+<name><text>6.5-103 La puerta de la cabina</text></name>
 <questiontext format="html"><text><![CDATA[<p>Una cabina de fotos la usan clientes y técnicos de mantenimiento, y solo puede haber <b>una persona dentro</b>, sea quien sea. Completa <code>entrarCliente()</code>:</p><pre>public {1:SHORTANSWER_C:=synchronized} void entrarCliente() throws InterruptedException {
     while (clientes &gt; 0 {1:SHORTANSWER_C:=~=~=} tecnicos &gt; 0) {
         {1:SHORTANSWER_C:=wait}();
@@ -1835,7 +1763,7 @@ class Principal {
 <penalty>0.3333333</penalty><hidden>0</hidden>
 </question>
 <question type="multichoice">
-<name><text>6.5-108 Qué significa ||</text></name>
+<name><text>6.5-104 Qué significa ||</text></name>
 <questiontext format="html"><text><![CDATA[<p>En <code>if (edad &lt; 12 || edad &gt; 65) precio = 5;</code>, ¿qué edad paga 5 €?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p><code>||</code> es «o»: basta con que se cumpla una de las dos condiciones. 70 es mayor que 65. Con <code>&amp;&amp;</code> («y») no pagaría nadie, porque nadie es menor de 12 y mayor de 65 a la vez.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1851,7 +1779,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[65]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.5-109 Hilos dentro a la vez</text></name>
+<name><text>6.5-105 Hilos dentro a la vez</text></name>
 <questiontext format="html"><text><![CDATA[<p>En la cabina, los <code>while</code> de <code>entrarCliente()</code> y de <code>entrarTecnico()</code> son los dos <code>while (clientes &gt; 0 || tecnicos &gt; 0)</code>. ¿Cuántos hilos como máximo están dentro a la vez?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Los dos <code>while</code> miran los dos contadores: mientras haya alguien dentro, el resto espera. Por eso entra uno solo cada vez.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1867,7 +1795,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[Ninguno: se quedan esperando para siempre.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.5-110 Condición del técnico</text></name>
+<name><text>6.5-106 Condición del técnico</text></name>
 <questiontext format="html"><text><![CDATA[<p>¿Qué condición debe tener el <code>while</code> de <code>entrarTecnico()</code> para que un técnico no entre con nadie dentro de la cabina?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Con <code>while (tecnicos &gt; 0)</code> el técnico entraría con un cliente dentro. Con <code>&amp;&amp;</code> solo esperaría si hubiera clientes <b>y</b> técnicos a la vez, algo imposible.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1883,7 +1811,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[<code>while (clientes == 0)</code>]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.5-111 sleep dentro del método</text></name>
+<name><text>6.5-107 sleep dentro del método</text></name>
 <questiontext format="html"><text><![CDATA[<p>El cliente hace <code>cabina.entrarCliente();</code>, luego <code>Thread.sleep(...)</code> (se hace las fotos) y luego <code>cabina.salirCliente();</code>. ¿Qué pasaría si el <code>sleep</code> estuviera <b>dentro</b> del método <code>synchronized</code> <code>entrarCliente()</code>?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Regla de siempre: <code>sleep</code> va fuera de los métodos <code>synchronized</code>, entre la llamada de entrar y la de salir.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1899,7 +1827,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[No cambiaría nada.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="truefalse">
-<name><text>6.5-112 throws InterruptedException</text></name>
+<name><text>6.5-108 throws InterruptedException</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un método con <code>throws InterruptedException</code> no necesita <code>try/catch</code> dentro: el error lo recoge quien llama al método.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Verdadero. Por eso el <code>try/catch</code> está en <code>run()</code> de <code>Cliente</code> y de <code>Tecnico</code>, que son quienes llaman a <code>entrarCliente()</code>.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1909,7 +1837,7 @@ class Principal {
 <answer fraction="0" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.5-113 notify en vez de notifyAll</text></name>
+<name><text>6.5-109 notify en vez de notifyAll</text></name>
 <questiontext format="html"><text><![CDATA[<p>En la cabina, todos los hilos que esperan esperan lo mismo: que la cabina quede libre. Si <code>salirCliente()</code> y <code>salirTecnico()</code> usan <code>notify()</code> en vez de <code>notifyAll()</code>, ¿el programa funciona?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Con papeles que esperan cosas distintas a la vez, como el granjero y los repartidores de 6.4, <code>notify()</code> puede despertar al equivocado. Aquí no, pero <code>notifyAll()</code> sigue siendo lo más seguro.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1925,7 +1853,7 @@ class Principal {
 <answer fraction="0" format="html"><text><![CDATA[Sí, pero solo con un cliente.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="ddwtos">
-<name><text>6.5-114 Qué hace el hilo cliente</text></name>
+<name><text>6.5-110 Qué hace el hilo cliente</text></name>
 <questiontext format="html"><text><![CDATA[<p>Ordena lo que hace <code>Cliente.run()</code>:</p><p>1. [[1]]<br/>2. [[2]]<br/>3. [[3]]</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Primero se pide permiso, después se duerme (es el tiempo de hacerse las fotos, fuera de los métodos <code>synchronized</code>) y por último se avisa de que se sale.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1940,7 +1868,7 @@ class Principal {
 <dragbox><text>cabina.salirCliente();</text><group>1</group></dragbox>
 </question>
 <question type="matching">
-<name><text>6.5-115 Contadores y métodos</text></name>
+<name><text>6.5-111 Contadores y métodos</text></name>
 <questiontext format="html"><text><![CDATA[<p>Une cada método de la cabina con lo que hace:</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Los cuatro métodos son <code>synchronized</code>. Los de entrar esperan con <code>wait()</code>; los de salir avisan con <code>notifyAll()</code>.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -1956,7 +1884,7 @@ class Principal {
 <subquestion format="html"><text><![CDATA[<code>salirTecnico()</code>]]></text><answer><text>Resta 1 a `tecnicos` y avisa con `notifyAll()`</text></answer></subquestion>
 </question>
 <question type="essay">
-<name><text>6.5-116 Escribe el técnico</text></name>
+<name><text>6.5-112 Escribe el técnico</text></name>
 <questiontext format="html"><text><![CDATA[<p>Escribe la clase <code>Tecnico</code> de la cabina de fotos. Implementa <code>Runnable</code>, recibe la <code>Cabina</code> en el constructor y en <code>run()</code> entra a revisar la cabina, duerme de 1 a 5 segundos y sale.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Solución de ejemplo:</p><pre>import java.util.Random;
 
@@ -2009,7 +1937,7 @@ public class Tecnico implements Runnable {
 </question>
 <question type="category"><category><text>$course$/top/Repaso PSP Unidad 1/6.5 Varios a la vez: semáforo y ficheros</text></category></question>
 <question type="cloze">
-<name><text>6.5-117 Estados de la piscina</text></name>
+<name><text>6.5-113 Estados de la piscina</text></name>
 <questiontext format="html"><text><![CDATA[<p>Una piscina la usan <b>varios nadadores a la vez</b>, pero el operario de limpieza necesita la piscina vacía y para él solo. Completa los estados y la puerta del nadador:</p><pre>class Piscina {
     public {1:SHORTANSWER_C:=static} {1:SHORTANSWER_C:=final} int LIBRE = 0;
     public static final int CON_NADADORES = 1;
@@ -2030,7 +1958,7 @@ public class Tecnico implements Runnable {
 <penalty>0.3333333</penalty><hidden>0</hidden>
 </question>
 <question type="multichoice">
-<name><text>6.5-118 Qué es una constante static final</text></name>
+<name><text>6.5-114 Qué es una constante static final</text></name>
 <questiontext format="html"><text><![CDATA[<p>¿Qué significa <code>public static final int LIBRE = 0;</code> dentro de una clase?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p><code>static</code> hace que pertenezca a la clase y <code>final</code> que no pueda cambiar. Sirve para dar nombre a los valores en vez de escribir números sueltos.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2046,7 +1974,7 @@ public class Tecnico implements Runnable {
 <answer fraction="0" format="html"><text><![CDATA[Un hilo que se ejecuta una sola vez.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="matching">
-<name><text>6.5-119 Estado y quién puede entrar</text></name>
+<name><text>6.5-115 Estado y quién puede entrar</text></name>
 <questiontext format="html"><text><![CDATA[<p>Une cada estado de la piscina con lo que ocurre:</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>El estado resume lo que el objeto necesita saber para decidir quién entra.</p>]]></text></generalfeedback>
 <defaultgrade>2</defaultgrade>
@@ -2061,7 +1989,7 @@ public class Tecnico implements Runnable {
 <subquestion format="html"><text><![CDATA[<code>CON_LIMPIEZA</code>]]></text><answer><text>No puede entrar nadie: todos esperan</text></answer></subquestion>
 </question>
 <question type="truefalse">
-<name><text>6.5-120 Varios nadadores a la vez</text></name>
+<name><text>6.5-116 Varios nadadores a la vez</text></name>
 <questiontext format="html"><text><![CDATA[<p>Si la puerta del nadador es <code>while (estado == CON_LIMPIEZA) wait();</code>, un nadador puede entrar aunque ya haya otros nadadores dentro.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Verdadero. A un nadador solo le molesta el operario. Al operario, en cambio, le molesta cualquiera.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2071,7 +1999,7 @@ public class Tecnico implements Runnable {
 <answer fraction="0" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.5-121 Quién pone LIBRE</text></name>
+<name><text>6.5-117 Quién pone LIBRE</text></name>
 <questiontext format="html"><text><![CDATA[<p>En <code>salirNadador()</code>, el hilo hace <code>nadadores--;</code>. ¿Cuándo debe poner el estado en <code>LIBRE</code> y avisar a los que esperan?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Si pusiera <code>LIBRE</code> al salir cada nadador, el operario podría entrar con nadadores todavía dentro.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2087,7 +2015,7 @@ public class Tecnico implements Runnable {
 <answer fraction="0" format="html"><text><![CDATA[Cuando entra el siguiente nadador.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.5-122 Operario entra con nadadores dentro</text></name>
+<name><text>6.5-118 Operario entra con nadadores dentro</text></name>
 <questiontext format="html"><text><![CDATA[<p>Alguien programa <code>salirNadador()</code> poniendo <code>estado = LIBRE;</code> cada vez que sale un nadador, aunque queden otros. ¿Qué fallo puede ocurrir?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>El contador de nadadores decide cuándo está de verdad vacía la piscina.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2103,7 +2031,7 @@ public class Tecnico implements Runnable {
 <answer fraction="0" format="html"><text><![CDATA[El contador <code>nadadores</code> sale negativo siempre.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.5-123 notify o notifyAll con varios esperando</text></name>
+<name><text>6.5-119 notify o notifyAll con varios esperando</text></name>
 <questiontext format="html"><text><![CDATA[<p>El operario termina de limpiar y hay 6 nadadores esperando. ¿Qué ventaja tiene <code>notifyAll()</code> frente a <code>notify()</code>?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Con <code>notify()</code> no se cuelga, pero entran de uno en uno: es menos eficiente.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2119,7 +2047,7 @@ public class Tecnico implements Runnable {
 <answer fraction="0" format="html"><text><![CDATA[<code>notifyAll()</code> impide que entre el operario.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.5-124 Inanición</text></name>
+<name><text>6.5-120 Inanición</text></name>
 <questiontext format="html"><text><![CDATA[<p>En la piscina llegan nadadores sin parar, y siempre hay alguien dentro. ¿Qué le puede ocurrir al operario de limpieza?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Si los que entran a la vez se solapan para siempre, el estado nunca vuelve a <code>LIBRE</code>. Se llama inanición.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2135,7 +2063,7 @@ public class Tecnico implements Runnable {
 <answer fraction="0" format="html"><text><![CDATA[Nada: el operario siempre entra primero.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.5-125 Contador desfasado</text></name>
+<name><text>6.5-121 Contador desfasado</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un nadador suma <code>nadadores++</code> al entrar, pero justo después falla al abrir su taquilla (excepción) y nunca llama a <code>salirNadador()</code>. ¿Qué pasa con el operario?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Si el hilo se interrumpe antes de salir, el contador queda mal. Conviene sumar el contador solo cuando ya está todo listo, o asegurar que se llama a salir.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2151,7 +2079,7 @@ public class Tecnico implements Runnable {
 <answer fraction="0" format="html"><text><![CDATA[Java resta el nadador automáticamente.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.5-126 El texto sigue en el buffer</text></name>
+<name><text>6.5-122 El texto sigue en el buffer</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un programa guarda tareas en <code>tareas.txt</code> con un <code>BufferedWriter bw</code>: hace <code>bw.write("Comprar pan");</code> y <code>bw.newLine();</code>, pero <b>no</b> llama a <code>flush()</code> ni a <code>close()</code>. Después se abre el fichero. ¿Qué se ve?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p><code>flush()</code> manda al fichero lo que hay en el buffer, y <code>close()</code> también lo hace al cerrar. Sin ninguno de los dos, el texto puede no llegar nunca.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2167,7 +2095,7 @@ public class Tecnico implements Runnable {
 <answer fraction="0" format="html"><text><![CDATA[El programa da error al abrir el fichero.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="cloze">
-<name><text>6.5-127 Contar líneas de un fichero</text></name>
+<name><text>6.5-123 Contar líneas de un fichero</text></name>
 <questiontext format="html"><text><![CDATA[<p>Completa el código que cuenta las líneas de <code>tareas.txt</code>. Respeta mayúsculas y minúsculas.</p><pre>import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -2187,7 +2115,7 @@ class Contar {
 <penalty>0.3333333</penalty><hidden>0</hidden>
 </question>
 <question type="numerical">
-<name><text>6.5-128 Vueltas del while con readLine</text></name>
+<name><text>6.5-124 Vueltas del while con readLine</text></name>
 <questiontext format="html"><text><![CDATA[<p>El fichero <code>notas.txt</code> tiene 7 líneas. ¿Cuántas veces se ejecuta el cuerpo de <code>while (br.readLine() != null) { n++; }</code>?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Una vuelta por cada línea. A la octava llamada, <code>readLine()</code> devuelve <code>null</code> y el bucle termina.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2197,7 +2125,7 @@ class Contar {
 <unitgradingtype>0</unitgradingtype><unitpenalty>0.1000000</unitpenalty><showunits>3</showunits><unitsleft>0</unitsleft>
 </question>
 <question type="essay">
-<name><text>6.5-129 Escribe la salida de la limpieza</text></name>
+<name><text>6.5-125 Escribe la salida de la limpieza</text></name>
 <questiontext format="html"><text><![CDATA[<p>Escribe los métodos <code>entrarLimpieza()</code> y <code>salirLimpieza()</code> de la <code>Piscina</code> (con <code>nadadores</code> y <code>estado</code>, y las constantes <code>LIBRE</code>, <code>CON_NADADORES</code> y <code>CON_LIMPIEZA</code>). La limpieza solo entra si el estado es <code>LIBRE</code>; al salir, deja el estado <code>LIBRE</code> y avisa a todos. Deben ser seguros entre hilos.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Solución de ejemplo:</p><pre>public synchronized void entrarLimpieza() throws InterruptedException {
     while (estado != LIBRE) {
@@ -2228,7 +2156,7 @@ public synchronized void salirLimpieza() {
 </question>
 <question type="category"><category><text>$course$/top/Repaso PSP Unidad 1/6.8 Interbloqueo</text></category></question>
 <question type="multichoice">
-<name><text>6.8-130 Qué es un interbloqueo</text></name>
+<name><text>6.8-126 Qué es un interbloqueo</text></name>
 <questiontext format="html"><text><![CDATA[<p>¿Qué es un <b>interbloqueo</b> (deadlock)?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>El programa no da error: se queda parado para siempre porque los hilos se esperan en círculo.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2244,7 +2172,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="0" format="html"><text><![CDATA[Un error de compilación por tener dos clases <code>synchronized</code>.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.8-131 Las cuatro condiciones</text></name>
+<name><text>6.8-127 Las cuatro condiciones</text></name>
 <questiontext format="html"><text><![CDATA[<p>Para que haya interbloqueo tienen que cumplirse <b>todas</b> estas condiciones. Marca las que lo son:</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Si se evita una sola, no puede haber interbloqueo. <code>sleep()</code> y el número de núcleos no son condiciones.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2262,7 +2190,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="-50" format="html"><text><![CDATA[Que los hilos usen <code>Thread.sleep()</code>.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.8-132 Dos robots y dos herramientas</text></name>
+<name><text>6.8-128 Dos robots y dos herramientas</text></name>
 <questiontext format="html"><text><![CDATA[<p>En un taller, el robot 1 coge el destornillador y después necesita el martillo. El robot 2 coge el martillo y después necesita el destornillador. Cada herramienta la usa un solo robot a la vez y ningún robot suelta la suya hasta terminar. ¿Qué puede ocurrir?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Cada uno retiene una herramienta y pide la del otro: espera en círculo.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2278,7 +2206,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="0" format="html"><text><![CDATA[El programa no compila.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="cloze">
-<name><text>6.8-133 Pedir las cuentas en orden</text></name>
+<name><text>6.8-129 Pedir las cuentas en orden</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un banco mueve dinero entre dos cuentas. Para evitar el interbloqueo, <b>todos</b> los hilos piden las cuentas en el mismo orden: primero la <code>cuenta1</code> y después la <code>cuenta2</code>. Completa el bloque.</p><pre>public void mover(Cuenta cuenta1, Cuenta cuenta2) {
     {1:SHORTANSWER_C:=synchronized} ({1:SHORTANSWER_C:=cuenta1}) {
         synchronized ({1:SHORTANSWER_C:=cuenta2}) {
@@ -2291,7 +2219,7 @@ public synchronized void salirLimpieza() {
 <penalty>0.3333333</penalty><hidden>0</hidden>
 </question>
 <question type="multichoice">
-<name><text>6.8-134 Transferencias cruzadas</text></name>
+<name><text>6.8-130 Transferencias cruzadas</text></name>
 <questiontext format="html"><text><![CDATA[<p>Dos hilos hacen una transferencia a la vez: el hilo 1 llama a <code>transferir(cuentaA, cuentaB)</code> y el hilo 2 a <code>transferir(cuentaB, cuentaA)</code>. Dentro, el método coge primero el cerrojo de la cuenta de origen y después el de la de destino. ¿Qué puede ocurrir?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Cada hilo pide las cuentas en orden contrario. Es el interbloqueo clásico de las transferencias.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2307,7 +2235,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="0" format="html"><text><![CDATA[El programa lanza <code>IllegalMonitorStateException</code>.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.8-135 Cómo evitar el interbloqueo</text></name>
+<name><text>6.8-131 Cómo evitar el interbloqueo</text></name>
 <questiontext format="html"><text><![CDATA[<p>Las transferencias entre cuentas provocan interbloqueo a veces. ¿Qué cambio lo evita?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Con el mismo orden no hay espera en círculo. Quitar <code>synchronized</code> evitaría el bloqueo, pero volvería la condición de carrera.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2323,7 +2251,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="0" format="html"><text><![CDATA[Subir la prioridad de los hilos.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.8-136 sleep y el cerrojo</text></name>
+<name><text>6.8-132 sleep y el cerrojo</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un hilo está dentro de un método <code>synchronized</code> y llama a <code>Thread.sleep(2000)</code>. ¿Qué pasa con el cerrojo del objeto durante esos 2 segundos?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Solo <code>wait()</code> suelta el cerrojo. Por eso se puede provocar un interbloqueo durmiendo con un cerrojo cogido.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2339,7 +2267,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="0" format="html"><text><![CDATA[Desaparece y se crea uno nuevo al despertar.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="multichoice">
-<name><text>6.8-137 Estado de un hilo interbloqueado</text></name>
+<name><text>6.8-133 Estado de un hilo interbloqueado</text></name>
 <questiontext format="html"><text><![CDATA[<p>Dos hilos están interbloqueados esperando cada uno el cerrojo que tiene el otro. ¿Qué devuelve <code>getState()</code> para cualquiera de ellos?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p><code>BLOCKED</code> es esperar el cerrojo de un objeto. <code>TIMED_WAITING</code> es <code>sleep()</code> y <code>WAITING</code> es <code>wait()</code> o <code>join()</code>.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2355,7 +2283,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="0" format="html"><text><![CDATA[<code>TIMED_WAITING</code>]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="matching">
-<name><text>6.8-138 Estados de un hilo</text></name>
+<name><text>6.8-134 Estados de un hilo</text></name>
 <questiontext format="html"><text><![CDATA[<p>Une cada situación con el estado de <code>Thread</code> que devuelve <code>getState()</code>:</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Los seis estados de un hilo. <code>BLOCKED</code> y <code>WAITING</code> parecen iguales, pero uno espera un cerrojo y el otro un aviso.</p>]]></text></generalfeedback>
 <defaultgrade>3</defaultgrade>
@@ -2373,7 +2301,7 @@ public synchronized void salirLimpieza() {
 <subquestion format="html"><text><![CDATA[Un hilo que ya ha terminado su <code>run()</code>]]></text><answer><text>`TERMINATED`</text></answer></subquestion>
 </question>
 <question type="truefalse">
-<name><text>6.8-139 Programa parado igual a interbloqueo</text></name>
+<name><text>6.8-135 Programa parado igual a interbloqueo</text></name>
 <questiontext format="html"><text><![CDATA[<p>Si un programa con hilos se queda parado sin terminar, siempre es un interbloqueo.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Falso. También se queda parado si un hilo espera con <code>wait()</code> un <code>notify()</code> que nadie hace (estado <code>WAITING</code>). Con el interbloqueo, los hilos están en <code>BLOCKED</code>.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2383,7 +2311,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="100" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="truefalse">
-<name><text>6.8-140 El interbloqueo depende del momento</text></name>
+<name><text>6.8-136 El interbloqueo depende del momento</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un programa con riesgo de interbloqueo puede funcionar bien en una ejecución y bloquearse en otra.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Verdadero. Depende de en qué momento llega cada hilo a pedir el segundo recurso. Que salga bien una vez no demuestra nada.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2393,7 +2321,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="0" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="ddwtos">
-<name><text>6.8-141 La película de un interbloqueo</text></name>
+<name><text>6.8-137 La película de un interbloqueo</text></name>
 <questiontext format="html"><text><![CDATA[<p>Ordena los pasos de lo que ocurre cuando dos robots se bloquean con un destornillador y un martillo.</p><p>1. [[1]]<br/>2. [[2]]<br/>3. [[3]]<br/>4. [[4]]<br/>5. [[5]]</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Es el ciclo completo: retener, pedir el otro recurso, esperar en círculo y quedarse bloqueados.</p>]]></text></generalfeedback>
 <defaultgrade>2</defaultgrade>
@@ -2410,7 +2338,7 @@ public synchronized void salirLimpieza() {
 <dragbox><text>Ninguno suelta nada y los dos se quedan parados para siempre</text><group>1</group></dragbox>
 </question>
 <question type="essay">
-<name><text>6.8-142 Escribe la transferencia sin interbloqueo</text></name>
+<name><text>6.8-138 Escribe la transferencia sin interbloqueo</text></name>
 <questiontext format="html"><text><![CDATA[<p>Escribe el método <code>mover(Cuenta origen, Cuenta destino, int cantidad)</code> de una clase de transferencias, de forma que <b>no haya interbloqueo</b> aunque dos hilos muevan dinero entre las mismas cuentas en sentido contrario. Las cuentas tienen un <code>getNumero()</code>, un <code>restar(int)</code> y un <code>sumar(int)</code>. Pista: coge siempre primero el cerrojo de la cuenta de número menor.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Solución de ejemplo:</p><pre>public void mover(Cuenta origen, Cuenta destino, int cantidad) {
     Cuenta primera;
@@ -2453,7 +2381,7 @@ public synchronized void salirLimpieza() {
 </question>
 <question type="category"><category><text>$course$/top/Repaso PSP Unidad 1/Simulacro de examen (mezcla)</text></category></question>
 <question type="multichoice">
-<name><text>EX-143 Encuentra los fallos</text></name>
+<name><text>EX-139 Encuentra los fallos</text></name>
 <questiontext format="html"><text><![CDATA[<p>Este buzón debería permitir que un hilo deje un mensaje y otro lo recoja, con <b>varios</b> hilos usándolo. Marca los fallos <b>reales</b>:</p><pre>class Buzon {
     private String mensaje = null;
 
@@ -2480,7 +2408,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="-50" format="html"><text><![CDATA[<code>mensaje</code> debería ser de tipo <code>int</code>.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="ddwtos">
-<name><text>EX-144 Buzón completo</text></name>
+<name><text>EX-140 Buzón completo</text></name>
 <questiontext format="html"><text><![CDATA[<p>Completa el buzón (productor/consumidor) arrastrando las palabras. Algunas se usan <b>varias veces</b> y algunas sobran.</p><pre>class Buzon {
     private String mensaje = null;
 
@@ -2520,7 +2448,7 @@ public synchronized void salirLimpieza() {
 <dragbox><text>join</text><group>1</group></dragbox>
 </question>
 <question type="multichoice">
-<name><text>EX-145 Al despertar con notifyAll</text></name>
+<name><text>EX-141 Al despertar con notifyAll</text></name>
 <questiontext format="html"><text><![CDATA[<p>Varios hilos esperan en <code>wait()</code> y otro llama a <code>notifyAll()</code>. ¿Qué hace cada hilo al despertar?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Por eso <code>wait()</code> va dentro de un <code>while</code>: cada hilo comprueba otra vez la condición.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2536,7 +2464,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="0" format="html"><text><![CDATA[Terminan todos.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="truefalse">
-<name><text>EX-146 Dos métodos synchronized a la vez</text></name>
+<name><text>EX-142 Dos métodos synchronized a la vez</text></name>
 <questiontext format="html"><text><![CDATA[<p>Dos hilos pueden estar a la vez dentro de dos métodos <code>synchronized</code> <b>distintos</b> del mismo objeto.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Falso. El cerrojo es del objeto, no del método: mientras uno está dentro de cualquier método <code>synchronized</code>, el otro espera.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2546,7 +2474,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="100" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="numerical">
-<name><text>EX-147 Entradas al parking</text></name>
+<name><text>EX-143 Entradas al parking</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un parking tiene 3 plazas. Lanzas 8 coches (hilos) y cada uno entra al parking 3 veces, llamando a un método <code>entrar()</code>. ¿Cuántas veces se ejecuta <code>entrar()</code> en total?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>8 coches × 3 entradas = 24. (Con <code>wait()</code> y <code>notifyAll()</code>, las plazas libres nunca bajan de 0 y al final quedan 3.)</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2556,7 +2484,7 @@ public synchronized void salirLimpieza() {
 <unitgradingtype>0</unitgradingtype><unitpenalty>0.1000000</unitpenalty><showunits>3</showunits><unitsleft>0</unitsleft>
 </question>
 <question type="matching">
-<name><text>EX-148 Síntoma y causa</text></name>
+<name><text>EX-144 Síntoma y causa</text></name>
 <questiontext format="html"><text><![CDATA[<p>Une cada síntoma con su causa más probable:</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Reconocer el síntoma ahorra mucho tiempo al depurar.</p>]]></text></generalfeedback>
 <defaultgrade>3</defaultgrade>
@@ -2574,7 +2502,7 @@ public synchronized void salirLimpieza() {
 <subquestion format="html"><text><![CDATA[ArrayIndexOutOfBoundsException]]></text><answer><text>for con &lt;= en lugar de &lt; en un array</text></answer></subquestion>
 </question>
 <question type="essay">
-<name><text>EX-149 Problema completo de examen</text></name>
+<name><text>EX-145 Problema completo de examen</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un gimnasio tiene <b>4 máquinas</b> de pesas. Llegan 10 socios (hilos). Cada socio usa una máquina 2 segundos (con <code>sleep</code>) y la deja. Escribe las 3 clases: <code>Gimnasio</code> (recurso compartido con <code>usar()</code> y <code>dejar()</code>), <code>Socio</code> (<code>Runnable</code>) y <code>Principal</code> (crea los 10 hilos con nombre «Socio 1»…«Socio 10»).</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Solución de ejemplo:</p><pre>public class Gimnasio {
     private int libres = 4;

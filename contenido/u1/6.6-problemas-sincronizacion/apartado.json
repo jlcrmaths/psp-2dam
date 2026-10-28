@@ -1,5 +1,5 @@
 {
   "titulo": "6.6 Problemas de sincronización",
   "orden": 6,
-  "resumen": "Cinco situaciones de la vida real con hilos que se estorban. ¿Qué puede salir mal en cada una y cómo lo evitarías?"
+  "resumen": "Cuatro situaciones de la vida real con hilos que se estorban. ¿Qué puede salir mal en cada una y cómo lo evitarías?"
 }
