@@ -2,7 +2,7 @@ package leerescribir2;
 
 import java.util.Random;
 
-// Un lector: espera si hay un escritor, lee durante un tiempo al azar y termina. Igual que antes.
+// Un lector: pide permiso, lee durante un tiempo al azar y termina.
 public class Lector implements Runnable {
 
     private Fichero fich;
