@@ -373,7 +373,7 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
     <li><code>FileWriter(fichero, true)</code>: lo abre para escribir. Con <code>true</code> <b>añade al final</b>; sin él, <b>borra</b> lo que había</li>
     <li><code>BufferedWriter</code>: escribe en una memoria intermedia (el <i>buffer</i>) y la manda al disco de golpe. Es más rápido</li>
     <li><code>write(texto)</code> escribe; <code>newLine()</code> pasa a la línea siguiente</li>
-    <li><code>close()</code>: manda el buffer al disco y cierra el fichero. <b>Sin él, el texto puede no llegar al fichero</b></li>
+    <li><code>flush()</code>: manda el buffer al fichero. <b>Sin él, el texto puede no llegar</b>. <code>close()</code> también lo hace y además cierra el fichero</li>
   </ul>
 
 --
@@ -945,7 +945,7 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
 <!-- html -->
   <h3>Errores típicos</h3>
   <ul>
-    <li>No cerrar el fichero (<code>close()</code>): el texto no llega, o el siguiente no lo ve</li>
+    <li>Olvidar <code>flush()</code> en el escritor: el texto no llega al fichero y los lectores no lo ven. Y no cerrar con <code>close()</code> el fichero que se lee</li>
     <li>Leer o escribir <b>antes</b> de pedir permiso, o <b>después</b> de avisar de que terminas</li>
     <li>Poner el <code>sleep</code> o el trabajo con el fichero <b>dentro</b> del método <code>synchronized</code></li>
     <li>En el semáforo, dejar los datos <code>LIBRE</code> cuando sale <b>cualquier</b> lector, y no el último</li>
@@ -975,7 +975,7 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
   <ol>
     <li>En el paso 4, ¿puede ahora un <b>lector</b> sufrir inanición? ¿Cuándo?</li>
     <li>Si hay <b>dos escritores</b> esperando, ¿quién entra primero? ¿Sale de la solución en qué orden?</li>
-    <li>¿Por qué en el paso 2 el escritor llama a <code>close()</code> <b>antes</b> de <code>terminaEscribir()</code>?</li>
+    <li>¿Por qué el escritor llama a <code>flush()</code> <b>antes</b> de <code>terminaEscribir()</code>?</li>
     <li>Quita <code>escritoresEsperando &gt; 0</code> del <code>while</code> del lector. ¿Qué vuelve a pasar?</li>
       <li>Si llegaran lectores sin parar, ¿podría un escritor <b>no entrar nunca</b>? ¿Cómo lo evitarías?</li>
   </ol>

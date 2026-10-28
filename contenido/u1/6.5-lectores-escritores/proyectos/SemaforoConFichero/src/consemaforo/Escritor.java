@@ -23,7 +23,8 @@ public class Escritor implements Runnable {
             BufferedWriter bw = new BufferedWriter(new FileWriter(fichero, true));
             bw.write(Thread.currentThread().getName());
             bw.newLine();
-            bw.close();
+            // flush() vacía el buffer: manda al fichero lo escrito. Sin flush(), el texto se queda en memoria y no llega al disco.
+            bw.flush();
             System.out.println(Thread.currentThread().getName() + ": He escrito mi nombre en el fichero");
         } catch (IOException ex) {
             System.out.println(ex);
