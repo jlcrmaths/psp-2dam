@@ -21,23 +21,23 @@
 <section>
 <h3>Objetivo de la clase</h3>
   <ul>
-    <li>Resolver cinco problemas con hilos que comparten un objeto</li>
+    <li>Resolver cuatro problemas con hilos que comparten un objeto</li>
     <li>Reconocer el <b>patrón</b> que se repite en todos</li>
     <li>Simular tiempo con el método <code>sleep()</code> de la clase <code>Thread</code> y azar con la clase <code>Random</code></li>
     <li>Esperar a que terminen varios hilos con el método <code>join()</code> de la clase <code>Thread</code></li>
-    <li>Leer del teclado con <code>Scanner</code> y escribir en un fichero</li>
+    <li>Leer del teclado con <code>Scanner</code></li>
   </ul>
 </section>
 <section>
-<h3>El patrón de los cinco ejercicios</h3>
+<h3>El patrón de los cuatro ejercicios</h3>
   <ol>
-    <li class="fragment">Hay <b>un objeto compartido</b> (fichero, cinta, lavandería…)</li>
+    <li class="fragment">Hay <b>un objeto compartido</b> (cinta, lavandería, mostrador…)</li>
     <li class="fragment">Sus métodos son <code>synchronized</code></li>
     <li class="fragment">Si el hilo no puede continuar: <code>while (no puedo) wait();</code></li>
     <li class="fragment">Cuando cambia el estado: <code>notifyAll();</code></li>
     <li class="fragment">Los hilos solo <b>duermen</b>, <b>llaman al objeto</b> y repiten</li>
   </ol>
-  <p class="fragment caja">Entiende uno y entiendes los cinco.</p>
+  <p class="fragment caja">Entiende uno y entiendes los cuatro.</p>
 </section>
 <section>
 <div class="nuevo">
@@ -46,78 +46,14 @@
     <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>Random</code>: <code>nextInt(3)</code> da al azar 0, 1 o 2.</p></div>
     <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>join()</code> de la clase <code>Thread</code>: «espero aquí hasta que ese hilo termine».</p></div>
     <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>Scanner</code>: <code>nextInt()</code> lee un número que escribe el usuario.</p></div>
-    <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>ArrayList</code>: una lista que crece sola. <code>FileWriter</code> y <code>Files</code>: escribir y leer ficheros.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>ArrayList</code>: una lista que crece sola.</p></div>
     </div>
     <p class="aviso">Regla: <code>sleep</code> va <b>fuera</b> de <code>synchronized</code>. Si un hilo duerme dentro, los demás no pueden ni entrar.</p>
 </section>
 </section>
 <section>
 <section>
-<h3>Ejercicio 1: lectores y escritores</h3>
-  <ul>
-    <li>10 hilos <b>escritores</b>: cada uno escribe su nombre en una línea nueva de un fichero</li>
-    <li>10 hilos <b>lectores</b>: cada uno cuenta las líneas que hay en ese momento y lo muestra</li>
-  </ul>
-  <div class="salida">Escritor 1 ha escrito su nombre<br>Lector 1 lee: el fichero tiene 1 líneas<br>…</div>
-  <p class="peque">Proyecto <b>LectoresEscritores</b></p>
-</section>
-<section>
-<h3>¿Qué puede salir mal?</h3>
-  <p>Si un lector lee <b>mientras</b> un escritor escribe, puede ver datos a medias. Si dos escritores escriben a la vez, las líneas se mezclan.</p>
-  <p class="fragment caja">Solución: el fichero es un objeto compartido y sus métodos son <code>synchronized</code>. Mientras uno trabaja, los demás esperan fuera.</p>
-  <p class="fragment peque">Aquí no hace falta <code>wait()</code>: nadie tiene que esperar a que ocurra nada concreto. Solo no pisarse.</p>
-</section>
-<section>
-<h3>Solución: el fichero</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="1|3|4|5|14">    public synchronized void escribir(String nombre) {
-        try {
-            FileWriter fw = new FileWriter(ruta, true);
-            fw.write(nombre + &quot;\n&quot;);
-            fw.close();
-            System.out.println(nombre + &quot; ha escrito su nombre&quot;);
-        } catch (IOException e) {
-            System.out.println(nombre + &quot; no ha podido escribir&quot;);
-        }
-    }
-
-    public synchronized void contarLineas(String nombre) {
-        try {
-            int lineas = Files.readAllLines(Path.of(ruta)).size();
-            System.out.println(nombre + &quot; lee: el fichero tiene &quot; + lineas + &quot; líneas&quot;);
-        } catch (IOException e) {
-            System.out.println(nombre + &quot; no ha podido leer&quot;);
-        }
-    }</code></pre>
-</section>
-<section>
-<h3>Línea por línea</h3>
-  <ul class="peque">
-    <li><code>synchronized</code>: un solo hilo a la vez dentro del método. Vale para <b>los dos</b> métodos: un lector tampoco entra si hay un escritor dentro</li>
-    <li><code>new FileWriter(ruta, true)</code>: abre el fichero. El <code>true</code> significa «añadir al final»; sin él borraría lo anterior</li>
-    <li><code>fw.write(nombre + "\n")</code>: el método <code>write()</code> de la clase <code>FileWriter</code> escribe el nombre y un salto de línea</li>
-    <li><code>fw.close()</code>: el método <code>close()</code> de la clase <code>FileWriter</code> cierra el fichero y guarda lo escrito</li>
-    <li><code>Files.readAllLines(...)</code>: el método <code>readAllLines()</code> de la clase <code>Files</code> lee todo el fichero y devuelve una lista con una entrada por línea; <code>size()</code> dice cuántas</li>
-    <li><code>try / catch (IOException e)</code>: Java obliga a prever que un fichero puede fallar</li>
-  </ul>
-</section>
-<section>
-<h3>Crear los 20 hilos</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="1|3|4-5|6-7">
-Fichero fichero = new Fichero("escritores.txt");
-
-for (int i = 1; i &lt;= 10; i++) {
-    Thread escritor = new Thread(new Escritor(fichero), "Escritor " + i);
-    Thread lector = new Thread(new Lector(fichero), "Lector " + i);
-    escritor.start();
-    lector.start();
-}
-  </code></pre>
-  <p class="peque">Un solo <code>Fichero</code>, 20 hilos. Cada vuelta del <code>for</code> lanza un escritor y un lector.</p>
-</section>
-</section>
-<section>
-<section>
-<h3>Ejercicio 2: fábrica de piezas</h3>
+<h3>Ejercicio 1: fábrica de piezas</h3>
   <ul class="peque">
     <li>3 máquinas <b>creadoras</b> ponen piezas en una <b>cinta</b> de capacidad 5. Una pieza cada 2–3 s</li>
     <li>1 máquina <b>empaquetadora</b> retira una pieza cada segundo</li>
@@ -289,7 +225,7 @@ System.out.println("Fábrica cerrada");
 </section>
 <section>
 <section>
-<h3>Ejercicio 3: lavandería CleanFast</h3>
+<h3>Ejercicio 2: lavandería CleanFast</h3>
   <ul class="peque">
     <li>4 lavadoras. Cada cliente lava de 10 a 20 segundos y paga 3 €</li>
     <li>Sin lavadora libre, el cliente espera. <b>Solo cuenta como atendido cuando consigue una</b></li>
@@ -441,7 +377,7 @@ System.out.println("Fábrica cerrada");
 </section>
 <section>
 <section>
-<h3>Ejercicio 4: panadería self-service</h3>
+<h3>Ejercicio 3: panadería self-service</h3>
   <ul class="peque">
     <li>20 barras al abrir. Cada segundo el panadero mira: si quedan menos de 10, hornea 20 (tarda 20 s)</li>
     <li>Cada cliente pide de 1 a 10 barras. Si no hay suficientes, espera</li>
@@ -539,7 +475,7 @@ System.out.println("Fábrica cerrada");
 </section>
 <section>
 <section>
-<h3>Ejercicio 5: sala de partida de stream</h3>
+<h3>Ejercicio 4: sala de partida de stream</h3>
   <ul class="peque">
     <li><b>Jugadores:</b> solo uno en la sala. Los demás esperan en cola</li>
     <li><b>Espectadores:</b> entran todos los que quieran, pero <b>solo si hay partida</b>. Si no, esperan</li>

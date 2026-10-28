@@ -17,34 +17,7 @@
 <p>Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete <code>sincronizacion</code>. Los ejercicios van de menos a más difícil.</p>
 
 <section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
-<h2>Ejercicio 1: lectores y escritores (proyecto <code>LectoresEscritores</code>)</h2>
-<p>Hay 10 hilos escritores y 10 hilos lectores.</p>
-<ul>
-<li>Cada escritor escribe su nombre en una línea nueva de un fichero de texto.</li>
-<li>Cada lector lee cuántas líneas tiene el fichero en el momento de la lectura y lo muestra por pantalla.</li>
-</ul>
-<p>Ejemplo de salida: <code>Lector 4 lee: el fichero tiene 6 líneas</code>.</p>
-
-<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
-<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El fichero es lo que comparten los 20 hilos, así que debe estar en su propia clase y todos deben usar el mismo objeto. Piensa qué podría salir mal si un lector leyera mientras un escritor está escribiendo. Aquí basta con <code>synchronized</code>.</p>
-</div>
-<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Crea una clase <code>Fichero</code> que guarde la ruta del fichero y tenga dos métodos <code>synchronized</code>: uno que añade una línea al final y otro que cuenta las líneas. Para escribir sirve <code>FileWriter</code> con el segundo argumento a <code>true</code>, que añade en vez de borrar. Para contar sirve <code>Files.readAllLines</code>, que devuelve una lista con una entrada por línea. Los dos obligan a escribir un <code>try</code> con <code>catch (IOException e)</code>. <code>Escritor</code> y <code>Lector</code> implementan <code>Runnable</code>, reciben el <code>Fichero</code> en el constructor y llaman a su método. En <code>Principal</code>, un <code>for</code> crea y arranca un escritor y un lector en cada vuelta.</p>
-</div>
-<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
-<li>Crea el proyecto <code>LectoresEscritores</code> y el paquete <code>sincronizacion</code>.</li>
-<li>Crea la clase <code>Fichero</code> con un atributo privado <code>String</code> para la ruta.</li>
-<li>En el constructor, guarda la ruta y crea el fichero vacío con un <code>FileWriter</code>, para que cada ejecución empiece desde cero.</li>
-<li>Escribe el método <code>escribir</code>, <code>synchronized</code>, que añade el nombre del hilo y un salto de línea al final del fichero y cierra el fichero.</li>
-<li>Escribe el método <code>contarLineas</code>, <code>synchronized</code>, que lee todas las líneas y muestra cuántas hay.</li>
-<li>Crea <code>Escritor</code> y <code>Lector</code>, que implementan <code>Runnable</code> y reciben el <code>Fichero</code> en el constructor.</li>
-<li>En el <code>run()</code> de cada una, llama al método correspondiente pasando <code>Thread.currentThread().getName()</code>.</li>
-<li>En <code>Principal</code>, crea un solo <code>Fichero</code> y un <code>for</code> de 1 a 10 que cree y arranque un <code>Escritor</code> y un <code>Lector</code> con nombres como &quot;Escritor 3&quot; y &quot;Lector 3&quot;.</li>
-<li>Ejecuta varias veces y comprueba que cada lector ve entre 0 y 10 líneas y que al final el fichero tiene 10.</li>
-</ol>
-</div>
-</section>
-<section class="ejercicio tarjeta" id="ej-2" data-ejercicio="ej-2">
-<h2>Ejercicio 2: fábrica de piezas (proyecto <code>FabricaPiezas</code>)</h2>
+<h2>Ejercicio 1: fábrica de piezas (proyecto <code>FabricaPiezas</code>)</h2>
 <p>Una fábrica tiene tres máquinas creadoras que generan piezas y las ponen en una cinta transportadora. Una máquina empaquetadora las recoge de la cinta. Las máquinas se llaman &quot;Creadora0&quot;, &quot;Creadora1&quot;, &quot;Creadora2&quot; y &quot;Empaquetadora0&quot;.</p>
 <ul>
 <li>La cinta admite como máximo 5 piezas. Si está llena, las creadoras esperan a que se libere espacio.</li>
@@ -78,8 +51,8 @@
 </ol>
 </div>
 </section>
-<section class="ejercicio tarjeta" id="ej-3" data-ejercicio="ej-3">
-<h2>Ejercicio 3: lavandería CleanFast (proyecto <code>Lavanderia</code>)</h2>
+<section class="ejercicio tarjeta" id="ej-2" data-ejercicio="ej-2">
+<h2>Ejercicio 2: lavandería CleanFast (proyecto <code>Lavanderia</code>)</h2>
 <p>Una lavandería de autoservicio, CleanFast, tiene 4 lavadoras. Los clientes llegan, esperan si no hay ninguna libre y lavan su ropa durante un tiempo al azar de 10 a 20 segundos. El lavado cuesta 3 euros. El cliente no paga ni cuenta como atendido hasta que consigue una lavadora.</p>
 <p>Al empezar, el programa da la bienvenida y muestra un menú con tres opciones. Después lee la opción que escribe el usuario y la repite hasta que elija cerrar:</p>
 <ol>
@@ -112,8 +85,8 @@
 </ol>
 </div>
 </section>
-<section class="ejercicio tarjeta" id="ej-4" data-ejercicio="ej-4">
-<h2>Ejercicio 4: panadería self-service (proyecto <code>Panaderia</code>)</h2>
+<section class="ejercicio tarjeta" id="ej-3" data-ejercicio="ej-3">
+<h2>Ejercicio 3: panadería self-service (proyecto <code>Panaderia</code>)</h2>
 <p>Se simula una panadería donde los clientes toman las barras de pan directamente del mostrador.</p>
 <ul>
 <li>Al abrir hay 20 barras en el mostrador.</li>
@@ -145,8 +118,8 @@
 </ol>
 </div>
 </section>
-<section class="ejercicio tarjeta" id="ej-5" data-ejercicio="ej-5">
-<h2>Ejercicio 5: sala de partida de stream (proyecto <code>SalaStream</code>)</h2>
+<section class="ejercicio tarjeta" id="ej-4" data-ejercicio="ej-4">
+<h2>Ejercicio 4: sala de partida de stream (proyecto <code>SalaStream</code>)</h2>
 <p>Una sala de stream de un juego tiene jugadores y espectadores, todos hilos.</p>
 <ul>
 <li><strong>Jugadores:</strong> solo puede haber uno en la sala a la vez. Si hay un jugador con una partida en marcha, los demás esperan en cola a que termine.</li>
@@ -176,11 +149,10 @@
 </div>
 </section>
 <section class="tarjeta"><h2>Preguntas</h2><ol>
-<li>Ejercicio 1: ¿qué podría pasar si <code>contarLineas</code> no fuera <code>synchronized</code>?</li>
-<li>Ejercicio 2: ¿qué pasa si en la cinta se usa <code>notify()</code> en vez de <code>notifyAll()</code>?</li>
-<li>Ejercicio 3: ¿en qué momento exacto se cuenta a un cliente como atendido? ¿Por qué ahí?</li>
-<li>Ejercicio 4: ¿por qué el panadero hornea fuera de un método <code>synchronized</code>?</li>
-<li>Ejercicio 5: ¿qué pasa si el espectador no apunta el número de partida y solo mira si hay una en marcha?</li>
+<li>Ejercicio 1: ¿qué pasa si en la cinta se usa <code>notify()</code> en vez de <code>notifyAll()</code>?</li>
+<li>Ejercicio 2: ¿en qué momento exacto se cuenta a un cliente como atendido? ¿Por qué ahí?</li>
+<li>Ejercicio 3: ¿por qué el panadero hornea fuera de un método <code>synchronized</code>?</li>
+<li>Ejercicio 4: ¿qué pasa si el espectador no apunta el número de partida y solo mira si hay una en marcha?</li>
 </ol>
 </section>
 </main>
