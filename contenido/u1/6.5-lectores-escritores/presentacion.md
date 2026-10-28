@@ -58,11 +58,18 @@
 
 <!-- html -->
     <div class="nuevo">
-    <h3>Lo nuevo de hoy</h3>
+    <h3>Lo nuevo de hoy (1)</h3>
     <div class="nuevo-item"><span class="etiqueta">Concepto</span><p><b>Lectores y escritores</b>: hilos con dos papeles que comparten un recurso y no deben estorbarse.</p></div>
     <div class="nuevo-item"><span class="etiqueta">Idea</span><p><b>Dos contadores</b>: un <code>int</code> con los lectores que están dentro y otro con los escritores. Con ellos el fichero sabe si está libre.</p></div>
     <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>||</code> significa <b>«o»</b>: basta con que se cumpla una de las dos condiciones. Es la hermana de <code>&amp;&amp;</code> («y»).</p></div>
     <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>throws InterruptedException</code> en un método: en vez de un <code>try/catch</code> dentro, deja que el error lo recoja quien llama al método. Aquí, <code>Lector</code> y <code>Escritor</code>.</p></div>
+    </div>
+
+--
+
+<!-- html -->
+    <div class="nuevo">
+    <h3>Lo nuevo de hoy (2)</h3>
     <div class="nuevo-item"><span class="etiqueta">Idea</span><p>El <b>tiempo de leer o escribir</b> (<code>sleep</code>) va <b>fuera</b> de los métodos <code>synchronized</code>, entre la llamada de entrar y la de salir.</p></div>
     <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>Random</code>: genera números al azar. <code>r.nextInt(9)</code> da un número de 0 a 8. Con él, cada hilo tarda un tiempo distinto.</p></div>
     <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>for (Thread escr : escritores)</code> (<i>for-each</i>): repite el bloque <b>una vez por cada elemento</b> del array, sin contador. Aquí arranca todos los hilos del array.</p></div>
@@ -76,13 +83,11 @@
   <ul>
     <li><b>5 hilos lectores</b> y <b>2 hilos escritores</b> comparten un fichero</li>
     <li>Cada hilo lee o escribe <b>una vez</b>, de <b>2 a 10 segundos</b> al azar</li>
-    <li>Si hay alguien usando el fichero, el hilo lo dice y <b>espera</b></li>
-    <li>Al entrar y al terminar, el hilo lo dice por pantalla</li>
+    <li>Si hay alguien usando el fichero, el hilo lo dice y <b>espera</b>. Al entrar y al terminar, también lo dice</li>
     <li>El fichero lo usa <b>un solo hilo cada vez</b></li>
   </ul>
   <div class="salida">Lector0: Leyendo fichero. Lectores: 1<br>Lector1: Hay alguien usando el fichero. Espero.<br>Escritor0: Hay alguien usando el fichero. Espero.<br>Lector0: He terminado de leer. Lectores: 0<br>Lector1: Leyendo fichero. Lectores: 1<br>…</div>
-  <p class="peque">Proyecto <b>LeerYEscribir</b></p>
-  <p class="aviso">El enunciado completo, con las pistas y el paso a paso, está en el <a href="enunciado.html" target="_blank" rel="noopener">enunciado del apartado 6.5</a> (se abre en otra pestaña).</p>
+  <p class="aviso">Pistas y paso a paso: <a href="enunciado.html" target="_blank" rel="noopener">enunciado del apartado 6.5</a> (otra pestaña).</p>
 
 --
 
@@ -157,13 +162,22 @@
 
 <!-- html -->
   <h3>Solución: el lector</h3>
-  {{codigo: LeerYEscribir/Lector.java @@ 3|5|7-9|11|15|16|17|18}}
+  {{codigo: LeerYEscribir/Lector.java :: 1-11 @@ 3|5|7-9|11}}
   <ul class="peque">
-    <li>El fichero llega por el <b>constructor</b> y se guarda en <code>fich</code>: es el mismo objeto para todos. <code>Random r</code> da el tiempo al azar</li>
-    <li>Todo va dentro de un <code>try</code> porque <code>leerFichero()</code> declara <code>throws InterruptedException</code> y <code>sleep()</code> también lo exige</li>
+    <li>El fichero llega por el <b>constructor</b> y se guarda en <code>fich</code>: es el mismo objeto para todos</li>
+    <li><code>Random r</code> da el tiempo al azar</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>El lector: el <code>run()</code></h3>
+  {{codigo: LeerYEscribir/Lector.java :: 13-21 @@ 4|5|6|3,7}}
+  <ul class="peque">
     <li><code>fich.leerFichero()</code>: si hay alguien, el lector espera aquí. Cuando entra, sigue</li>
     <li><code>Thread.sleep(...)</code>: leer lleva de 2 a 10 segundos. <code>(r.nextInt(9) + 2) * 1000</code> da de 2000 a 10000 milisegundos</li>
     <li><code>fich.terminaLeer()</code>: sale, lo dice y avisa a los que esperan</li>
+    <li>Todo va dentro de un <code>try</code> porque <code>leerFichero()</code> declara <code>throws InterruptedException</code> y <code>sleep()</code> también lo exige</li>
   </ul>
 
 --
@@ -434,12 +448,21 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 --
 
 <!-- html -->
-  <h3>escribir() y terminaEscribir()</h3>
-  {{codigo: Discoteca/Discoteca.java :: 38-52 @@ 2-5|6-8|11-14}}
+  <h3>escribir()</h3>
+  {{codigo: Discoteca/Discoteca.java :: 38-46 @@ 2-5|6-8}}
   <ul class="peque">
     <li><code>while (lectores &gt; 0 || escritores &gt; 0)</code>: el escritor espera si hay <b>cualquiera</b> dentro</li>
-    <li>Entra: <code>escritores++</code> y devuelve un <code>BufferedWriter</code>. <code>true</code> en <code>new FileWriter(fichero, true)</code> significa <b>añadir al final</b> en vez de borrar</li>
-    <li>Al terminar: <code>escritores--</code> y <code>notifyAll()</code>. Avisa a <b>todos</b>, porque ahora pueden entrar lectores <b>y</b> escritores</li>
+    <li>Entra: <code>escritores++</code> y devuelve un <code>BufferedWriter</code>. El <code>true</code> de <code>FileWriter(fichero, true)</code>: <b>añadir al final</b></li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>terminaEscribir()</h3>
+  {{codigo: Discoteca/Discoteca.java :: 48-52 @@ 3|4}}
+  <ul class="peque">
+    <li><code>escritores--</code>: un escritor menos</li>
+    <li><code>notifyAll()</code> a <b>todos</b>: ahora pueden entrar lectores <b>y</b> escritores</li>
   </ul>
 
 --
@@ -466,8 +489,7 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
   <ul class="peque">
     <li><code>leer()</code> puede hacer esperar al lector. Cuando entra, recibe el fichero abierto</li>
     <li>El <code>while</code> con <code>readLine()</code> cuenta las líneas hasta que devuelve <code>null</code></li>
-    <li><code>close()</code> cierra el fichero. Después, muestra el resultado y avisa con <code>terminaLeer()</code></li>
-    <li>Los <code>catch</code> recogen las excepciones de <code>wait()</code> y del fichero</li>
+    <li><code>close()</code> cierra el fichero. Después muestra el resultado y avisa con <code>terminaLeer()</code>. Los <code>catch</code> recogen las excepciones</li>
   </ul>
 
 --
@@ -485,10 +507,19 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 
 <!-- html -->
   <h3>Principal: quién empieza</h3>
-  {{codigo: Discoteca/Principal.java @@ 6|8-9|21-26}}
+  {{codigo: Discoteca/Principal.java :: 5-12 @@ 2|4-5}}
   <ul class="peque">
     <li>Se crea <b>una sola</b> <code>Discoteca</code>, que deja <code>Discoteca.txt</code> vacío. <code>main</code> declara <code>throws IOException</code></li>
-    <li>Los lectores arrancan <b>antes</b> que los escritores: algunos cuentan <b>0 líneas</b>, porque el fichero aún está vacío. Es correcto: cada lector cuenta las líneas que hay <b>en el momento de leer</b></li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Principal: el orden de arranque</h3>
+  {{codigo: Discoteca/Principal.java :: 21-26 @@ 1-3|4-6}}
+  <ul class="peque">
+    <li>Los lectores arrancan <b>antes</b> que los escritores: algunos cuentan <b>0 líneas</b>, porque el fichero aún está vacío</li>
+    <li>Es correcto: cada lector cuenta las líneas que hay <b>en el momento de leer</b></li>
   </ul>
 
 --
@@ -731,11 +762,10 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
 
 <!-- html -->
   <h3>Lector y escritor con el fichero</h3>
-  {{codigo: SemaforoConFichero/Lector.java @@ 18|19-26|27|32}}
+  {{codigo: SemaforoConFichero/Lector.java :: 18-27 @@ 1|2-8|10}}
   <ul class="peque">
-    <li>El semáforo <b>no devuelve el fichero</b>: solo controla quién entra. El <code>File</code> se pasa aparte a cada hilo</li>
-    <li>Cada hilo abre el fichero cuando ya tiene permiso: leer, o escribir su nombre</li>
-    <li>El <code>sleep(300)</code> solo está para que <b>se vea</b> que varios lectores leen a la vez</li>
+    <li>El semáforo <b>no devuelve el fichero</b>: solo controla quién entra. El <code>File</code> se pasa aparte a cada hilo, que lo abre cuando ya tiene permiso</li>
+    <li>El <code>sleep(300)</code> solo está para que <b>se vea</b> que varios lectores leen a la vez. Al terminar, <code>semaforo.lecturaFinalizada()</code></li>
     <li><code>Escritor</code> es igual con <code>accesoEscribir()</code> y <code>escrituraFinalizada()</code></li>
   </ul>
 
