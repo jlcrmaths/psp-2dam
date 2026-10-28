@@ -342,7 +342,7 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 <!-- html -->
   <h2>Paso 3</h2>
   <h3>El fichero de verdad</h3>
-  <p class="peque">Proyecto <b>Discoteca</b> · ejercicio</p>
+  <p class="peque">Proyecto <b>LeerYEscribir3</b></p>
 
 --
 
@@ -353,19 +353,7 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
     <li>Cambia lo que hace el hilo <b>cuando ya tiene permiso</b>: en vez de dormir, <b>lee o escribe un fichero de verdad</b></li>
     <li>Los escritores escriben su <b>nombre</b> en una línea nueva. Los lectores <b>cuentan las líneas</b></li>
   </ul>
-  <p class="aviso">Ya sabemos coordinar. Ahora vemos <b>cómo se usa el fichero</b>.</p>
-
---
-
-<!-- html -->
-  <h3>Ahora, un ejercicio: la discoteca</h3>
-  <ul>
-    <li><b>5 hilos lectores</b> y <b>2 hilos escritores</b> comparten el fichero <code>Discoteca.txt</code></li>
-    <li>Los escritores escriben su nombre en una <b>línea nueva</b></li>
-    <li>Los lectores cuentan cuántas <b>líneas</b> tiene el fichero en ese momento</li>
-    <li>Varios lectores a la vez, sí. Un escritor, <b>solo</b></li>
-  </ul>
-  <p class="peque">Proyecto <b>Discoteca</b>. Es el mismo problema del paso 2, con un <b>fichero de verdad</b>. Ahora lo haces tú.</p>
+  <p class="aviso">Es el mismo ejercicio del paso 2. Ya sabemos coordinar: ahora vemos <b>cómo se usa el fichero</b>.</p>
 
 --
 
@@ -407,17 +395,17 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 <!-- html -->
   <h3>Cómo pensarlo</h3>
   <ul>
-    <li>¿Qué es lo que comparten los siete hilos? <span class="fragment">La discoteca, o sea, el fichero. Será una clase: <code>Discoteca</code>.</span></li>
-    <li>¿Qué debe recordar? <span class="fragment">Cuántos lectores hay (<code>lectores</code>) y cuántos escritores (<code>escritores</code>).</span></li>
-    <li>¿Cuándo espera un <b>lector</b>? <span class="fragment">Solo si hay algún <b>escritor</b>.</span></li>
-    <li>¿Cuándo espera un <b>escritor</b>? <span class="fragment">Si hay algún <b>lector o</b> algún <b>escritor</b>.</span></li>
+    <li>¿Qué tiene que guardar ahora el <code>Fichero</code>, además de los dos contadores? <span class="fragment">El <b>nombre</b> del fichero del disco, en un <code>File</code>.</span></li>
+    <li>¿Qué devuelven <code>leerFichero()</code> y <code>escribirFichero()</code>? <span class="fragment">El fichero <b>abierto</b>: un <code>BufferedReader</code> o un <code>BufferedWriter</code>.</span></li>
+    <li>¿Quién crea el fichero, y cuándo? <span class="fragment">El constructor, <b>vacío</b>, antes de que arranque ningún hilo.</span></li>
+    <li>¿Dónde se lee y se escribe? <span class="fragment"><b>Fuera</b> del método <code>synchronized</code>, entre las dos llamadas.</span></li>
   </ul>
 
 --
 
 <!-- html -->
   <h3>Solución: los datos y el constructor</h3>
-  {{codigo: Discoteca/Discoteca.java :: 9-18 @@ 3|4-5|7-10}}
+  {{codigo: LeerYEscribir3/Fichero.java :: 9-18 @@ 3|4-5|7-10}}
   <ul class="peque">
     <li><code>private final File fichero;</code> el fichero (<code>final</code>: no se puede cambiar; se fija en el constructor)</li>
     <li><code>lectores</code> y <code>escritores</code>: dos contadores, como en el paso 2</li>
@@ -427,8 +415,8 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 --
 
 <!-- html -->
-  <h3>leer(): la puerta del lector</h3>
-  {{codigo: Discoteca/Discoteca.java :: 20-28 @@ 2-5|6-8}}
+  <h3>leerFichero(): la puerta del lector</h3>
+  {{codigo: LeerYEscribir3/Fichero.java :: 20-28 @@ 2-5|6-8}}
   <ul class="peque">
     <li><code>while (escritores &gt; 0)</code>: el lector espera <b>solo</b> si hay un escritor. Con otros lectores, entra</li>
     <li>Entra: <code>lectores++</code> y mensaje con los lectores activos</li>
@@ -439,7 +427,7 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 
 <!-- html -->
   <h3>terminaLeer()</h3>
-  {{codigo: Discoteca/Discoteca.java :: 30-36 @@ 2-3|4-6}}
+  {{codigo: LeerYEscribir3/Fichero.java :: 30-36 @@ 2-3|4-6}}
   <ul class="peque">
     <li>Un lector menos, y lo dice</li>
     <li><code>if (lectores == 0)</code>: solo el <b>último</b> lector avisa. Si quedan lectores, los que esperan (escritores) no pueden entrar todavía</li>
@@ -448,8 +436,8 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 --
 
 <!-- html -->
-  <h3>escribir()</h3>
-  {{codigo: Discoteca/Discoteca.java :: 38-46 @@ 2-5|6-8}}
+  <h3>escribirFichero()</h3>
+  {{codigo: LeerYEscribir3/Fichero.java :: 38-46 @@ 2-5|6-8}}
   <ul class="peque">
     <li><code>while (lectores &gt; 0 || escritores &gt; 0)</code>: el escritor espera si hay <b>cualquiera</b> dentro</li>
     <li>Entra: <code>escritores++</code> y devuelve un <code>BufferedWriter</code>. El <code>true</code> de <code>FileWriter(fichero, true)</code>: <b>añadir al final</b></li>
@@ -459,7 +447,7 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 
 <!-- html -->
   <h3>terminaEscribir()</h3>
-  {{codigo: Discoteca/Discoteca.java :: 48-52 @@ 3|4}}
+  {{codigo: LeerYEscribir3/Fichero.java :: 48-52 @@ 2|4}}
   <ul class="peque">
     <li><code>escritores--</code>: un escritor menos</li>
     <li><code>notifyAll()</code> a <b>todos</b>: ahora pueden entrar lectores <b>y</b> escritores</li>
@@ -485,20 +473,20 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 
 <!-- html -->
   <h3>Solución: el lector</h3>
-  {{codigo: Discoteca/Lector.java :: 13-27 @@ 3|4|5-7|8|9|10}}
+  {{codigo: LeerYEscribir3/Lector.java :: 13-27 @@ 3|4|5-7|8|9|10}}
   <ul class="peque">
-    <li><code>leer()</code> puede hacer esperar al lector. Cuando entra, recibe el fichero abierto</li>
-    <li>El <code>while</code> con <code>readLine()</code> cuenta las líneas hasta que devuelve <code>null</code></li>
-    <li><code>close()</code> cierra el fichero. Después muestra el resultado y avisa con <code>terminaLeer()</code>. Los <code>catch</code> recogen las excepciones</li>
+    <li><code>leerFichero()</code> hace esperar al lector si hace falta y le da el fichero abierto</li>
+    <li><code>readLine()</code> cuenta las líneas hasta que devuelve <code>null</code></li>
+    <li><code>close()</code> cierra el fichero. Después muestra el resultado y avisa con <code>terminaLeer()</code></li>
   </ul>
 
 --
 
 <!-- html -->
   <h3>Solución: el escritor</h3>
-  {{codigo: Discoteca/Escritor.java :: 13-25 @@ 3|4-5|6|7|8}}
+  {{codigo: LeerYEscribir3/Escritor.java :: 13-25 @@ 3|4-5|6|7|8}}
   <ul class="peque">
-    <li><code>escribir()</code> hace esperar al escritor hasta que esté solo</li>
+    <li><code>escribirFichero()</code> hace esperar al escritor hasta que esté solo</li>
     <li><code>write()</code> escribe el nombre del hilo y <code>newLine()</code> pasa a la línea siguiente</li>
     <li><code>flush()</code> <b>manda al fichero</b> lo escrito: sin él se quedaría en el buffer. Después avisa con <code>terminaEscribir()</code></li>
   </ul>
@@ -507,16 +495,16 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 
 <!-- html -->
   <h3>Principal: quién empieza</h3>
-  {{codigo: Discoteca/Principal.java :: 5-12 @@ 2|4-5}}
+  {{codigo: LeerYEscribir3/Principal.java :: 5-12 @@ 2|4-5}}
   <ul class="peque">
-    <li>Se crea <b>una sola</b> <code>Discoteca</code>, que deja <code>Discoteca.txt</code> vacío. <code>main</code> declara <code>throws IOException</code></li>
+    <li>Se crea <b>una sola</b> <code>Fichero</code>, que deja <code>Lectores.txt</code> vacío. <code>main</code> declara <code>throws IOException</code></li>
   </ul>
 
 --
 
 <!-- html -->
   <h3>Principal: el orden de arranque</h3>
-  {{codigo: Discoteca/Principal.java :: 21-26 @@ 1-3|4-6}}
+  {{codigo: LeerYEscribir3/Principal.java :: 21-26 @@ 1-3|4-6}}
   <ul class="peque">
     <li>Los lectores arrancan <b>antes</b> que los escritores: algunos cuentan <b>0 líneas</b>, porque el fichero aún está vacío</li>
     <li>Es correcto: cada lector cuenta las líneas que hay <b>en el momento de leer</b></li>
@@ -525,12 +513,12 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 --
 
 <!-- html -->
-  <h3>Probamos la discoteca</h3>
-  <div class="salida">Lector0 entro a leer. Lectores activos: 1<br>Lector1 entro a leer. Lectores activos: 2<br>Lector0 he leído 0 líneas en el fichero<br>…<br>Lector4 termino de leer. Lectores activos: 0<br>Escritor0 entro a escribir.<br>Escritor1 no puedo escribir. Esperando<br>Escritor0 he escrito mi nombre en el fichero<br>Escritor0: He terminado de escribir<br>Escritor1 entro a escribir.<br>…</div>
+  <h3>Probamos el fichero</h3>
+  <div class="salida">Lector0: Leyendo fichero. Lectores: 1<br>Lector1: Leyendo fichero. Lectores: 2<br>Lector0: He leído 0 líneas en el fichero<br>…<br>Escritor0: Hay alguien usando el fichero. Espero.<br>Lector4: He terminado de leer. Lectores: 0<br>Escritor0: Escribiendo fichero.<br>Escritor0: He escrito mi nombre en el fichero<br>Escritor1: Escribiendo fichero.<br>…</div>
   <ul class="peque">
-    <li>Varios <code>Lectores activos</code> a la vez: el contador sube</li>
+    <li>Varios <code>Lectores</code> a la vez: el contador sube</li>
     <li>El escritor entra solo cuando el contador llega a <b>0</b></li>
-    <li>Al final, <code>Discoteca.txt</code> tiene <b>2 líneas</b>: <code>Escritor0</code> y <code>Escritor1</code></li>
+    <li>Al final, <code>Lectores.txt</code> tiene <b>2 líneas</b>: <code>Escritor0</code> y <code>Escritor1</code></li>
   </ul>
 
 --
@@ -543,6 +531,19 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
     <li>Prueba a <b>leer antes de pedir permiso</b> y mira el error</li>
   </ul>
   <p class="aviso"><a href="../../simulador/index.html#ficherolr&experimentos" target="_blank" rel="noopener">Simulador: el fichero de verdad</a> (se abre en otra pestaña)</p>
+
+--
+
+<!-- html -->
+  <h3>Ahora, un ejercicio: la discoteca</h3>
+  <ul>
+    <li><b>5 hilos lectores</b> y <b>2 hilos escritores</b> comparten el fichero <code>Discoteca.txt</code></li>
+    <li>Los escritores escriben su nombre en una <b>línea nueva</b></li>
+    <li>Los lectores cuentan cuántas <b>líneas</b> tiene el fichero en ese momento</li>
+    <li>Varios lectores a la vez, sí. Un escritor, <b>solo</b></li>
+  </ul>
+  <p class="peque">Proyecto <b>Discoteca</b>. Es el mismo problema que acabamos de ver, con otros nombres. Ahora lo haces tú.</p>
+  <p class="aviso">Pistas y paso a paso: <a href="enunciado.html" target="_blank" rel="noopener">enunciado del apartado 6.5</a> (otra pestaña).</p>
 
 ---
 
