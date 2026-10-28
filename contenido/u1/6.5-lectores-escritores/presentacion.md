@@ -240,7 +240,7 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 <!-- html -->
   <h2>Paso 2</h2>
   <h3>¿Qué cambia?</h3>
-  <p class="peque">Proyecto <b>LectoresVarios</b></p>
+  <p class="peque">Proyecto <b>LeerYEscribir2</b></p>
 
 --
 
@@ -285,7 +285,7 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 
 <!-- html -->
   <h3>La regla nueva: entrar</h3>
-  {{codigo: LectoresVarios/Fichero.java :: 6-22 @@ 2|11}}
+  {{codigo: LeerYEscribir2/Fichero.java :: 6-22 @@ 2|11}}
   <ul class="peque">
     <li><code>leerFichero()</code>: ahora el lector espera <b>solo si hay un escritor</b>. Con otros lectores, entra</li>
     <li><code>escribirFichero()</code>: igual que antes. Al escritor le molesta <b>cualquiera</b></li>
@@ -295,7 +295,7 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 
 <!-- html -->
   <h3>La regla nueva: salir y avisar</h3>
-  {{codigo: LectoresVarios/Fichero.java :: 24-36 @@ 4-6|10-12}}
+  {{codigo: LeerYEscribir2/Fichero.java :: 24-36 @@ 4-6|10-12}}
   <ul class="peque">
     <li><code>terminaLeer()</code>: solo el <b>último</b> lector avisa. Si quedan lectores, el escritor no puede entrar todavía</li>
     <li><code>terminaEscribir()</code>: avisa a <b>todos</b>, porque pueden entrar lectores <b>y</b> escritores</li>

@@ -1,4 +1,4 @@
-package varios;
+package leerescribir2;
 
 // El mismo fichero de antes, con una regla distinta: varios lectores pueden leer a la vez.
 public class Fichero {
