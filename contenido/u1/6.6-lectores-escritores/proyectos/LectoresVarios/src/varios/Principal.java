@@ -1,11 +1,9 @@
-package fichero;
-
-import java.io.IOException;
+package varios;
 
 public class Principal {
 
-    public static void main(String[] args) throws IOException {
-        Fichero f = new Fichero("Lectores.txt");
+    public static void main(String[] args) {
+        Fichero f = new Fichero();
 
         int numLectores = 5;
         int numEscritores = 2;
@@ -20,11 +18,11 @@ public class Principal {
             escritores[i] = new Thread(new Escritor(f), "Escritor" + i);
         }
 
-        for (Thread escr : escritores) {
-            escr.start();
-        }
         for (int i = 0; i < numLectores; i++) {
             lectores[i].start();
+        }
+        for (Thread escr : escritores) {
+            escr.start();
         }
     }
 }
