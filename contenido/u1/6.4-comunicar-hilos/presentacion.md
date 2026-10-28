@@ -375,12 +375,20 @@ System.out.println("Total vendidas: " + estante.getVendidas());
   <ul>
     <li>Arrastra o pulsa las piezas para escribir <code>synchronized</code>, <code>while</code>, <code>wait()</code> y <code>notifyAll()</code></li>
     <li>Quita el <code>while</code> o el <code>notifyAll()</code> y mira <b>qué falla</b></li>
-    <li>El panel <b>Experimentos</b> te propone situaciones para ejecutar (y alguna para completar tú) y te dice si lo que has visto es lo esperado</li>
     <li>Prueba <code>notify()</code> en vez de <code>notifyAll()</code> con dos vendedores</li>
-    <li>Con el pintor y los vendedores, los <b>Experimentos</b> empiezan mirando y acaban contigo escribiendo el almacén y los hilos, poco a poco</li>
-    <li>La <b>tienda de bicis</b> tiene su propio ejemplo: 12 ejercicios de menos a más difíciles, desde poner <code>estante.cerrar();</code> hasta escribir <code>Mecanico.run()</code> y <code>Cliente.run()</code></li>
+    <li>El panel <b>Experimentos</b> propone situaciones para ejecutar: empiezan mirando y acaban contigo escribiendo el almacén y los hilos, poco a poco</li>
   </ul>
-  <p class="aviso"><a href="../../simulador/index.html#pintor2&experimentos" target="_blank" rel="noopener">Pintor y dos vendedores</a> · <a href="../../simulador/index.html#bicis&experimentos" target="_blank" rel="noopener">Tienda de bicis</a> (se abren en otra pestaña).</p>
+  <p class="aviso"><a href="../../simulador/index.html#pintor2&experimentos" target="_blank" rel="noopener">Pintor y dos vendedores</a> (se abre en otra pestaña).</p>
+
+--
+
+<!-- html -->
+  <h3>Probarlo en el simulador: la tienda de bicis</h3>
+  <ul>
+    <li>La <b>tienda de bicis</b> tiene su propio ejemplo: 12 ejercicios de menos a más difíciles</li>
+    <li>Desde poner <code>estante.cerrar();</code> hasta escribir <code>Mecanico.run()</code> y <code>Cliente.run()</code></li>
+  </ul>
+  <p class="aviso"><a href="../../simulador/index.html#bicis&experimentos" target="_blank" rel="noopener">Tienda de bicis</a> (se abre en otra pestaña).</p>
 
 ---
 

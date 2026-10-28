@@ -176,9 +176,9 @@ for (int i = 1; i &lt;= 10; i++) {
   <h3>empaquetar(): la puerta de la empaquetadora</h3>
   {{codigo: FabricaPiezas/CintaTransportadora.java :: 28-42 @@ 2-5|6-7|8-13|14}}
   <ul class="peque">
-    <li><code>while (piezasCinta == 0 &amp;&amp; seguirFabricando)</code>: espera si la cinta está vacía <b>y</b> todavía se están creando piezas</li>
-    <li><code>if (piezasCinta == 0 &amp;&amp; !seguirFabricando)</code>: la cinta está vacía y no se crea más. <code>seguirEmpaquetando = false;</code>. <code>!</code> significa «no»</li>
-    <li>Si no, hay una pieza: se retira, se cuenta y se avisa con <code>notifyAll()</code></li>
+    <li><code>while (piezasCinta == 0 &amp;&amp; seguirFabricando)</code>: espera si está vacía <b>y</b> todavía se crean piezas</li>
+    <li><code>if (piezasCinta == 0 &amp;&amp; !seguirFabricando)</code>: vacía y no se crea más: <code>seguirEmpaquetando = false;</code>. <code>!</code> = «no»</li>
+    <li>Si no, hay una pieza: se retira, se cuenta y se avisa</li>
   </ul>
 
 --
@@ -405,7 +405,13 @@ System.out.println("Fábrica cerrada");
 
 <!-- html -->
   <h3>El panadero</h3>
-  {{codigo: Panaderia/Panadero.java :: 10-32 @@ 2|4-5|8-9|12-16|18-23}}
+  {{codigo: Panaderia/Panadero.java :: 10-19 @@ 2|4-5|8-9}}
+
+--
+
+<!-- html -->
+  <h3>El panadero: <code>hornear()</code> y <code>dormir()</code></h3>
+  {{codigo: Panaderia/Panadero.java :: 21-32 @@ 1-5|7-12}}
   <ul class="peque">
     <li><code>dormir()</code> y <code>hornear()</code> son métodos de la propia clase: evitan repetir las mismas líneas</li>
   </ul>
@@ -462,9 +468,17 @@ System.out.println("Fábrica cerrada");
 
 <!-- html -->
   <h3>Los espectadores</h3>
-  {{codigo: SalaStream/Sala.java :: 31-59 @@ 6-11|12-14|15-17|21-26|27-28}}
+  {{codigo: SalaStream/Sala.java :: 31-48 @@ 6-11|12-14|15-17}}
   <ul class="peque">
     <li><code>entrarEspectador()</code> devuelve el número de partida que va a ver (o 0 si ya no habrá más)</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Los espectadores: <code>ver()</code></h3>
+  {{codigo: SalaStream/Sala.java :: 50-59 @@ 2-7|8-9}}
+  <ul class="peque">
     <li><code>ver(n)</code> espera mientras <b>esa</b> partida siga en marcha, y entonces sale</li>
     <li><code>cerrar()</code>, método de la clase <code>Sala</code>, lo llama <code>main</code> al acabar los jugadores: libera a los espectadores que esperaban una partida que ya no llegará</li>
   </ul>
