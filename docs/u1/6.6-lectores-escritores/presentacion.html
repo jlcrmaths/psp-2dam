@@ -80,8 +80,10 @@
     <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>||</code> significa <b>«o»</b>: basta con que se cumpla una de las dos condiciones. Es la hermana de <code>&amp;&amp;</code> («y»).</p></div>
     <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>throws InterruptedException</code> en un método: en vez de un <code>try/catch</code> dentro, deja que el error lo recoja quien llama al método. Aquí, <code>Lector</code> y <code>Escritor</code>.</p></div>
     <div class="nuevo-item"><span class="etiqueta">Idea</span><p>El <b>tiempo de leer o escribir</b> (<code>sleep</code>) va <b>fuera</b> de los métodos <code>synchronized</code>, entre la llamada de entrar y la de salir.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>Random</code>: genera números al azar. <code>r.nextInt(9)</code> da un número de 0 a 8. Con él, cada hilo tarda un tiempo distinto.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>for (Thread escr : escritores)</code> (<i>for-each</i>): repite el bloque <b>una vez por cada elemento</b> del array, sin contador. Aquí arranca todos los hilos del array.</p></div>
     </div>
-    <p class="aviso">Repaso: <code>synchronized</code>, <code>wait()</code>, <code>notifyAll()</code>, <code>Random</code>, <code>sleep()</code> y los arrays de <code>Thread</code> funcionan igual que antes.</p>
+    <p class="aviso">Repaso: <code>synchronized</code>, <code>wait()</code>, <code>notifyAll()</code>, <code>sleep()</code>, <code>Runnable</code> y los arrays de <code>Thread</code> funcionan igual que en 6.1 a 6.4.</p>
 </section>
 <section>
 <h3>Ejercicio: lectores y escritores</h3>
@@ -535,9 +537,10 @@ public class Principal {
     <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>else if</code>: «si no se cumple lo anterior, prueba esta otra condición».</p></div>
     <div class="nuevo-item"><span class="etiqueta">Idea</span><p>Un <b>estado</b> guardado en un <code>int</code>, más un <b>contador</b> de lectores. Con los dos, el semáforo sabe quién puede entrar.</p></div>
     <div class="nuevo-item"><span class="etiqueta">Idea</span><p>Un método <code>private</code> que <b>devuelve un texto</b> (<code>info()</code>): una ayuda interna para no repetir el principio de cada mensaje.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>static final</code>: una <b>constante</b> de la clase. Su valor no cambia y se escribe en MAYÚSCULAS (<code>LIBRE</code>).</p></div>
     <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>random()</code> de la clase <code>Math</code>: da un número al azar entre 0 y 1. Con él, cada hilo duerme un tiempo distinto.</p></div>
     </div>
-    <p class="aviso">Repaso: <code>synchronized</code>, <code>wait()</code>, <code>notify()</code>, <code>while</code>, <code>sleep()</code>, <code>Runnable</code> y <code>static final</code> funcionan igual que en 6.4, 6.5 y 6.6.</p>
+    <p class="aviso">Repaso: <code>synchronized</code>, <code>wait()</code>, <code>notify()</code>, <code>while</code>, <code>sleep()</code>, <code>Runnable</code> y <code>Random</code> funcionan igual que en 6.4 y en el paso 1.</p>
 </section>
 <section>
 <h3>Las reglas: quién puede entrar</h3>
@@ -856,7 +859,7 @@ public class Lector implements Runnable {
         new FileWriter(fichero).close();
     }</code></pre>
   <ul class="peque">
-    <li><code>private final File fichero;</code> el fichero (<code>final</code>, como en 6.5: se fija en el constructor y no cambia)</li>
+    <li><code>private final File fichero;</code> el fichero (<code>final</code>: no se puede cambiar; se fija en el constructor)</li>
     <li><code>lectores</code> y <code>escritores</code>: dos contadores, como en el semáforo pero sin estado</li>
     <li>El constructor recibe el <b>nombre</b>, crea el <code>File</code> y deja el fichero <b>vacío</b>: <code>new FileWriter(fichero).close();</code></li>
   </ul>
