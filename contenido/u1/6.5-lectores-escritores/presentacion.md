@@ -838,7 +838,7 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
 
 <!-- html -->
   <h2>Paso 5</h2>
-  <h3>Pruébalo tú primero</h3>
+  <h3>Un problema que no da error</h3>
   <p class="peque">Proyectos <b>LectoresInanicion</b> y <b>LectoresInanicionResuelta</b></p>
 
 --
