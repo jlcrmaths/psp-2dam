@@ -542,17 +542,17 @@ for (Thread escr : escritores) { escr.start(); }</code></pre>
 <section>
 <h3>Solución: el escritor</h3>
   <pre><code class="language-java" data-trim data-line-numbers="3|4-5|6|7|8">    public void run() {
-         try {
+        try {
             BufferedWriter bw = fich.escribirFichero();
             bw.write(Thread.currentThread().getName());
             bw.newLine();
             bw.flush();
             System.out.println(Thread.currentThread().getName() + &quot;: He escrito mi nombre en el fichero&quot;);
             fich.terminaEscribir();
-        } catch (InterruptedException interruptedException) {
-        } catch (IOException iOException) {
+        } catch (InterruptedException ex) {
+        } catch (IOException ex) {
+            System.out.println(ex);
         }
-       
     }</code></pre>
   <ul class="peque">
     <li><code>escribirFichero()</code> hace esperar al escritor hasta que esté solo</li>
@@ -855,8 +855,7 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
 </section>
 <section>
 <h3>Lector y escritor con el fichero</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="1|2-8|10">        for (int i = 1; i &lt;= 20; i++){
-        semaforo.accesoLeer();
+  <pre><code class="language-java" data-trim data-line-numbers="1|2-8|10">        semaforo.accesoLeer();
         try {
             int lineas = 0;
             BufferedReader br = new BufferedReader(new FileReader(fichero));
@@ -864,7 +863,8 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
                 lineas++;
             }
             br.close();
-            System.out.println(Thread.currentThread().getName() + &quot;: He leído &quot; + lineas + &quot; líneas&quot;);</code></pre>
+            System.out.println(Thread.currentThread().getName() + &quot;: He leído &quot; + lineas + &quot; líneas&quot;);
+            Thread.sleep(300);</code></pre>
   <ul class="peque">
     <li>El semáforo <b>no devuelve el fichero</b>: solo controla quién entra. El <code>File</code> se pasa aparte a cada hilo, que lo abre cuando ya tiene permiso</li>
     <li>El <code>sleep(300)</code> solo está para que <b>se vea</b> que varios lectores leen a la vez. Al terminar, <code>semaforo.lecturaFinalizada()</code></li>
@@ -929,20 +929,18 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
 <section>
 <section>
 <h2>Paso 5</h2>
-  <h3>Un problema que no da error</h3>
+  <h3>Pruébalo tú primero</h3>
   <p class="peque">Proyectos <b>LectoresInanicion</b> y <b>LectoresInanicionResuelta</b></p>
 </section>
 <section>
-<h3>Un problema que no da error</h3>
-  <p>El semáforo del paso 3 funciona. Pero mira lo que pasa si los lectores <b>no paran de llegar</b>:</p>
-  <ul>
-    <li>Un escritor llega y ve <code>CON_LECTORES</code>: <b>espera</b></li>
-    <li>Antes de que salga el último lector, <b>entra otro</b> lector nuevo</li>
-    <li>Siempre hay algún lector dentro: el estado <b>nunca llega a <code>LIBRE</code></b></li>
-  </ul>
-  <p class="caja fragment">El escritor <b>no está bloqueado</b>: está esperando su turno, pero los demás se lo van quitando. Eso es la <b>inanición</b> (<i>starvation</i>).</p>
-  <p class="peque fragment">En el ejemplo del semáforo cada hilo lee o escribe una sola vez, y esto no pasa. En un programa real habría que darle <b>prioridad</b> al escritor que espera.</p>
-  <p class="aviso fragment">Para verlo en tu proyecto: pon en <code>Lector.run()</code> un <code>for</code> de 20 vueltas con <code>accesoLeer()</code> y <code>lecturaFinalizada()</code> <b>dentro</b>. Arranca los lectores con 50 ms de desfase y deja que el escritor llegue <b>después</b>.</p>
+<h3>Cambia tu semáforo y mira qué pasa</h3>
+  <p>Parte del proyecto del paso 4 (<b>SemaforoConFichero</b>) y haz estos tres cambios:</p>
+  <ol>
+    <li>En <code>Lector.run()</code>, un <code>for</code> de <b>20 vueltas</b> con <code>accesoLeer()</code> y <code>lecturaFinalizada()</code> <b>dentro</b></li>
+    <li>En <code>Principal</code>, arranca primero los <b>lectores</b>, con <code>Thread.sleep(50)</code> entre uno y otro</li>
+    <li>Arranca el <b>escritor</b> después, con un pequeño <code>sleep</code> antes</li>
+  </ol>
+  <p class="caja">Ejecútalo y mira la salida. ¿Cuándo escribe el escritor? ¿Se ha colgado el programa? ¿Hay algún error?</p>
 </section>
 <section>
 <h3>¿Qué sucede?</h3>
@@ -956,13 +954,24 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
   <p class="caja fragment">El escritor solo entra cuando el <b>último</b> lector acaba sus 20 vueltas. El programa no da error ni se cuelga: simplemente el escritor <b>espera mucho más de lo que debería</b>.</p>
 </section>
 <section>
+<h3>Esto se llama inanición</h3>
+  <p class="caja">El escritor <b>no está bloqueado</b>: está esperando su turno, pero los demás se lo van quitando. Eso es la <b>inanición</b> (<i>starvation</i>).</p>
+  <ul>
+    <li>Un escritor llega y ve <code>CON_LECTORES</code>: <b>espera</b></li>
+    <li>Antes de que salga el último lector, <b>entra otro</b> lector nuevo</li>
+    <li>Siempre hay algún lector dentro: el estado <b>nunca llega a <code>LIBRE</code></b></li>
+  </ul>
+  <p class="aviso">No es un interbloqueo: el programa <b>sigue avanzando</b>. Es el escritor el que no avanza.</p>
+  <p class="peque">Con hilos que leen o escriben una sola vez no se nota. Se nota cuando los lectores <b>no paran de llegar</b>.</p>
+</section>
+<section>
 <h3>Verlo en Java</h3>
   <pre><code class="language-java" data-trim>public class Principal {
 
     public static void main(String[] args) throws InterruptedException {
         Semaforo smfro = new Semaforo();
 
-        for (int i = 1; i &lt;= 10; i++) {
+        for (int i = 1; i &lt;= 4; i++) {
             new Thread(new Lector(smfro), &quot;Lector&quot; + i).start();
             Thread.sleep(50);
         }
