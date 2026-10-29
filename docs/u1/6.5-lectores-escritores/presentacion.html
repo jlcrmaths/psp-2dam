@@ -855,7 +855,8 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
 </section>
 <section>
 <h3>Lector y escritor con el fichero</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="1|2-8|10">        semaforo.accesoLeer();
+  <pre><code class="language-java" data-trim data-line-numbers="1|2-8|10">        for (int i = 1; i &lt;= 20; i++){
+        semaforo.accesoLeer();
         try {
             int lineas = 0;
             BufferedReader br = new BufferedReader(new FileReader(fichero));
@@ -863,8 +864,7 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
                 lineas++;
             }
             br.close();
-            System.out.println(Thread.currentThread().getName() + &quot;: He leído &quot; + lineas + &quot; líneas&quot;);
-            Thread.sleep(300);</code></pre>
+            System.out.println(Thread.currentThread().getName() + &quot;: He leído &quot; + lineas + &quot; líneas&quot;);</code></pre>
   <ul class="peque">
     <li>El semáforo <b>no devuelve el fichero</b>: solo controla quién entra. El <code>File</code> se pasa aparte a cada hilo, que lo abre cuando ya tiene permiso</li>
     <li>El <code>sleep(300)</code> solo está para que <b>se vea</b> que varios lectores leen a la vez. Al terminar, <code>semaforo.lecturaFinalizada()</code></li>
@@ -942,6 +942,18 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
   </ul>
   <p class="caja fragment">El escritor <b>no está bloqueado</b>: está esperando su turno, pero los demás se lo van quitando. Eso es la <b>inanición</b> (<i>starvation</i>).</p>
   <p class="peque fragment">En el ejemplo del semáforo cada hilo lee o escribe una sola vez, y esto no pasa. En un programa real habría que darle <b>prioridad</b> al escritor que espera.</p>
+  <p class="aviso fragment">Para verlo en tu proyecto: pon en <code>Lector.run()</code> un <code>for</code> de 20 vueltas con <code>accesoLeer()</code> y <code>lecturaFinalizada()</code> <b>dentro</b>. Arranca los lectores con 50 ms de desfase y deja que el escritor llegue <b>después</b>.</p>
+</section>
+<section>
+<h3>¿Qué sucede?</h3>
+  <ol class="peque">
+    <li>Los lectores arrancan con 50 ms de desfase y entran: <code>estado = CON_LECTORES</code></li>
+    <li>Llega el escritor. Como <code>estado != LIBRE</code>, el <code>while</code> lo manda a <code>wait()</code>: <b>ESPERA</b></li>
+    <li>Un lector termina su vuelta y llama a <code>lecturaFinalizada()</code>. <code>tLectores--</code>, pero <b>quedan otros dentro</b>: no es 0, así que no se deja <code>LIBRE</code> y <b>no hay <code>notify()</code></b></li>
+    <li>Ese mismo lector empieza su siguiente vuelta y llama a <code>accesoLeer()</code>. El estado sigue en <code>CON_LECTORES</code>: <b>entra</b></li>
+    <li>Pasa lo mismo con todos. Siempre hay algún lector dentro, <code>tLectores</code> <b>nunca llega a 0</b></li>
+  </ol>
+  <p class="caja fragment">El escritor solo entra cuando el <b>último</b> lector acaba sus 20 vueltas. El programa no da error ni se cuelga: simplemente el escritor <b>espera mucho más de lo que debería</b>.</p>
 </section>
 <section>
 <h3>Verlo en Java</h3>
@@ -969,15 +981,55 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
   <p class="aviso">Aquí termina porque los lectores son <b>finitos</b>. Con lectores sin fin, <b>no escribiría nunca</b>.</p>
 </section>
 <section>
-<h3>La idea de la solución</h3>
+<h3>¿Cómo lo resolverías?</h3>
+  <p class="caja">Los lectores no paran de llegar y el escritor <b>nunca entra</b>. ¿Qué cambiarías en el semáforo para que el escritor entre, sin dejar de permitir varios lectores a la vez?</p>
+  <p class="peque">Piénsalo un momento. En la siguiente diapositiva hay soluciones posibles: di cuáles son <b>verdaderas</b> y cuáles <b>falsas</b>.</p>
+</section>
+<section>
+<h3>¿Verdadero o falso? (1 de 6)</h3>
+  <p class="caja">Hacer que cada lector duerma un rato (<code>sleep</code>) antes de pedir paso arregla la inanición.</p>
+  <p class="fragment"><b>Falso</b></p>
+  <p class="fragment">No hay garantía. Un lector puede seguir llegando justo cuando el escritor espera, y <code>tLectores</code> sigue sin llegar a 0. Solo cambia <b>cuándo</b> se cuelan, no <b>si</b> se cuelan.</p>
+</section>
+<section>
+<h3>¿Verdadero o falso? (2 de 6)</h3>
+  <p class="caja">Ponerle al escritor prioridad máxima con <code>setPriority()</code> arregla la inanición.</p>
+  <p class="fragment"><b>Falso</b></p>
+  <p class="fragment">La prioridad es solo un consejo al planificador. El escritor está parado en <code>wait()</code> porque la condición del <code>while</code> no se cumple, y eso no depende de la prioridad.</p>
+</section>
+<section>
+<h3>¿Verdadero o falso? (3 de 6)</h3>
+  <p class="caja">Cambiar <code>notify()</code> por <code>notifyAll()</code>, y nada más, arregla la inanición.</p>
+  <p class="fragment"><b>Falso</b></p>
+  <p class="fragment">El problema no es a quién despiertas, sino que el estado <b>nunca llega a <code>LIBRE</code></b>. Si no hay aviso, da igual cuántos despiertes. (Pero <code>notifyAll()</code> sí hará falta en la solución final.)</p>
+</section>
+<section>
+<h3>¿Verdadero o falso? (4 de 6)</h3>
+  <p class="caja">Echar a los lectores que están leyendo cuando llega un escritor arregla la inanición.</p>
+  <p class="fragment"><b>Falso</b></p>
+  <p class="fragment"><code>wait()</code> no interrumpe a nadie: un hilo solo se para cuando él mismo lo pide. Y aunque se pudiera, se perdería la lectura a medias.</p>
+</section>
+<section>
+<h3>¿Verdadero o falso? (5 de 6)</h3>
+  <p class="caja">Guardar que hay un escritor esperando, y que los lectores <b>nuevos</b> esperen mientras lo haya, arregla la inanición.</p>
+  <p class="fragment"><b>Verdadero</b></p>
+  <p class="fragment">No entran más lectores, así que los que ya estaban dentro van saliendo. El último deja el estado <code>LIBRE</code> y el escritor entra. Es la solución que vamos a programar.</p>
+</section>
+<section>
+<h3>¿Verdadero o falso? (6 de 6)</h3>
+  <p class="caja">Hay que despertar a todos (<code>notifyAll()</code>) cuando el último lector sale o el escritor termina.</p>
+  <p class="fragment"><b>Verdadero</b></p>
+  <p class="fragment">Si <code>notify()</code> despertara a un lector, este vería que hay un escritor esperando y se volvería a dormir: el aviso se perdería. Con <code>notifyAll()</code> despiertan todos y el escritor puede entrar.</p>
+</section>
+<section>
+<h3>La solución, en una frase</h3>
+  <p class="caja">El semáforo se <b>acuerda</b> de que hay un escritor esperando (<code>escritoresEsperando</code>) y los lectores nuevos <b>le dejan pasar</b>.</p>
   <ul>
-    <li>El semáforo tiene que <b>acordarse</b> de que hay un escritor esperando</li>
-    <li>Un contador nuevo: <code>escritoresEsperando</code></li>
     <li>El escritor <b>se apunta</b> antes de esperar y <b>se borra</b> cuando entra</li>
     <li>Un lector <b>nuevo</b> espera si hay un escritor escribiendo <b>o esperando</b></li>
     <li>Los lectores que ya están dentro terminan. El último deja <code>LIBRE</code> y el escritor entra</li>
   </ul>
-  <p class="aviso">Es como una cola: el que llega primero <b>no se queda atrás</b>.</p>
+  <p class="aviso">Es como una cola: el que llega primero <b>no se queda atrás</b>. Ahora, el código.</p>
 </section>
 <section>
 <h3>Sin inanición: el contador nuevo</h3>
