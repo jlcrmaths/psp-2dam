@@ -838,22 +838,20 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
 
 <!-- html -->
   <h2>Paso 5</h2>
-  <h3>Un problema que no da error</h3>
+  <h3>Pruébalo tú primero</h3>
   <p class="peque">Proyectos <b>LectoresInanicion</b> y <b>LectoresInanicionResuelta</b></p>
 
 --
 
 <!-- html -->
-  <h3>Un problema que no da error</h3>
-  <p>El semáforo del paso 3 funciona. Pero mira lo que pasa si los lectores <b>no paran de llegar</b>:</p>
-  <ul>
-    <li>Un escritor llega y ve <code>CON_LECTORES</code>: <b>espera</b></li>
-    <li>Antes de que salga el último lector, <b>entra otro</b> lector nuevo</li>
-    <li>Siempre hay algún lector dentro: el estado <b>nunca llega a <code>LIBRE</code></b></li>
-  </ul>
-  <p class="caja fragment">El escritor <b>no está bloqueado</b>: está esperando su turno, pero los demás se lo van quitando. Eso es la <b>inanición</b> (<i>starvation</i>).</p>
-  <p class="peque fragment">En el ejemplo del semáforo cada hilo lee o escribe una sola vez, y esto no pasa. En un programa real habría que darle <b>prioridad</b> al escritor que espera.</p>
-  <p class="aviso fragment">Para verlo en tu proyecto: pon en <code>Lector.run()</code> un <code>for</code> de 20 vueltas con <code>accesoLeer()</code> y <code>lecturaFinalizada()</code> <b>dentro</b>. Arranca los lectores con 50 ms de desfase y deja que el escritor llegue <b>después</b>.</p>
+  <h3>Cambia tu semáforo y mira qué pasa</h3>
+  <p>Parte del proyecto del paso 4 (<b>SemaforoConFichero</b>) y haz estos tres cambios:</p>
+  <ol>
+    <li>En <code>Lector.run()</code>, un <code>for</code> de <b>20 vueltas</b> con <code>accesoLeer()</code> y <code>lecturaFinalizada()</code> <b>dentro</b></li>
+    <li>En <code>Principal</code>, arranca primero los <b>lectores</b>, con <code>Thread.sleep(50)</code> entre uno y otro</li>
+    <li>Arranca el <b>escritor</b> después, con un pequeño <code>sleep</code> antes</li>
+  </ol>
+  <p class="caja">Ejecútalo y mira la salida. ¿Cuándo escribe el escritor? ¿Se ha colgado el programa? ¿Hay algún error?</p>
 
 --
 
@@ -867,6 +865,19 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
     <li>Pasa lo mismo con todos. Siempre hay algún lector dentro, <code>tLectores</code> <b>nunca llega a 0</b></li>
   </ol>
   <p class="caja fragment">El escritor solo entra cuando el <b>último</b> lector acaba sus 20 vueltas. El programa no da error ni se cuelga: simplemente el escritor <b>espera mucho más de lo que debería</b>.</p>
+
+--
+
+<!-- html -->
+  <h3>Esto se llama inanición</h3>
+  <p class="caja">El escritor <b>no está bloqueado</b>: está esperando su turno, pero los demás se lo van quitando. Eso es la <b>inanición</b> (<i>starvation</i>).</p>
+  <ul>
+    <li>Un escritor llega y ve <code>CON_LECTORES</code>: <b>espera</b></li>
+    <li>Antes de que salga el último lector, <b>entra otro</b> lector nuevo</li>
+    <li>Siempre hay algún lector dentro: el estado <b>nunca llega a <code>LIBRE</code></b></li>
+  </ul>
+  <p class="aviso">No es un interbloqueo: el programa <b>sigue avanzando</b>. Es el escritor el que no avanza.</p>
+  <p class="peque">Con hilos que leen o escriben una sola vez no se nota. Se nota cuando los lectores <b>no paran de llegar</b>.</p>
 
 
 --
