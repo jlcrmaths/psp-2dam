@@ -269,8 +269,13 @@ const blk = (kind, cond, body) => mk(kind, {cond, body});
 /* instrucciones comunes a todos los ejemplos */
 const SPECIAL = {
   wait:'wait();', notify:'notify();', notifyAll:'notifyAll();', sleep:'Thread.sleep(500);',
-  retT:'return true;', retF:'return false;', sleepRnd:'Thread.sleep((long) (Math.random() * ms));', sleepFix:'Thread.sleep(ms);', cerrarCall:'estante.cerrar();', terminarCall:'almacen.terminar();'
+  retT:'return true;', retF:'return false;', sleepRnd:'Thread.sleep((long) (Math.random() * ms));', sleepFix:'Thread.sleep(ms);', terminarCall:'almacen.terminar();',
+  get cerrarCall(){ return cerrarTxt(); }
 };
+/* el objeto y el método que llama Principal para cerrar (por defecto estante.cerrar()) */
+const cerrarObj = () => (typeof sc !== 'undefined' && sc && sc.cerrarObj) || 'estante';
+const cerrarMet = () => (typeof sc !== 'undefined' && sc && sc.cerrarMet) || 'cerrar';
+const cerrarTxt = () => cerrarObj() + '.' + cerrarMet() + '();';
 
 /* ----- ejemplos ----- */
 function* usoRecurso(a, entrar, salir, vueltas, dormir){
@@ -833,9 +838,90 @@ const BUILD = {
          Empaquetadora:{body:[blk('while', 'cinta.empaquetar()', [st('sleepFix')])]}}
     })
   }),
+  stream:p => ({
+    titulo:'6.6 Sala de stream: ' + p.jugadores + ' jugador' + (p.jugadores === 1 ? '' : 'es') + ' y ' + p.espectadores + ' espectador' + (p.espectadores === 1 ? '' : 'es'),
+    clase:'Sala', recurso:'Sala', icono:'🎮', max:p.espectadores,
+    vars:{enDirecto:false, espectadores:0, cerrada:false}, consts:{},
+    fields:['private boolean enDirecto = false;', 'private int espectadores = 0;', 'private boolean cerrada = false;', ''],
+    methods:[{name:'entraJugador', ret:'boolean'}, {name:'saleJugador', ret:'void'}, {name:'entraEspectador', ret:'boolean'}, {name:'saleEspectador', ret:'void'}, {name:'cerrarSala', ret:'void'}],
+    hasPrincipal:true, cerrarObj:'sala', cerrarMet:'cerrarSala',
+    ops:[
+      {g:'Datos', key:'dirOn',  label:'enDirecto = true;', fx:S => {
+        if (S.v.enDirecto) S.pend = '¡empieza un jugador y ya había otro en directo!';
+        else if (S.v.espectadores > 0) S.pend = '¡empieza un jugador y aún quedan ' + S.v.espectadores + ' espectador(es) dentro!';
+        S.v.enDirecto = true; return 'enDirecto = true'; }},
+      {g:'Datos', key:'dirOff', label:'enDirecto = false;', fx:S => { S.v.enDirecto = false; return 'enDirecto = false'; }},
+      {g:'Datos', key:'incEsp', label:'espectadores++;', anim:{emoji:'🧑', hold:'none'}, fx:S => {
+        if (!S.v.enDirecto) S.pend = '¡entra un espectador y no hay ningún jugador en directo!';
+        S.v.espectadores++; return 'espectadores++ → ' + S.v.espectadores; }},
+      {g:'Datos', key:'decEsp', label:'espectadores--;', anim:{emoji:'🧑', hold:'none'}, fx:S => {
+        if (S.v.espectadores <= 0) S.pend = '¡sale un espectador que no estaba dentro!';
+        S.v.espectadores--; return 'espectadores-- → ' + S.v.espectadores; }},
+      {g:'Datos', key:'cerr', label:'cerrada = true;', fx:S => { S.v.cerrada = true; return 'cerrada = true'; }}
+    ],
+    groups:[
+      {t:'j', n:p.jugadores, name:'Jugador', emoji:'🎮', extra:a => ' · ' + (a.done ? 'ya ha jugado' : 'sin jugar'),
+       proc:a => runHilo(a, 'Jugador')},
+      {t:'e', n:p.espectadores, name:'Espectador', emoji:'👀', extra:a => ' · ' + (a.done ? 'ya ha visto una partida' : 'sin ver'),
+       proc:a => runHilo(a, 'Espectador')}
+    ],
+    hiloObj:'sala', sleepFijo:true,
+    hilos:[{k:'Jugador', n:'Jugador.run()', ops:['saleJugadorCall', 'sleepFix'], sleep:'sleepJ', ms:p.sleepJ},
+           {k:'Espectador', n:'Espectador.run()', ops:['saleEspectadorCall', 'sleepFix'], sleep:'sleepE', ms:p.sleepE}],
+    hiloOps:[{key:'saleJugadorCall', label:'sala.saleJugador();', m:'saleJugador'}, {key:'saleEspectadorCall', label:'sala.saleEspectador();', m:'saleEspectador'}],
+    onCall:(a, nm, r) => {
+      if ((nm === 'entraJugador' || nm === 'entraEspectador') && r === true) a.done++;
+      /* cada espectador tiene que recibir un true (ve una partida) o un false (la sala se cerró sin partida) */
+      if (nm === 'entraEspectador' && (r === true || r === false)) S.cnt.esp = (S.cnt.esp || 0) + 1;
+    },
+    principalProc:function*(a){
+      const js = agents.filter(x => x.t === 'j'), es = agents.filter(x => x.t === 'e');
+      const fin = x => x.state === 'fin' || x.state === 'muerto';
+      a.state = 'join';
+      while (!js.every(fin)) yield;
+      a.state = 'dentro';
+      yield* execBlock(a, prog.principal.body);
+      if (!prog.principal.body.some(n => n.kind === 'stmt' && n.op === 'cerrarCall')) log('Principal: no llama a cerrarSala()', true);
+      a.cur = null; a.state = 'join';
+      while (!es.every(fin)) yield;
+      log('Sala cerrada');
+      a.state = 'fin';
+    },
+    filled:S => Math.max(0, S.v.espectadores),
+    badge:S => S.v.cerrada ? {text:'cerrada', cls:'closed'} : S.v.enDirecto ? {text:'en directo', cls:'open'} : {text:'sin partida', cls:'closed'},
+    anomaly:S => { const m = S.pend; S.pend = null; return m; },
+    stats:S => 'En directo: <span class="' + (S.v.enDirecto ? 'ok' : '') + '">' + (S.v.enDirecto ? 'sí' : 'nadie') + '</span> · Espectadores dentro: <span class="' + (S.v.espectadores < 0 ? 'bad' : '') + '">' + S.v.espectadores + '</span> · Partidas: ' + (S.cnt.dirOn || 0) + ' / ' + p.jugadores,
+    ok:S => (S.cnt.dirOn || 0) === p.jugadores && (S.cnt.esp || 0) === p.espectadores && S.v.espectadores === 0 && !S.v.enDirecto && !S.anomalia,
+    okMsg:S => '✔ Termina bien. Se han jugado ' + (S.cnt.dirOn || 0) + ' partidas, de una en una, y la sala se ha cerrado',
+    summary:S => 'partidas ' + (S.cnt.dirOn || 0) + ' de ' + p.jugadores + ', espectadores atendidos ' + (S.cnt.esp || 0) + ' de ' + p.espectadores + ', espectadores dentro ' + S.v.espectadores,
+    mainLines:null,
+    principalPre:['// crea la Sala, arranca ' + p.jugadores + ' jugadores y ' + p.espectadores + ' espectadores', '// join de los ' + p.jugadores + ' jugadores'],
+    principalPost:['// join de los ' + p.espectadores + ' espectadores', 'System.out.println("Sala cerrada");'],
+    hiloLines:['// Jugador.run(): si entraJugador() es true, sleep(' + p.sleepJ + ') y saleJugador()', '// Espectador.run(): sleep(' + p.sleepE + '); si entraEspectador() es true, saleEspectador()'],
+    solution:() => ({
+      m:{entraJugador:{mod:'synchronized', body:[blk('while', 'enDirecto || espectadores > 0', [st('wait')]),
+          blk('if', 'cerrada', [st('retF')]), st('dirOn'), st('notifyAll'), st('retT')]},
+         saleJugador:{mod:'synchronized', body:[st('dirOff'), st('notifyAll')]},
+         entraEspectador:{mod:'synchronized', body:[blk('while', '!enDirecto && !cerrada', [st('wait')]),
+          blk('if', '!enDirecto', [st('retF')]), st('incEsp'), st('retT')]},
+         saleEspectador:{mod:'synchronized', body:[blk('while', 'enDirecto', [st('wait')]), st('decEsp'),
+          blk('if', 'espectadores == 0', [st('notifyAll')])]},
+         cerrarSala:{mod:'synchronized', body:[st('cerr'), st('notifyAll')]}},
+      principal:{body:[st('cerrarCall')]},
+      h:{Jugador:{body:[blk('if', 'sala.entraJugador()', [st('sleepFix'), st('saleJugadorCall')])]},
+         Espectador:{body:[st('sleepFix'), blk('if', 'sala.entraEspectador()', [st('saleEspectadorCall')])]}}
+    })
+  }),
 };
 /* enunciado de cada problema (depende de los contadores) */
 const ENUN = {
+  stream:p => '<p>Una sala de stream con <b>' + p.jugadores + ' jugador' + (p.jugadores === 1 ? '' : 'es') + '</b> y <b>' + p.espectadores + ' espectador' + (p.espectadores === 1 ? '' : 'es') + '</b>, todos hilos.</p>' +
+    '<ul><li><b>Jugadores:</b> solo puede haber uno en directo. Si hay otro jugador o aún quedan espectadores dentro, esperan su turno. Juegan ' + p.sleepJ + ' ms.</li>' +
+    '<li><b>Espectadores:</b> entran todos los que quieran, pero <b>solo si hay un jugador en directo</b>. Si no, esperan.</li>' +
+    '<li>Cuando el jugador termina, los espectadores salen. Hasta que no sale el último, no puede entrar otro jugador.</li>' +
+    '<li>Cuando han jugado todos, <code>Principal</code> cierra la sala con <code>cerrarSala()</code>: los espectadores que seguían esperando una partida que ya no llegará se van.</li>' +
+    '<li>En el programa real los espectadores esperan con <code>wait(tiempo)</code> y vuelven a mirar cada 15 segundos con <code>wait(15000)</code>. Aquí no hay tiempos de espera: el jugador avisa con <code>notifyAll()</code> al empezar y al terminar.</li>' +
+    '<li>Los hilos también los escribes tú, en sus pestañas: <code>Jugador.run()</code> y <code>Espectador.run()</code>. Cada uno hace su <code>if</code> con lo que devuelve <code>entraJugador()</code> o <code>entraEspectador()</code>.</li></ul>',
   fabrica:p => '<p>Una fábrica con <b>' + p.creadoras + ' máquinas creadoras</b> que ponen piezas en una cinta transportadora donde caben como máximo <b>' + p.capacidad + '</b>. ' + (p.empaquetadoras === 1 ? 'Una máquina empaquetadora las recoge' : p.empaquetadoras + ' máquinas empaquetadoras las recogen') + '.</p>' +
     '<ul><li>Si la cinta está llena, las creadoras esperan. Si está vacía, la empaquetadora espera.</li>' +
     '<li>Cada creadora tarda ' + p.sleepC + ' ms en crear una pieza y la empaquetadora ' + p.sleepE + ' ms en empaquetarla.</li>' +
@@ -909,6 +995,9 @@ const ENUN = {
 
 /* pistas por niveles, de menos a más ayuda */
 const HINTS = {
+  stream:['Jugadores y espectadores esperan cosas distintas sobre el mismo objeto. ¿Qué espera cada uno? ¿Quién tiene que avisar cuando el jugador empieza, cuando termina y cuando sale el último espectador? ¿Y qué pasa con los espectadores que esperan cuando ya no habrá más partidas?',
+    'La sala guarda si hay un jugador en directo, cuántos espectadores hay dentro y si está cerrada. entraJugador() espera mientras haya alguien en directo o espectadores dentro; si la sala está cerrada devuelve false; si no, marca enDirecto, avisa con notifyAll() y devuelve true. saleJugador() desmarca enDirecto y avisa. entraEspectador() espera mientras no haya nadie en directo y la sala no esté cerrada; si no hay nadie en directo devuelve false; si no, suma un espectador y devuelve true. saleEspectador() espera mientras haya alguien en directo, resta uno y, si era el último, avisa. cerrarSala() marca la sala cerrada y avisa. Todos llevan synchronized.',
+    ['Escribe synchronized en los cinco métodos.', 'entraJugador(): while (enDirecto || espectadores > 0) wait(); después if (cerrada) return false;', 'Después, enDirecto = true; notifyAll(); y return true;', 'saleJugador(): enDirecto = false; notifyAll();', 'entraEspectador(): while (!enDirecto && !cerrada) wait(); después if (!enDirecto) return false;', 'Después, espectadores++; y return true;', 'saleEspectador(): while (enDirecto) wait(); espectadores--; y if (espectadores == 0) notifyAll();', 'cerrarSala(): cerrada = true; notifyAll();', 'En Principal, después del join de los jugadores, sala.cerrarSala();', 'Jugador.run(): if (sala.entraJugador()) { sleep; sala.saleJugador(); }', 'Espectador.run(): sleep; if (sala.entraEspectador()) { sala.saleEspectador(); }']],
   cocina:['Lo que comparten los cocineros es la cocina, y lo que cambia a la vez es el número de cuchillos libres. Empieza sin esperas y mira qué pasa.',
     'En coger(): si no hay cuchillos libres, el cocinero espera con wait() dentro de un while; si hay, resta uno. En soltar(): suma uno y avisa a los que esperan. Los dos métodos llevan synchronized.',
     ['Escribe synchronized en el modificador de coger() y soltar().', 'En coger(), inserta un while con la condición libres == 0.', 'Dentro del while, pon wait();', 'Después del while, pon libres--;', 'En soltar(), pon libres++; y después notifyAll();', 'Pulsa Ejecutar y comprueba que los libres nunca bajan de 0 y que al final quedan todos los cuchillos libres.']],
@@ -952,7 +1041,7 @@ const pistasHTML = id => {
     '<details><summary>Pista 3 · paso a paso</summary>' + pasos + '</details></div>';
 };
 const enunHTML = id => ENUN[id](cfg[id]) + pistasHTML(id);
-const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2', 'lectores', 'varios', 'ficherolr', 'semaforo', 'inanicion', 'fabrica', 'tema'];
+const ORDER = ['cocina', 'parking', 'bicis', 'pintor', 'pintor2', 'lectores', 'varios', 'ficherolr', 'semaforo', 'inanicion', 'fabrica', 'stream', 'tema'];
 const MENU = ORDER.filter(k => k !== 'tema');   /* «tema» solo se usa desde Ponte a prueba */
 const PARAMS = {
   cocina:[{k:'cocineros', label:'Cocineros', min:1, max:12, def:9}, {k:'cuchillos', label:'Cuchillos', min:1, max:6, def:2}, {k:'sleep', label:'sleep', unit:' ms', step:100, min:0, max:5000, def:3000}],
@@ -965,6 +1054,7 @@ const PARAMS = {
   varios:[{k:'lectores', label:'Lectores', min:1, max:8, def:5}, {k:'escritores', label:'Escritores', min:1, max:4, def:2}, {k:'sleepL', label:'sleep lector', inline:true, min:0, max:5000, def:1600}, {k:'sleepE', label:'sleep escritor', inline:true, min:0, max:5000, def:2000}],
   ficherolr:[{k:'lectores', label:'Lectores', min:1, max:8, def:5}, {k:'escritores', label:'Escritores', min:1, max:4, def:2}],
   inanicion:[{k:'lectores', label:'Lectores', min:2, max:6, def:4}, {k:'escritores', label:'Escritores', min:1, max:2, def:1}, {k:'vueltas', label:'Lecturas por lector', min:1, max:6, def:3}, {k:'sleepL', label:'sleep lector', inline:true, min:0, max:5000, def:4000}, {k:'sleepE', label:'sleep escritor', inline:true, min:0, max:5000, def:800}],
+  stream:[{k:'jugadores', label:'Jugadores', min:1, max:4, def:3}, {k:'espectadores', label:'Espectadores', min:1, max:6, def:4}, {k:'sleepJ', label:'sleep jugador', inline:true, min:0, max:5000, def:1600}, {k:'sleepE', label:'sleep espectador', inline:true, min:0, max:5000, def:400}],
   tema:[{k:'vendedores', inline:true, min:1, max:5, def:2}, {k:'total', inline:true, min:1, max:20, def:10}, {k:'capacidad', inline:true, min:1, max:5, def:1}, {k:'sleepP', inline:true, min:0, max:5000, def:0}, {k:'sleepV', inline:true, min:0, max:5000, def:400}],
   pintor2:[{k:'vendedores', label:'Vendedores', min:1, max:5, def:2}, {k:'total', label:'Cuadros a pintar', min:1, max:20, def:10}, {k:'capacidad', label:'Capacidad del almacén', min:1, max:5, def:1}, {k:'sleepP', label:'sleep pintor', inline:true, min:0, max:5000, def:0}, {k:'sleepV', label:'sleep vendedor', inline:true, min:0, max:5000, def:400}]
 };
@@ -1011,7 +1101,7 @@ function checkList(list, where, add, tipo){
     if (n.kind === 'empty'){ if (n.raw) add(where, NO_RECONOZCO, n.id); continue; }
     if (ret) add(where, 'instrucción inalcanzable después de return', n.id);
     if (where === 'Principal'){
-      if (n.kind !== 'stmt' || n.op !== 'cerrarCall') add(where, 'en Principal solo cabe estante.cerrar();', n.id);
+      if (n.kind !== 'stmt' || n.op !== 'cerrarCall') add(where, 'en Principal solo cabe ' + cerrarTxt(), n.id);
       continue;
     }
     if (where === 'Pintor.run'){
@@ -1030,7 +1120,7 @@ function checkList(list, where, add, tipo){
       const spec = sc.ops.find(o => o.key === n.op);
       if ((n.op === 'sout' || n.op === 'soutName') && (n.text || '').includes('"')) add(where + '()', 'el texto no puede llevar comillas ("): cerrarían la cadena', n.id);
       if (n.op === 'sleepRnd' || n.op === 'sleepFix' || (sc.hiloOps || []).some(o => o.key === n.op)) add(where + '()', 'esto se escribe en el hilo (' + hnames() + '), no dentro de ' + sc.clase, n.id);
-      if (n.op === 'cerrarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "estante"; eso se llama desde Principal', n.id);
+      if (n.op === 'cerrarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "' + cerrarObj() + '"; eso se llama desde Principal', n.id);
       if (n.op === 'terminarCall') add(where + '()', 'dentro de ' + sc.clase + ' no hay "almacen"; eso se llama desde Pintor.run()', n.id);
       if (spec && spec.err) add(where + '()', spec.err, n.id);
       if ((n.op === 'retT' || n.op === 'retF') && tipo !== 'boolean') add(where + '()', tipo === 'int' ? 'return true/false en un método que devuelve int' : 'return con valor en un método void', n.id);
@@ -1241,7 +1331,7 @@ function* execNode(a, n){
     case 'sleep': log(a.n + ': sleep(500)' + (S.lock === a ? ' con la llave puesta' : '')); yield; break;
     case 'retT': return {v:true};
     case 'retF': return {v:false};
-    case 'cerrarCall': log(a.n + ': llama a cerrar()'); yield* invoke(a, 'cerrar'); a.cur = n.id; return;
+    case 'cerrarCall': log(a.n + ': llama a ' + cerrarMet() + '()'); yield* invoke(a, cerrarMet()); a.cur = n.id; return;
     case 'terminarCall': log(a.n + ': llama a terminar()'); yield* invoke(a, 'terminar'); a.cur = n.id; return;
     case 'wait': {
       if (S.lock !== a) throw imse('wait()');
@@ -1529,7 +1619,7 @@ function pieceList(){
     p.push({g:'Salida', key:'retT', label:'return true;', make:() => st('retT')});
     p.push({g:'Salida', key:'retF', label:'return false;', make:() => st('retF')});
   }
-  if (sc.hasPrincipal) p.push({g:'Otra clase', key:'cerrarCall', label:'estante.cerrar();', make:() => st('cerrarCall')});
+  if (sc.hasPrincipal) p.push({g:'Otra clase', key:'cerrarCall', label:cerrarTxt(), make:() => st('cerrarCall')});
   if (sc.hasFin) p.push({g:'Otra clase', key:'terminarCall', label:'almacen.terminar();', make:() => st('terminarCall')});
   return p;
 }
@@ -2004,6 +2094,18 @@ const MUT = {
   sinLector:pr => { pr.h.Lector = {body:[]}; return pr; },
   sinEscritor:pr => { pr.h.Escritor = {body:[]}; return pr; },
   sinEstante:pr => { pr.m.montar = {mod:'', body:[]}; pr.m.vender = {mod:'', body:[]}; pr.m.cerrar = {mod:'', body:[]}; pr.principal = {body:[]}; return pr; },
+  /* sala de stream */
+  sinCerradaE:pr => { walk(pr.m.entraEspectador.body, n => { if (n.kind === 'while') n.cond = '!enDirecto'; }); return pr; },
+  jugadorNoMiraEsp:pr => { walk(pr.m.entraJugador.body, n => { if (n.kind === 'while') n.cond = 'enDirecto'; }); return pr; },
+  sinAvisoEntra:pr => { pr.m.entraJugador.body = pr.m.entraJugador.body.filter(n => !(n.kind === 'stmt' && n.op === 'notifyAll')); return pr; },
+  sinAvisoSale:pr => { pr.m.saleJugador.body = pr.m.saleJugador.body.filter(n => !(n.kind === 'stmt' && n.op === 'notifyAll')); return pr; },
+  sinAvisoUlt:pr => { pr.m.saleEspectador.body = pr.m.saleEspectador.body.filter(n => n.kind !== 'if'); return pr; },
+  siempreAviso:pr => { pr.m.saleEspectador.body = pr.m.saleEspectador.body.flatMap(n => n.kind === 'if' ? n.body : [n]); return pr; },
+  sinJugadores:pr => { pr.m.entraJugador = {mod:'', body:[]}; pr.m.saleJugador = {mod:'', body:[]}; return pr; },
+  sinEspectadores:pr => { pr.m.entraEspectador = {mod:'', body:[]}; pr.m.saleEspectador = {mod:'', body:[]}; return pr; },
+  sinSala:pr => { Object.keys(pr.m).forEach(k => { pr.m[k] = {mod:'', body:[]}; }); pr.principal = {body:[]}; return pr; },
+  sinJugador:pr => { pr.h.Jugador = {body:[]}; return pr; },
+  sinEspectador:pr => { pr.h.Espectador = {body:[]}; return pr; },
   /* semáforo */
   vacia:(pr, ...ks) => { ks.forEach(k => { pr.m[k] = {mod:'', body:[]}; }); return pr; },
   quitaDeep:(pr, op) => { const rm = l => { for (let i = l.length - 1; i >= 0; i--){ const n = l[i]; if (n.kind === 'stmt' && n.op === op) l.splice(i, 1); else { rm(n.body); if (n.els) rm(n.els); } } }; bodies(pr).forEach(rm); return pr; },
@@ -2474,6 +2576,65 @@ const EXPS = {
      instr:c => 'El Fichero ya está escrito. Escribe en las pestañas Lector.run() y Escritor.run() lo que hace cada hilo. Hay ' + c.lectores + ' lectores y ' + c.escritores + ' escritores. Pulsa «Comprobar».',
      prog:() => { const pr = SOL(); pr.h = emptyProg(sc).h; return pr; }, tab:2,
      why:'Los dos hacen tres cosas, en este orden: pedir permiso (el fichero abierto), usarlo y avisar de que terminan.'}
+  ],
+  stream:[
+    {id:'solucion', nivel:1, tipo:'ver', titulo:'Una partida cada vez',
+     cfg:() => ({jugadores:randInt(2, 3), espectadores:randInt(3, 5), sleepJ:pick([800, 1200]), sleepE:400}),
+     instr:c => 'Ejecuta la solución: ' + c.jugadores + ' jugadores y ' + c.espectadores + ' espectadores. Mira cuándo entra cada jugador y qué pasa con los espectadores cuando termina la partida.',
+     prog:SOL,
+     q:(r, c) => ({txt:'Cuando termina una partida, ¿cuándo puede empezar el siguiente jugador?', ops:['En cuanto sale el jugador anterior', 'Cuando han salido todos los espectadores', 'Cuando entra un espectador nuevo'], ok:1, why:'El jugador espera mientras haya alguien en directo O queden espectadores dentro. Los espectadores salen al terminar la partida y el último avisa con notifyAll(): entonces entra el siguiente jugador.'})},
+    {id:'jugadorNoMira', nivel:2, tipo:'ver', titulo:'El jugador no mira a los espectadores',
+     cfg:() => ({jugadores:randInt(2, 3), espectadores:randInt(3, 5), sleepJ:800, sleepE:400}),
+     instr:c => 'Aquí entraJugador() solo espera mientras haya alguien en directo: no mira si quedan espectadores. Hay ' + c.jugadores + ' jugadores.',
+     prog:() => MUT.jugadorNoMiraEsp(SOL()), reps:20, q:qResultado('¿Qué ocurre?', 'Un jugador nuevo entra enseguida, cuando el anterior acaba, aunque los espectadores de la partida anterior todavía no hayan salido. Las normas dicen que no puede entrar hasta que salga el último: la condición del while lleva || espectadores > 0.')},
+    {id:'sinAvisoSale', nivel:3, tipo:'ver', titulo:'El jugador no avisa al salir',
+     cfg:() => ({jugadores:randInt(2, 3), espectadores:randInt(3, 5), sleepJ:800, sleepE:400}),
+     instr:c => 'Aquí saleJugador() pone enDirecto = false pero no llama a notifyAll(). Hay ' + c.espectadores + ' espectadores.',
+     prog:() => MUT.sinAvisoSale(SOL()), reps:20, q:qResultado('¿Se cuelga?', 'Los espectadores están en wait() esperando a que acabe la partida y nadie los despierta: no salen, y el siguiente jugador sigue esperando a que salgan. Cada cambio que otro hilo espera tiene que acabar en notifyAll().')},
+    {id:'sinAvisoUlt', nivel:4, tipo:'ver', titulo:'El último espectador no avisa',
+     cfg:() => ({jugadores:randInt(2, 3), espectadores:randInt(3, 5), sleepJ:800, sleepE:400}),
+     instr:c => 'Aquí saleEspectador() resta uno, pero nunca llama a notifyAll(). Hay ' + c.jugadores + ' jugadores.',
+     prog:() => MUT.sinAvisoUlt(SOL()), reps:20, q:qResultado('¿Se cuelga?', 'El jugador que espera en cola esperaba a que no quedara ningún espectador. Nadie le avisa cuando sale el último, así que se queda en wait() para siempre. Quien deja la condición cumplida es quien avisa: el último que sale.')},
+    {id:'sinCerradaE', nivel:5, tipo:'ver', titulo:'El espectador no mira si la sala está cerrada',
+     cfg:() => ({jugadores:1, espectadores:randInt(2, 3), sleepJ:400, sleepE:5000}),
+     instr:c => 'Aquí el while de entraEspectador() solo mira !enDirecto: no mira cerrada. Hay ' + c.jugadores + ' jugador y ' + c.espectadores + ' espectadores que llegan tarde, cuando la partida ya ha terminado.',
+     prog:() => MUT.sinCerradaE(SOL()), q:qResultado('¿Qué ocurre?', 'Los espectadores esperan a un jugador que ya no vendrá. cerrarSala() les avisa, pero al despertar vuelven al while, ven !enDirecto y se duermen otra vez. El while tiene que parar también cuando la sala está cerrada: !enDirecto && !cerrada.')},
+    {id:'sinCerrar', nivel:6, tipo:'ver', titulo:'Principal no cierra la sala',
+     cfg:() => ({jugadores:1, espectadores:randInt(2, 3), sleepJ:400, sleepE:5000}),
+     instr:c => 'Aquí Principal no llama a cerrarSala(). Hay ' + c.jugadores + ' jugador y ' + c.espectadores + ' espectadores que llegan tarde, cuando la partida ya ha terminado.',
+     prog:() => MUT.sinCerrar(SOL()), q:qResultado('¿Qué ocurre?', 'Nadie les dice a los espectadores que no habrá más partidas: siguen esperando en wait() y el programa no termina. Por eso Principal cierra la sala cuando han jugado todos los jugadores.')},
+    {id:'notify', nivel:7, tipo:'ver', titulo:'Solo notify()',
+     cfg:() => ({jugadores:randInt(2, 3), espectadores:randInt(4, 5), sleepJ:800, sleepE:400}),
+     instr:c => 'Aquí se usa notify() en vez de notifyAll(). Hay ' + c.jugadores + ' jugadores y ' + c.espectadores + ' espectadores.',
+     prog:() => MUT.swap(SOL(), 'notifyAll', 'notify'), reps:20, q:qResultado('¿Funciona siempre?', 'No: en la sala esperan hilos distintos a la vez (jugadores y espectadores). notify() despierta a uno cualquiera, que puede ser uno al que aún no le toca: vuelve a dormirse y el aviso se pierde. Con papeles distintos hace falta notifyAll().')},
+    {id:'if', nivel:8, tipo:'ver', titulo:'if en vez de while',
+     cfg:() => ({jugadores:randInt(2, 3), espectadores:randInt(3, 5), sleepJ:800, sleepE:400}),
+     instr:c => 'Aquí hay if en lugar de while antes de los wait(). Hay ' + c.jugadores + ' jugadores.',
+     prog:() => MUT.ifPorWhile(SOL()), reps:20, q:qResultado('¿Falla?', 'Un hilo que despierta con notifyAll() sigue sin volver a mirar si ya puede entrar: dos jugadores entran a la vez o entra un espectador sin partida. El while obliga a comprobar la condición otra vez tras cada despertar.')},
+    {id:'sinSync', nivel:9, tipo:'ver', titulo:'Sin synchronized',
+     cfg:() => ({jugadores:randInt(2, 3), espectadores:randInt(3, 5), sleepJ:800, sleepE:400}),
+     instr:c => 'Aquí se han quitado los synchronized de los métodos de la sala. Hay ' + c.jugadores + ' jugadores.',
+     prog:() => MUT.sinSync(SOL()), q:qResultado('¿Qué ocurre?', 'wait() y notifyAll() solo se pueden llamar con la llave del objeto, y la llave solo se tiene dentro de un método synchronized. Sin él, Java lanza IllegalMonitorStateException.')},
+    {id:'entraE', nivel:10, tipo:'montar', titulo:'Escribe entraEspectador()',
+     cfg:() => ({jugadores:randInt(2, 3), espectadores:randInt(3, 5), sleepJ:pick([800, 1200]), sleepE:400}),
+     instr:c => 'Todo está escrito menos entraEspectador(): el método con el que un espectador entra a ver la partida. Escríbelo en la pestaña Sala y pulsa «Comprobar».',
+     prog:() => MUT.vacia(SOL(), 'entraEspectador'), tab:0, why:'entraEspectador(): synchronized; while (!enDirecto && !cerrada) wait(); if (!enDirecto) return false; espectadores++; return true; Así, si la sala se cierra sin partida, el espectador se va con false.'},
+    {id:'entraJ', nivel:11, tipo:'montar', titulo:'Escribe entraJugador()',
+     cfg:() => ({jugadores:randInt(2, 3), espectadores:randInt(3, 5), sleepJ:pick([800, 1200]), sleepE:400}),
+     instr:c => 'Todo está escrito menos entraJugador(): el método con el que un jugador entra en la sala. Escríbelo en la pestaña Sala y pulsa «Comprobar».',
+     prog:() => MUT.vacia(SOL(), 'entraJugador'), tab:0, why:'entraJugador(): synchronized; while (enDirecto || espectadores > 0) wait(); if (cerrada) return false; enDirecto = true; notifyAll(); return true; Avisa para despertar a los espectadores que esperaban partida.'},
+    {id:'todo', nivel:12, tipo:'montar', titulo:'Móntalo tú',
+     cfg:() => ({jugadores:randInt(2, 3), espectadores:randInt(3, 5), sleepJ:pick([800, 1200]), sleepE:400}),
+     instr:c => 'Los hilos y Principal ya están escritos. Escribe los cinco métodos de la sala: hay ' + c.jugadores + ' jugadores y ' + c.espectadores + ' espectadores. Pulsa «Comprobar».',
+     prog:() => MUT.vacia(SOL(), 'entraJugador', 'saleJugador', 'entraEspectador', 'saleEspectador', 'cerrarSala'), tab:0, why:'entraJugador() espera con alguien en directo o espectadores dentro, mira cerrada, marca enDirecto y avisa; saleJugador() lo desmarca y avisa; entraEspectador() espera sin partida y sin cerrar, y suma uno; saleEspectador() espera mientras haya partida, resta uno y avisa si era el último; cerrarSala() marca cerrada y avisa.'},
+    {id:'hJugador', nivel:13, tipo:'montar', titulo:'Escribe Jugador.run()',
+     cfg:() => ({jugadores:randInt(2, 3), espectadores:randInt(3, 5), sleepJ:pick([800, 1200]), sleepE:400}),
+     instr:c => 'La sala y el espectador ya están escritos. Escribe en la pestaña Jugador.run() lo que hace un jugador: solo juega si logra entrar. Pulsa «Comprobar».',
+     prog:() => MUT.sinJugador(SOL()), tab:2, why:'if (sala.entraJugador()) { sleep; sala.saleJugador(); }: si la sala está cerrada, entraJugador() devuelve false y el jugador no juega.'},
+    {id:'hEspectador', nivel:14, tipo:'montar', titulo:'Escribe Espectador.run()',
+     cfg:() => ({jugadores:randInt(2, 3), espectadores:randInt(3, 5), sleepJ:pick([800, 1200]), sleepE:400}),
+     instr:c => 'Todo está escrito menos lo que hace el espectador. Escribe en la pestaña Espectador.run() lo que hace: llega, y solo si logra entrar, sale al acabar la partida. Pulsa «Comprobar».',
+     prog:() => MUT.sinEspectador(SOL()), tab:3, why:'sleep; if (sala.entraEspectador()) { sala.saleEspectador(); }: si la sala se cierra sin que haya habido partida, entraEspectador() devuelve false y el espectador se va sin salir.'}
   ],
   inanicion:[
     {id:'espera', nivel:1, tipo:'ver', titulo:'El escritor espera',
