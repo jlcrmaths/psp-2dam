@@ -325,7 +325,7 @@ System.out.println("Fábrica cerrada");
 <!-- html -->
   <h3>Cómo pensarlo</h3>
   <ul>
-    <li>¿Quién comparte qué? <span class="fragment">Panadero y clientes comparten el <code>Mostrador</code>.</span></li>
+    <li>¿Quién comparte qué? <span class="fragment">Panadero y clientes comparten la <code>Panaderia</code>.</span></li>
     <li>Hornear tarda 20 s. ¿Dentro de <code>synchronized</code>? <span class="fragment"><b>No</b>: los clientes no podrían comprar mientras tanto.</span></li>
     <li>¿Cuándo se cierra? <span class="fragment">Cuando <b>todos los clientes</b> han terminado. Algunos aún esperan pan: el panadero tiene que seguir horneando.</span></li>
   </ul>
@@ -333,33 +333,35 @@ System.out.println("Fábrica cerrada");
 --
 
 <!-- html -->
-  <h3>Solución: el mostrador</h3>
-  {{codigo: Panaderia/Mostrador.java :: 3-25 @@ 4|12|20|22}}
+  <h3>Solución: la panadería</h3>
+  {{codigo: Panaderia/Panaderia.java :: 3-19 @@ 1-5|8-11|12}}
 
 --
 
 <!-- html -->
   <h3>Línea por línea</h3>
   <ul class="peque">
-    <li><code>double dinero</code>: <code>double</code> es un número con decimales</li>
-    <li><code>while (barras &lt; cuantas)</code>: el cliente espera hasta que haya <b>tantas como pide</b>, no solo «alguna»</li>
-    <li><code>1 + 0.75 * (cuantas - 1)</code>: la primera barra 1 €, las demás 0,75 €. Con 3 barras: 1 + 0,75 × 2 = 2,50 €</li>
-    <li><code>reponer(20)</code>: método de la clase <code>Mostrador</code>. Suma las barras y llama a <code>notifyAll()</code>. Los clientes dormidos vuelven a mirar si ya hay suficientes</li>
+    <li><code>double dineroGanado</code>: <code>double</code> es un número con decimales</li>
+    <li><code>totalBarrasHorneadas</code> empieza en 20: el texto cuenta las 20 barras iniciales</li>
+    <li><code>while (barrasDisponibles &lt; barrasSolicitadas)</code>: el cliente espera hasta que haya <b>tantas como pide</b>, no solo «alguna»</li>
+    <li><code>1.0 + (barrasSolicitadas - 1) * 0.75</code>: la primera barra 1 €, las demás 0,75 €. Con 3 barras: 1 + 0,75 × 2 = 2,50 €</li>
+    <li><code>reponer(20)</code>: método de la clase <code>Panaderia</code>. Suma las barras y llama a <code>notifyAll()</code>. Los clientes dormidos vuelven a mirar si ya hay suficientes</li>
   </ul>
 
 --
 
 <!-- html -->
   <h3>El panadero</h3>
-  {{codigo: Panaderia/Panadero.java :: 10-19 @@ 2|4-5|8-9}}
+  {{codigo: Panaderia/Panadero.java :: 10-22 @@ 3|4-7|9-10}}
 
 --
 
 <!-- html -->
-  <h3>El panadero: <code>hornear()</code> y <code>dormir()</code></h3>
-  {{codigo: Panaderia/Panadero.java :: 21-32 @@ 1-5|7-12}}
+  <h3>El panadero: <code>hornear()</code></h3>
+  {{codigo: Panaderia/Panadero.java :: 24-28 @@ 1|3|4}}
   <ul class="peque">
-    <li><code>dormir()</code> y <code>hornear()</code> son métodos de la propia clase: evitan repetir las mismas líneas</li>
+    <li><code>hornear()</code> es un método de la propia clase: evita repetir las mismas líneas dos veces</li>
+    <li>Se hornea con <code>Thread.sleep(20000)</code> <b>fuera</b> de la panadería: durante esos 20 segundos los clientes pueden seguir comprando</li>
   </ul>
 
 --
@@ -369,72 +371,185 @@ System.out.println("Fábrica cerrada");
   <ol class="peque">
     <li>Salir del menú. No se aceptan más clientes</li>
     <li><code>join()</code> a todos los clientes: los que esperan pan se atienden</li>
-    <li><code>mostrador.cerrar()</code>: método de la clase <code>Mostrador</code>. Avisa al panadero</li>
+    <li><code>panaderia.cerrarPanaderia()</code>: método de la clase <code>Panaderia</code>. Avisa al panadero</li>
     <li>El panadero sale de su bucle, se lleva lo que queda y hornea el último lote</li>
     <li><code>join()</code> al panadero y resumen final</li>
   </ol>
   <p class="aviso">El orden importa. Si se avisara al panadero <b>antes</b>, vaciaría el mostrador y los clientes que esperan se quedarían colgados.</p>
+
+--
+
+<!-- html -->
+  <h3>Un fallo típico: hornear dentro de <code>synchronized</code></h3>
+  <p>Si <code>hornear()</code> fuera un método <code>synchronized</code> de la panadería y durmiera los 20 segundos dentro, <b>nadie podría comprar ni mirar el estado</b> mientras tanto: el panadero tiene la panadería «cogida».</p>
+  <p class="fragment caja">Por eso el panadero duerme <b>fuera</b> y solo entra en la panadería para reponer, que es rápido.</p>
 
 ---
 
 <!-- html -->
   <h3>Ejercicio 4: sala de partida de stream</h3>
   <ul class="peque">
-    <li><b>Jugadores:</b> solo uno en la sala. Los demás esperan en cola</li>
-    <li><b>Espectadores:</b> entran todos los que quieran, pero <b>solo si hay partida</b>. Si no, esperan</li>
-    <li>Cuando la partida acaba, los espectadores salen. Para ver la siguiente deben entrar de nuevo</li>
+    <li><b>Jugadores:</b> solo uno en directo, y no entra si quedan espectadores dentro. Los demás esperan</li>
+    <li><b>Espectadores:</b> entran todos los que quieran, pero <b>solo si hay un jugador en directo</b>. Si no, esperan</li>
+    <li>Se quedan un tiempo o hasta que acaba el jugador, descansan y repiten. Cada vuelta tienen 1 posibilidad entre 10 de irse</li>
+    <li>Menú: 1) jugador, 2) espectadores, 3) estado, 4) salir</li>
   </ul>
-  <p class="peque">Proyecto <b>SalaStream</b></p>
+  <p class="peque">Proyecto <b>Streamer</b></p>
 
 --
 
 <!-- html -->
   <h3>Dos grupos esperando cosas distintas</h3>
   <ul>
-    <li>El <b>jugador</b> espera a que <b>no</b> haya partida</li>
-    <li>El <b>espectador</b> espera a que <b>sí</b> haya partida</li>
+    <li>El <b>jugador</b> espera a que <b>no</b> haya nadie dentro</li>
+    <li>El <b>espectador</b> espera a que <b>sí</b> haya un jugador en directo</li>
   </ul>
   <p class="caja">Los dos esperan sobre el mismo objeto, <code>Sala</code>. Por eso <code>notifyAll()</code>: cada uno se despierta, mira su condición y, si no es su momento, se vuelve a dormir.</p>
 
 --
 
 <!-- html -->
-  <h3>El truco: el número de partida</h3>
-  <p>Un espectador debe irse cuando acaba <b>su</b> partida, aunque otro jugador ya haya empezado la siguiente.</p>
-  <p class="fragment">Si solo mirara «¿hay partida?», se quedaría a la siguiente sin darse cuenta.</p>
-  <p class="fragment caja">Solución: al entrar, apunta el número de la partida. Se queda mientras <code>jugando &amp;&amp; partida == mi número</code>.</p>
+    <div class="nuevo">
+    <h3>Lo nuevo de este ejercicio</h3>
+    <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>wait(milisegundos)</code>: como <code>wait()</code>, pero se despierta <b>solo</b> cuando pasa ese tiempo. Si alguien llama antes a <code>notifyAll()</code>, se despierta antes. Mientras espera, la sala queda libre.</p></div>
+    </div>
+    <p class="aviso">Con <code>wait(tiempo)</code> el espectador está dentro ese tiempo <b>o hasta que el jugador sale</b>: el <code>notifyAll()</code> de <code>SaleJugador()</code> lo despierta.</p>
 
 --
 
 <!-- html -->
-  <h3>Solución: la sala</h3>
-  {{codigo: SalaStream/Sala.java :: 3-23 @@ 1-4|8-9|11-16|17-18|20}}
-
---
-
-<!-- html -->
-  <h3>Los espectadores</h3>
-  {{codigo: SalaStream/Sala.java :: 31-48 @@ 6-11|12-14|15-17}}
+  <h3>Solución: la sala y el jugador</h3>
+  {{codigo: Streamer/Sala.java :: 3-15 @@ 1-3|6-9|10-12}}
   <ul class="peque">
-    <li><code>entrarEspectador()</code> devuelve el número de partida que va a ver (o 0 si ya no habrá más)</li>
+    <li>El jugador espera mientras haya alguien en directo <b>o</b> espectadores dentro</li>
+    <li>Al entrar, marca que está en directo y guarda su nombre</li>
   </ul>
 
 --
 
 <!-- html -->
-  <h3>Los espectadores: <code>ver()</code></h3>
-  {{codigo: SalaStream/Sala.java :: 50-59 @@ 2-7|8-9}}
+  <h3>El jugador sale</h3>
+  {{codigo: Streamer/Sala.java :: 17-22 @@ 2-3|5}}
   <ul class="peque">
-    <li><code>ver(n)</code> espera mientras <b>esa</b> partida siga en marcha, y entonces sale</li>
-    <li><code>cerrar()</code>, método de la clase <code>Sala</code>, lo llama <code>main</code> al acabar los jugadores: libera a los espectadores que esperaban una partida que ya no llegará</li>
+    <li><code>notifyAll()</code> despierta a los espectadores (para que salgan) y a los jugadores en cola</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Los espectadores: entrar</h3>
+  {{codigo: Streamer/Sala.java :: 24-32 @@ 2-5|6-8}}
+  <ul class="peque">
+    <li><code>wait(15000)</code>: si no hay jugador, vuelve a mirar cada 15 segundos y lo muestra</li>
+    <li>Al entrar suma un espectador y espera <code>wait(tiempo)</code>: ese tiempo o hasta que el jugador salga</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Los espectadores: salir</h3>
+  {{codigo: Streamer/Sala.java :: 34-40 @@ 2|3-5}}
+  <ul class="peque">
+    <li>El <b>último</b> espectador en salir avisa con <code>notifyAll()</code>: ahora puede entrar un jugador</li>
+    <li>Si no avisara, el jugador en cola se quedaría esperando para siempre</li>
   </ul>
 
 --
 
 <!-- html -->
   <h3>¿Qué sale en pantalla?</h3>
-  <div class="salida">Jugador 1 empieza la partida 1<br>Jugador 2 espera en la cola: la sala está ocupada<br>Espectador 6 entra a ver la partida 1 (espectadores: 1)<br>Jugador 1 termina la partida 1 y sale de la sala<br>Jugador 2 empieza la partida 2<br>Espectador 6 sale de la sala (espectadores: 0)<br>…</div>
-  <p class="aviso">Cambia en cada ejecución: quién llega primero y quién entra de la cola no está fijado.</p>
+  <div class="salida">Jugador1: Jugando durante 2 segundos<br>Jugador2: No puedo entrar a la sala, me toca esperar.<br>Soy Espectador1 entro durante 1 seg, actualizo estado sala: Jugador1, Espectadores: 1<br>Soy Jugador1 abandono la sala<br>Soy Espectador1 salgo, actualizo estado sala: Jugador1, Espectadores: 0<br>Jugador2: Jugando durante 4 segundos<br>…</div>
+  <p class="aviso">Cambia en cada ejecución. En este ejercicio la opción 4 todavía no hace nada: el programa no termina.</p>
+
+---
+
+<!-- html -->
+  <h3>Ejercicio 5: cerrar la sala</h3>
+  <ul class="peque">
+    <li>La opción 4 cierra la sala: <code>Sala cerrada. Vayan saliendo de forma ordenada.</code></li>
+    <li>Los jugadores en cola no juegan y los espectadores dejan de volver</li>
+    <li>¿Terminan todos los hilos? Pruébalo con espectadores que esperan a un jugador que ya no vendrá</li>
+  </ul>
+  <p class="peque">Proyecto <b>Streamer2</b></p>
+
+--
+
+<!-- html -->
+  <h3>Cerrar: qué cambia</h3>
+  {{codigo: Streamer2/Sala.java :: 8-19 @@ 6-10|11}}
+  <ul class="peque">
+    <li><code>EntraJugador()</code> ahora devuelve un <code>boolean</code>: <code>true</code> si ha podido jugar y <code>false</code> si la sala se cerró mientras esperaba</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Cerrar la sala</h3>
+  {{codigo: Streamer2/Sala.java :: 46-54 @@ 1-3|5-9}}
+  <ul class="peque">
+    <li><code>cerrarSala()</code> marca la sala como cerrada y llama a <code>notifyAll()</code>: los jugadores que esperaban vuelven a mirar, ven la sala cerrada y se van</li>
+    <li>El espectador repite <b>mientras la sala no esté cerrada</b></li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>¿Terminan todos?</h3>
+  <p>Cierra la sala cuando haya espectadores esperando y <b>ningún</b> jugador en directo.</p>
+  <p class="fragment">Esos espectadores están en <code>while (!enDirecto)</code>. Nadie les dice que la sala está cerrada: <b>siguen esperando</b> a un jugador que no va a llegar y el programa no termina.</p>
+  <p class="fragment caja">Se arregla en el siguiente ejercicio: la condición de espera debe mirar también si la sala está cerrada.</p>
+
+---
+
+<!-- html -->
+  <h3>Ejercicio 6: sleep fuera y cerradura propia</h3>
+  <ul class="peque">
+    <li>El espectador entra, se queda y sale dentro de <b>un solo método</b></li>
+    <li>El tiempo dentro se espera con <code>Thread.sleep()</code>, <b>fuera</b> de <code>synchronized</code></li>
+    <li>La sala sincroniza sobre un objeto propio, <code>lock</code></li>
+    <li>La sala cerrada no deja a nadie esperando para siempre</li>
+  </ul>
+  <p class="peque">Proyecto <b>Streamer3</b></p>
+
+--
+
+<!-- html -->
+    <div class="nuevo">
+    <h3>Lo nuevo de este ejercicio</h3>
+    <div class="nuevo-item"><span class="etiqueta">Concepto</span><p><code>Object lock = new Object();</code>: un objeto cualquiera que se usa solo como <b>cerradura</b>.</p></div>
+    <div class="nuevo-item"><span class="etiqueta">Palabra</span><p><code>synchronized (lock) { … }</code>: el hilo coge la cerradura solo mientras dura el bloque. Dentro se escribe <code>lock.wait()</code> y <code>lock.notifyAll()</code>.</p></div>
+    </div>
+    <p class="aviso">Todos los métodos de la sala deben usar <b>la misma</b> cerradura.</p>
+
+--
+
+<!-- html -->
+  <h3>El espectador: tres partes</h3>
+  {{codigo: Streamer3/Sala.java :: 33-57 @@ 2-12|14|16-22|24}}
+  <ul class="peque">
+    <li>Primer bloque: espera a un jugador (o a que se cierre la sala) y entra</li>
+    <li><code>Thread.sleep(tiempo)</code> <b>fuera</b> del bloque: mientras está dentro, los demás pueden usar la sala</li>
+    <li>Segundo bloque: sale, y si es el último avisa con <code>lock.notifyAll()</code></li>
+    <li>Después descansa otro rato</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>Lo que cambia con <code>sleep</code></h3>
+  <p><code>sleep</code> no se despierta con <code>notifyAll()</code>. El espectador ya no sale cuando acaba el jugador, sino <b>cuando acaba su tiempo</b>.</p>
+  <p class="fragment caja">Por eso el jugador siguiente espera a que salga el último espectador. Es lo que ya hacía <code>numEspectadores &gt; 0</code> en su <code>while</code>.</p>
+
+--
+
+<!-- html -->
+  <h3>Cerrar con la misma cerradura</h3>
+  {{codigo: Streamer3/Sala.java :: 59-71 @@ 1-5|7-13}}
+  <ul class="peque">
+    <li><code>getSalaCerrada()</code> y <code>cerrarSala()</code> también usan <code>synchronized (lock)</code> y <code>lock.notifyAll()</code></li>
+    <li>El espectador que espera un jugador sale si la sala se cierra: <code>while (!enDirecto &amp;&amp; !salaCerrada)</code></li>
+  </ul>
+  <p class="aviso">Si <code>cerrarSala()</code> fuera <code>synchronized</code> sobre la sala, su <code>notifyAll()</code> avisaría a quienes esperan sobre la sala. Nadie espera ahí: todos esperan sobre <code>lock</code>. No despertaría a nadie.</p>
 
 ---
 
@@ -447,6 +562,8 @@ System.out.println("Fábrica cerrada");
     <li>Un objeto compartido por hilo: ya no se comparte nada</li>
     <li>Olvidar los <code>join()</code>: el mensaje final sale al principio</li>
     <li>Contar el límite en cada hilo en vez de en el objeto compartido</li>
+    <li>Sincronizar unos métodos sobre la sala y otros sobre otro objeto: el <code>notifyAll()</code> no despierta a nadie</li>
+    <li>No mirar si la sala está cerrada en un <code>while</code> de espera: el hilo no termina nunca</li>
   </ul>
 
 --
@@ -471,5 +588,7 @@ System.out.println("Fábrica cerrada");
     <li>¿Qué pasa si la cinta usa <code>notify()</code> en vez de <code>notifyAll()</code>? ¿Por qué aquí funciona, si hay creadoras y empaquetadora?</li>
     <li>¿Cuándo exactamente se cuenta a un cliente como atendido? ¿Por qué ahí?</li>
     <li>¿Por qué hornea el panadero fuera de <code>synchronized</code>?</li>
-    <li>¿Qué pasa si el espectador no apunta el número de partida?</li>
+    <li>¿Por qué espera el jugador mientras queden espectadores dentro? ¿Quién lo despierta?</li>
+    <li>Tras cerrar la sala, ¿qué le pasa a un espectador que espera a un jugador que ya no vendrá?</li>
+    <li>¿Qué pasa si <code>cerrarSala()</code> es <code>synchronized</code> sobre la sala y los demás métodos usan <code>lock</code>?</li>
   </ol>

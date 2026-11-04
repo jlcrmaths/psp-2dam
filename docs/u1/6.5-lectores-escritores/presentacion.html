@@ -855,7 +855,8 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
 </section>
 <section>
 <h3>Lector y escritor con el fichero</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="1|2-8|10">        semaforo.accesoLeer();
+  <pre><code class="language-java" data-trim data-line-numbers="1|2-8|10">        for (int i = 1; i &lt;= 10; i++){
+        semaforo.accesoLeer();
         try {
             int lineas = 0;
             BufferedReader br = new BufferedReader(new FileReader(fichero));
@@ -863,8 +864,7 @@ sleep((int) (Math.random() * 500));   // de 0 a 499</code></pre>
                 lineas++;
             }
             br.close();
-            System.out.println(Thread.currentThread().getName() + &quot;: He leído &quot; + lineas + &quot; líneas&quot;);
-            Thread.sleep(300);</code></pre>
+            System.out.println(Thread.currentThread().getName() + &quot;: He leído &quot; + lineas + &quot; líneas&quot;);</code></pre>
   <ul class="peque">
     <li>El semáforo <b>no devuelve el fichero</b>: solo controla quién entra. El <code>File</code> se pasa aparte a cada hilo, que lo abre cuando ya tiene permiso</li>
     <li>El <code>sleep(300)</code> solo está para que <b>se vea</b> que varios lectores leen a la vez. Al terminar, <code>semaforo.lecturaFinalizada()</code></li>

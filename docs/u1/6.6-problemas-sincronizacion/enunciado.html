@@ -14,7 +14,7 @@
 </header>
 <main class="contenido">
 <h1>Apartado 6.6 – Problemas de sincronización</h1>
-<p>Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete <code>sincronizacion</code>. Los ejercicios van de menos a más difícil.</p>
+<p>Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete <code>sincronizacion</code>, salvo en los ejercicios 4, 5 y 6, que llevan el de su proyecto. Los ejercicios van de menos a más difícil.</p>
 
 <section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
 <h2>Ejercicio 1: fábrica de piezas (proyecto <code>FabricaPiezas</code>)</h2>
@@ -99,52 +99,116 @@
 <p>El programa muestra mensajes de cada acción: clientes esperando o llevándose barras, y el panadero horneando.</p>
 
 <div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
-<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El mostrador es el objeto compartido por el panadero y los clientes. Hornear tarda 20 segundos: piensa dónde poner esa espera para que los clientes no queden bloqueados. Al cerrar, hay clientes que quizá siguen esperando pan, y esos necesitan que el panadero siga trabajando.</p>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>La panadería es el objeto compartido por el panadero y los clientes. Hornear tarda 20 segundos: piensa dónde poner esa espera para que los clientes no queden bloqueados. Al cerrar, hay clientes que quizá siguen esperando pan, y esos necesitan que el panadero siga trabajando.</p>
 </div>
-<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase <code>Mostrador</code> guarda las barras, las horneadas, las vendidas, el dinero (un <code>double</code>) y si se está cerrando. Su método de comprar espera mientras no haya barras suficientes. El panadero es un <code>Runnable</code> con un bucle que duerme un segundo y comprueba si hacen falta barras; el horneado (<code>Thread.sleep</code> de 20 segundos) va fuera de los métodos <code>synchronized</code> y después repone el mostrador con <code>notifyAll()</code>. Cada cliente es un hilo que recibe cuántas barras quiere. Primero pregunta lo que quiere cada cliente y luego lanza los hilos. Al cerrar, primero se espera con <code>join()</code> a los clientes, después se avisa al panadero y se espera a que termine.</p>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase <code>Panaderia</code> guarda las barras disponibles, las vendidas, las horneadas en total, el dinero (un <code>double</code>) y si está abierta. Su método de atender al cliente espera mientras no haya barras suficientes. El panadero es un <code>Runnable</code> con un bucle que duerme un segundo y comprueba si hacen falta barras; el horneado (<code>Thread.sleep</code> de 20 segundos) va fuera de los métodos <code>synchronized</code> y después repone las barras con <code>notifyAll()</code>. Cada cliente es un hilo que recibe cuántas barras quiere. Primero pregunta lo que quiere cada cliente y luego lanza los hilos. Al cerrar, primero se espera con <code>join()</code> a los clientes, después se cierra la panadería para avisar al panadero y se espera a que termine.</p>
 </div>
 <div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
 <li>Crea el proyecto <code>Panaderia</code> y el paquete <code>sincronizacion</code>.</li>
-<li>Crea <code>Mostrador</code> con los atributos: barras (20), horneadas (20), vendidas (0), dinero (0) y si se está cerrando (<code>false</code>).</li>
-<li>Escribe <code>comprar</code>, <code>synchronized</code>: si no hay barras suficientes, muestra que el cliente espera. Espera con un <code>while</code>. Después resta las barras, suma a vendidas, calcula el precio y lo suma al dinero, y muestra la compra.</li>
-<li>Escribe un método que diga si quedan menos de 10 barras y otro, <code>reponer</code>, que sume barras y horneadas, muestre el mensaje y llame a <code>notifyAll()</code>.</li>
-<li>Escribe los métodos para vaciar el mostrador, para marcar que se cierra y para saber si se está cerrando.</li>
-<li>Escribe los métodos que muestran el estado y el resumen final.</li>
-<li>Crea <code>Panadero</code>: mientras no se esté cerrando, duerme un segundo y, si hacen falta barras, hornea. Hornear es mostrar un mensaje, dormir 20 segundos y reponer 20 barras.</li>
-<li>Al terminar ese bucle, el panadero vacía el mostrador y hornea un último lote.</li>
-<li>Crea <code>Cliente</code>, con un atributo para las barras que quiere. Su <code>run()</code> llama a <code>comprar</code>.</li>
-<li>En <code>Principal</code>, arranca el hilo del panadero y muestra el menú con un <code>switch</code>. En la opción 1, pregunta el número de clientes y las barras de cada uno (vuelve a preguntar si no está entre 1 y 10) y lanza los hilos.</li>
-<li>En la opción 3, haz <code>join()</code> a todos los clientes, marca que se cierra, haz <code>join()</code> al panadero y muestra el resumen.</li>
+<li>Crea <code>Panaderia</code> con los atributos: barras disponibles (20), barras vendidas (0), barras horneadas en total (20), dinero ganado (0) y si está abierta (<code>true</code>).</li>
+<li>Escribe <code>atenderCliente</code>, <code>synchronized</code> y con <code>throws InterruptedException</code>. Un <code>while</code> que, mientras no haya barras suficientes, muestre que el cliente espera y llame a <code>wait()</code>. Después calcula el precio, lo suma al dinero, resta las barras, suma a vendidas y muestra la compra.</li>
+<li>Escribe un método que diga si quedan menos de 10 barras y otro, <code>reponer</code>, que sume barras disponibles y horneadas, muestre el mensaje y llame a <code>notifyAll()</code>.</li>
+<li>Escribe los métodos para llevarse las barras que quedan, para cerrar la panadería y para saber si está abierta.</li>
+<li>Escribe los métodos que muestran la información del mostrador y el mensaje de cierre con el resumen.</li>
+<li>Crea <code>Panadero</code>: mientras la panadería esté abierta, duerme un segundo y, si hacen falta barras, hornea. Hornear es mostrar un mensaje, dormir 20 segundos y reponer 20 barras.</li>
+<li>Al terminar ese bucle, el panadero se lleva las barras que quedan y hornea un último lote.</li>
+<li>Crea <code>Cliente</code>, con un atributo para las barras que quiere. Su <code>run()</code> llama a <code>atenderCliente</code>.</li>
+<li>En <code>Principal</code>, arranca el hilo del panadero y muestra el menú con un <code>do while</code> y un <code>switch</code>. En la opción 1, pregunta el número de clientes y las barras de cada uno (vuelve a preguntar si no está entre 1 y 10) y lanza los hilos.</li>
+<li>En la opción 3, haz <code>join()</code> a todos los clientes, cierra la panadería, haz <code>join()</code> al panadero y muestra el resumen.</li>
 </ol>
 </div>
 </section>
 <section class="ejercicio tarjeta" id="ej-4" data-ejercicio="ej-4">
-<h2>Ejercicio 4: sala de partida de stream (proyecto <code>SalaStream</code>)</h2>
-<p>Una sala de stream de un juego tiene jugadores y espectadores, todos hilos.</p>
+<h2>Ejercicio 4: sala de partida de stream (proyecto <code>Streamer</code>)</h2>
+<p>Paquete <code>streamer</code>.</p>
+<p>Una sala de stream de un juego tiene jugadores y espectadores, todos hilos. Se manejan desde un menú que se repite hasta elegir salir:</p>
+<ol>
+<li>Nuevo jugador. 2. Más espectadores (pregunta cuántos). 3. Estado de la sala. 4. Salir.</li>
+</ol>
+<p>Los jugadores se llaman &quot;Jugador1&quot;, &quot;Jugador2&quot;… y los espectadores &quot;Espectador1&quot;, &quot;Espectador2&quot;…, sin repetir nombres aunque se creen en varias tandas.</p>
 <ul>
-<li><strong>Jugadores:</strong> solo puede haber uno en la sala a la vez. Si hay un jugador con una partida en marcha, los demás esperan en cola a que termine.</li>
-<li><strong>Espectadores:</strong> entran todos los que quieran, pero solo si hay una partida iniciada. Si no la hay, esperan. Pueden llegar cuando la partida ya está empezada.</li>
-<li><strong>Al terminar la partida,</strong> el jugador sale y la sala se cierra: los espectadores salen automáticamente. Entonces puede entrar el siguiente jugador de la cola y los espectadores nuevos. Los espectadores de la partida anterior no se quedan para la siguiente: si quieren verla, deben entrar de nuevo.</li>
-<li>Se muestra por pantalla cada entrada, salida e inicio de partida.</li>
+<li><strong>Jugadores:</strong> solo puede haber uno en directo. Un jugador no puede entrar si ya hay un jugador en directo ni mientras queden espectadores dentro: espera su turno. Juega un tiempo al azar de 1 a 60 segundos y sale.</li>
+<li><strong>Espectadores:</strong> entran todos los que quieran, pero solo si hay un jugador en directo. Si no lo hay, esperan (cada 15 segundos lo recuerdan por pantalla). Dentro se quedan un tiempo al azar de 1 a 50 segundos o hasta que el jugador termine, lo que ocurra antes. Después descansan un tiempo al azar de 1 a 50 segundos y vuelven a intentarlo. En cada vuelta tienen 1 posibilidad entre 10 de irse para siempre.</li>
+<li>Cuando el jugador sale, los espectadores salen también. Hasta que no sale el último, no puede entrar otro jugador.</li>
+<li>La opción 3 muestra qué jugador está en directo (o que no hay nadie) y cuántos espectadores hay. Cada entrada y salida se muestra por pantalla.</li>
+<li>Por ahora la opción 4 no hace nada más: el programa no termina.</li>
 </ul>
 
 <div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
-<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>La sala es el objeto compartido. Jugadores y espectadores esperan cosas distintas: los jugadores esperan a que la sala esté libre, y los espectadores esperan a que haya una partida. Un espectador solo debe quedarse hasta que acabe la partida que vio, aunque ya haya empezado otra. Piensa cómo puede saber un espectador a qué partida pertenece.</p>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>La sala es el objeto compartido. Jugadores y espectadores esperan cosas distintas: los jugadores, a que no haya nadie dentro; los espectadores, a que haya un jugador en directo. Un espectador que está dentro no ocupa la sala mientras espera: piensa qué método de espera deja la sala libre y cuál acaba solo con el tiempo. Piensa también quién tiene que avisar cuando sale el último espectador.</p>
 </div>
-<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase <code>Sala</code> guarda si hay partida en marcha (<code>boolean</code>), el número de la partida actual y cuántos espectadores hay dentro. El jugador espera mientras haya una partida; al entrar, la marca y avisa con <code>notifyAll()</code>. Al terminar, la desmarca y vuelve a avisar. El espectador espera mientras no haya partida; al entrar, apunta el número de la partida que va a ver. Después espera mientras esa misma partida siga en marcha. Cuando termina la última partida, <code>Principal</code> cierra la sala para que los espectadores que siguen esperando se vayan. Los jugadores juegan entre 3 y 5 segundos con <code>Thread.sleep</code>, y los espectadores llegan en un momento al azar.</p>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase <code>Sala</code> guarda cuántos espectadores hay, si hay un jugador en directo (<code>boolean</code>) y el nombre del jugador en directo. El jugador espera con <code>wait()</code> mientras haya alguien en directo o algún espectador dentro; al entrar, marca que está en directo. Al salir, lo desmarca y avisa a todos con <code>notifyAll()</code>. El espectador espera mientras no haya jugador en directo, con <code>wait()</code> de un tiempo máximo (15 segundos) para ir mostrando que sigue esperando. Al entrar suma un espectador y se queda con <code>wait()</code> del tiempo que le toca: el aviso del jugador al salir lo despierta antes. Al salir resta uno y, si era el último, avisa a todos. <code>Jugador</code> y <code>Espectador</code> implementan <code>Runnable</code> y reciben la sala. El jugador entra, duerme con <code>Thread.sleep()</code> el tiempo de la partida y sale. El espectador repite un <code>while</code> mientras un número al azar de 1 a 10 no sea 5. <code>Principal</code> muestra el menú con un <code>do while</code>, un <code>switch</code> y un <code>Scanner</code>, y cuenta jugadores y espectadores para los nombres.</p>
 </div>
 <div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
-<li>Crea el proyecto <code>SalaStream</code> y el paquete <code>sincronizacion</code>.</li>
-<li>Crea <code>Sala</code> con los atributos: partida en marcha (<code>boolean</code>), número de partida (<code>int</code>), espectadores (<code>int</code>) y sala cerrada (<code>boolean</code>).</li>
-<li>Escribe el método con el que el jugador empieza: si hay partida, muestra que espera en la cola; espera con un <code>while</code>; después marca la partida, suma 1 al número, muestra el mensaje y llama a <code>notifyAll()</code>.</li>
-<li>Escribe el método con el que el jugador termina: desmarca la partida, muestra el mensaje y llama a <code>notifyAll()</code>.</li>
-<li>Escribe el método con el que el espectador entra: espera mientras no haya partida y la sala no esté cerrada. Si sigue sin haber partida, devuelve 0. Si no, suma un espectador y devuelve el número de la partida.</li>
-<li>Escribe el método con el que el espectador espera a que termine su partida: espera mientras haya partida y siga siendo el mismo número. Después resta un espectador y muestra que sale.</li>
-<li>Escribe el método que cierra la sala y despierta a todos.</li>
-<li>Crea <code>Jugador</code>, que empieza una partida, duerme entre 3 y 5 segundos y la termina.</li>
-<li>Crea <code>Espectador</code>, que duerme un tiempo al azar, entra y, si ha entrado a una partida, espera a que acabe. Si no, muestra que se va.</li>
-<li>En <code>Principal</code>, crea la sala, 3 jugadores y 8 espectadores y arráncalos.</li>
-<li>Haz <code>join()</code> a los jugadores, cierra la sala y haz <code>join()</code> a los espectadores. Muestra <code>Sala cerrada</code>.</li>
+<li>Crea el proyecto <code>Streamer</code> y el paquete <code>streamer</code>.</li>
+<li>Crea <code>Sala</code> con tres atributos: espectadores (<code>int</code>, a 0), si hay un jugador en directo (<code>boolean</code>, a <code>false</code>) y el nombre del jugador en directo (<code>String</code>, vacío).</li>
+<li>Escribe <code>EntraJugador</code>, <code>synchronized</code>, con el tiempo de la partida como parámetro y <code>throws InterruptedException</code>. Un <code>while</code> que, mientras haya un jugador en directo o espectadores dentro, muestre que le toca esperar y llame a <code>wait()</code>. Después muestra cuántos segundos juega, marca que hay alguien en directo y guarda su nombre.</li>
+<li>Escribe <code>SaleJugador</code>, <code>synchronized</code>: borra el nombre, marca que no hay nadie en directo, muestra que abandona la sala y llama a <code>notifyAll()</code>.</li>
+<li>Escribe <code>EntraEspectador</code>, <code>synchronized</code>, con el tiempo que se queda como parámetro. Un <code>while</code> que, mientras no haya nadie en directo, muestre que la sala está vacía y llame a <code>wait(15000)</code>. Después suma un espectador, muestra que entra y espera <code>wait(tiempo)</code>.</li>
+<li>Escribe <code>SaleEspectador</code>, <code>synchronized</code>: resta un espectador y, si no queda ninguno, llama a <code>notifyAll()</code>. Muestra que sale.</li>
+<li>Escribe <code>getInfoSala</code>, que devuelve un texto con el jugador en directo y los espectadores.</li>
+<li>Crea <code>Jugador</code>: calcula un tiempo al azar de 1 a 60 segundos, entra, duerme ese tiempo con <code>Thread.sleep</code> y sale.</li>
+<li>Crea <code>Espectador</code> con dos métodos privados: uno que da un tiempo al azar de 1 a 50 segundos y otro que da un número de 1 a 10. Su <code>run()</code> repite, mientras ese número no sea 5: entrar, salir y dormir un tiempo al azar. Al terminar, muestra que se va.</li>
+<li>En <code>Principal</code>, crea una sola <code>Sala</code>. Muestra el menú y, con un <code>do while</code> y un <code>switch</code>, crea un hilo por cada jugador o espectador nuevo y muestra el estado con <code>getInfoSala</code>.</li>
+<li>Prueba con un jugador y varios espectadores. Comprueba que los espectadores no entran sin jugador y que un segundo jugador espera a que salgan todos.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-5" data-ejercicio="ej-5">
+<h2>Ejercicio 5: cerrar la sala (proyecto <code>Streamer2</code>)</h2>
+<p>Paquete <code>streamer2</code>.</p>
+<p>Copia el ejercicio anterior en un proyecto nuevo. Ahora la opción 4 del menú cierra la sala y muestra <code>Sala cerrada. Vayan saliendo de forma ordenada.</code></p>
+<ul>
+<li>Los jugadores que estaban esperando en la cola no juegan y terminan.</li>
+<li>Los espectadores dejan de volver una vez cerrada la sala.</li>
+<li>Una vez cerrada la sala no entra ningún jugador nuevo.</li>
+</ul>
+<p>Después de cerrar, ¿terminan todos los hilos? Pruébalo con espectadores que están esperando a un jugador que ya no vendrá.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Hace falta un dato nuevo en la sala: si está cerrada. Tiene que poder leerse desde fuera y cambiarse con un método. Piensa qué pasa con los hilos que están dormidos con <code>wait()</code> cuando se cierra: ¿quién los despierta? Y piensa qué tiene que devolver el método del jugador para que sepa si ha podido jugar.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p><code>Sala</code> guarda una bandera <code>boolean</code> de sala cerrada, con un método <code>synchronized</code> para leerla y otro para cerrarla. El de cerrar la marca, muestra el mensaje y llama a <code>notifyAll()</code>. El método con el que el jugador entra pasa a devolver un <code>boolean</code>: solo marca la partida si la sala no está cerrada y devuelve si el jugador está en directo. <code>Jugador</code> solo duerme y sale si ha entrado. <code>Espectador</code> añade a la condición de su <code>while</code> que la sala no esté cerrada. En <code>Principal</code>, la opción 4 cierra la sala.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>Streamer2</code> y el paquete <code>streamer2</code> con las clases del ejercicio 4.</li>
+<li>En <code>Sala</code>, añade un atributo <code>boolean</code> para la sala cerrada, a <code>false</code>.</li>
+<li>Cambia <code>EntraJugador</code> para que devuelva un <code>boolean</code>: tras el <code>while</code>, si la sala no está cerrada, muestra que juega, marca que hay alguien en directo y guarda el nombre. Devuelve si hay alguien en directo.</li>
+<li>Añade un método <code>synchronized</code> que devuelve si la sala está cerrada y otro que la cierra: la marca, muestra <code>Sala cerrada. Vayan saliendo de forma ordenada.</code> y llama a <code>notifyAll()</code>.</li>
+<li>En <code>Jugador</code>, duerme y sale solo si <code>EntraJugador</code> devolvió <code>true</code>.</li>
+<li>En <code>Espectador</code>, el <code>while</code> repite también mientras la sala no esté cerrada.</li>
+<li>En <code>Principal</code>, la opción 4 cierra la sala.</li>
+<li>Prueba: crea un jugador, varios espectadores y un segundo jugador, y cierra la sala. Espera un rato y comprueba si el programa termina.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-6" data-ejercicio="ej-6">
+<h2>Ejercicio 6: esperar con sleep y una cerradura propia (proyecto <code>Streamer3</code>)</h2>
+<p>Paquete <code>streamer3</code>.</p>
+<p>Copia el ejercicio anterior en un proyecto nuevo. El comportamiento es el mismo, con tres cambios:</p>
+<ul>
+<li>El espectador entra, se queda su tiempo, sale y descansa dentro de <strong>un solo método</strong> de la sala.</li>
+<li>El tiempo que el espectador está dentro se espera con <code>Thread.sleep()</code>, no con <code>wait()</code>. Por tanto, <strong>el espectador ya no sale cuando termina el jugador, sino cuando acaba su tiempo</strong>.</li>
+<li>La sala sincroniza sobre un objeto propio, no sobre la sala entera.</li>
+</ul>
+<p>Además, la sala cerrada no debe dejar a nadie esperando para siempre, tampoco los espectadores que esperaban a un jugador.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p><code>Thread.sleep()</code> no suelta nada: si el espectador durmiera dentro de un bloque <code>synchronized</code>, nadie más podría usar la sala. Así que el espectador tiene que entrar en un bloque, salir de él para dormir y volver a entrar para salir. Para sincronizar sobre otro objeto, <code>synchronized</code> también se puede escribir como un bloque con un objeto entre paréntesis, y entonces <code>wait()</code> y <code>notifyAll()</code> se llaman sobre ese objeto. Ojo: <strong>todos</strong> los métodos de la sala deben usar el mismo objeto.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p><code>Sala</code> crea un atributo <code>Object lock</code> y todos sus métodos, incluidos los de leer y cerrar la sala, usan <code>synchronized (lock)</code> con <code>lock.wait()</code> y <code>lock.notifyAll()</code>. El método del espectador tiene tres partes: un bloque <code>synchronized</code> para esperar al jugador y entrar; un <code>Thread.sleep()</code> fuera de los bloques con el tiempo que se queda; y otro bloque <code>synchronized</code> para salir (y avisar si es el último). Después duerme otra vez para descansar. Si la sala se cierra mientras espera un jugador y no hay partida, el espectador sale del método sin entrar.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>Streamer3</code> y el paquete <code>streamer3</code> con las clases del ejercicio anterior.</li>
+<li>En <code>Sala</code>, añade <code>private final Object lock = new Object();</code>.</li>
+<li>Cambia <code>EntraJugador</code>, <code>SaleJugador</code>, el método que lee si la sala está cerrada y el que la cierra: quita <code>synchronized</code> del método y ponlo como un bloque <code>synchronized (lock)</code> con todo el código dentro. <code>wait()</code> y <code>notifyAll()</code> pasan a <code>lock.wait()</code> y <code>lock.notifyAll()</code>.</li>
+<li>Quita los métodos <code>EntraEspectador</code> y <code>SaleEspectador</code> y crea <code>EntraSaleEspectador(int tiempo)</code> con <code>throws InterruptedException</code>.</li>
+<li>Primer bloque <code>synchronized (lock)</code>: un <code>while</code> que, mientras no haya nadie en directo y la sala no esté cerrada, muestre que la sala está vacía y llame a <code>lock.wait(15000)</code>. Después, si no hay nadie en directo, el método termina con <code>return</code>. Si lo hay, suma un espectador y muestra que entra.</li>
+<li>Fuera del bloque, <code>Thread.sleep(tiempo)</code>.</li>
+<li>Segundo bloque <code>synchronized (lock)</code>: resta un espectador, si no queda ninguno llama a <code>lock.notifyAll()</code> y muestra que sale.</li>
+<li>Al final, otro <code>Thread.sleep(tiempo)</code> para el descanso.</li>
+<li>En <code>Espectador</code>, el <code>while</code> llama ahora a <code>EntraSaleEspectador</code> en vez de a los dos métodos antiguos y del <code>sleep</code>.</li>
+<li>Prueba: abre la sala, crea jugadores y espectadores y cierra. Comprueba que el programa termina. Comprueba también que, cuando acaba la partida, los espectadores se quedan hasta que acaba su tiempo y el siguiente jugador espera a que salgan.</li>
 </ol>
 </div>
 </section>
@@ -152,7 +216,9 @@
 <li>Ejercicio 1: ¿qué pasa si en la cinta se usa <code>notify()</code> en vez de <code>notifyAll()</code>?</li>
 <li>Ejercicio 2: ¿en qué momento exacto se cuenta a un cliente como atendido? ¿Por qué ahí?</li>
 <li>Ejercicio 3: ¿por qué el panadero hornea fuera de un método <code>synchronized</code>?</li>
-<li>Ejercicio 4: ¿qué pasa si el espectador no apunta el número de partida y solo mira si hay una en marcha?</li>
+<li>Ejercicio 4: ¿por qué un jugador espera también mientras queden espectadores dentro, aunque ya no haya nadie en directo? ¿Quién lo despierta cuando sale el último?</li>
+<li>Ejercicio 5: tras cerrar la sala, ¿qué le pasa a un espectador que espera a un jugador que ya no vendrá? ¿Termina el programa?</li>
+<li>Ejercicio 6: ¿qué pasa si <code>cerrarSala()</code> sigue siendo <code>synchronized</code> sobre la sala, pero los demás métodos usan <code>synchronized (lock)</code>? ¿A quién despierta su <code>notifyAll()</code>?</li>
 </ol>
 </section>
 </main>
