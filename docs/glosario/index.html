@@ -874,6 +874,19 @@ System.out.println(actual.getName());
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="wait(milisegundos)">
+<h2><code>wait(milisegundos)</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Versión de wait() con un tiempo máximo: el hilo se duerme y suelta el objeto, pero se despierta solo cuando pasan esos milisegundos, aunque nadie le avise.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Esperar «un rato o hasta que me avisen, lo que pase antes». El hilo también se despierta antes si otro hilo llama a notify() o notifyAll().</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">// se queda como mucho 15 segundos
+wait(15000);
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="while">
 <h2><code>while</code></h2>
 <dl>

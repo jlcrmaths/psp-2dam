@@ -1,6 +1,6 @@
 # Apartado 6.6 – Problemas de sincronización
 
-Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete `sincronizacion`. Los ejercicios van de menos a más difícil.
+Cada ejercicio es un proyecto de NetBeans distinto, con el nombre que se indica. Las clases van en el paquete `sincronizacion`, salvo en los ejercicios 4, 5 y 6, que llevan el de su proyecto. Los ejercicios van de menos a más difícil.
 
 ## Ejercicio 1: fábrica de piezas (proyecto `FabricaPiezas`)
 
@@ -84,55 +84,122 @@ Se simula una panadería donde los clientes toman las barras de pan directamente
 El programa muestra mensajes de cada acción: clientes esperando o llevándose barras, y el panadero horneando.
 
 ### Pistas
-El mostrador es el objeto compartido por el panadero y los clientes. Hornear tarda 20 segundos: piensa dónde poner esa espera para que los clientes no queden bloqueados. Al cerrar, hay clientes que quizá siguen esperando pan, y esos necesitan que el panadero siga trabajando.
+La panadería es el objeto compartido por el panadero y los clientes. Hornear tarda 20 segundos: piensa dónde poner esa espera para que los clientes no queden bloqueados. Al cerrar, hay clientes que quizá siguen esperando pan, y esos necesitan que el panadero siga trabajando.
 
 ### Más ayuda
-La clase `Mostrador` guarda las barras, las horneadas, las vendidas, el dinero (un `double`) y si se está cerrando. Su método de comprar espera mientras no haya barras suficientes. El panadero es un `Runnable` con un bucle que duerme un segundo y comprueba si hacen falta barras; el horneado (`Thread.sleep` de 20 segundos) va fuera de los métodos `synchronized` y después repone el mostrador con `notifyAll()`. Cada cliente es un hilo que recibe cuántas barras quiere. Primero pregunta lo que quiere cada cliente y luego lanza los hilos. Al cerrar, primero se espera con `join()` a los clientes, después se avisa al panadero y se espera a que termine.
+La clase `Panaderia` guarda las barras disponibles, las vendidas, las horneadas en total, el dinero (un `double`) y si está abierta. Su método de atender al cliente espera mientras no haya barras suficientes. El panadero es un `Runnable` con un bucle que duerme un segundo y comprueba si hacen falta barras; el horneado (`Thread.sleep` de 20 segundos) va fuera de los métodos `synchronized` y después repone las barras con `notifyAll()`. Cada cliente es un hilo que recibe cuántas barras quiere. Primero pregunta lo que quiere cada cliente y luego lanza los hilos. Al cerrar, primero se espera con `join()` a los clientes, después se cierra la panadería para avisar al panadero y se espera a que termine.
 
 ### Paso a paso
 1. Crea el proyecto `Panaderia` y el paquete `sincronizacion`.
-2. Crea `Mostrador` con los atributos: barras (20), horneadas (20), vendidas (0), dinero (0) y si se está cerrando (`false`).
-3. Escribe `comprar`, `synchronized`: si no hay barras suficientes, muestra que el cliente espera. Espera con un `while`. Después resta las barras, suma a vendidas, calcula el precio y lo suma al dinero, y muestra la compra.
-4. Escribe un método que diga si quedan menos de 10 barras y otro, `reponer`, que sume barras y horneadas, muestre el mensaje y llame a `notifyAll()`.
-5. Escribe los métodos para vaciar el mostrador, para marcar que se cierra y para saber si se está cerrando.
-6. Escribe los métodos que muestran el estado y el resumen final.
-7. Crea `Panadero`: mientras no se esté cerrando, duerme un segundo y, si hacen falta barras, hornea. Hornear es mostrar un mensaje, dormir 20 segundos y reponer 20 barras.
-8. Al terminar ese bucle, el panadero vacía el mostrador y hornea un último lote.
-9. Crea `Cliente`, con un atributo para las barras que quiere. Su `run()` llama a `comprar`.
-10. En `Principal`, arranca el hilo del panadero y muestra el menú con un `switch`. En la opción 1, pregunta el número de clientes y las barras de cada uno (vuelve a preguntar si no está entre 1 y 10) y lanza los hilos.
-11. En la opción 3, haz `join()` a todos los clientes, marca que se cierra, haz `join()` al panadero y muestra el resumen.
+2. Crea `Panaderia` con los atributos: barras disponibles (20), barras vendidas (0), barras horneadas en total (20), dinero ganado (0) y si está abierta (`true`).
+3. Escribe `atenderCliente`, `synchronized` y con `throws InterruptedException`. Un `while` que, mientras no haya barras suficientes, muestre que el cliente espera y llame a `wait()`. Después calcula el precio, lo suma al dinero, resta las barras, suma a vendidas y muestra la compra.
+4. Escribe un método que diga si quedan menos de 10 barras y otro, `reponer`, que sume barras disponibles y horneadas, muestre el mensaje y llame a `notifyAll()`.
+5. Escribe los métodos para llevarse las barras que quedan, para cerrar la panadería y para saber si está abierta.
+6. Escribe los métodos que muestran la información del mostrador y el mensaje de cierre con el resumen.
+7. Crea `Panadero`: mientras la panadería esté abierta, duerme un segundo y, si hacen falta barras, hornea. Hornear es mostrar un mensaje, dormir 20 segundos y reponer 20 barras.
+8. Al terminar ese bucle, el panadero se lleva las barras que quedan y hornea un último lote.
+9. Crea `Cliente`, con un atributo para las barras que quiere. Su `run()` llama a `atenderCliente`.
+10. En `Principal`, arranca el hilo del panadero y muestra el menú con un `do while` y un `switch`. En la opción 1, pregunta el número de clientes y las barras de cada uno (vuelve a preguntar si no está entre 1 y 10) y lanza los hilos.
+11. En la opción 3, haz `join()` a todos los clientes, cierra la panadería, haz `join()` al panadero y muestra el resumen.
 
-## Ejercicio 4: sala de partida de stream (proyecto `SalaStream`)
+## Ejercicio 4: sala de partida de stream (proyecto `Streamer`)
 
-Una sala de stream de un juego tiene jugadores y espectadores, todos hilos.
+Paquete `streamer`.
 
-- **Jugadores:** solo puede haber uno en la sala a la vez. Si hay un jugador con una partida en marcha, los demás esperan en cola a que termine.
-- **Espectadores:** entran todos los que quieran, pero solo si hay una partida iniciada. Si no la hay, esperan. Pueden llegar cuando la partida ya está empezada.
-- **Al terminar la partida,** el jugador sale y la sala se cierra: los espectadores salen automáticamente. Entonces puede entrar el siguiente jugador de la cola y los espectadores nuevos. Los espectadores de la partida anterior no se quedan para la siguiente: si quieren verla, deben entrar de nuevo.
-- Se muestra por pantalla cada entrada, salida e inicio de partida.
+Una sala de stream de un juego tiene jugadores y espectadores, todos hilos. Se manejan desde un menú que se repite hasta elegir salir:
+
+1. Nuevo jugador. 2. Más espectadores (pregunta cuántos). 3. Estado de la sala. 4. Salir.
+
+Los jugadores se llaman "Jugador1", "Jugador2"… y los espectadores "Espectador1", "Espectador2"…, sin repetir nombres aunque se creen en varias tandas.
+
+- **Jugadores:** solo puede haber uno en directo. Un jugador no puede entrar si ya hay un jugador en directo ni mientras queden espectadores dentro: espera su turno. Juega un tiempo al azar de 1 a 60 segundos y sale.
+- **Espectadores:** entran todos los que quieran, pero solo si hay un jugador en directo. Si no lo hay, esperan (cada 15 segundos lo recuerdan por pantalla). Dentro se quedan un tiempo al azar de 1 a 50 segundos o hasta que el jugador termine, lo que ocurra antes. Después descansan un tiempo al azar de 1 a 50 segundos y vuelven a intentarlo. En cada vuelta tienen 1 posibilidad entre 10 de irse para siempre.
+- Cuando el jugador sale, los espectadores salen también. Hasta que no sale el último, no puede entrar otro jugador.
+- La opción 3 muestra qué jugador está en directo (o que no hay nadie) y cuántos espectadores hay. Cada entrada y salida se muestra por pantalla.
+- Por ahora la opción 4 no hace nada más: el programa no termina.
 
 ### Pistas
-La sala es el objeto compartido. Jugadores y espectadores esperan cosas distintas: los jugadores esperan a que la sala esté libre, y los espectadores esperan a que haya una partida. Un espectador solo debe quedarse hasta que acabe la partida que vio, aunque ya haya empezado otra. Piensa cómo puede saber un espectador a qué partida pertenece.
+La sala es el objeto compartido. Jugadores y espectadores esperan cosas distintas: los jugadores, a que no haya nadie dentro; los espectadores, a que haya un jugador en directo. Un espectador que está dentro no ocupa la sala mientras espera: piensa qué método de espera deja la sala libre y cuál acaba solo con el tiempo. Piensa también quién tiene que avisar cuando sale el último espectador.
 
 ### Más ayuda
-La clase `Sala` guarda si hay partida en marcha (`boolean`), el número de la partida actual y cuántos espectadores hay dentro. El jugador espera mientras haya una partida; al entrar, la marca y avisa con `notifyAll()`. Al terminar, la desmarca y vuelve a avisar. El espectador espera mientras no haya partida; al entrar, apunta el número de la partida que va a ver. Después espera mientras esa misma partida siga en marcha. Cuando termina la última partida, `Principal` cierra la sala para que los espectadores que siguen esperando se vayan. Los jugadores juegan entre 3 y 5 segundos con `Thread.sleep`, y los espectadores llegan en un momento al azar.
+La clase `Sala` guarda cuántos espectadores hay, si hay un jugador en directo (`boolean`) y el nombre del jugador en directo. El jugador espera con `wait()` mientras haya alguien en directo o algún espectador dentro; al entrar, marca que está en directo. Al salir, lo desmarca y avisa a todos con `notifyAll()`. El espectador espera mientras no haya jugador en directo, con `wait()` de un tiempo máximo (15 segundos) para ir mostrando que sigue esperando. Al entrar suma un espectador y se queda con `wait()` del tiempo que le toca: el aviso del jugador al salir lo despierta antes. Al salir resta uno y, si era el último, avisa a todos. `Jugador` y `Espectador` implementan `Runnable` y reciben la sala. El jugador entra, duerme con `Thread.sleep()` el tiempo de la partida y sale. El espectador repite un `while` mientras un número al azar de 1 a 10 no sea 5. `Principal` muestra el menú con un `do while`, un `switch` y un `Scanner`, y cuenta jugadores y espectadores para los nombres.
 
 ### Paso a paso
-1. Crea el proyecto `SalaStream` y el paquete `sincronizacion`.
-2. Crea `Sala` con los atributos: partida en marcha (`boolean`), número de partida (`int`), espectadores (`int`) y sala cerrada (`boolean`).
-3. Escribe el método con el que el jugador empieza: si hay partida, muestra que espera en la cola; espera con un `while`; después marca la partida, suma 1 al número, muestra el mensaje y llama a `notifyAll()`.
-4. Escribe el método con el que el jugador termina: desmarca la partida, muestra el mensaje y llama a `notifyAll()`.
-5. Escribe el método con el que el espectador entra: espera mientras no haya partida y la sala no esté cerrada. Si sigue sin haber partida, devuelve 0. Si no, suma un espectador y devuelve el número de la partida.
-6. Escribe el método con el que el espectador espera a que termine su partida: espera mientras haya partida y siga siendo el mismo número. Después resta un espectador y muestra que sale.
-7. Escribe el método que cierra la sala y despierta a todos.
-8. Crea `Jugador`, que empieza una partida, duerme entre 3 y 5 segundos y la termina.
-9. Crea `Espectador`, que duerme un tiempo al azar, entra y, si ha entrado a una partida, espera a que acabe. Si no, muestra que se va.
-10. En `Principal`, crea la sala, 3 jugadores y 8 espectadores y arráncalos.
-11. Haz `join()` a los jugadores, cierra la sala y haz `join()` a los espectadores. Muestra `Sala cerrada`.
+1. Crea el proyecto `Streamer` y el paquete `streamer`.
+2. Crea `Sala` con tres atributos: espectadores (`int`, a 0), si hay un jugador en directo (`boolean`, a `false`) y el nombre del jugador en directo (`String`, vacío).
+3. Escribe `EntraJugador`, `synchronized`, con el tiempo de la partida como parámetro y `throws InterruptedException`. Un `while` que, mientras haya un jugador en directo o espectadores dentro, muestre que le toca esperar y llame a `wait()`. Después muestra cuántos segundos juega, marca que hay alguien en directo y guarda su nombre.
+4. Escribe `SaleJugador`, `synchronized`: borra el nombre, marca que no hay nadie en directo, muestra que abandona la sala y llama a `notifyAll()`.
+5. Escribe `EntraEspectador`, `synchronized`, con el tiempo que se queda como parámetro. Un `while` que, mientras no haya nadie en directo, muestre que la sala está vacía y llame a `wait(15000)`. Después suma un espectador, muestra que entra y espera `wait(tiempo)`.
+6. Escribe `SaleEspectador`, `synchronized`: resta un espectador y, si no queda ninguno, llama a `notifyAll()`. Muestra que sale.
+7. Escribe `getInfoSala`, que devuelve un texto con el jugador en directo y los espectadores.
+8. Crea `Jugador`: calcula un tiempo al azar de 1 a 60 segundos, entra, duerme ese tiempo con `Thread.sleep` y sale.
+9. Crea `Espectador` con dos métodos privados: uno que da un tiempo al azar de 1 a 50 segundos y otro que da un número de 1 a 10. Su `run()` repite, mientras ese número no sea 5: entrar, salir y dormir un tiempo al azar. Al terminar, muestra que se va.
+10. En `Principal`, crea una sola `Sala`. Muestra el menú y, con un `do while` y un `switch`, crea un hilo por cada jugador o espectador nuevo y muestra el estado con `getInfoSala`.
+11. Prueba con un jugador y varios espectadores. Comprueba que los espectadores no entran sin jugador y que un segundo jugador espera a que salgan todos.
+
+## Ejercicio 5: cerrar la sala (proyecto `Streamer2`)
+
+Paquete `streamer2`.
+
+Copia el ejercicio anterior en un proyecto nuevo. Ahora la opción 4 del menú cierra la sala y muestra `Sala cerrada. Vayan saliendo de forma ordenada.`
+
+- Los jugadores que estaban esperando en la cola no juegan y terminan.
+- Los espectadores dejan de volver una vez cerrada la sala.
+- Una vez cerrada la sala no entra ningún jugador nuevo.
+
+Después de cerrar, ¿terminan todos los hilos? Pruébalo con espectadores que están esperando a un jugador que ya no vendrá.
+
+### Pistas
+Hace falta un dato nuevo en la sala: si está cerrada. Tiene que poder leerse desde fuera y cambiarse con un método. Piensa qué pasa con los hilos que están dormidos con `wait()` cuando se cierra: ¿quién los despierta? Y piensa qué tiene que devolver el método del jugador para que sepa si ha podido jugar.
+
+### Más ayuda
+`Sala` guarda una bandera `boolean` de sala cerrada, con un método `synchronized` para leerla y otro para cerrarla. El de cerrar la marca, muestra el mensaje y llama a `notifyAll()`. El método con el que el jugador entra pasa a devolver un `boolean`: solo marca la partida si la sala no está cerrada y devuelve si el jugador está en directo. `Jugador` solo duerme y sale si ha entrado. `Espectador` añade a la condición de su `while` que la sala no esté cerrada. En `Principal`, la opción 4 cierra la sala.
+
+### Paso a paso
+1. Crea el proyecto `Streamer2` y el paquete `streamer2` con las clases del ejercicio 4.
+2. En `Sala`, añade un atributo `boolean` para la sala cerrada, a `false`.
+3. Cambia `EntraJugador` para que devuelva un `boolean`: tras el `while`, si la sala no está cerrada, muestra que juega, marca que hay alguien en directo y guarda el nombre. Devuelve si hay alguien en directo.
+4. Añade un método `synchronized` que devuelve si la sala está cerrada y otro que la cierra: la marca, muestra `Sala cerrada. Vayan saliendo de forma ordenada.` y llama a `notifyAll()`.
+5. En `Jugador`, duerme y sale solo si `EntraJugador` devolvió `true`.
+6. En `Espectador`, el `while` repite también mientras la sala no esté cerrada.
+7. En `Principal`, la opción 4 cierra la sala.
+8. Prueba: crea un jugador, varios espectadores y un segundo jugador, y cierra la sala. Espera un rato y comprueba si el programa termina.
+
+## Ejercicio 6: esperar con sleep y una cerradura propia (proyecto `Streamer3`)
+
+Paquete `streamer3`.
+
+Copia el ejercicio anterior en un proyecto nuevo. El comportamiento es el mismo, con tres cambios:
+
+- El espectador entra, se queda su tiempo, sale y descansa dentro de **un solo método** de la sala.
+- El tiempo que el espectador está dentro se espera con `Thread.sleep()`, no con `wait()`. Por tanto, **el espectador ya no sale cuando termina el jugador, sino cuando acaba su tiempo**.
+- La sala sincroniza sobre un objeto propio, no sobre la sala entera.
+
+Además, la sala cerrada no debe dejar a nadie esperando para siempre, tampoco los espectadores que esperaban a un jugador.
+
+### Pistas
+`Thread.sleep()` no suelta nada: si el espectador durmiera dentro de un bloque `synchronized`, nadie más podría usar la sala. Así que el espectador tiene que entrar en un bloque, salir de él para dormir y volver a entrar para salir. Para sincronizar sobre otro objeto, `synchronized` también se puede escribir como un bloque con un objeto entre paréntesis, y entonces `wait()` y `notifyAll()` se llaman sobre ese objeto. Ojo: **todos** los métodos de la sala deben usar el mismo objeto.
+
+### Más ayuda
+`Sala` crea un atributo `Object lock` y todos sus métodos, incluidos los de leer y cerrar la sala, usan `synchronized (lock)` con `lock.wait()` y `lock.notifyAll()`. El método del espectador tiene tres partes: un bloque `synchronized` para esperar al jugador y entrar; un `Thread.sleep()` fuera de los bloques con el tiempo que se queda; y otro bloque `synchronized` para salir (y avisar si es el último). Después duerme otra vez para descansar. Si la sala se cierra mientras espera un jugador y no hay partida, el espectador sale del método sin entrar.
+
+### Paso a paso
+1. Crea el proyecto `Streamer3` y el paquete `streamer3` con las clases del ejercicio anterior.
+2. En `Sala`, añade `private final Object lock = new Object();`.
+3. Cambia `EntraJugador`, `SaleJugador`, el método que lee si la sala está cerrada y el que la cierra: quita `synchronized` del método y ponlo como un bloque `synchronized (lock)` con todo el código dentro. `wait()` y `notifyAll()` pasan a `lock.wait()` y `lock.notifyAll()`.
+4. Quita los métodos `EntraEspectador` y `SaleEspectador` y crea `EntraSaleEspectador(int tiempo)` con `throws InterruptedException`.
+5. Primer bloque `synchronized (lock)`: un `while` que, mientras no haya nadie en directo y la sala no esté cerrada, muestre que la sala está vacía y llame a `lock.wait(15000)`. Después, si no hay nadie en directo, el método termina con `return`. Si lo hay, suma un espectador y muestra que entra.
+6. Fuera del bloque, `Thread.sleep(tiempo)`.
+7. Segundo bloque `synchronized (lock)`: resta un espectador, si no queda ninguno llama a `lock.notifyAll()` y muestra que sale.
+8. Al final, otro `Thread.sleep(tiempo)` para el descanso.
+9. En `Espectador`, el `while` llama ahora a `EntraSaleEspectador` en vez de a los dos métodos antiguos y del `sleep`.
+10. Prueba: abre la sala, crea jugadores y espectadores y cierra. Comprueba que el programa termina. Comprueba también que, cuando acaba la partida, los espectadores se quedan hasta que acaba su tiempo y el siguiente jugador espera a que salgan.
 
 ## Preguntas
 
 1. Ejercicio 1: ¿qué pasa si en la cinta se usa `notify()` en vez de `notifyAll()`?
 2. Ejercicio 2: ¿en qué momento exacto se cuenta a un cliente como atendido? ¿Por qué ahí?
 3. Ejercicio 3: ¿por qué el panadero hornea fuera de un método `synchronized`?
-4. Ejercicio 4: ¿qué pasa si el espectador no apunta el número de partida y solo mira si hay una en marcha?
+4. Ejercicio 4: ¿por qué un jugador espera también mientras queden espectadores dentro, aunque ya no haya nadie en directo? ¿Quién lo despierta cuando sale el último?
+5. Ejercicio 5: tras cerrar la sala, ¿qué le pasa a un espectador que espera a un jugador que ya no vendrá? ¿Termina el programa?
+6. Ejercicio 6: ¿qué pasa si `cerrarSala()` sigue siendo `synchronized` sobre la sala, pero los demás métodos usan `synchronized (lock)`? ¿A quién despierta su `notifyAll()`?
