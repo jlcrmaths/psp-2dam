@@ -19,16 +19,6 @@
 </section>
 <section>
 <section>
-<h3>Objetivo de la clase</h3>
-  <ul>
-    <li><b>Ejecutar</b> un programa que se queda parado sin dar ningún error</li>
-    <li>Entender <b>por qué</b> se para: el <b>interbloqueo</b> (en inglés, <i>deadlock</i>)</li>
-    <li>Descubrir <b>cinco maneras</b> de arreglarlo y <b>probarlas todas</b></li>
-    <li>Saber cuándo conviene cada una</li>
-  </ul>
-  <p class="caja">Hoy se trabaja así: primero <b>pensamos</b> (yo pregunto, vosotros contestáis), después <b>lo probáis vosotros</b> en NetBeans.</p>
-</section>
-<section>
 <h3>Una idea para recordarlo</h3>
   <p>Dos personas en una <b>puerta estrecha</b>, una frente a la otra.</p>
   <ul>
@@ -77,7 +67,7 @@
     <li>¿En qué <b>estado</b> está cada hilo?</li>
     <li>¿Qué <b>fichero</b> tiene cada hilo y cuál está <b>esperando</b>?</li>
   </ul>
-  <p class="peque">Apuntad las respuestas en el cuaderno. Más detalle en el enunciado, ejercicio 1.</p>
+  <p class="peque">Más detalle en el enunciado, ejercicio 1.</p>
 </section>
 <section>
 <section>
@@ -185,233 +175,108 @@
   <p>Mirad las cuatro condiciones y pensad por parejas (1 minuto).</p>
   <ul>
     <li class="fragment"><b>Exclusión mutua</b>: ¿podemos quitarla? <span class="fragment">No. Sin <code>synchronized</code> vuelve la condición de carrera de 6.3. Los ficheros tienen que ser de uno en uno</span></li>
-    <li class="fragment"><b>Espera en círculo</b>: ¿cómo se deshace un círculo? <span class="fragment">Haciendo que no sea un círculo → <b>ejercicios 2, 3 y 5</b></span></li>
-    <li class="fragment"><b>Retener y esperar</b>: ¿y si no se retiene nada? <span class="fragment">→ <b>ejercicio 4</b></span></li>
-    <li class="fragment"><b>Sin quitárselo</b>: ¿y si el hilo se rinde y suelta lo que tiene? <span class="fragment">→ <b>ejercicio 6 (reto)</b></span></li>
+    <li class="fragment"><b>Espera en círculo</b>: ¿cómo se deshace un círculo? <span class="fragment">Haciendo que no sea un círculo → <b>soluciones 1, 2 y 4</b></span></li>
+    <li class="fragment"><b>Retener y esperar</b>: ¿y si no se retiene nada? <span class="fragment">→ <b>solución 3</b></span></li>
+    <li class="fragment"><b>Sin quitárselo</b>: ¿y si el hilo se rinde y suelta lo que tiene? <span class="fragment">→ <b>solución 5 (reto)</b></span></li>
   </ul>
 </section>
 </section>
 <section>
-<section>
-<h3>Solución 1 · Piensa</h3>
-  <p>Mirad el dibujo del círculo y las cuatro condiciones. Hay <b>un hilo que pide A primero</b> y otro que pide <b>B primero</b>.</p>
-  <p class="caja"><b>Pregunta:</b> ¿qué pasaría si los <b>dos</b> pidieran <b>primero A</b> y después B?</p>
-  <ol>
-    <li class="fragment">Los dos quieren A. Uno la consigue (digamos el hilo 1)</li>
-    <li class="fragment">El hilo 2 <b>espera A</b>, y <b>no tiene nada cogido</b></li>
-    <li class="fragment">El hilo 1 pide B: está libre, <b>la consigue</b>, trabaja y suelta los dos</li>
-    <li class="fragment">El hilo 2 entra y hace lo mismo. <b>Nadie espera en círculo</b></li>
-  </ol>
-  <p class="aviso fragment">Regla: si todos piden los recursos <b>en el mismo orden</b>, no puede haber círculo.</p>
+<h3>Cinco soluciones</h3>
+  <p>Ya sabemos qué pasa. Ahora las probamos todas, una a una. Cada una: <b>idea</b> → <b>cambios en el código</b> → <b>ejecutar</b>.</p>
+  <table class="peque">
+    <tr><th>#</th><th>Solución</th><th>En una frase</th></tr>
+    <tr><td>1</td><td>Mismo orden</td><td>Todos piden primero A y después B</td></tr>
+    <tr><td>2</td><td>Un solo cerrojo</td><td>Un único cerrojo para los dos ficheros</td></tr>
+    <tr><td>3</td><td>No retener</td><td>Soltar el primero antes de pedir el segundo</td></tr>
+    <tr><td>4</td><td>Orden por número</td><td>Cada fichero tiene un número y se piden de menor a mayor</td></tr>
+    <tr><td>5</td><td>Tiempo máximo</td><td>Si el segundo no llega a tiempo, soltar el primero y reintentar</td></tr>
+  </table>
+  <p class="peque">Para cada una, copiad el proyecto <code>Interbloqueo</code> con el nombre que se indica (clic derecho › <i>Copiar</i>) y trabajad en la copia.</p>
 </section>
 <section>
-<h3>Ejercicio 2 · El mismo orden (5 min)</h3>
-  <p>Copiad el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoOrden</code>.</p>
-  <ul>
-    <li>Arreglad el interbloqueo cambiando <b>lo mínimo posible</b></li>
-    <li>Los dos hilos terminan, y <code>main</code> los muestra en <code>TERMINATED</code></li>
-    <li>Pista: ¿dónde se decide el orden en que cada hilo recibe los ficheros?</li>
-  </ul>
-  <p class="peque">⬇️ Bajad (flecha abajo) para ver los pasos. Más ayuda en el enunciado, ejercicio 2.</p>
+<section>
+<h3>Solución 1 · Mismo orden</h3>
+  <p class="caja"><b>Pensad:</b> si los <b>dos</b> hilos pidieran <b>primero A</b> y después B, ¿podría cada uno quedarse esperando al otro?</p>
+  <p class="fragment">No. El que llega segundo espera A y <b>no tiene nada cogido</b>, así que no bloquea al otro. Cuando el primero acaba, entra.</p>
+  <p class="aviso fragment">Rompe la condición: <b>espera en círculo</b></p>
 </section>
 <section>
-<h3>Ejercicio 2 · Pasos</h3>
+<h3>Solución 1 · Qué cambiar (5 min)</h3>
   <ol class="peque">
-    <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoOrden</code> (clic derecho › <i>Copiar</i>)</li>
-    <li>Abrid <code>Principal</code> y buscad las dos líneas con <code>new Trabajo(...)</code></li>
-    <li>Fijaos en el orden en que recibe los ficheros cada hilo</li>
-    <li>Cambiad <b>solo la línea del hilo 2</b> para que reciba los ficheros en el mismo orden que el hilo 1</li>
-    <li>Ejecutad: el hilo 2 espera un poco y los dos terminan. <code>main</code> muestra <code>TERMINATED</code></li>
+    <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoOrden</code></li>
+    <li>En <code>Principal</code>, buscad las dos líneas con <code>new Trabajo(...)</code></li>
+    <li>Cambiad <b>solo la línea del hilo 2</b>: que reciba los ficheros en el mismo orden que el hilo 1, <code>(a, b)</code></li>
   </ol>
-</section>
-<section>
-<h3>Solución 1 · Comprobamos</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="2">        Thread h1 = new Thread(new Trabajo(a, b), &quot;Hilo 1&quot;);
-        Thread h2 = new Thread(new Trabajo(a, b), &quot;Hilo 2&quot;);
-        h1.start();
-        h2.start();</code></pre>
-  <ul class="peque">
-    <li>Solo cambia <b>una línea</b>: el hilo 2 recibe <code>(a, b)</code>, igual que el 1</li>
-    <li>Si lo dejáis como estaba, <b>vuelve el interbloqueo</b>: es solo cuestión de orden</li>
-    <li><b>Ventaja:</b> no hay que cambiar nada más. <b>Inconveniente:</b> depende de que <b>todos</b> los que usan los ficheros pidan en el mismo orden. Un solo despiste y vuelve</li>
-  </ul>
+  <p class="caja"><b>Ejecutad:</b> el hilo 2 espera unos segundos y los dos terminan. <code>main</code> muestra <code>TERMINATED</code>.</p>
+  <p class="peque">Pistas y ayudas: enunciado, ejercicio 2.</p>
 </section>
 </section>
 <section>
 <section>
-<h3>Solución 2 · Piensa</h3>
-  <p>Ahora el orden <b>no se puede cambiar</b>: un hilo pide <code>(a, b)</code> y el otro <code>(b, a)</code>.</p>
-  <p class="caja"><b>Pregunta:</b> ahora hay <b>dos</b> cerrojos, uno por fichero. ¿Y si hubiera <b>uno solo</b> para los dos ficheros?</p>
-  <ul>
-    <li class="fragment">Quien tenga el cerrojo, tiene <b>los dos ficheros a la vez</b></li>
-    <li class="fragment">El otro hilo espera <b>a tener todo</b>, no a coger uno y esperar por el otro</li>
-    <li class="fragment">Ya no se puede quedar con la mitad: <b>no hay círculo</b></li>
-  </ul>
-  <p class="aviso fragment">¿Cómo se hace? Un objeto nuevo que no es ninguno de los ficheros y que solo sirve de cerrojo. Los dos hilos tienen que recibir <b>el mismo</b>.</p>
+<h3>Solución 2 · Un solo cerrojo</h3>
+  <p class="caja"><b>Pensad:</b> si en vez de un cerrojo por fichero hubiera <b>uno solo</b> para los dos, ¿podría un hilo quedarse con la mitad?</p>
+  <p class="fragment">No. Quien tiene el cerrojo tiene <b>los dos ficheros a la vez</b>, y el otro espera a tenerlos todos. El orden en que se piden ya no importa.</p>
+  <p class="aviso fragment">Rompe la condición: <b>espera en círculo</b></p>
 </section>
 <section>
-<h3>Ejercicio 3 · Un solo cerrojo (6 min)</h3>
-  <p>Copiad el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoUnCerrojo</code>.</p>
-  <ul>
-    <li>Los hilos <b>siguen recibiendo</b> <code>(a, b)</code> y <code>(b, a)</code></li>
-    <li>Los dos usan los dos ficheros a la vez y terminan uno detrás de otro</li>
-    <li>Necesitáis un objeto <code>Object</code> que se crea <b>una sola vez</b> y llega a los dos trabajos</li>
-  </ul>
-  <p class="peque">⬇️ Bajad (flecha abajo) para ver los pasos. Más ayuda en el enunciado, ejercicio 3.</p>
-</section>
-<section>
-<h3>Ejercicio 3 · Pasos</h3>
+<h3>Solución 2 · Qué cambiar (6 min)</h3>
   <ol class="peque">
     <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoUnCerrojo</code></li>
-    <li>En <code>Trabajo</code>, añadid un atributo <code>Object candado</code> y recibidlo en el constructor</li>
-    <li>En <code>run()</code>, quitad los dos <code>synchronized</code> de los ficheros y poned <b>uno solo</b>: <code>synchronized (candado)</code>, que envuelva todo el trabajo</li>
-    <li>En <code>Principal</code>, cread <b>un solo</b> <code>Object</code> y pasadlo a los dos <code>new Trabajo(...)</code></li>
+    <li>En <code>Trabajo</code>: atributo <code>Object candado</code>, recibido en el constructor</li>
+    <li>En <code>run()</code>: quitad los dos <code>synchronized</code> de los ficheros y poned <b>uno solo</b>, <code>synchronized (candado)</code>, que envuelva todo el trabajo</li>
+    <li>En <code>Principal</code>: cread <b>un solo</b> <code>Object</code> y pasadlo a los dos <code>new Trabajo(...)</code></li>
     <li><b>No cambiéis</b> el orden <code>(a, b)</code> y <code>(b, a)</code></li>
-    <li>Ejecutad: uno entra, el otro espera, y los dos terminan</li>
   </ol>
-</section>
-<section>
-<h3>Solución 2 · Comprobamos</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="3|9-10">    public void run() {
-        String nombre = Thread.currentThread().getName();
-        synchronized (candado) {
-            System.out.println(nombre + &quot; tiene &quot; + primero.getNombre());
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-            System.out.println(nombre + &quot; pide &quot; + segundo.getNombre());
-            System.out.println(nombre + &quot; tiene &quot; + primero.getNombre() + &quot; y &quot; + segundo.getNombre() + &quot;: trabaja&quot;);
-        }
-        System.out.println(nombre + &quot; termina&quot;);
-    }</code></pre>
-  <ul class="peque">
-    <li><code>synchronized (candado)</code>: un <b>único</b> cerrojo para todo. Ya no hay <code>synchronized</code> por fichero</li>
-    <li>En <code>Principal</code> se crea <b>un</b> <code>Object candado</code> y se entrega a los dos trabajos</li>
-    <li><b>Ventaja:</b> sirve aunque cada uno pida en un orden. <b>Inconveniente:</b> aunque pidan ficheros distintos, <b>esperan igual</b> (menos paralelismo)</li>
-  </ul>
+  <p class="caja"><b>Ejecutad:</b> un hilo entra, el otro espera, y los dos terminan.</p>
+  <p class="peque">Pistas y ayudas: enunciado, ejercicio 3.</p>
 </section>
 </section>
 <section>
 <section>
-<h3>Solución 3 · Piensa</h3>
-  <p>Volvemos a dos cerrojos y a pedir en orden contrario. La condición que atacamos ahora es otra.</p>
-  <p class="caja"><b>Pregunta:</b> ¿qué hacía el hilo 1 cuando se quedaba esperando B? <span class="fragment">Tenía A <b>cogida</b> a la vez. Eso es «retener y esperar»</span></p>
-  <ul>
-    <li class="fragment"><b>¿Y si usa A, la suelta, y solo después pide B?</b></li>
-    <li class="fragment">Mientras espera B, <b>no tiene nada cogido</b>: nadie espera por él</li>
-    <li class="fragment">Nunca hay un hilo con una mano llena y la otra pidiendo</li>
-  </ul>
-  <p class="aviso fragment">¿Dónde está el <code>synchronized</code> que se queda abierto mientras se pide el otro? Hay que <b>cerrarlo antes</b>.</p>
+<h3>Solución 3 · No retener</h3>
+  <p class="caja"><b>Pensad:</b> ¿qué pasaría si el hilo <b>soltara el primer fichero antes de pedir el segundo</b>?</p>
+  <p class="fragment">Mientras espera, <b>no tiene nada cogido</b>: nadie espera por él y no se forma el círculo. Solo vale si el trabajo <b>no necesita los dos ficheros a la vez</b>.</p>
+  <p class="aviso fragment">Rompe la condición: <b>retener y esperar</b></p>
 </section>
 <section>
-<h3>Ejercicio 4 · No retener (6 min)</h3>
-  <p>Copiad el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoSoltar</code>.</p>
-  <ul>
-    <li>Los hilos <b>siguen recibiendo</b> <code>(a, b)</code> y <code>(b, a)</code></li>
-    <li>Cada hilo usa los ficheros <b>de uno en uno</b>: nunca tiene uno mientras pide el otro</li>
-    <li>Dos bloques <code>synchronized</code> <b>seguidos</b>, no uno dentro de otro</li>
-  </ul>
-  <p class="peque">⬇️ Bajad (flecha abajo) para ver los pasos. Más ayuda en el enunciado, ejercicio 4.</p>
-</section>
-<section>
-<h3>Ejercicio 4 · Pasos</h3>
+<h3>Solución 3 · Qué cambiar (6 min)</h3>
   <ol class="peque">
     <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoSoltar</code></li>
-    <li>En <code>run()</code>, dejad el primer <code>synchronized (primero)</code> solo con su mensaje y su <code>sleep()</code>. <b>Cerrad sus llaves ahí</b></li>
-    <li>Después de cerrarlas, mostrad que pide el segundo fichero</li>
-    <li>A continuación (<b>fuera</b> del primero), poned <code>synchronized (segundo)</code> con su mensaje</li>
-    <li>Ejecutad: terminan, y ya no sale ningún mensaje con los dos ficheros a la vez</li>
-    <li>Pensad: ¿qué pierdes si el trabajo necesitara los dos ficheros juntos?</li>
+    <li>En <code>run()</code>: dejad <code>synchronized (primero)</code> solo con su mensaje y su <code>sleep()</code>, y <b>cerrad sus llaves ahí</b></li>
+    <li>Después, mostrad que pide el segundo fichero</li>
+    <li>A continuación, <b>fuera</b> del primero: <code>synchronized (segundo)</code> con su mensaje</li>
   </ol>
-</section>
-<section>
-<h3>Solución 3 · Comprobamos</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="3-9|10-13">    public void run() {
-        String nombre = Thread.currentThread().getName();
-        synchronized (primero) {
-            System.out.println(nombre + &quot; tiene &quot; + primero.getNombre() + &quot;: trabaja&quot;);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-            }
-        }
-        System.out.println(nombre + &quot; pide &quot; + segundo.getNombre());
-        synchronized (segundo) {
-            System.out.println(nombre + &quot; tiene &quot; + segundo.getNombre() + &quot;: trabaja&quot;);
-        }
-        System.out.println(nombre + &quot; termina&quot;);
-    }</code></pre>
-  <ul class="peque">
-    <li><b>Primer bloque:</b> coge el primer fichero, trabaja, y lo suelta al cerrar las llaves</li>
-    <li><b>Segundo bloque:</b> después pide el segundo. Nunca tiene los dos a la vez</li>
-    <li><b>Ventaja:</b> no hay ni círculo ni espera con algo en la mano. <b>Inconveniente:</b> solo vale si el trabajo <b>no necesita los dos ficheros a la vez</b>. Si los necesita juntos, no sirve</li>
-  </ul>
+  <p class="caja"><b>Ejecutad:</b> terminan, y ya no sale ningún mensaje con los dos ficheros a la vez.</p>
+  <p class="peque">Pistas y ayudas: enunciado, ejercicio 4.</p>
 </section>
 </section>
 <section>
 <section>
-<h3>Solución 4 · Piensa</h3>
-  <p>La solución 1 funcionaba, pero tenía un punto débil.</p>
-  <p class="caja"><b>Pregunta:</b> ¿qué pasa si en un programa grande <b>alguien se equivoca</b> y pasa los ficheros en orden contrario?</p>
-  <ul>
-    <li class="fragment">Vuelve el interbloqueo, y <b>sin ningún error</b></li>
-    <li class="fragment">¿Podemos hacer que el programa <b>no se pueda equivocar</b>?</li>
-    <li class="fragment">Idea: cada fichero lleva un <b>número</b>, y <b>quien los usa</b> los ordena por número antes de pedirlos</li>
-  </ul>
-  <p class="aviso fragment">Así, pasen los ficheros como pasen, <b>siempre se piden en el mismo orden</b>.</p>
+<h3>Solución 4 · Orden por número</h3>
+  <p class="caja"><b>Pensad:</b> la solución 1 depende de que <b>todos</b> pidan en el mismo orden. ¿Y si alguien se equivoca en <code>Principal</code>?</p>
+  <p class="fragment">Vuelve el interbloqueo. Para que no pase, cada fichero lleva un <b>número</b> y <code>Trabajo</code> los ordena <b>él mismo</b>, de menor a mayor, le lleguen como le lleguen.</p>
+  <p class="aviso fragment">Rompe la condición: <b>espera en círculo</b></p>
 </section>
 <section>
-<h3>Ejercicio 5 · El orden lo pone el programa (7 min)</h3>
-  <p>Copiad el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoNumeros</code>.</p>
-  <ul>
-    <li>Los hilos <b>siguen recibiendo</b> <code>(a, b)</code> y <code>(b, a)</code>, y usan los dos ficheros a la vez</li>
-    <li>Cada fichero tiene un <b>número</b>: A el 1 y B el 2</li>
-    <li><code>Trabajo</code> pide siempre <b>primero el número más bajo</b>, le lleguen como le lleguen</li>
-  </ul>
-  <p class="peque">⬇️ Bajad (flecha abajo) para ver los pasos. Más ayuda en el enunciado, ejercicio 5.</p>
-</section>
-<section>
-<h3>Ejercicio 5 · Pasos</h3>
+<h3>Solución 4 · Qué cambiar (7 min)</h3>
   <ol class="peque">
     <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoNumeros</code></li>
     <li>En <code>Fichero</code>: atributo <code>int numero</code>, recibido en el constructor, y método <code>getNumero()</code></li>
     <li>En <code>Principal</code>: el fichero A con el número 1 y el B con el 2</li>
     <li>En <code>Trabajo</code>: el constructor recibe <code>uno</code> y <code>otro</code> y compara sus números con un <code>if</code></li>
-    <li>Si el de <code>uno</code> es más bajo → <code>primero = uno</code> y <code>segundo = otro</code>. Si no, al revés</li>
-    <li>No toquéis <code>run()</code>. Ejecutad: los dos piden primero A, aunque <code>Principal</code> se lo dé al revés al hilo 2</li>
+    <li>Si el de <code>uno</code> es más bajo: <code>primero = uno</code> y <code>segundo = otro</code>. Si no, al revés. No toquéis <code>run()</code></li>
   </ol>
-</section>
-<section>
-<h3>Solución 4 · Comprobamos</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="1|2-4|5-7">    public Trabajo(Fichero uno, Fichero otro) {
-        if (uno.getNumero() &lt; otro.getNumero()) {
-            primero = uno;
-            segundo = otro;
-        } else {
-            primero = otro;
-            segundo = uno;
-        }
-    }</code></pre>
-  <ul class="peque">
-    <li>El constructor recibe los ficheros <b>en cualquier orden</b> (<code>uno</code> y <code>otro</code>)</li>
-    <li>Compara los números: guarda en <code>primero</code> el más bajo y en <code>segundo</code> el otro</li>
-    <li>El resto de <code>run()</code> queda <b>igual</b> que en el programa original</li>
-    <li><b>Ventaja:</b> el orden no depende de quien crea los hilos. <b>Inconveniente:</b> hay que numerar <b>todos</b> los recursos y respetar siempre la regla</li>
-  </ul>
+  <p class="caja"><b>Ejecutad:</b> los dos piden primero A, aunque <code>Principal</code> se lo dé al revés al hilo 2.</p>
+  <p class="peque">Pistas y ayudas: enunciado, ejercicio 5.</p>
 </section>
 </section>
 <section>
 <section>
-<h3>Solución 5 · Piensa (reto)</h3>
-  <p>La última condición que queda: <b>«sin quitárselo»</b>. Nadie le arrebata el fichero al hilo que lo tiene.</p>
-  <p class="caja"><b>Pregunta:</b> si nadie se lo puede quitar, ¿puede el propio hilo <b>rendirse</b> y soltarlo?</p>
-  <ul>
-    <li class="fragment">Pide el segundo fichero <b>diciendo cuánto está dispuesto a esperar</b> (por ejemplo, 1 segundo)</li>
-    <li class="fragment">Si llega a tiempo: trabaja, suelta los dos y termina</li>
-    <li class="fragment">Si no llega: <b>suelta el primero</b>, espera un rato al azar y <b>lo reintenta</b></li>
-  </ul>
-  <p class="aviso fragment">El «rato al azar» evita que los dos hilos reintenten justo a la vez y se vuelvan a bloquear.</p>
+<h3>Solución 5 · Tiempo máximo (reto)</h3>
+  <p class="caja"><b>Pensad:</b> ¿puede el propio hilo <b>rendirse</b> si el segundo fichero no llega en un tiempo?</p>
+  <p class="fragment">Sí: pide el segundo diciendo cuánto espera como mucho. Si no llega, <b>suelta el primero</b>, espera un rato al azar y lo reintenta.</p>
+  <p class="aviso fragment">Rompe la condición: <b>sin quitárselo</b></p>
 </section>
 <section>
 <h3>Lo que necesitas: ReentrantLock</h3>
@@ -421,61 +286,20 @@
     <li><code>tryLock(1, TimeUnit.SECONDS)</code>: lo pide y espera <b>como mucho 1 segundo</b>. Devuelve <code>true</code> si lo consigue y <code>false</code> si no</li>
     <li><code>unlock()</code>: suelta el cerrojo. <b>Hay que soltarlo siempre</b></li>
   </ul>
-  <p class="caja">Es como <code>synchronized</code>, pero con una salida si el cerrojo no llega.</p>
 </section>
 <section>
-<h3>Ejercicio 6 (reto) · Tiempo máximo (10 min)</h3>
-  <p>Copiad el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoTiempo</code>.</p>
-  <ul>
-    <li>Cada <code>Fichero</code> guarda su propio <code>ReentrantLock</code></li>
-    <li>Si el segundo fichero no llega en 1 segundo: <b>suelta el primero, espera al azar y reintenta</b></li>
-    <li>Los dos hilos terminan. Puede haber algún reintento antes</li>
-  </ul>
-  <p class="peque">⬇️ Bajad (flecha abajo) para ver los pasos. Más ayuda en el enunciado, ejercicio 6.</p>
-</section>
-<section>
-<h3>Ejercicio 6 · Pasos</h3>
+<h3>Solución 5 · Qué cambiar (10 min)</h3>
   <ol class="peque">
     <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoTiempo</code></li>
     <li>En <code>Fichero</code>: un atributo <code>ReentrantLock</code> y un método que lo devuelve</li>
     <li>En <code>Trabajo</code>: un <code>while</code> hasta que <code>hecho</code> sea <code>true</code>, dentro de un <code>try</code></li>
-    <li>Primer fichero con <code>lock()</code>, <code>sleep()</code> de 1 s, y segundo con <code>tryLock(1, TimeUnit.SECONDS)</code> dentro de un <code>if</code></li>
+    <li>Primer fichero con <code>lock()</code>, <code>sleep()</code> de 1 s, y segundo con <code>tryLock(1, TimeUnit.SECONDS)</code> en un <code>if</code></li>
     <li>Si da <code>true</code>: trabaja, <code>unlock()</code> de los dos y <code>hecho = true</code></li>
     <li>Si da <code>false</code>: mensaje de reintento, <code>unlock()</code> del primero y <code>sleep()</code> al azar</li>
-    <li>En <code>Principal</code>, <code>main</code> espera 8 segundos. Ejecutad varias veces</li>
+    <li>En <code>Principal</code>, <code>main</code> espera 8 segundos</li>
   </ol>
-</section>
-<section>
-<h3>Solución 5 · Comprobamos</h3>
-  <pre><code class="language-java" data-trim data-line-numbers="5-8|9-14|15-18">    public void run() {
-        String nombre = Thread.currentThread().getName();
-        boolean hecho = false;
-        try {
-            while (!hecho) {
-                primero.getCerrojo().lock();
-                System.out.println(nombre + &quot; tiene &quot; + primero.getNombre());
-                Thread.sleep(1000);
-                System.out.println(nombre + &quot; pide &quot; + segundo.getNombre());
-                if (segundo.getCerrojo().tryLock(1, TimeUnit.SECONDS)) {
-                    System.out.println(nombre + &quot; tiene &quot; + primero.getNombre() + &quot; y &quot; + segundo.getNombre() + &quot;: trabaja&quot;);
-                    segundo.getCerrojo().unlock();
-                    primero.getCerrojo().unlock();
-                    hecho = true;
-                } else {
-                    System.out.println(nombre + &quot; no consigue &quot; + segundo.getNombre() + &quot;: suelta &quot; + primero.getNombre() + &quot; y reintenta&quot;);
-                    primero.getCerrojo().unlock();
-                    Thread.sleep(r.nextInt(1000));
-                }
-            }
-        } catch (InterruptedException e) {
-        }
-        System.out.println(nombre + &quot; termina&quot;);
-    }</code></pre>
-  <ul class="peque">
-    <li>Se repite en un <code>while</code> hasta que consigue los dos ficheros</li>
-    <li>Si <code>tryLock()</code> falla: <b>suelta el primero</b> y duerme un tiempo al azar</li>
-    <li><b>Ventaja:</b> se recupera solo y no depende del orden. <b>Inconveniente:</b> más código, hay que soltar <b>a mano</b> y los hilos pueden reintentar muchas veces</li>
-  </ul>
+  <p class="caja"><b>Ejecutad:</b> varias veces. Los dos terminan, y a veces hay algún reintento.</p>
+  <p class="peque">Pistas y ayudas: enunciado, ejercicio 6.</p>
 </section>
 </section>
 <section>
