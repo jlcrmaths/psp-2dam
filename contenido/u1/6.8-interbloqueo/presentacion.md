@@ -212,15 +212,60 @@
 
 <!-- html -->
   <h3>Solución 2 · Qué cambiar (6 min)</h3>
+  <p>Cinco pasos. En cada uno verás <b>el código</b> que hay que escribir o borrar.</p>
   <ol class="peque">
-    <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoUnCerrojo</code></li>
-    <li>En <code>Trabajo</code>: atributo <code>Object candado</code>, recibido en el constructor</li>
-    <li>En <code>run()</code>: quitad los dos <code>synchronized</code> de los ficheros y poned <b>uno solo</b>, <code>synchronized (candado)</code>, que envuelva todo el trabajo</li>
-    <li>En <code>Principal</code>: cread <b>un solo</b> <code>Object</code> y pasadlo a los dos <code>new Trabajo(...)</code></li>
-    <li><b>No cambiéis</b> el orden <code>(a, b)</code> y <code>(b, a)</code></li>
+    <li>Copiar el proyecto</li>
+    <li>Trabajo: atributo y constructor</li>
+    <li>Trabajo: dejar un solo <code>synchronized</code></li>
+    <li>Principal: crear y repartir el candado</li>
+    <li>Ejecutar</li>
   </ol>
-  <p class="caja"><b>Ejecutad:</b> un hilo entra, el otro espera, y los dos terminan.</p>
-  <p class="peque">Pistas y ayudas: enunciado, ejercicio 3.</p>
+  <p class="peque">Bajad con ↓ para ver cada paso. Pistas y ayudas: enunciado, ejercicio 3.</p>
+
+--
+
+<!-- html -->
+  <h3>Paso 1 · Copiar el proyecto</h3>
+  <ol>
+    <li>Clic derecho sobre <code>Interbloqueo</code> › <i>Copiar…</i></li>
+    <li>Nombre: <code>InterbloqueoUnCerrojo</code></li>
+    <li>Trabajad <b>solo en la copia</b></li>
+  </ol>
+
+--
+
+<!-- html -->
+  <h3>Paso 2 · Trabajo: atributo y constructor</h3>
+  <p class="peque">Abrid <code>Trabajo</code>. Añadid el atributo <code>candado</code>, un parámetro más en el constructor y la línea que lo guarda.</p>
+  {{codigo: InterbloqueoUnCerrojo/Trabajo.java :: 3-11 @@ 3|5|8}}
+
+--
+
+<!-- html -->
+  <h3>Paso 3a · Trabajo: qué se borra en run()</h3>
+  <p class="peque">Este es el <code>run()</code> de ahora. <b>Borrad</b> las tres líneas marcadas: los dos <code>synchronized</code> de los ficheros y la llave que cierra el de dentro.</p>
+  {{codigo: Interbloqueo/Trabajo.java :: 12-26 @@ 3|10|12}}
+
+--
+
+<!-- html -->
+  <h3>Paso 3b · Trabajo: qué se escribe en run()</h3>
+  <p class="peque">En su lugar, <b>un solo</b> <code>synchronized (candado)</code> que envuelve todo. La línea del <code>"trabaja"</code> se queda dentro, sin su bloque.</p>
+  {{codigo: InterbloqueoUnCerrojo/Trabajo.java :: 14-26 @@ 3}}
+
+--
+
+<!-- html -->
+  <h3>Paso 4 · Principal: crear y repartir el candado</h3>
+  <p class="peque">Abrid <code>Principal</code>. Cread <b>un solo</b> <code>Object</code> y pasadlo como tercer argumento a los <b>dos</b> <code>new Trabajo(...)</code>. No toquéis <code>(a, b)</code> y <code>(b, a)</code>.</p>
+  {{codigo: InterbloqueoUnCerrojo/Principal.java :: 4-9 @@ 3|5-6}}
+
+--
+
+<!-- html -->
+  <h3>Paso 5 · Ejecutad</h3>
+  <p class="caja">Un hilo entra y el otro espera. Los dos terminan y <code>main</code> muestra <code>TERMINATED</code>.</p>
+  <p class="peque">¿No compila? Casi siempre falta el tercer argumento <code>candado</code> en uno de los dos <code>new Trabajo(...)</code>.</p>
 
 ---
 
@@ -234,14 +279,45 @@
 
 <!-- html -->
   <h3>Solución 3 · Qué cambiar (6 min)</h3>
+  <p>Cuatro pasos. En cada uno verás <b>el código</b> que hay que mover o escribir.</p>
   <ol class="peque">
-    <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoSoltar</code></li>
-    <li>En <code>run()</code>: dejad <code>synchronized (primero)</code> solo con su mensaje y su <code>sleep()</code>, y <b>cerrad sus llaves ahí</b></li>
-    <li>Después, mostrad que pide el segundo fichero</li>
-    <li>A continuación, <b>fuera</b> del primero: <code>synchronized (segundo)</code> con su mensaje</li>
+    <li>Copiar el proyecto</li>
+    <li>Trabajo: qué se saca del primer bloque</li>
+    <li>Trabajo: cómo queda <code>run()</code></li>
+    <li>Ejecutar</li>
   </ol>
-  <p class="caja"><b>Ejecutad:</b> terminan, y ya no sale ningún mensaje con los dos ficheros a la vez.</p>
-  <p class="peque">Pistas y ayudas: enunciado, ejercicio 4.</p>
+  <p class="peque">Bajad con ↓ para ver cada paso. Pistas y ayudas: enunciado, ejercicio 4.</p>
+
+--
+
+<!-- html -->
+  <h3>Paso 1 · Copiar el proyecto</h3>
+  <ol>
+    <li>Clic derecho sobre <code>Interbloqueo</code> › <i>Copiar…</i></li>
+    <li>Nombre: <code>InterbloqueoSoltar</code></li>
+    <li>Trabajad <b>solo en la copia</b></li>
+  </ol>
+
+--
+
+<!-- html -->
+  <h3>Paso 2 · Trabajo: qué se saca del primer bloque</h3>
+  <p class="peque">Este es el <code>run()</code> de ahora. Las líneas marcadas (el mensaje «pide» y el <code>synchronized (segundo)</code> entero) están <b>dentro</b> del primer bloque. Hay que sacarlas <b>fuera</b>, después de su llave de cierre.</p>
+  {{codigo: Interbloqueo/Trabajo.java :: 12-26 @@ 9-13}}
+
+--
+
+<!-- html -->
+  <h3>Paso 3 · Trabajo: cómo queda run()</h3>
+  <p class="peque">Cerrad el primer bloque justo después del <code>sleep()</code>. Cambiad su mensaje a «<code>: trabaja</code>». Después, <b>a continuación</b> (no dentro): el mensaje «pide» y el bloque del segundo fichero.</p>
+  {{codigo: InterbloqueoSoltar/Trabajo.java :: 12-26 @@ 4|9|10-13}}
+
+--
+
+<!-- html -->
+  <h3>Ejecutad</h3>
+  <p class="caja">Terminan, y ya no sale ningún mensaje con los dos ficheros a la vez.</p>
+  <p class="peque">¿No termina? Mirad que el <code>synchronized (segundo)</code> no esté dentro del primero.</p>
 
 ---
 
@@ -255,15 +331,53 @@
 
 <!-- html -->
   <h3>Solución 4 · Qué cambiar (7 min)</h3>
+  <p>Cinco pasos. En cada uno verás <b>el código</b> que hay que escribir.</p>
   <ol class="peque">
-    <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoNumeros</code></li>
-    <li>En <code>Fichero</code>: atributo <code>int numero</code>, recibido en el constructor, y método <code>getNumero()</code></li>
-    <li>En <code>Principal</code>: el fichero A con el número 1 y el B con el 2</li>
-    <li>En <code>Trabajo</code>: el constructor recibe <code>uno</code> y <code>otro</code> y compara sus números con un <code>if</code></li>
-    <li>Si el de <code>uno</code> es más bajo: <code>primero = uno</code> y <code>segundo = otro</code>. Si no, al revés. No toquéis <code>run()</code></li>
+    <li>Copiar el proyecto</li>
+    <li>Fichero: guarda un número</li>
+    <li>Principal: crear A con 1 y B con 2</li>
+    <li>Trabajo: el constructor ordena los ficheros</li>
+    <li>Ejecutar</li>
   </ol>
-  <p class="caja"><b>Ejecutad:</b> los dos piden primero A, aunque <code>Principal</code> se lo dé al revés al hilo 2.</p>
-  <p class="peque">Pistas y ayudas: enunciado, ejercicio 5.</p>
+  <p class="peque">Bajad con ↓ para ver cada paso. Pistas y ayudas: enunciado, ejercicio 5.</p>
+
+--
+
+<!-- html -->
+  <h3>Paso 1 · Copiar el proyecto</h3>
+  <ol>
+    <li>Clic derecho sobre <code>Interbloqueo</code> › <i>Copiar…</i></li>
+    <li>Nombre: <code>InterbloqueoNumeros</code></li>
+    <li>Trabajad <b>solo en la copia</b></li>
+  </ol>
+
+--
+
+<!-- html -->
+  <h3>Paso 2 · Fichero: guarda un número</h3>
+  <p class="peque">Añadid el atributo <code>numero</code>, un parámetro más en el constructor que lo guarda, y el método <code>getNumero()</code>.</p>
+  {{codigo: InterbloqueoNumeros/Fichero.java @@ 4|6-9|15-17}}
+
+--
+
+<!-- html -->
+  <h3>Paso 3 · Principal: crear A con 1 y B con 2</h3>
+  <p class="peque">Pasad el número al crear cada fichero. No toquéis las líneas de los hilos: el hilo 2 sigue recibiendo <code>(b, a)</code>.</p>
+  {{codigo: InterbloqueoNumeros/Principal.java :: 4-5 @@ 1-2}}
+
+--
+
+<!-- html -->
+  <h3>Paso 4 · Trabajo: el constructor ordena los ficheros</h3>
+  <p class="peque">Los parámetros pasan a llamarse <code>uno</code> y <code>otro</code>. Un <code>if</code> compara sus números y guarda en <code>primero</code> el más bajo. <b>No toquéis <code>run()</code>.</b></p>
+  {{codigo: InterbloqueoNumeros/Trabajo.java :: 6-14 @@ 1|2-4|5-7}}
+
+--
+
+<!-- html -->
+  <h3>Ejecutad</h3>
+  <p class="caja">Los dos piden primero A, aunque <code>Principal</code> se lo dé al revés al hilo 2.</p>
+  <p class="peque">¿No compila? Mirad que los dos <code>new Fichero(...)</code> llevan el número.</p>
 
 ---
 
@@ -288,17 +402,82 @@
 
 <!-- html -->
   <h3>Solución 5 · Qué cambiar (10 min)</h3>
+  <p>Siete pasos. En cada uno verás <b>el código</b> que hay que escribir.</p>
   <ol class="peque">
-    <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoTiempo</code></li>
-    <li>En <code>Fichero</code>: un atributo <code>ReentrantLock</code> y un método que lo devuelve</li>
-    <li>En <code>Trabajo</code>: un <code>while</code> hasta que <code>hecho</code> sea <code>true</code>, dentro de un <code>try</code></li>
-    <li>Primer fichero con <code>lock()</code>, <code>sleep()</code> de 1 s, y segundo con <code>tryLock(1, TimeUnit.SECONDS)</code> en un <code>if</code></li>
-    <li>Si da <code>true</code>: trabaja, <code>unlock()</code> de los dos y <code>hecho = true</code></li>
-    <li>Si da <code>false</code>: mensaje de reintento, <code>unlock()</code> del primero y <code>sleep()</code> al azar</li>
-    <li>En <code>Principal</code>, <code>main</code> espera 8 segundos</li>
+    <li>Copiar el proyecto</li>
+    <li>Fichero: el cerrojo</li>
+    <li>Trabajo: imports y <code>Random</code></li>
+    <li>Trabajo: <code>hecho</code>, <code>try</code> y <code>while</code></li>
+    <li>Trabajo: pedir los dos cerrojos</li>
+    <li>Trabajo: si lo consigue / si no lo consigue</li>
+    <li>Principal y ejecutar</li>
   </ol>
-  <p class="caja"><b>Ejecutad:</b> varias veces. Los dos terminan, y a veces hay algún reintento.</p>
-  <p class="peque">Pistas y ayudas: enunciado, ejercicio 6.</p>
+  <p class="peque">Bajad con ↓ para ver cada paso. Pistas y ayudas: enunciado, ejercicio 6.</p>
+
+--
+
+<!-- html -->
+  <h3>Paso 1 · Copiar el proyecto</h3>
+  <ol>
+    <li>Clic derecho sobre <code>Interbloqueo</code> › <i>Copiar…</i></li>
+    <li>Nombre: <code>InterbloqueoTiempo</code></li>
+    <li>Trabajad <b>solo en la copia</b></li>
+  </ol>
+
+--
+
+<!-- html -->
+  <h3>Paso 2 · Fichero: el cerrojo</h3>
+  <p class="peque">Añadid el <code>import</code>, un atributo <code>ReentrantLock</code> creado con <code>new</code>, y un método que lo devuelve.</p>
+  {{codigo: InterbloqueoTiempo/Fichero.java @@ 1|6|16-18}}
+
+--
+
+<!-- html -->
+  <h3>Paso 3 · Trabajo: imports y Random</h3>
+  <p class="peque">Dos <code>import</code> y un atributo <code>Random</code> para esperar un tiempo al azar.</p>
+  {{codigo: InterbloqueoTiempo/Trabajo.java :: 1-8 @@ 1-2|8}}
+
+--
+
+<!-- html -->
+  <h3>Paso 4 · Trabajo: hecho, try y while</h3>
+  <p class="peque">En <code>run()</code>: la variable <code>hecho</code>, un <code>try</code> con su <code>catch</code> y un <code>while</code> que se repite mientras <code>hecho</code> sea <code>false</code>. Dentro irá todo lo demás.</p>
+  {{codigo: InterbloqueoTiempo/Trabajo.java :: 16-39 @@ 3|4-5|21-22}}
+
+--
+
+<!-- html -->
+  <h3>Paso 5 · Trabajo: pedir los dos cerrojos</h3>
+  <p class="peque">Primero: <code>lock()</code>, mensaje y <code>sleep()</code> de 1 segundo. Después, el mensaje «pide» y el <code>tryLock(1, TimeUnit.SECONDS)</code> dentro de un <code>if</code>.</p>
+  {{codigo: InterbloqueoTiempo/Trabajo.java :: 16-39 @@ 6-8|9-10}}
+
+--
+
+<!-- html -->
+  <h3>Paso 6a · Trabajo: si lo consigue</h3>
+  <p class="peque">Si <code>tryLock</code> da <code>true</code>: mensaje de trabajo, <code>unlock()</code> de los <b>dos</b> y <code>hecho = true</code>.</p>
+  {{codigo: InterbloqueoTiempo/Trabajo.java :: 16-39 @@ 10-14}}
+
+--
+
+<!-- html -->
+  <h3>Paso 6b · Trabajo: si no lo consigue</h3>
+  <p class="peque">Si da <code>false</code>: mensaje de reintento, <code>unlock()</code> del <b>primero</b> y <code>sleep()</code> al azar. El <code>while</code> lo vuelve a intentar.</p>
+  {{codigo: InterbloqueoTiempo/Trabajo.java :: 16-39 @@ 15-19}}
+
+--
+
+<!-- html -->
+  <h3>Paso 7 · Principal: espera de 8 segundos</h3>
+  <p class="peque">Subid la espera de <code>main</code> de 5000 a 8000 milisegundos, porque ahora puede haber reintentos antes de que acaben.</p>
+  {{codigo: InterbloqueoTiempo/Principal.java :: 4-12 @@ 9}}
+
+--
+
+<!-- html -->
+  <h3>Ejecutad</h3>
+  <p class="caja">Ejecutad varias veces. Los dos terminan, y a veces hay algún reintento.</p>
 
 ---
 
