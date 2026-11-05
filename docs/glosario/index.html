@@ -357,10 +357,10 @@ sleep(3000);
 <dl>
 <dt>Qué es</dt><dd><p>Concepto, no una instrucción: situación en la que dos o más hilos esperan cada uno algo que tiene otro, y ninguno puede avanzar. En inglés, deadlock.</p>
 </dd>
-<dt>Para qué sirve</dt><dd><p>Explica por qué un programa se queda parado sin dar ningún error. Se produce cuando hay exclusión mutua, un hilo retiene un recurso mientras pide otro, nadie puede quitárselo y los hilos esperan en círculo. Se evita pidiendo los recursos siempre en el mismo orden.</p>
+<dt>Para qué sirve</dt><dd><p>Explica por qué un programa se queda parado sin dar ningún error. Se produce cuando hay exclusión mutua, un hilo retiene un recurso mientras pide otro, nadie puede quitárselo y los hilos esperan en círculo. Se evita rompiendo una de las cuatro condiciones: pidiendo los recursos siempre en el mismo orden, con un solo cerrojo, sin retener lo que se tiene o con un tiempo máximo de espera.</p>
 </dd>
-<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">a.metodoA(b);   // el hilo 1 tiene A y pide B
-b.metodoB(a);   // el hilo 2 tiene B y pide A
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">new Trabajo(a, b);   // el hilo 1 tiene A y pide B
+new Trabajo(b, a);   // el hilo 2 tiene B y pide A
 </code></pre>
 </dd>
 </dl>
@@ -438,6 +438,20 @@ hilos.add(new Thread(new Cliente(lavanderia)));
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="lock() y unlock()">
+<h2><code>lock() y unlock()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Métodos de ReentrantLock. lock() pide el cerrojo y espera hasta tenerlo. unlock() lo suelta.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Proteger un trozo de código como con synchronized, pero a mano. Hay que llamar siempre a unlock() por cada lock(): si se olvida, el cerrojo se queda cogido para siempre.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">cerrojo.lock();
+// trabaja con el recurso
+cerrojo.unlock();
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="main">
 <h2><code>main</code></h2>
 <dl>
@@ -499,6 +513,22 @@ notify();
 </dd>
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">numCuadros--;
 notifyAll();
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Object">
+<h2><code>Object</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>La clase más sencilla de Java: todas las demás clases descienden de ella. Con new Object() se crea un objeto vacío, sin datos ni métodos propios.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Servir de cerrojo. Como todo objeto tiene su propio cerrojo, un Object vacío que comparten varios hilos permite que todos se esperen con synchronized (candado) sin que importe qué otros objetos usen.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Object candado = new Object();
+
+synchronized (candado) {
+    // solo un hilo a la vez entra aquí
+}
 </code></pre>
 </dd>
 </dl>
@@ -582,6 +612,18 @@ int segundos = 1 + azar.nextInt(3); // 1, 2 o 3
 while (br.readLine() != null) {
     lineas++;
 }
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="ReentrantLock">
+<h2><code>ReentrantLock</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase de Java (paquete java.util.concurrent.locks) que hace de cerrojo. Se coge y se suelta a mano con sus métodos, sin synchronized.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Pedir un cerrojo con más control que synchronized: se puede pedir con tiempo máximo y rendirse si no llega. Es la base de la solución al interbloqueo con tiempo máximo.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">ReentrantLock cerrojo = new ReentrantLock();
 </code></pre>
 </dd>
 </dl>
@@ -842,6 +884,18 @@ System.out.println(actual.getName());
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="TimeUnit">
+<h2><code>TimeUnit</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase de Java (paquete java.util.concurrent) con las unidades de tiempo: TimeUnit.SECONDS, TimeUnit.MILLISECONDS y otras.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Decir en qué unidad está una cantidad de tiempo. Por ejemplo, en tryLock(1, TimeUnit.SECONDS) el 1 son segundos.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">TimeUnit.SECONDS
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="try / catch">
 <h2><code>try / catch</code></h2>
 <dl>
@@ -852,6 +906,22 @@ System.out.println(actual.getName());
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">try {
     wait();
 } catch (InterruptedException e) {
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="tryLock(tiempo, unidad)">
+<h2><code>tryLock(tiempo, unidad)</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de ReentrantLock. Pide el cerrojo y espera como mucho el tiempo que se indica. Devuelve true si lo consigue y false si el tiempo se acaba. Puede lanzar InterruptedException.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>No quedarse esperando para siempre: si devuelve false, el hilo puede soltar lo que tiene y volver a intentarlo. Así se evita el interbloqueo.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">if (cerrojo.tryLock(1, TimeUnit.SECONDS)) {
+    // lo ha conseguido
+} else {
+    // se rinde
 }
 </code></pre>
 </dd>
