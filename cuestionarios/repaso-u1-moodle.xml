@@ -2337,8 +2337,137 @@ public synchronized void salirLimpieza() {
 <dragbox><text>Cada uno espera a que el otro suelte la suya</text><group>1</group></dragbox>
 <dragbox><text>Ninguno suelta nada y los dos se quedan parados para siempre</text><group>1</group></dragbox>
 </question>
+<question type="multichoice">
+<name><text>6.8-138 Soluciones que evitan el interbloqueo</text></name>
+<questiontext format="html"><text><![CDATA[<p>Dos cocineros necesitan a la vez la batidora y el horno, y a veces se quedan los dos esperando. Marca los cambios que <b>sí</b> evitan el interbloqueo:</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Cada solución rompe una condición: el mismo orden y el cerrojo único deshacen la espera en círculo, soltar antes evita retener y esperar, y el tiempo máximo hace que el hilo se rinda. Dormir más o cambiar prioridades no rompe ninguna.</p>]]></text></generalfeedback>
+<defaultgrade>3</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<single>false</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>1</shownumcorrectfeedback>
+<answer fraction="25" format="html"><text><![CDATA[Que los dos pidan siempre primero la batidora y después el horno.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="25" format="html"><text><![CDATA[Usar un único cerrojo para los dos aparatos.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="25" format="html"><text><![CDATA[Usar la batidora, soltarla y solo después pedir el horno.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="25" format="html"><text><![CDATA[Pedir el horno con un tiempo máximo y, si no llega, soltar la batidora y reintentar.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="-50" format="html"><text><![CDATA[Añadir un <code>Thread.sleep()</code> más largo entre un aparato y otro.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="-50" format="html"><text><![CDATA[Subir la prioridad de uno de los cocineros.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="matching">
+<name><text>6.8-139 Solución y condición que rompe</text></name>
+<questiontext format="html"><text><![CDATA[<p>Une cada medida con la condición del interbloqueo que deja de cumplirse:</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Con la última, el bloqueo desaparece pero vuelve la condición de carrera: no es una solución válida.</p>]]></text></generalfeedback>
+<defaultgrade>3</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<shuffleanswers>true</shuffleanswers>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>1</shownumcorrectfeedback>
+<subquestion format="html"><text><![CDATA[Pedir los recursos siempre en el mismo orden]]></text><answer><text>Espera en círculo</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[Soltar el primer recurso antes de pedir el segundo]]></text><answer><text>Retener y esperar</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[Rendirse si el recurso no llega en un tiempo máximo]]></text><answer><text>Sin quitárselo</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[Quitar el <code>synchronized</code> de los recursos]]></text><answer><text>Exclusión mutua</text></answer></subquestion>
+</question>
+<question type="multichoice">
+<name><text>6.8-140 Un solo cerrojo: inconveniente</text></name>
+<questiontext format="html"><text><![CDATA[<p>Para evitar el interbloqueo, un programa protege la impresora y el escáner con <b>un único cerrojo</b>. ¿Qué inconveniente tiene?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Con un solo cerrojo no hay círculo, pero se pierde paralelismo: todo el mundo espera aunque pida recursos distintos.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="100" format="html"><text><![CDATA[Un hilo que solo quiere la impresora espera igual si otro está usando el escáner.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Vuelve a haber espera en círculo.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Los hilos ya no pueden usar <code>synchronized</code>.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Hace falta un tiempo máximo de espera.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>6.8-141 Cuándo no vale soltar antes</text></name>
+<questiontext format="html"><text><![CDATA[<p>Soltar el primer recurso antes de pedir el segundo evita el interbloqueo. ¿En qué caso <b>no</b> se puede usar esa solución?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Si el trabajo necesita los dos juntos, hay que retener el primero mientras se pide el segundo, y entonces hay que usar otra solución.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="100" format="html"><text><![CDATA[Cuando el trabajo necesita tener los dos recursos a la vez para poder hacerse.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Cuando el trabajo usa primero un recurso y después, por separado, el otro.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Cuando hay un solo hilo.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Cuando los recursos son ficheros.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="cloze">
+<name><text>6.8-142 Pedir un cerrojo con tiempo máximo</text></name>
+<questiontext format="html"><text><![CDATA[<p>Un hilo necesita la batidora y el horno, cada uno con su <code>ReentrantLock</code>. Completa el código para que espere el horno como mucho 1 segundo.</p><pre>batidora.{1:SHORTANSWER_C:=lock}();
+if (horno.{1:SHORTANSWER_C:=tryLock}(1, TimeUnit.SECONDS)) {
+    // cocina con los dos
+    horno.{1:SHORTANSWER_C:=unlock}();
+}
+batidora.unlock();</pre>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p><code>lock()</code> espera hasta tener el cerrojo. <code>tryLock(1, TimeUnit.SECONDS)</code> espera como mucho 1 segundo y devuelve <code>true</code> o <code>false</code>. <code>unlock()</code> lo suelta.</p>]]></text></generalfeedback>
+<penalty>0.3333333</penalty><hidden>0</hidden>
+</question>
+<question type="truefalse">
+<name><text>6.8-143 tryLock devuelve false</text></name>
+<questiontext format="html"><text><![CDATA[<p>Si <code>tryLock(1, TimeUnit.SECONDS)</code> no consigue el cerrojo en 1 segundo, el hilo se queda esperando para siempre.</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Falso. Devuelve <code>false</code> al acabar el tiempo y el hilo puede soltar lo que tiene y reintentar. Esa es su ventaja frente a <code>synchronized</code>.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>1.0000000</penalty>
+<hidden>0</hidden>
+<answer fraction="0" format="moodle_auto_format"><text>true</text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="100" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>6.8-144 Olvidar el unlock</text></name>
+<questiontext format="html"><text><![CDATA[<p>Un hilo coge un <code>ReentrantLock</code> con <code>lock()</code> y, por un <code>if</code> mal escrito, en algún camino nunca llama a <code>unlock()</code>. ¿Qué ocurre?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>A diferencia de <code>synchronized</code>, que suelta el cerrojo al cerrar el bloque, con <code>ReentrantLock</code> hay que soltarlo siempre a mano.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="100" format="html"><text><![CDATA[El cerrojo se queda cogido y los demás hilos que lo pidan esperan sin que salga ningún error.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Java lo suelta solo al cerrar el bloque <code>if</code>.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[El programa lanza <code>IllegalMonitorStateException</code> al acabar el hilo.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[El cerrojo pasa al siguiente hilo automáticamente.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>6.8-145 Reintentar sin esperar al azar</text></name>
+<questiontext format="html"><text><![CDATA[<p>Dos hilos usan <code>tryLock</code> con tiempo máximo y, cuando fallan, sueltan lo que tienen y reintentan <b>al instante</b>. ¿Qué puede pasar?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Por eso se espera un tiempo al azar antes de reintentar: así es difícil que los dos vuelvan a pedir a la vez.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>0.3333333</penalty>
+<hidden>0</hidden>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback>
+<partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
+<incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="100" format="html"><text><![CDATA[Pueden volver a chocar una y otra vez, porque reintentan justo a la vez.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Es imposible que fallen dos veces seguidas.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[El programa se queda en <code>BLOCKED</code> para siempre.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Java reparte los cerrojos para que no choquen.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="truefalse">
+<name><text>6.8-146 Un solo hilo con el orden contrario</text></name>
+<questiontext format="html"><text><![CDATA[<p>Si todos los hilos piden los recursos en el mismo orden menos uno, que pide en el contrario, el interbloqueo no puede ocurrir.</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Falso. Basta un hilo que pida en orden contrario para que pueda formarse la espera en círculo. Por eso una solución más segura es que el propio código ordene los recursos, por ejemplo por número.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade>
+<penalty>1.0000000</penalty>
+<hidden>0</hidden>
+<answer fraction="0" format="moodle_auto_format"><text>true</text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="100" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
+</question>
 <question type="essay">
-<name><text>6.8-138 Escribe la transferencia sin interbloqueo</text></name>
+<name><text>6.8-147 Escribe la transferencia sin interbloqueo</text></name>
 <questiontext format="html"><text><![CDATA[<p>Escribe el método <code>mover(Cuenta origen, Cuenta destino, int cantidad)</code> de una clase de transferencias, de forma que <b>no haya interbloqueo</b> aunque dos hilos muevan dinero entre las mismas cuentas en sentido contrario. Las cuentas tienen un <code>getNumero()</code>, un <code>restar(int)</code> y un <code>sumar(int)</code>. Pista: coge siempre primero el cerrojo de la cuenta de número menor.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Solución de ejemplo:</p><pre>public void mover(Cuenta origen, Cuenta destino, int cantidad) {
     Cuenta primera;
@@ -2381,7 +2510,7 @@ public synchronized void salirLimpieza() {
 </question>
 <question type="category"><category><text>$course$/top/Repaso PSP Unidad 1/Simulacro de examen (mezcla)</text></category></question>
 <question type="multichoice">
-<name><text>EX-139 Encuentra los fallos</text></name>
+<name><text>EX-148 Encuentra los fallos</text></name>
 <questiontext format="html"><text><![CDATA[<p>Este buzón debería permitir que un hilo deje un mensaje y otro lo recoja, con <b>varios</b> hilos usándolo. Marca los fallos <b>reales</b>:</p><pre>class Buzon {
     private String mensaje = null;
 
@@ -2408,7 +2537,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="-50" format="html"><text><![CDATA[<code>mensaje</code> debería ser de tipo <code>int</code>.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="ddwtos">
-<name><text>EX-140 Buzón completo</text></name>
+<name><text>EX-149 Buzón completo</text></name>
 <questiontext format="html"><text><![CDATA[<p>Completa el buzón (productor/consumidor) arrastrando las palabras. Algunas se usan <b>varias veces</b> y algunas sobran.</p><pre>class Buzon {
     private String mensaje = null;
 
@@ -2448,7 +2577,7 @@ public synchronized void salirLimpieza() {
 <dragbox><text>join</text><group>1</group></dragbox>
 </question>
 <question type="multichoice">
-<name><text>EX-141 Al despertar con notifyAll</text></name>
+<name><text>EX-150 Al despertar con notifyAll</text></name>
 <questiontext format="html"><text><![CDATA[<p>Varios hilos esperan en <code>wait()</code> y otro llama a <code>notifyAll()</code>. ¿Qué hace cada hilo al despertar?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Por eso <code>wait()</code> va dentro de un <code>while</code>: cada hilo comprueba otra vez la condición.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2464,7 +2593,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="0" format="html"><text><![CDATA[Terminan todos.]]></text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="truefalse">
-<name><text>EX-142 Dos métodos synchronized a la vez</text></name>
+<name><text>EX-151 Dos métodos synchronized a la vez</text></name>
 <questiontext format="html"><text><![CDATA[<p>Dos hilos pueden estar a la vez dentro de dos métodos <code>synchronized</code> <b>distintos</b> del mismo objeto.</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Falso. El cerrojo es del objeto, no del método: mientras uno está dentro de cualquier método <code>synchronized</code>, el otro espera.</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2474,7 +2603,7 @@ public synchronized void salirLimpieza() {
 <answer fraction="100" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
 </question>
 <question type="numerical">
-<name><text>EX-143 Entradas al parking</text></name>
+<name><text>EX-152 Entradas al parking</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un parking tiene 3 plazas. Lanzas 8 coches (hilos) y cada uno entra al parking 3 veces, llamando a un método <code>entrar()</code>. ¿Cuántas veces se ejecuta <code>entrar()</code> en total?</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>8 coches × 3 entradas = 24. (Con <code>wait()</code> y <code>notifyAll()</code>, las plazas libres nunca bajan de 0 y al final quedan 3.)</p>]]></text></generalfeedback>
 <defaultgrade>1</defaultgrade>
@@ -2484,7 +2613,7 @@ public synchronized void salirLimpieza() {
 <unitgradingtype>0</unitgradingtype><unitpenalty>0.1000000</unitpenalty><showunits>3</showunits><unitsleft>0</unitsleft>
 </question>
 <question type="matching">
-<name><text>EX-144 Síntoma y causa</text></name>
+<name><text>EX-153 Síntoma y causa</text></name>
 <questiontext format="html"><text><![CDATA[<p>Une cada síntoma con su causa más probable:</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Reconocer el síntoma ahorra mucho tiempo al depurar.</p>]]></text></generalfeedback>
 <defaultgrade>3</defaultgrade>
@@ -2502,7 +2631,7 @@ public synchronized void salirLimpieza() {
 <subquestion format="html"><text><![CDATA[ArrayIndexOutOfBoundsException]]></text><answer><text>for con &lt;= en lugar de &lt; en un array</text></answer></subquestion>
 </question>
 <question type="essay">
-<name><text>EX-145 Problema completo de examen</text></name>
+<name><text>EX-154 Problema completo de examen</text></name>
 <questiontext format="html"><text><![CDATA[<p>Un gimnasio tiene <b>4 máquinas</b> de pesas. Llegan 10 socios (hilos). Cada socio usa una máquina 2 segundos (con <code>sleep</code>) y la deja. Escribe las 3 clases: <code>Gimnasio</code> (recurso compartido con <code>usar()</code> y <code>dejar()</code>), <code>Socio</code> (<code>Runnable</code>) y <code>Principal</code> (crea los 10 hilos con nombre «Socio 1»…«Socio 10»).</p>]]></text></questiontext>
 <generalfeedback format="html"><text><![CDATA[<p>Solución de ejemplo:</p><pre>public class Gimnasio {
     private int libres = 4;
