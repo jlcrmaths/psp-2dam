@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -62,4 +63,26 @@ test('sin enunciado el índice no enlaza una página inexistente', () => {
 test('sin notas no hace falta frase', () => {
   const raiz = repo({ conNotas: false });
   assert.doesNotThrow(() => construir({ raiz, frase: undefined }));
+});
+
+test('apartado.json con "descargas" crea el zip del proyecto sin build ni nbproject/private', () => {
+  const raiz = repo();
+  cpSync(join(proyecto, 'plantillas'), join(raiz, 'plantillas'), { recursive: true });
+  const a = ['contenido', 'u1', '6.1-x'];
+  escribir(raiz, [...a, 'apartado.json'], '{"titulo":"6.1 X","orden":1,"resumen":"r","descargas":["P"]}');
+  escribir(raiz, [...a, 'proyectos', 'P', 'build', 'classes', 'A.class'], 'basura');
+  construir({ raiz, frase: 'frase de prueba larga' });
+  const zip = join(raiz, 'docs', 'u1', '6.1-x', 'P.zip');
+  assert.ok(existsSync(zip), 'falta P.zip');
+  const lista = execFileSync('unzip', ['-Z1', zip], { encoding: 'utf8' });
+  assert.match(lista, /P\/src\/x\/A\.java/);
+  assert.match(lista, /P\/nbproject\/project\.xml/);
+  assert.doesNotMatch(lista, /build\//);
+  assert.match(leer(raiz, 'index.html'), /P\.zip/);
+});
+
+test('una descarga que no es un proyecto da error claro', () => {
+  const raiz = repo();
+  escribir(raiz, ['contenido', 'u1', '6.1-x', 'apartado.json'], '{"titulo":"6.1 X","orden":1,"resumen":"r","descargas":["NoExiste"]}');
+  assert.throws(() => construir({ raiz, frase: 'frase de prueba larga' }), /NoExiste/);
 });
