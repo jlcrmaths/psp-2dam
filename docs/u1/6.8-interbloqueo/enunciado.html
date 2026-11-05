@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apartado 6.8 – Interbloqueo</title>
+<link rel="stylesheet" href="../../estilo/tema.css">
+<script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t)}catch(e){}</script>
+</head>
+<body class="">
+<header class="cabecera">
+  <a class="marca" href="../../index.html">PSP · 2º DAM</a>
+  <nav><a href="../../glosario/index.html">Glosario</a><button id="tema" type="button" aria-label="Cambiar entre tema claro y oscuro">◐</button></nav>
+</header>
+<main class="contenido">
+<h1>Apartado 6.8 – Interbloqueo</h1>
+<p>Parte del proyecto <code>Interbloqueo</code>: <strong><a href="Interbloqueo.zip">descarga Interbloqueo.zip</a></strong>. Descomprímelo y ábrelo en NetBeans (Archivo &gt; Abrir proyecto).</p>
+<p>En el proyecto, dos hilos necesitan los dos mismos ficheros, A y B, y cada fichero solo admite un hilo a la vez. Todas las clases van en el paquete <code>interbloqueo</code>.</p>
+<p>Haz los ejercicios en orden. A partir del Ejercicio 2, <strong>no modifiques el proyecto original</strong>: haz una copia con el nombre que se indica (clic derecho sobre el proyecto, <code>Copiar…</code>) y trabaja en la copia. Así cada ejercicio parte del programa que se bloquea.</p>
+<p>En todos los ejercicios, el arreglo está bien hecho cuando <strong>el programa termina solo</strong> y, a los 5 segundos, <code>main</code> muestra los dos hilos en estado <code>TERMINATED</code>.</p>
+
+<section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
+<h2>Ejercicio 1: ejecuta y averigua qué pasa (proyecto <code>Interbloqueo</code>)</h2>
+<p>Ejecuta el proyecto y espera unos 10 segundos. Después responde por escrito:</p>
+<ul>
+<li>¿El programa termina? ¿Sale algún error?</li>
+<li>¿En qué estado está cada hilo al final?</li>
+<li>¿Qué fichero tiene cada hilo y qué fichero está esperando?</li>
+<li>¿Cuál de las cuatro condiciones del interbloqueo (exclusión mutua, retener y esperar, sin quitárselo, espera en círculo) crees que sería más fácil de evitar?</li>
+</ul>
+<p>Detén el programa a mano cuando termines.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Lee los mensajes que salen por pantalla, en orden. Cada hilo dice qué fichero tiene y cuál pide. Fíjate en el último mensaje que escribe cada hilo: lo que ya no escribe te dice dónde se ha quedado. Para el estado, mira las dos últimas líneas.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Mira con calma el orden en que cada hilo recibe los ficheros en <code>Principal</code>, y qué hace <code>Trabajo</code> con ellos: coge el primero, duerme un segundo y pide el segundo. Piensa qué ha hecho el otro hilo durante ese segundo. El estado <code>BLOCKED</code> significa que el hilo espera el cerrojo de un objeto <code>synchronized</code>. Para la última pregunta, piensa qué condición puedes cambiar tocando muy pocas líneas.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Ejecuta el proyecto y espera 10 segundos sin tocar nada.</li>
+<li>Comprueba que no se ha abierto ningún error en la consola y que el botón de ejecución de NetBeans sigue activo: el programa no ha terminado.</li>
+<li>Apunta cuál es el último mensaje que ha escrito cada hilo.</li>
+<li>Apunta el estado que <code>main</code> muestra para cada hilo.</li>
+<li>Escribe en una frase quién tiene A, quién tiene B y a quién espera cada uno.</li>
+<li>Dibuja dos cuadrados (los ficheros) y dos flechas: una de «lo tiene» y otra de «lo espera» por cada hilo. ¿Se forma un círculo?</li>
+<li>Para la última pregunta, elige una de las cuatro condiciones y escribe cómo la evitarías. Lo comprobamos en los ejercicios siguientes.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-2" data-ejercicio="ej-2">
+<h2>Ejercicio 2: el mismo orden (proyecto <code>InterbloqueoOrden</code>)</h2>
+<p>Copia el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoOrden</code> y arregla el interbloqueo cambiando lo mínimo posible. Los dos hilos tienen que usar los dos ficheros a la vez, y deben acabar y mostrar <code>Hilo 1 termina</code> y <code>Hilo 2 termina</code>.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El interbloqueo necesita una espera en círculo: uno espera al otro y el otro espera al uno. Piensa qué ocurre si los dos hilos quieren los ficheros en el mismo orden. Mira dónde se decide el orden en que cada hilo recibe los ficheros.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Los dos hilos usan la misma clase <code>Trabajo</code>, que siempre coge primero el fichero que recibe como primero. El orden lo decide <code>Principal</code> al crear cada trabajo. Si los dos reciben el mismo orden, el que llega segundo se queda esperando el primer fichero y no tiene nada cogido, así que no bloquea al otro.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Copia el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoOrden</code> y ábrelo.</li>
+<li>Abre <code>Principal</code> y localiza las dos líneas donde se crean los hilos con <code>new Trabajo(...)</code>.</li>
+<li>Fíjate en que a un hilo se le pasa <code>(a, b)</code> y al otro <code>(b, a)</code>.</li>
+<li>Cambia la línea del segundo hilo para que reciba <code>(a, b)</code>, como el primero.</li>
+<li>No hace falta tocar <code>Trabajo</code> ni <code>Fichero</code>.</li>
+<li>Ejecuta. Comprueba que el hilo 2 espera unos segundos y que después los dos terminan.</li>
+<li>Comprueba que <code>main</code> muestra <code>TERMINATED</code> en los dos hilos.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-3" data-ejercicio="ej-3">
+<h2>Ejercicio 3: un solo cerrojo (proyecto <code>InterbloqueoUnCerrojo</code>)</h2>
+<p>Copia el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoUnCerrojo</code>. Esta vez los dos hilos <strong>siguen recibiendo los ficheros en orden distinto</strong>, <code>(a, b)</code> y <code>(b, a)</code>, y aun así no se bloquean. Los dos hilos siguen usando los dos ficheros a la vez, y acaban uno detrás del otro.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Antes había dos cerrojos, uno por fichero, y por eso se podía esperar en círculo. Piensa qué pasa si solo hay un cerrojo para los dos ficheros: ¿pueden los dos hilos tener algo cogido a la vez? Ese cerrojo tiene que ser el mismo objeto para los dos hilos, así que alguien lo tiene que crear y repartir.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Hace falta un objeto nuevo que no sea ninguno de los ficheros, solo para hacer de cerrojo. Se crea una sola vez en <code>Principal</code> y se entrega a los dos trabajos por el constructor, como se entregan los ficheros. En <code>Trabajo</code>, el hilo coge el cerrojo de ese objeto una sola vez, con un único <code>synchronized</code>, y trabaja con los dos ficheros dentro. Ya no hace falta un <code>synchronized</code> por fichero.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Copia el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoUnCerrojo</code> y ábrelo.</li>
+<li>En <code>Trabajo</code>, añade un atributo de tipo <code>Object</code> llamado <code>candado</code>.</li>
+<li>Cambia el constructor de <code>Trabajo</code> para que reciba también el <code>candado</code> y lo guarde.</li>
+<li>En <code>run()</code>, cambia los dos <code>synchronized</code> anidados por un solo <code>synchronized (candado)</code> que envuelva todo el trabajo.</li>
+<li>Quita los <code>synchronized</code> de <code>primero</code> y <code>segundo</code>: ya no se necesitan.</li>
+<li>En <code>Principal</code>, crea un solo objeto <code>Object</code> y entrégalo a los dos <code>new Trabajo(...)</code>.</li>
+<li>No cambies el orden en que se pasan <code>a</code> y <code>b</code>.</li>
+<li>Ejecuta. Comprueba que un hilo entra y el otro espera hasta que termine, y que los dos acaban.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-4" data-ejercicio="ej-4">
+<h2>Ejercicio 4: no retener lo que se tiene (proyecto <code>InterbloqueoSoltar</code>)</h2>
+<p>Copia el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoSoltar</code>. Los hilos siguen recibiendo <code>(a, b)</code> y <code>(b, a)</code>. Cada hilo usa los ficheros <strong>de uno en uno</strong>: nunca tiene un fichero cogido mientras pide el otro. Cada hilo debe mostrar <code>tiene A: trabaja</code> cuando usa el primer fichero, y <code>tiene B: trabaja</code> cuando usa el segundo (con el nombre del fichero que corresponda).</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Una de las cuatro condiciones es «retener y esperar»: se queda con un fichero mientras pide otro. Si el hilo suelta el primero antes de pedir el segundo, nunca retiene nada mientras espera. Piensa dónde acaba el trabajo con el primer fichero y cómo se hace que el hilo lo suelte en ese momento.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Ahora hay dos bloques <code>synchronized</code> <strong>seguidos</strong>, no uno dentro de otro. El primer bloque coge el primer fichero, trabaja con él y lo suelta al cerrar las llaves. Después, el segundo bloque coge el segundo fichero. El <code>sleep()</code> del trabajo con el primer fichero va dentro del primer bloque. El mensaje de «pide» va entre los dos bloques.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Copia el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoSoltar</code> y ábrelo.</li>
+<li>En <code>Trabajo</code>, abre <code>run()</code> y localiza los dos <code>synchronized</code> anidados.</li>
+<li>Deja el primer bloque con el mensaje de que tiene el primer fichero y el <code>sleep()</code> dentro. Cierra sus llaves ahí.</li>
+<li>Después de cerrarlas, muestra que pide el segundo fichero.</li>
+<li>Escribe el segundo <code>synchronized (segundo)</code> <strong>fuera</strong> del primero, a continuación.</li>
+<li>Dentro del segundo bloque, muestra que tiene el segundo fichero y que trabaja.</li>
+<li>Deja el mensaje <code>termina</code> al final, como estaba.</li>
+<li>Ejecuta. Comprueba que el programa termina. Comprueba también que ya no sale nunca un mensaje con los dos ficheros a la vez.</li>
+<li>Piensa qué pierdes con esta solución: ¿y si el trabajo necesitara los dos ficheros a la vez para poder hacerse?</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-5" data-ejercicio="ej-5">
+<h2>Ejercicio 5: el orden lo pone el programa (proyecto <code>InterbloqueoNumeros</code>)</h2>
+<p>Copia el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoNumeros</code>. Los hilos siguen recibiendo <code>(a, b)</code> y <code>(b, a)</code>, y los dos ficheros se siguen usando a la vez. Cada fichero tiene un <strong>número</strong> (A el 1 y B el 2) y <code>Trabajo</code> pide siempre primero el fichero de número más bajo, <strong>sin que importe en qué orden le lleguen</strong>. Se usa un solo cerrojo por fichero, como al principio.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Es la solución del mismo orden, pero hecha de forma que no dependa de quien crea los hilos: si alguien se equivoca en <code>Principal</code>, el programa sigue funcionando. Para ordenar necesitas algo que distinga un fichero de otro: un número guardado en el propio fichero. Y alguien tiene que comparar los dos números y decidir cuál va primero.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Añade a <code>Fichero</code> un atributo <code>int</code> con el número, que se pasa por el constructor, y un método para leerlo. En <code>Principal</code>, los ficheros se crean con su número. En <code>Trabajo</code>, el constructor recibe los dos ficheros en cualquier orden y compara sus números con un <code>if</code>: guarda en <code>primero</code> el de número más bajo y en <code>segundo</code> el otro. El resto de <code>run()</code> queda igual que en el proyecto original.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Copia el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoNumeros</code> y ábrelo.</li>
+<li>En <code>Fichero</code>, añade un atributo <code>numero</code> de tipo <code>int</code>.</li>
+<li>Cambia el constructor de <code>Fichero</code> para que reciba también el número y lo guarde.</li>
+<li>Añade a <code>Fichero</code> el método <code>getNumero()</code>, que devuelve el número.</li>
+<li>En <code>Principal</code>, crea el fichero A con el número 1 y el fichero B con el número 2.</li>
+<li>En <code>Trabajo</code>, cambia el constructor para que sus dos parámetros se llamen, por ejemplo, <code>uno</code> y <code>otro</code>.</li>
+<li>Dentro del constructor, escribe un <code>if</code> que compare <code>uno.getNumero()</code> con <code>otro.getNumero()</code>.</li>
+<li>Si el de <code>uno</code> es más bajo, guarda <code>uno</code> en <code>primero</code> y <code>otro</code> en <code>segundo</code>. Si no, al revés.</li>
+<li>No toques <code>run()</code>.</li>
+<li>Ejecuta. Comprueba que los dos hilos piden el fichero A antes que el B aunque <code>Principal</code> se lo dé al revés al hilo 2.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-6" data-ejercicio="ej-6">
+<h2>Ejercicio 6 (reto): esperar con tiempo máximo (proyecto <code>InterbloqueoTiempo</code>)</h2>
+<p>Copia el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoTiempo</code>. Los hilos siguen recibiendo <code>(a, b)</code> y <code>(b, a)</code>, y los dos ficheros se siguen usando a la vez. Si un hilo no consigue el segundo fichero en <strong>1 segundo</strong>, muestra <code>no consigue B: suelta A y reintenta</code>, suelta el primero, espera un rato al azar y lo vuelve a intentar desde el principio. Los dos hilos acaban mostrando <code>termina</code>. Aquí puede que veas algún reintento antes de que acaben. Esto es normal. Cambia a 8 segundos el tiempo que espera <code>main</code> antes de mostrar los estados.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Hasta ahora, un hilo que pide un cerrojo ocupado espera para siempre. Hace falta un cerrojo que se pueda pedir diciendo «espero como mucho este tiempo». Java tiene una clase para eso, en el paquete <code>java.util.concurrent.locks</code>. Y si un hilo se rinde, tiene que soltar lo que tiene cogido; si no, el otro no puede avanzar. Si los dos reintentan justo a la vez, pueden bloquearse otra vez: piensa cómo evitarlo.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>La clase es <code>ReentrantLock</code>. Cada <code>Fichero</code> guarda su propio <code>ReentrantLock</code> y lo entrega con un método. El hilo lo coge con <code>lock()</code>, espera un tiempo con <code>tryLock()</code> (que devuelve <code>true</code> si lo consigue y <code>false</code> si no) y lo suelta con <code>unlock()</code>. <code>tryLock()</code> recibe la cantidad de tiempo y la unidad, con <code>TimeUnit.SECONDS</code>. <code>Trabajo</code> se repite en un <code>while</code> hasta que consigue los dos ficheros. Para que los dos hilos no reintenten a la vez, espera un tiempo al azar con <code>Random</code> y <code>Thread.sleep()</code>.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Copia el proyecto <code>Interbloqueo</code> con el nombre <code>InterbloqueoTiempo</code> y ábrelo.</li>
+<li>En <code>Fichero</code>, añade un atributo <code>ReentrantLock</code> creado con <code>new ReentrantLock()</code> y un método que lo devuelve.</li>
+<li>En <code>Trabajo</code>, añade una variable <code>boolean</code> llamada <code>hecho</code>, a <code>false</code>, y un <code>Random</code>.</li>
+<li>Escribe en <code>run()</code> un <code>while</code> que se repita mientras <code>hecho</code> sea <code>false</code>, y mete todo dentro de un <code>try</code> con <code>catch (InterruptedException e)</code>.</li>
+<li>Dentro del <code>while</code>, coge el cerrojo del primer fichero con <code>lock()</code>. Muestra que lo tiene y duerme un segundo.</li>
+<li>Muestra que pide el segundo y llama a <code>tryLock()</code> sobre el cerrojo del segundo, con 1 y <code>TimeUnit.SECONDS</code>, dentro de un <code>if</code>.</li>
+<li>Si devuelve <code>true</code>: muestra que trabaja con los dos, suelta los dos cerrojos con <code>unlock()</code> y pon <code>hecho</code> a <code>true</code>.</li>
+<li>Si devuelve <code>false</code>: muestra el mensaje de reintento, suelta el primer cerrojo con <code>unlock()</code> y duerme un tiempo al azar de hasta un segundo.</li>
+<li>Al salir del <code>while</code>, muestra que el hilo termina.</li>
+<li>En <code>Principal</code>, cambia la espera de <code>main</code> a 8 segundos.</li>
+<li>Ejecuta varias veces. Comprueba que los dos hilos acaban siempre y que, a veces, hay reintentos.</li>
+</ol>
+</div>
+</section>
+
+</main>
+<script type="module" src="../../estilo/tema.js"></script>
+<script type="module" src="../../estilo/ayudas.js"></script>
+</body>
+</html>
