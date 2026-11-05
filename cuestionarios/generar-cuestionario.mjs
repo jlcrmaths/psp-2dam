@@ -1919,6 +1919,91 @@ arrastrar(H, 'La película de un interbloqueo',
   'Es el ciclo completo: retener, pedir el otro recurso, esperar en círculo y quedarse bloqueados.',
   { esCodigo: false, grado: 2 });
 
+multi(H, 'Soluciones que evitan el interbloqueo',
+  'Dos cocineros necesitan a la vez la batidora y el horno, y a veces se quedan los dos esperando. Marca los cambios que **sí** evitan el interbloqueo:',
+  [
+    ['Que los dos pidan siempre primero la batidora y después el horno.', true],
+    ['Usar un único cerrojo para los dos aparatos.', true],
+    ['Usar la batidora, soltarla y solo después pedir el horno.', true],
+    ['Pedir el horno con un tiempo máximo y, si no llega, soltar la batidora y reintentar.', true],
+    ['Añadir un `Thread.sleep()` más largo entre un aparato y otro.', false],
+    ['Subir la prioridad de uno de los cocineros.', false],
+  ],
+  'Cada solución rompe una condición: el mismo orden y el cerrojo único deshacen la espera en círculo, soltar antes evita retener y esperar, y el tiempo máximo hace que el hilo se rinda. Dormir más o cambiar prioridades no rompe ninguna.',
+  { grado: 3 });
+
+emparejar(H, 'Solución y condición que rompe',
+  'Une cada medida con la condición del interbloqueo que deja de cumplirse:',
+  [
+    ['Pedir los recursos siempre en el mismo orden', 'Espera en círculo'],
+    ['Soltar el primer recurso antes de pedir el segundo', 'Retener y esperar'],
+    ['Rendirse si el recurso no llega en un tiempo máximo', 'Sin quitárselo'],
+    ['Quitar el `synchronized` de los recursos', 'Exclusión mutua'],
+  ],
+  'Con la última, el bloqueo desaparece pero vuelve la condición de carrera: no es una solución válida.',
+  { grado: 3 });
+
+test(H, 'Un solo cerrojo: inconveniente',
+  'Para evitar el interbloqueo, un programa protege la impresora y el escáner con **un único cerrojo**. ¿Qué inconveniente tiene?',
+  [
+    ['Un hilo que solo quiere la impresora espera igual si otro está usando el escáner.', true],
+    ['Vuelve a haber espera en círculo.', false],
+    ['Los hilos ya no pueden usar `synchronized`.', false],
+    ['Hace falta un tiempo máximo de espera.', false],
+  ],
+  'Con un solo cerrojo no hay círculo, pero se pierde paralelismo: todo el mundo espera aunque pida recursos distintos.');
+
+test(H, 'Cuándo no vale soltar antes',
+  'Soltar el primer recurso antes de pedir el segundo evita el interbloqueo. ¿En qué caso **no** se puede usar esa solución?',
+  [
+    ['Cuando el trabajo necesita tener los dos recursos a la vez para poder hacerse.', true],
+    ['Cuando el trabajo usa primero un recurso y después, por separado, el otro.', false],
+    ['Cuando hay un solo hilo.', false],
+    ['Cuando los recursos son ficheros.', false],
+  ],
+  'Si el trabajo necesita los dos juntos, hay que retener el primero mientras se pide el segundo, y entonces hay que usar otra solución.');
+
+completar(H, 'Pedir un cerrojo con tiempo máximo',
+  'Un hilo necesita la batidora y el horno, cada uno con su `ReentrantLock`. Completa el código para que espere el horno como mucho 1 segundo.',
+  `batidora.⟦sa:lock⟧();
+if (horno.⟦sa:tryLock⟧(1, TimeUnit.SECONDS)) {
+    // cocina con los dos
+    horno.⟦sa:unlock⟧();
+}
+batidora.unlock();`,
+  '`lock()` espera hasta tener el cerrojo. `tryLock(1, TimeUnit.SECONDS)` espera como mucho 1 segundo y devuelve `true` o `false`. `unlock()` lo suelta.',
+  { compilar: false });
+
+vf(H, 'tryLock devuelve false',
+  'Si `tryLock(1, TimeUnit.SECONDS)` no consigue el cerrojo en 1 segundo, el hilo se queda esperando para siempre.',
+  false,
+  'Falso. Devuelve `false` al acabar el tiempo y el hilo puede soltar lo que tiene y reintentar. Esa es su ventaja frente a `synchronized`.');
+
+test(H, 'Olvidar el unlock',
+  'Un hilo coge un `ReentrantLock` con `lock()` y, por un `if` mal escrito, en algún camino nunca llama a `unlock()`. ¿Qué ocurre?',
+  [
+    ['El cerrojo se queda cogido y los demás hilos que lo pidan esperan sin que salga ningún error.', true],
+    ['Java lo suelta solo al cerrar el bloque `if`.', false],
+    ['El programa lanza `IllegalMonitorStateException` al acabar el hilo.', false],
+    ['El cerrojo pasa al siguiente hilo automáticamente.', false],
+  ],
+  'A diferencia de `synchronized`, que suelta el cerrojo al cerrar el bloque, con `ReentrantLock` hay que soltarlo siempre a mano.');
+
+test(H, 'Reintentar sin esperar al azar',
+  'Dos hilos usan `tryLock` con tiempo máximo y, cuando fallan, sueltan lo que tienen y reintentan **al instante**. ¿Qué puede pasar?',
+  [
+    ['Pueden volver a chocar una y otra vez, porque reintentan justo a la vez.', true],
+    ['Es imposible que fallen dos veces seguidas.', false],
+    ['El programa se queda en `BLOCKED` para siempre.', false],
+    ['Java reparte los cerrojos para que no choquen.', false],
+  ],
+  'Por eso se espera un tiempo al azar antes de reintentar: así es difícil que los dos vuelvan a pedir a la vez.');
+
+vf(H, 'Un solo hilo con el orden contrario',
+  'Si todos los hilos piden los recursos en el mismo orden menos uno, que pide en el contrario, el interbloqueo no puede ocurrir.',
+  false,
+  'Falso. Basta un hilo que pida en orden contrario para que pueda formarse la espera en círculo. Por eso una solución más segura es que el propio código ordene los recursos, por ejemplo por número.');
+
 redaccion(H, 'Escribe la transferencia sin interbloqueo',
   'Escribe el método `mover(Cuenta origen, Cuenta destino, int cantidad)` de una clase de transferencias, de forma que **no haya interbloqueo** aunque dos hilos muevan dinero entre las mismas cuentas en sentido contrario. Las cuentas tienen un `getNumero()`, un `restar(int)` y un `sumar(int)`. Pista: coge siempre primero el cerrojo de la cuenta de número menor.',
   `public void mover(Cuenta origen, Cuenta destino, int cantidad) {
