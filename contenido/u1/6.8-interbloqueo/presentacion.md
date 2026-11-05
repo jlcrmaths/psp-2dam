@@ -348,3 +348,66 @@
     <li>En la solución 5, ¿qué pasaría si el tiempo de espera fuera de 0 segundos? ¿Y si fuera enorme?</li>
     <li>¿Qué estado tiene un hilo que espera un <code>wait()</code> y qué estado tiene uno que espera un cerrojo?</li>
   </ol>
+
+---
+
+<!-- html -->
+  <h3>Anexo · El código de cada solución</h3>
+  <p>Para comprobar vuestro resultado. Cada solución es una pila: bajad con ↓.</p>
+  <p class="peque">Los proyectos completos son <code>InterbloqueoOrden</code>, <code>InterbloqueoUnCerrojo</code>, <code>InterbloqueoSoltar</code>, <code>InterbloqueoNumeros</code> e <code>InterbloqueoTiempo</code>.</p>
+
+---
+
+<!-- html -->
+  <h3>Solución 1 · Mismo orden</h3>
+  <p class="peque"><code>Principal</code>: los dos hilos reciben <code>(a, b)</code>. No cambia nada más.</p>
+  {{codigo: InterbloqueoOrden/Principal.java :: 4-10 @@ 5}}
+
+---
+
+<!-- html -->
+  <h3>Solución 2 · Un solo cerrojo</h3>
+  <p class="peque"><code>Principal</code>: un solo <code>Object</code>, para los dos hilos.</p>
+  {{codigo: InterbloqueoUnCerrojo/Principal.java :: 4-11 @@ 3|5-6}}
+
+--
+
+<!-- html -->
+  <h3>Solución 2 · Un solo cerrojo</h3>
+  <p class="peque"><code>Trabajo</code>: un único <code>synchronized (candado)</code> para todo.</p>
+  {{codigo: InterbloqueoUnCerrojo/Trabajo.java :: 14-26 @@ 3}}
+
+---
+
+<!-- html -->
+  <h3>Solución 3 · No retener</h3>
+  <p class="peque"><code>Trabajo</code>: dos bloques seguidos. Suelta el primero antes de pedir el segundo.</p>
+  {{codigo: InterbloqueoSoltar/Trabajo.java :: 12-26 @@ 3-9|10-13}}
+
+---
+
+<!-- html -->
+  <h3>Solución 4 · Orden por número</h3>
+  <p class="peque"><code>Fichero</code>: ahora guarda un número.</p>
+  {{codigo: InterbloqueoNumeros/Fichero.java @@ 4|6-9|15-17}}
+
+--
+
+<!-- html -->
+  <h3>Solución 4 · Orden por número</h3>
+  <p class="peque"><code>Trabajo</code>: el constructor deja primero el fichero de número más bajo.</p>
+  {{codigo: InterbloqueoNumeros/Trabajo.java :: 6-14 @@ 2-4|5-7}}
+
+---
+
+<!-- html -->
+  <h3>Solución 5 · Tiempo máximo</h3>
+  <p class="peque"><code>Fichero</code>: cada fichero guarda su propio <code>ReentrantLock</code>.</p>
+  {{codigo: InterbloqueoTiempo/Fichero.java @@ 1|6|16-18}}
+
+--
+
+<!-- html -->
+  <h3>Solución 5 · Tiempo máximo</h3>
+  <p class="peque"><code>Trabajo</code>: <code>tryLock()</code> con tiempo; si falla, suelta el primero y reintenta.</p>
+  {{codigo: InterbloqueoTiempo/Trabajo.java :: 16-39 @@ 6|10-14|15-19}}
