@@ -70,7 +70,7 @@
     <li>¿En qué <b>estado</b> está cada hilo?</li>
     <li>¿Qué <b>fichero</b> tiene cada hilo y cuál está <b>esperando</b>?</li>
   </ul>
-  <p class="peque">Está todo en el enunciado, ejercicio 1.</p>
+  <p class="peque">Apuntad las respuestas en el cuaderno. Más detalle en el enunciado, ejercicio 1.</p>
 
 ---
 
@@ -201,7 +201,19 @@
     <li>Los dos hilos terminan, y <code>main</code> los muestra en <code>TERMINATED</code></li>
     <li>Pista: ¿dónde se decide el orden en que cada hilo recibe los ficheros?</li>
   </ul>
-  <p class="peque">Pistas y ayudas en el enunciado, ejercicio 2.</p>
+  <p class="peque">⬇️ Bajad (flecha abajo) para ver los pasos. Más ayuda en el enunciado, ejercicio 2.</p>
+
+--
+
+<!-- html -->
+  <h3>Ejercicio 2 · Pasos</h3>
+  <ol class="peque">
+    <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoOrden</code> (clic derecho › <i>Copiar</i>)</li>
+    <li>Abrid <code>Principal</code> y buscad las dos líneas con <code>new Trabajo(...)</code></li>
+    <li>Fijaos en el orden en que recibe los ficheros cada hilo</li>
+    <li>Cambiad <b>solo la línea del hilo 2</b> para que reciba los ficheros en el mismo orden que el hilo 1</li>
+    <li>Ejecutad: el hilo 2 espera un poco y los dos terminan. <code>main</code> muestra <code>TERMINATED</code></li>
+  </ol>
 
 --
 
@@ -237,7 +249,20 @@
     <li>Los dos usan los dos ficheros a la vez y terminan uno detrás de otro</li>
     <li>Necesitáis un objeto <code>Object</code> que se crea <b>una sola vez</b> y llega a los dos trabajos</li>
   </ul>
-  <p class="peque">Pistas y ayudas en el enunciado, ejercicio 3.</p>
+  <p class="peque">⬇️ Bajad (flecha abajo) para ver los pasos. Más ayuda en el enunciado, ejercicio 3.</p>
+
+--
+
+<!-- html -->
+  <h3>Ejercicio 3 · Pasos</h3>
+  <ol class="peque">
+    <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoUnCerrojo</code></li>
+    <li>En <code>Trabajo</code>, añadid un atributo <code>Object candado</code> y recibidlo en el constructor</li>
+    <li>En <code>run()</code>, quitad los dos <code>synchronized</code> de los ficheros y poned <b>uno solo</b>: <code>synchronized (candado)</code>, que envuelva todo el trabajo</li>
+    <li>En <code>Principal</code>, cread <b>un solo</b> <code>Object</code> y pasadlo a los dos <code>new Trabajo(...)</code></li>
+    <li><b>No cambiéis</b> el orden <code>(a, b)</code> y <code>(b, a)</code></li>
+    <li>Ejecutad: uno entra, el otro espera, y los dos terminan</li>
+  </ol>
 
 --
 
@@ -273,7 +298,20 @@
     <li>Cada hilo usa los ficheros <b>de uno en uno</b>: nunca tiene uno mientras pide el otro</li>
     <li>Dos bloques <code>synchronized</code> <b>seguidos</b>, no uno dentro de otro</li>
   </ul>
-  <p class="peque">Pistas y ayudas en el enunciado, ejercicio 4.</p>
+  <p class="peque">⬇️ Bajad (flecha abajo) para ver los pasos. Más ayuda en el enunciado, ejercicio 4.</p>
+
+--
+
+<!-- html -->
+  <h3>Ejercicio 4 · Pasos</h3>
+  <ol class="peque">
+    <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoSoltar</code></li>
+    <li>En <code>run()</code>, dejad el primer <code>synchronized (primero)</code> solo con su mensaje y su <code>sleep()</code>. <b>Cerrad sus llaves ahí</b></li>
+    <li>Después de cerrarlas, mostrad que pide el segundo fichero</li>
+    <li>A continuación (<b>fuera</b> del primero), poned <code>synchronized (segundo)</code> con su mensaje</li>
+    <li>Ejecutad: terminan, y ya no sale ningún mensaje con los dos ficheros a la vez</li>
+    <li>Pensad: ¿qué pierdes si el trabajo necesitara los dos ficheros juntos?</li>
+  </ol>
 
 --
 
@@ -309,7 +347,20 @@
     <li>Cada fichero tiene un <b>número</b>: A el 1 y B el 2</li>
     <li><code>Trabajo</code> pide siempre <b>primero el número más bajo</b>, le lleguen como le lleguen</li>
   </ul>
-  <p class="peque">Pistas y ayudas en el enunciado, ejercicio 5.</p>
+  <p class="peque">⬇️ Bajad (flecha abajo) para ver los pasos. Más ayuda en el enunciado, ejercicio 5.</p>
+
+--
+
+<!-- html -->
+  <h3>Ejercicio 5 · Pasos</h3>
+  <ol class="peque">
+    <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoNumeros</code></li>
+    <li>En <code>Fichero</code>: atributo <code>int numero</code>, recibido en el constructor, y método <code>getNumero()</code></li>
+    <li>En <code>Principal</code>: el fichero A con el número 1 y el B con el 2</li>
+    <li>En <code>Trabajo</code>: el constructor recibe <code>uno</code> y <code>otro</code> y compara sus números con un <code>if</code></li>
+    <li>Si el de <code>uno</code> es más bajo → <code>primero = uno</code> y <code>segundo = otro</code>. Si no, al revés</li>
+    <li>No toquéis <code>run()</code>. Ejecutad: los dos piden primero A, aunque <code>Principal</code> se lo dé al revés al hilo 2</li>
+  </ol>
 
 --
 
@@ -358,7 +409,21 @@
     <li>Si el segundo fichero no llega en 1 segundo: <b>suelta el primero, espera al azar y reintenta</b></li>
     <li>Los dos hilos terminan. Puede haber algún reintento antes</li>
   </ul>
-  <p class="peque">Si no os da tiempo, no pasa nada. Pistas y ayudas en el enunciado, ejercicio 6.</p>
+  <p class="peque">⬇️ Bajad (flecha abajo) para ver los pasos. Más ayuda en el enunciado, ejercicio 6.</p>
+
+--
+
+<!-- html -->
+  <h3>Ejercicio 6 · Pasos</h3>
+  <ol class="peque">
+    <li>Copiad <code>Interbloqueo</code> con el nombre <code>InterbloqueoTiempo</code></li>
+    <li>En <code>Fichero</code>: un atributo <code>ReentrantLock</code> y un método que lo devuelve</li>
+    <li>En <code>Trabajo</code>: un <code>while</code> hasta que <code>hecho</code> sea <code>true</code>, dentro de un <code>try</code></li>
+    <li>Primer fichero con <code>lock()</code>, <code>sleep()</code> de 1 s, y segundo con <code>tryLock(1, TimeUnit.SECONDS)</code> dentro de un <code>if</code></li>
+    <li>Si da <code>true</code>: trabaja, <code>unlock()</code> de los dos y <code>hecho = true</code></li>
+    <li>Si da <code>false</code>: mensaje de reintento, <code>unlock()</code> del primero y <code>sleep()</code> al azar</li>
+    <li>En <code>Principal</code>, <code>main</code> espera 8 segundos. Ejecutad varias veces</li>
+  </ol>
 
 --
 
