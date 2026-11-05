@@ -21,6 +21,7 @@ public class Trabajo implements Runnable {
                 Thread.sleep(1000);
             } catch (InterruptedException e) {
             }
+            System.out.println(nombre + " pide " + segundo.getNombre());
             synchronized (segundo) {
                 System.out.println(nombre + " tiene " + primero.getNombre() + " y " + segundo.getNombre() + ": trabaja");
             }
