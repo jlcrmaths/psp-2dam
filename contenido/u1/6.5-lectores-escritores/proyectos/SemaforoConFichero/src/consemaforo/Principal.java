@@ -11,12 +11,12 @@ public class Principal {
         File fichero = new File("Lectores.txt");
         new FileWriter(fichero).close();
         Semaforo smfro = new Semaforo();
-
+        for (int i = 1; i <= 5; i++) {
+            new Thread(new Lector(smfro, fichero), "Lector" + i).start();
+        }   
         for (int i = 1; i <= 2; i++) {
             new Thread(new Escritor(smfro, fichero), "Escritor" + i).start();
         }
-        for (int i = 1; i <= 5; i++) {
-            new Thread(new Lector(smfro, fichero), "Lector" + i).start();
-        }
+        
     }
 }

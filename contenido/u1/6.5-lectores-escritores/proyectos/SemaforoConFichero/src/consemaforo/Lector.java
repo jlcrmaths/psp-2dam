@@ -18,6 +18,7 @@ public class Lector implements Runnable {
 
     @Override
     public void run() {
+        for (int i = 1; i <= 10; i++){
         semaforo.accesoLeer();
         try {
             int lineas = 0;
@@ -32,6 +33,7 @@ public class Lector implements Runnable {
         } catch (IOException ex) {
             System.out.println(ex);
         } catch (InterruptedException ex) {
+        }
         }
         semaforo.lecturaFinalizada();
     }
