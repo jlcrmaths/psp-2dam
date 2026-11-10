@@ -327,6 +327,217 @@ const CONTADOR = `class Pasos implements Runnable {
 // Vocabulario de las diapositivas: «cerrojo» (no «candado»), «recurso compartido», «señal de fin».
 
 // =====================================================================
+// 5.4 TUBERÍAS ENTRE PROCESOS
+// =====================================================================
+const T = '5.4';
+categoria('Repaso PSP Unidad 1/5.4 Tuberías (práctica, NO puntúa: se evalúa en la empresa)');
+
+test(T, 'Qué es una tubería',
+  '¿Qué es una **tubería** (pipe) entre dos programas?',
+  [
+    ['Una conexión: lo que el primer programa escribe en su salida lo recibe el segundo en su entrada.', true],
+    ['Una variable que comparten los dos programas.', false],
+    ['Un fichero que los dos programas leen a la vez.', false],
+    ['Un hilo nuevo dentro del mismo programa.', false],
+  ],
+  'La tubería conecta la salida de un proceso con la entrada de otro. No comparten variables: solo texto.');
+
+vf(T, 'Procesos y memoria',
+  'Un programa que escribe números y otro que los lee por una tubería son dos procesos y comparten las variables del programa.',
+  false,
+  'Falso. Cada proceso tiene su propia memoria. Lo único que pasa de uno a otro es el texto de la tubería. Los hilos sí comparten memoria; los procesos no.');
+
+test(T, 'Quién conecta los programas',
+  'En la terminal escribes `java -cp Lecturas.jar tuberias.Sensor | java -cp Lecturas.jar tuberias.Media`. ¿Quién conecta la salida del primero con la entrada del segundo?',
+  [
+    ['El sistema operativo, por el símbolo `|`.', true],
+    ['El código Java de la clase `Sensor`.', false],
+    ['La clase `Media`, al llamar a `Sensor`.', false],
+    ['La máquina virtual, que junta las dos clases en un hilo.', false],
+  ],
+  'El símbolo `|` lo pone la terminal. Los dos programas no saben nada del otro: uno hace `println` y el otro lee de `System.in`.');
+
+test(T, 'Botón verde',
+  'Un proyecto tiene dos clases con `main`: `Sensor` (escribe temperaturas) y `Media` (las lee). Ejecutas la clase `Media` con el botón verde de NetBeans. ¿Qué pasa?',
+  [
+    ['Se queda esperando: lee del teclado porque no hay ninguna tubería conectada.', true],
+    ['Arranca también `Sensor` y se conectan solas.', false],
+    ['Da un error de compilación.', false],
+    ['Calcula la media de cero números y termina.', false],
+  ],
+  'Con el botón verde no hay `|`. La entrada de `Media` es el teclado. Para probar la tubería hay que usar la terminal con el `.jar`.');
+
+test(T, 'Cuándo termina la lectura',
+  'Un programa lee con `entrada.readLine()` lo que le manda otro por una tubería. ¿Qué devuelve `readLine()` cuando el otro programa ya ha terminado y no queda nada por leer?',
+  [
+    ['`null`', true],
+    ['Una cadena vacía `""`', false],
+    ['El número `0`', false],
+    ['Lanza `InterruptedException`.', false],
+  ],
+  '`readLine()` devuelve `null` al acabar la entrada. Por eso el bucle de lectura se repite hasta que la línea es `null`.');
+
+completar(T, 'Leer de la entrada',
+  'Este programa lee los pesos que le llegan por una tubería y muestra cuántos son. Completa el bucle.',
+  `import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Contar {
+    public static void main(String[] args) throws IOException {
+        BufferedReader entrada = new BufferedReader(new ⟦sa:InputStreamReader⟧(⟦sa:System.in⟧));
+        String linea;
+        int total = 0;
+        while ((linea = entrada.⟦sa:readLine⟧()) != ⟦sa:null⟧) {
+            total++;
+        }
+        System.out.println("Pesos: " + total);
+    }
+}`,
+  '`System.in` es la entrada, `InputStreamReader` la convierte en letras y `readLine()` lee línea a línea hasta `null`.');
+
+test(T, 'Mensaje de bienvenida',
+  'El programa que escribe empieza con `System.out.println("Hola, empiezo");` y luego muestra números. El programa que lee hace `Integer.parseInt(linea)` con cada línea. ¿Qué ocurre al conectarlos con una tubería?',
+  [
+    ['Lanza `NumberFormatException`: el mensaje también viaja por la tubería y no es un número.', true],
+    ['Nada: el mensaje sale por la pantalla y no llega al segundo programa.', false],
+    ['El segundo programa ignora las líneas que no son números.', false],
+    ['Da un error de compilación en el segundo programa.', false],
+  ],
+  'Todo lo que un programa escribe con `System.out` viaja por la tubería, también los mensajes. Lo que va por `System.err` no.');
+
+corta(T, 'Excepción al convertir',
+  '¿Qué excepción lanza `Integer.parseInt("hola")`?',
+  ['NumberFormatException'],
+  '`parseInt` lanza `NumberFormatException` cuando el texto no es un número.',
+  { mayusculas: true });
+
+numerica(T, 'Suma de los mayores',
+  'Por una tubería llegan estas líneas: `3`, `8`, `5`, `10`, `7`. El programa lector suma **solo** los números mayores que 4. ¿Qué suma muestra al final?',
+  30,
+  '8 + 5 + 10 + 7 = 30. El 3 no es mayor que 4.');
+
+test(T, 'División entera',
+  'Un programa lee por la tubería 3 notas que suman 25 (`int suma = 25; int cuantas = 3;`) y escribe `double media = suma / cuantas;`. ¿Qué valor tiene `media`?',
+  [
+    ['8.0, porque la división de dos `int` descarta los decimales.', true],
+    ['8.3333…, porque `media` es `double`.', false],
+    ['Da error de compilación.', false],
+    ['0.0', false],
+  ],
+  'Se divide primero (25 / 3 = 8 entero) y después se guarda en un `double`. Con `(double) suma / cuantas` saldría 8.33.');
+
+completar(T, 'Promedio con decimales',
+  'Completa para que la media conserve los decimales y no se divida entre cero.',
+  `public class Media {
+    public static void main(String[] args) {
+        int suma = 25;
+        int cuantas = 3;
+        if (cuantas ⟦mc:!=|==|>=⟧ 0) {
+            double media = ⟦mc:(double)|(int)|(String)⟧ suma / cuantas;
+            System.out.println(media);
+        }
+    }
+}`,
+  '`(double)` delante convierte la suma en decimal antes de dividir. Y antes hay que comprobar que `cuantas` no es 0.');
+
+corta(T, 'Resto de la división',
+  '¿Qué muestra `System.out.println(9 % 2);`?',
+  ['1'],
+  '`%` da el resto de la división. 9 entre 2 da 4 y sobra 1. Un número es par si su resto entre 2 es 0.');
+
+test(T, 'Operador ternario',
+  '¿Qué muestra este código?',
+  [
+    ['impar', true],
+    ['par', false],
+    ['7', false],
+    ['No compila.', false],
+  ],
+  'El resto de 7 entre 2 es 1, no 0, así que la condición es falsa y el operador `? :` da el valor de después de los dos puntos.',
+  { codigo: mostrar('5.4 ternario', `public class Prueba {
+    public static void main(String[] args) {
+        int n = 7;
+        System.out.println(n % 2 == 0 ? "par" : "impar");
+    }
+}`) });
+
+corta(T, 'Texto al revés',
+  'Al ejecutar `new StringBuilder("casa").reverse().toString()`, ¿qué texto se obtiene?',
+  ['asac'],
+  'El método `reverse()` de la clase `StringBuilder` le da la vuelta al texto.');
+
+test(T, 'Quién lanza el proceso',
+  'Un programa Java quiere arrancar a otro programa y leer lo que este escribe, sin usar la terminal. ¿Qué usa?',
+  [
+    ['`ProcessBuilder` con `start()`, y después `getInputStream()` del `Process` que devuelve.', true],
+    ['`new Thread(...)` y `join()`.', false],
+    ['`wait()` y `notify()` sobre el otro programa.', false],
+    ['`System.in` directamente, sin más.', false],
+  ],
+  '`ProcessBuilder` prepara el comando y `start()` crea el proceso nuevo. `getInputStream()` da lo que el proceso escribe.');
+
+emparejar(T, 'Métodos de Process',
+  'Une cada método de la clase `Process` con lo que hace.',
+  [
+    ['`getInputStream()`', 'Lee lo que el proceso escribe'],
+    ['`getOutputStream()`', 'Envía datos al proceso'],
+    ['`waitFor()`', 'Espera a que el proceso termine'],
+    ['`destroy()`', 'Elimina el proceso'],
+  ],
+  'Ojo con los nombres: «input» y «output» se miran desde nuestro programa. Lo que el proceso escribe es para nosotros una entrada.');
+
+completar(T, 'Lanzar un proceso',
+  'Completa el programa que lanza `Sensor` y muestra lo que escribe.',
+  `import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Lanzador {
+    public static void main(String[] args) throws IOException {
+        ProcessBuilder pb = new ProcessBuilder("java", "-cp", "Lecturas.jar", "tuberias.Sensor");
+        Process p = pb.⟦sa:start⟧();
+        BufferedReader br = new BufferedReader(new InputStreamReader(p.⟦sa:getInputStream⟧()));
+        String linea;
+        while ((linea = br.readLine()) != null) {
+            System.out.println(linea);
+        }
+    }
+}`,
+  '`start()` ejecuta el comando y devuelve un `Process`. Su método `getInputStream()` da lo que el proceso escribe con `println`.');
+
+redaccion(T, 'Escribe el lector',
+  'Un programa escribe, uno por línea, las temperaturas de una semana (números enteros). Escribe el programa **lector** que las recibe por una tubería y muestra cuántas son **mayores que 30**. Si ninguna lo es, debe mostrar el mensaje «Ningún día de calor».',
+  `import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
+public class Calor {
+    public static void main(String[] args) throws IOException {
+        BufferedReader entrada = new BufferedReader(new InputStreamReader(System.in));
+        String linea;
+        int dias = 0;
+        while ((linea = entrada.readLine()) != null) {
+            if (Integer.parseInt(linea) > 30) {
+                dias++;
+            }
+        }
+        if (dias == 0) {
+            System.out.println("Ningún día de calor");
+        } else {
+            System.out.println("Días de calor: " + dias);
+        }
+    }
+}`,
+  '', { grado: 5 });
+
+// 5.4 no puntúa y no va en el banco ni en la presentación de repaso. Se descartan sus preguntas,
+// pero el contador sigue: los números de 6.1 en adelante (y CRITERIOS) no cambian.
+preguntas.length = 0;
+diapos.length = 0;
+paraCompilar.length = 0;
+
+// =====================================================================
 // 6.1 CREAR HILOS
 // =====================================================================
 const A = '6.1';
@@ -2161,6 +2372,121 @@ public class Principal {
         }
     }
 }`, '', { grado: 10, lineas: 30 });
+
+// =====================================================================
+// REFUERZO 2.a (situaciones útiles) y 2.d (estados): criterios con pocas preguntas
+// =====================================================================
+categoria('Repaso PSP Unidad 1/Refuerzo: cuándo usar hilos y estados');
+const R = 'RF';
+
+test(R, 'Cuándo compensa usar hilos',
+  'Una aplicación de música descarga una canción larga y, mientras tanto, el usuario debe poder seguir pulsando botones. ¿Por qué conviene usar un hilo para la descarga?',
+  [
+    ['Porque así la descarga espera en segundo plano y los botones siguen respondiendo.', true],
+    ['Porque la descarga se hace más rápida solo por estar en un hilo.', false],
+    ['Porque así no hace falta `start()`.', false],
+    ['Porque los botones y la descarga comparten sus variables sin problemas.', false],
+  ],
+  'Un hilo permite que una tarea lenta o de espera no bloquee el resto del programa. No la acelera por sí solo.');
+
+multi(R, 'Situaciones con varios hilos',
+  'Marca las situaciones en las que tiene sentido usar varios hilos:',
+  [
+    ['Un servidor atiende a la vez a muchos clientes conectados.', true],
+    ['Un editor de texto guarda una copia automática mientras el usuario sigue escribiendo.', true],
+    ['Un juego mueve a la vez a varios enemigos, cada uno a su ritmo.', true],
+    ['Un programa suma dos números y termina.', false],
+    ['Un programa muestra su nombre y termina.', false],
+  ],
+  'Los hilos sirven cuando hay tareas que deben avanzar a la vez o esperas largas. Si el trabajo es instantáneo, solo añaden complicación.');
+
+vf(R, 'Más hilos, siempre más rápido',
+  'Un programa con muchos hilos termina siempre antes que el mismo programa con un solo hilo.',
+  false,
+  'Falso. Crear hilos y sincronizarlos también cuesta, y si el trabajo es corto o el procesador es uno solo, puede salir peor.');
+
+test(R, 'Un hilo por pedido',
+  'Una tienda en línea recibe muchos pedidos a la vez. Un pedido tarda mucho en procesarse porque espera el pago. ¿Qué ventaja tiene lanzar un hilo por cada pedido?',
+  [
+    ['Un pedido lento no hace esperar a los demás.', true],
+    ['Los pedidos nunca se pisan los datos compartidos.', false],
+    ['Se garantiza que se procesan en el orden en que llegan.', false],
+    ['El programa necesita menos memoria.', false],
+  ],
+  'Cada hilo espera por su cuenta. El orden no está garantizado, y si comparten datos hay que sincronizar.');
+
+test(R, 'Antes de start()',
+  'Escribes `Thread h = new Thread(new Tarea());` y todavía no has llamado a `start()`. ¿Qué devuelve `h.getState()`?',
+  [['`NEW`', true], ['`RUNNABLE`', false], ['`WAITING`', false], ['`TERMINATED`', false]],
+  '`NEW` es un hilo creado que aún no ha arrancado. `start()` lo pasa a `RUNNABLE`.');
+
+test(R, 'El hilo main espera con join',
+  'El hilo `main` llama a `h.join()` sin indicar tiempo y el hilo `h` sigue trabajando. ¿En qué estado está `main`?',
+  [['`RUNNABLE`', false], ['`BLOCKED`', false], ['`WAITING`', true], ['`TERMINATED`', false]],
+  '`join()` sin tiempo es una espera sin límite: `WAITING`. Con un tiempo (`join(500)`) sería `TIMED_WAITING`.');
+
+corta(R, 'Estado al terminar',
+  'Se ejecuta el programa de abajo. ¿Qué imprime la **última** línea? (una palabra)',
+  ['TERMINATED'],
+  'Tras el `join()`, el `run()` ha acabado, y un hilo que ha acabado está en `TERMINATED`. La primera línea muestra `NEW`.',
+  { codigo: mostrar('RF estado al terminar', `class Tarea implements Runnable {
+    @Override
+    public void run() {
+        System.out.println("Trabajando");
+    }
+}
+
+public class Principal {
+    public static void main(String[] args) throws InterruptedException {
+        Thread h = new Thread(new Tarea());
+        System.out.println(h.getState());
+        h.start();
+        h.join();
+        System.out.println(h.getState());
+    }
+}`) });
+
+vf(R, 'Esperar un synchronized ocupado',
+  'Un hilo que espera entrar en un método `synchronized` porque otro hilo tiene el cerrojo está en el estado `WAITING`.',
+  false,
+  'Falso. Está en `BLOCKED`. `WAITING` es para `wait()` y `join()` sin tiempo.');
+
+// ---------- criterio de cada pregunta (RA2, programación 2026-27) ----------
+// Clave: número de pregunta (el que va tras el guion en el nombre). 5.4 (1-18) no puntúa: sin criterio.
+// 2.a situaciones útiles · 2.b crear/iniciar/finalizar · 2.c programar con hilos · 2.d estados · 2.e compartir información
+// 2.f sincronizar · 2.g prioridad · 2.i contexto de ejecución · 2.j librerías multihilo · 2.k problemas de compartir
+const CRITERIOS = {
+  '2.a': [173, 174, 175, 176],
+  '2.b': [19, 20, 21, 26, 51, 107, 108, 109],
+  '2.c': [23, 28, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 53, 111, 112, 113, 116, 122, 132, 140, 141, 142],
+  '2.d': [150, 151, 152, 177, 178, 179, 180],
+  '2.e': [54, 55, 61, 83, 86, 87, 88, 89, 94, 96, 97, 102, 103, 104, 105, 110, 114, 118, 119, 170, 172],
+  '2.f': [62, 63, 64, 65, 66, 68, 69, 70, 75, 76, 77, 78, 79, 80, 81, 82, 84, 85, 90, 91, 95, 98, 101, 106, 115, 117, 120, 121, 123, 124, 125, 127, 129, 130, 131, 133, 134, 135, 137, 143, 166, 167, 168, 169],
+  '2.g': [43, 44, 45, 46, 47, 49, 50, 52],
+  '2.i': [24, 27, 29, 30, 92, 93, 128],
+  '2.j': [22, 25, 48, 71, 72, 73, 99, 100, 126, 160, 161, 162],
+  '2.k': [56, 57, 58, 59, 60, 67, 74, 136, 138, 139, 144, 145, 146, 147, 148, 149, 153, 154, 155, 156, 157, 158, 159, 163, 164, 165, 171],
+};
+const criterioDe = {};
+for (const [c, ids] of Object.entries(CRITERIOS)) for (const id of ids) { if (criterioDe[id]) throw new Error('doble criterio: ' + id); criterioDe[id] = c; }
+for (let i = 0; i < preguntas.length; i++) {
+  if (preguntas[i].startsWith('<question type="category"')) continue;
+  const nom = preguntas[i].match(/<name><text>([^<]*)<\/text>/)[1];
+  const num = Number(nom.match(/^(?:\d\.\d|EX|RF)-(\d+) /)[1]);
+  if (num <= 18) continue; // 5.4: no puntúa
+  const c = criterioDe[num];
+  if (!c) throw new Error('pregunta sin criterio: ' + nom);
+  preguntas[i] = preguntas[i]
+    .replace('<name><text>' + nom, '<name><text>[' + c + '] ' + nom)
+    .replace(/<\/question>$/, `<tags><tag><text>${c}</text></tag></tags>\n</question>`);
+}
+
+// Las preguntas de redacción (se corrigen a mano) van a su propia categoría, fuera de «Repaso PSP Unidad 1»,
+// para que el sorteo del cuestionario por etiqueta nunca las elija.
+const redacciones = preguntas.filter((p) => p.startsWith('<question type="essay"'));
+const resto = preguntas.filter((p) => !p.startsWith('<question type="essay"'));
+preguntas.length = 0;
+preguntas.push(...resto, '<question type="category"><category><text>$course$/top/Redacción PSP Unidad 1 (corrección a mano)</text></category></question>', ...redacciones);
 
 // ---------- salida ----------
 const total = preguntas.filter((p) => !p.startsWith('<question type="category"')).length;
