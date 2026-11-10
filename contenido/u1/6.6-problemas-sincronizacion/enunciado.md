@@ -87,16 +87,16 @@ El programa muestra mensajes de cada acción: clientes esperando o llevándose b
 La panadería es el objeto compartido por el panadero y los clientes. Hornear tarda 20 segundos: piensa dónde poner esa espera para que los clientes no queden bloqueados. Al cerrar, hay clientes que quizá siguen esperando pan, y esos necesitan que el panadero siga trabajando.
 
 ### Más ayuda
-La clase `Panaderia` guarda las barras disponibles, las vendidas, las horneadas en total, el dinero (un `double`) y si está abierta. Su método de atender al cliente espera mientras no haya barras suficientes. El panadero es un `Runnable` con un bucle que duerme un segundo y comprueba si hacen falta barras; el horneado (`Thread.sleep` de 20 segundos) va fuera de los métodos `synchronized` y después repone las barras con `notifyAll()`. Cada cliente es un hilo que recibe cuántas barras quiere. Primero pregunta lo que quiere cada cliente y luego lanza los hilos. Al cerrar, primero se espera con `join()` a los clientes, después se cierra la panadería para avisar al panadero y se espera a que termine.
+La clase `Panaderia` guarda las barras disponibles, las vendidas, las horneadas en total, el dinero (un `double`) y si está abierta. Su método de atender al cliente espera mientras no haya barras suficientes. El panadero es un `Runnable` con un bucle que duerme un segundo y comprueba si hacen falta barras; el horneado es un método de `Panaderia` que **no** es `synchronized`: duerme 20 segundos y después repone las barras con `notifyAll()`. Cada cliente es un hilo que recibe cuántas barras quiere. Primero pregunta lo que quiere cada cliente y luego lanza los hilos. Al cerrar, primero se espera con `join()` a los clientes, después se cierra la panadería para avisar al panadero y se espera a que termine.
 
 ### Paso a paso
 1. Crea el proyecto `Panaderia` y el paquete `sincronizacion`.
 2. Crea `Panaderia` con los atributos: barras disponibles (20), barras vendidas (0), barras horneadas en total (20), dinero ganado (0) y si está abierta (`true`).
 3. Escribe `atenderCliente`, `synchronized` y con `throws InterruptedException`. Un `while` que, mientras no haya barras suficientes, muestre que el cliente espera y llame a `wait()`. Después calcula el precio, lo suma al dinero, resta las barras, suma a vendidas y muestra la compra.
-4. Escribe un método que diga si quedan menos de 10 barras y otro, `reponer`, que sume barras disponibles y horneadas, muestre el mensaje y llame a `notifyAll()`.
+4. Escribe un método que diga si quedan menos de 10 barras otro, `reponer`, `synchronized`, que sume barras disponibles y horneadas, muestre el mensaje y llame a `notifyAll()`, y otro, `hornear`, **sin** `synchronized`: muestra un mensaje, duerme 20 segundos y llama a `reponer(20)`.
 5. Escribe los métodos para llevarse las barras que quedan, para cerrar la panadería y para saber si está abierta.
 6. Escribe los métodos que muestran la información del mostrador y el mensaje de cierre con el resumen.
-7. Crea `Panadero`: mientras la panadería esté abierta, duerme un segundo y, si hacen falta barras, hornea. Hornear es mostrar un mensaje, dormir 20 segundos y reponer 20 barras.
+7. Crea `Panadero`: mientras la panadería esté abierta, duerme un segundo y, si hacen falta barras, llama a `panaderia.hornear()`.
 8. Al terminar ese bucle, el panadero se lleva las barras que quedan y hornea un último lote.
 9. Crea `Cliente`, con un atributo para las barras que quiere. Su `run()` llama a `atenderCliente`.
 10. En `Principal`, arranca el hilo del panadero y muestra el menú con un `do while` y un `switch`. En la opción 1, pregunta el número de clientes y las barras de cada uno (vuelve a preguntar si no está entre 1 y 10) y lanza los hilos.

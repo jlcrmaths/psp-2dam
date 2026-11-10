@@ -357,11 +357,12 @@ System.out.println("Fábrica cerrada");
 --
 
 <!-- html -->
-  <h3>El panadero: <code>hornear()</code></h3>
-  {{codigo: Panaderia/Panadero.java :: 24-28 @@ 1|3|4}}
+  <h3>Hornear: método de <code>Panaderia</code></h3>
+  {{codigo: Panaderia/Panaderia.java :: 32-36 @@ 1|3|4}}
   <ul class="peque">
-    <li><code>hornear()</code> es un método de la propia clase: evita repetir las mismas líneas dos veces</li>
-    <li>Se hornea con <code>Thread.sleep(20000)</code> <b>fuera</b> de la panadería: durante esos 20 segundos los clientes pueden seguir comprando</li>
+    <li><code>hornear()</code> está en <code>Panaderia</code> como el resto de métodos. El panadero solo escribe <code>panaderia.hornear()</code>, así no se repiten las mismas líneas</li>
+    <li><b>No</b> es <code>synchronized</code>, pero <code>reponer</code> sí</li>
+    <li>Se hornea con <code>Thread.sleep(20000)</code> <b>sin</b> tener la panadería «cogida»: durante esos 20 segundos los clientes pueden seguir comprando</li>
   </ul>
 
 --
@@ -380,9 +381,44 @@ System.out.println("Fábrica cerrada");
 --
 
 <!-- html -->
+  <h3>Lanzar un grupo de clientes</h3>
+  {{codigo: Panaderia/Principal.java :: 36-51 @@ 2|10-11|13-16}}
+  <ul class="peque">
+    <li><code>List&lt;Thread&gt;</code> es una lista de hilos. A diferencia de un array, <b>no tiene tamaño fijo</b>: no sabemos cuántos clientes llegarán, y con <code>add</code> sigue creciendo</li>
+    <li><code>new Cliente(panaderia, barras)</code>: el <code>Cliente</code> guarda la panadería compartida y las barras que pide. Aún no hace nada</li>
+    <li><code>new Thread(cliente, "Cliente" + clienteId)</code>: el hilo recibe el <b>trabajo</b> (el <code>run()</code> del cliente) y un <b>nombre</b>, que es el que sale al imprimir</li>
+    <li><code>start()</code>: aquí arranca de verdad. Todos los clientes reciben el <b>mismo</b> objeto <code>panaderia</code>: por eso compiten por la misma llave</li>
+  </ul>
+
+--
+
+<!-- html -->
+  <h3>¿Para qué guardamos los hilos en la lista?</h3>
+  <ul>
+    <li>Para poder hacer <code>join()</code> a cada uno al cerrar: <b>«espero aquí hasta que este hilo termine»</b></li>
+    <li>El programa no se colgaría sin <code>join</code>. Lo que importa es el <b>orden</b></li>
+  </ul>
+  <p class="caja">Sin <code>join</code>, <code>cerrarPanaderia()</code> se ejecutaría enseguida: los clientes que aún esperan pan se quedarían sin panadero, y el resumen saldría con cifras incompletas.</p>
+  <p class="peque"><code>cerrarPanaderia()</code> solo baja una <b>bandera</b> (<code>abierta = false</code>). Quien reacciona es el panadero, que la mira cada segundo y entonces se lleva el pan y hornea el último lote. Por eso <code>main</code> hace <code>join</code> al panadero antes del resumen.</p>
+
+--
+
+<!-- html -->
+  <h3>Todas las cuentas viven en la panadería</h3>
+  <ul>
+    <li>Barras disponibles, vendidas, horneadas, dinero y si está abierta: todo en <code>Panaderia</code>, todo <code>private</code></li>
+    <li>Clientes y panadero <b>no guardan nada</b> compartido: solo llaman a métodos de la panadería</li>
+    <li>Así hay <b>una sola cuenta</b> y un solo sitio que proteger con <code>synchronized</code></li>
+    <li>Solo <code>Cliente</code> guarda <code>barrasSolicitadas</code>: es un dato suyo, que nadie más toca</li>
+  </ul>
+
+--
+
+<!-- html -->
   <h3>Un fallo típico: hornear dentro de <code>synchronized</code></h3>
   <p>Si <code>hornear()</code> fuera un método <code>synchronized</code> de la panadería y durmiera los 20 segundos dentro, <b>nadie podría comprar ni mirar el estado</b> mientras tanto: el panadero tiene la panadería «cogida».</p>
-  <p class="fragment caja">Por eso el panadero duerme <b>fuera</b> y solo entra en la panadería para reponer, que es rápido.</p>
+  <p class="fragment caja">Por eso <code>hornear()</code> no es <code>synchronized</code> y solo <code>reponer</code> coge la panadería, un instante.</p>
+  <p class="peque">Tampoco sería un error dejar las ventas paradas mientras se hornea: el resultado sería correcto. Pero el enunciado dice que el cliente espera «hasta que el panadero haya horneado más», lo que solo tiene sentido si los demás pueden seguir comprando.</p>
 
 ---
 

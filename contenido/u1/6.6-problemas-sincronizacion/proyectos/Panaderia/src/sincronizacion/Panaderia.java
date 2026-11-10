@@ -28,7 +28,15 @@ public class Panaderia {
         return barrasDisponibles < 10;
     }
 
-    public synchronized void reponer(int barras) {
+    // Este método NO es synchronized: durante los 20 segundos de horneado los clientes pueden seguir comprando.
+    public void hornear() throws InterruptedException {
+        System.out.println("Panadero horneando 20 barras...");
+        Thread.sleep(20000);
+        reponer(20);
+    }
+
+    // Este sí es synchronized: solo coge la panadería un instante para añadir las barras.
+    private synchronized void reponer(int barras) {
         barrasDisponibles += barras;
         totalBarrasHorneadas += barras;
         System.out.println("Panadero terminó de hornear. Barras disponibles: " + barrasDisponibles);
