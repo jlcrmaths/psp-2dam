@@ -1,7 +1,10 @@
 // Genera el banco de preguntas de repaso de la Unidad 1 en formato Moodle XML.
 // Uso: node cuestionarios/generar-cuestionario.mjs
 // Salida: cuestionarios/repaso-u1-moodle.xml y cuestionarios/repaso-u1-presentacion.html (con --comprobar, también cuestionarios/comprobar-java/).
-import { writeFileSync, mkdirSync, rmSync } from 'node:fs';
+import { writeFileSync, mkdirSync, rmSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
+import { tmpdir } from 'node:os';
+import { codigoAPng } from './codigo-imagen.mjs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -35,10 +38,26 @@ const sinFeedback = `<correctfeedback format="html"><text></text></correctfeedba
 <partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback>
 <incorrectfeedback format="html"><text></text></incorrectfeedback>`;
 
+// Código fijo de las preguntas de Moodle: va como imagen (con resaltado, números de línea y fondo de cuadrícula)
+// para que no se pueda copiar y pegar. La presentación de clase sigue usando texto (cuerpo).
+let ficherosPendientes = []; // imágenes de la pregunta que se está construyendo
+const dirImg = join(tmpdir(), 'psp-codigo-img');
+mkdirSync(dirImg, { recursive: true });
+function codigoImagen(codigo) {
+  const limpio = codigo.replace(/^\n|\n$/g, '');
+  const nombreImg = 'codigo-' + createHash('sha1').update(limpio).digest('hex').slice(0, 10) + '.png';
+  const { ancho } = codigoAPng(limpio, join(dirImg, nombreImg), 'cuadricula');
+  ficherosPendientes.push(`<file name="${nombreImg}" path="/" encoding="base64">${readFileSync(join(dirImg, nombreImg)).toString('base64')}</file>`);
+  return `<p><img src="@@PLUGINFILE@@/${nombreImg}" alt="Código Java de la pregunta (imagen)" width="${ancho}" style="max-width:100%;height:auto"></p>`;
+}
+const cuerpoMoodle = (texto, codigo) => '<p>' + md(texto) + '</p>' + (codigo ? codigoImagen(codigo) : '');
+
 function cabecera(tipo, nom, texto, explicacion, grado = 1, penalizacion = '0.3333333') {
+  const ficheros = ficherosPendientes.join('');
+  ficherosPendientes = [];
   return `<question type="${tipo}">
 <name><text>${xml(nom)}</text></name>
-<questiontext format="html">${html(texto)}</questiontext>
+<questiontext format="html">${html(texto)}${ficheros}</questiontext>
 <generalfeedback format="html">${html(explicacion ? '<p>' + md(explicacion) + '</p>' : '')}</generalfeedback>
 <defaultgrade>${grado}</defaultgrade>
 <penalty>${penalizacion}</penalty>
@@ -126,7 +145,7 @@ function test(pref, titulo, texto, opciones, explicacion, { codigo, grado } = {}
   const resp = opciones
     .map((o) => `<answer fraction="${o[1] ? 100 : 0}" format="html">${html(md(o[0]))}<feedback format="html"><text></text></feedback></answer>`)
     .join('\n');
-  preguntas.push(`${cabecera('multichoice', nombre(pref, titulo), cuerpo(texto, codigo), explicacion, grado)}
+  preguntas.push(`${cabecera('multichoice', nombre(pref, titulo), cuerpoMoodle(texto, codigo), explicacion, grado)}
 <single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
 ${sinFeedback}<shownumcorrectfeedback>0</shownumcorrectfeedback>
 ${resp}
@@ -142,7 +161,7 @@ function multi(pref, titulo, texto, opciones, explicacion, { codigo, grado } = {
   const resp = opciones
     .map((o) => `<answer fraction="${o[1] ? FRACCION[buenas] : NEGATIVA[malas]}" format="html">${html(md(o[0]))}<feedback format="html"><text></text></feedback></answer>`)
     .join('\n');
-  preguntas.push(`${cabecera('multichoice', nombre(pref, titulo), cuerpo(texto, codigo), explicacion, grado)}
+  preguntas.push(`${cabecera('multichoice', nombre(pref, titulo), cuerpoMoodle(texto, codigo), explicacion, grado)}
 <single>false</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
 ${sinFeedback}<shownumcorrectfeedback>1</shownumcorrectfeedback>
 ${resp}
@@ -151,7 +170,7 @@ ${resp}
 }
 
 function vf(pref, titulo, texto, verdadero, explicacion, { codigo } = {}) {
-  preguntas.push(`${cabecera('truefalse', nombre(pref, titulo), cuerpo(texto, codigo), explicacion, 1, '1.0000000')}
+  preguntas.push(`${cabecera('truefalse', nombre(pref, titulo), cuerpoMoodle(texto, codigo), explicacion, 1, '1.0000000')}
 <answer fraction="${verdadero ? 100 : 0}" format="moodle_auto_format"><text>true</text><feedback format="html"><text></text></feedback></answer>
 <answer fraction="${verdadero ? 0 : 100}" format="moodle_auto_format"><text>false</text><feedback format="html"><text></text></feedback></answer>
 </question>`);
@@ -163,7 +182,7 @@ function corta(pref, titulo, texto, correctas, explicacion, { codigo, mayusculas
   const resp = correctas
     .map((c) => `<answer fraction="100" format="plain_text">${plain(c)}<feedback format="html"><text></text></feedback></answer>`)
     .join('\n');
-  preguntas.push(`${cabecera('shortanswer', nombre(pref, titulo), cuerpo(texto, codigo), explicacion)}
+  preguntas.push(`${cabecera('shortanswer', nombre(pref, titulo), cuerpoMoodle(texto, codigo), explicacion)}
 <usecase>${mayusculas ? 1 : 0}</usecase>
 ${resp}
 </question>`);
@@ -171,7 +190,7 @@ ${resp}
 }
 
 function numerica(pref, titulo, texto, valor, explicacion, { codigo, tolerancia = 0 } = {}) {
-  preguntas.push(`${cabecera('numerical', nombre(pref, titulo), cuerpo(texto, codigo), explicacion)}
+  preguntas.push(`${cabecera('numerical', nombre(pref, titulo), cuerpoMoodle(texto, codigo), explicacion)}
 <answer fraction="100" format="plain_text"><text>${valor}</text><feedback format="html"><text></text></feedback><tolerance>${tolerancia}</tolerance></answer>
 <unitgradingtype>0</unitgradingtype><unitpenalty>0.1000000</unitpenalty><showunits>3</showunits><unitsleft>0</unitsleft>
 </question>`);
