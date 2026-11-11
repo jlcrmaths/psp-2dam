@@ -18,7 +18,7 @@
 - Cada ejercicio del enunciado tiene `### Ayuda ligera`, `### Más ayuda` y `### Paso a paso`. Las ayudas solo usan palabras: sin bloques de código. Sin solución en la página.
 - Las ayudas se abren en orden. El estado se guarda en `localStorage` dentro de `try/catch`. Sin JavaScript, todas las ayudas se ven desplegadas.
 - Notas del profesor: fuente en `privado/<unidad>/<apartado>/notas-profesor.md` (ignorada por git). Cifradas con AES-256-GCM, clave derivada con PBKDF2-SHA256 de 600000 iteraciones. La frase no se guarda en ningún archivo: llega por la variable de entorno `PSP_FRASE`.
-- Código Java de los proyectos: estilo del profesor (un archivo por clase, paquete `crearhilos`, `Runnable`, clase `Principal`, sin comentarios).
+- Código Java de los proyectos: estilo de clase (un archivo por clase, paquete `crearhilos`, `Runnable`, clase `Principal`, sin comentarios).
 - Los commits terminan con la línea `Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>`.
 - Ampliación de la spec: cada unidad lleva un `unidad.json` (`titulo`, `orden`) para poder titular el índice.
 
@@ -1947,7 +1947,7 @@ Si algún punto del paso 4 falla, corregir el módulo o el CSS responsable, aña
 Leer `.claude/skills/preparar-clase-psp/SKILL.md` entero y cambiar:
 - La lista de lo que se genera en `clases/<apartado>/` (enunciado.md, proyectos, notas-profesor.md, presentacion.html) por esta, con el mismo estilo de redacción del archivo:
   1. `contenido/<unidad>/<apartado>/enunciado.md`: ejercicios con `### Ayuda ligera`, `### Más ayuda` y `### Paso a paso` (solo palabras, sin bloques de código, sin solución).
-  2. Proyectos NetBeans en `contenido/<unidad>/<apartado>/proyectos/` según la sección "Estilo del profesor".
+  2. Proyectos NetBeans en `contenido/<unidad>/<apartado>/proyectos/` según la sección "Estilo de clasesor".
   3. `contenido/<unidad>/<apartado>/presentacion.md`: diapositivas separadas por `---` (verticales con `--`), código con `{{codigo: Proyecto/Archivo.java}}` cuando muestre un archivo completo.
   4. `privado/<unidad>/<apartado>/notas-profesor.md`: errores típicos y puntos a explicar (no va a git; se publica cifrada).
   5. Una ficha `glosario/<termino>.md` por cada término nuevo (cabecera `nombre:` y los campos `Qué es`, `Para qué sirve` y `Ejemplo mínimo`).

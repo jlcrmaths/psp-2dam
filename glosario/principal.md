@@ -4,7 +4,7 @@ nombre: Principal
 
 ## Qué es
 
-Nombre que usa el profesor para la clase que contiene el `main`.
+Nombre que se usa en clase para la clase que contiene el `main`.
 
 ## Para qué sirve
 
