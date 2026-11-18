@@ -207,7 +207,6 @@ const PIEZAS = [
   ['Variables', { id: 'parseN', t: 'int n = Integer.parseInt(linea);', req: ['linea'], decl: 'n', f: k => { R[k].vars.n = parseInt(R[k].vars.linea, 10); } }],
   ['Enviar', { id: 'pPar', ...msg('n % 2 == 0 ? "par" : "impar"', v => v.n % 2 === 0 ? 'par' : 'impar'), req: ['pw', 'n'] }],
   ['Leer', { id: 'read', t: 'linea = br.readLine();', req: ['br', 'linea'], f: k => lee(k) }],
-  ['Leer', { id: 'readIn', t: 'System.out.println("El cliente dice: " + br.readLine());', req: ['br'], f: k => { const r = lee(k, null, 'tmp'); if (r === 'block') return r; mostrar(k, 'El cliente dice: ' + r.v); } }],
   ['Bucles', { id: 'while', kind: 'while', t: 'while ((linea = br.readLine()) != null) {', req: ['br', 'linea'], f: (k, ln) => { const r = lee(k); if (r === 'block') return r; if (r.v === null) return { jump: ln.end + 1 }; } }],
   ['Bucles', { id: 'for3', kind: 'for', t: 'for (int i = 1; i <= 3; i++) {', decl: 'i', f: (k, ln) => forF(k, ln, 1, 3, true) }],
   ['Bucles', { id: 'for25', kind: 'for', t: 'for (int i = 0; i < 25; i++) {', decl: 'i', f: (k, ln) => forF(k, ln, 0, 25, false) }],
