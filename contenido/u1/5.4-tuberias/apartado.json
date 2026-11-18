@@ -1,0 +1,5 @@
+{
+  "titulo": "5.4 Tuberías entre procesos",
+  "orden": 0,
+  "resumen": "Dos programas distintos, un solo resultado. ¿Cómo hace uno para pasarle datos al otro sin ficheros de por medio?"
+}

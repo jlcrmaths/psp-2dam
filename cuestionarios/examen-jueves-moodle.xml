@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<quiz>
+<question type="category"><category><text>$course$/top/Examen PSP Unidad 1 (hilos)</text></category></question>
+<question type="multichoice">
+<name><text>[2.b] E01 Llamar a run()</text></name>
+<questiontext format="html"><text><![CDATA[<p>Tienes <code>Thread h = new Thread(new Tarea(), "H1");</code> y llamas a <code>h.run();</code>. ¿Qué ocurre?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Solo <code>start()</code> crea el hilo. <code>run()</code> llamado a mano es un método normal.</p>]]></text></generalfeedback>
+<defaultgrade>0.25</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.b</text></tag><tag><text>examen-u1</text></tag></tags>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback><partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback><incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="0" format="html"><text><![CDATA[Se crea un hilo nuevo y se ejecuta <code>run()</code> en él.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[No compila.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="100" format="html"><text><![CDATA[<code>run()</code> se ejecuta como un método normal, en el hilo que lo llama.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[El hilo queda dormido hasta llamar a <code>start()</code>.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>[2.b] E02 join()</text></name>
+<questiontext format="html"><text><![CDATA[<p>El hilo <code>main</code> llama a <code>h.join()</code>. ¿Qué hace?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p><code>join()</code> bloquea al que lo llama hasta que el otro hilo acaba.</p>]]></text></generalfeedback>
+<defaultgrade>0.25</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.b</text></tag><tag><text>examen-u1</text></tag></tags>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback><partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback><incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="100" format="html"><text><![CDATA[Espera a que el hilo <code>h</code> termine.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Arranca el hilo <code>h</code>.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Mata el hilo <code>h</code>.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Une el hilo <code>h</code> con <code>main</code> en uno solo.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>[2.g] E03 Prioridades</text></name>
+<questiontext format="html"><text><![CDATA[<p>Un hilo A tiene prioridad 10 y un hilo B prioridad 1. ¿Qué se puede asegurar?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>La prioridad es solo una sugerencia; el orden real lo decide el planificador.</p>]]></text></generalfeedback>
+<defaultgrade>0.25</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.g</text></tag><tag><text>examen-u1</text></tag></tags>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback><partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback><incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="0" format="html"><text><![CDATA[A termina siempre antes que B.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[B nunca se ejecuta mientras A esté vivo.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[B lanza una excepción.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="100" format="html"><text><![CDATA[Nada seguro: la prioridad es una sugerencia al planificador.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>[2.d] E04 Estado en sleep</text></name>
+<questiontext format="html"><text><![CDATA[<p>¿En qué estado de <code>Thread.State</code> está un hilo que ejecuta <code>Thread.sleep(2000)</code>?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p><code>sleep</code> con tiempo es <code>TIMED_WAITING</code>. <code>WAITING</code> es esperar sin límite de tiempo.</p>]]></text></generalfeedback>
+<defaultgrade>0.25</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.d</text></tag><tag><text>examen-u1</text></tag></tags>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback><partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback><incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="0" format="html"><text><![CDATA[<code>BLOCKED</code>]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="100" format="html"><text><![CDATA[<code>TIMED_WAITING</code>]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[<code>WAITING</code>]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[<code>TERMINATED</code>]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>[2.k] E05 Falta una cuenta</text></name>
+<questiontext format="html"><text><![CDATA[<p>Dos hilos ejecutan a la vez <code>contador++</code> sobre la misma variable y al final falta una cuenta. ¿Cómo se llama el problema?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p><code>contador++</code> son tres pasos (leer, sumar, escribir) y dos hilos se pisan.</p>]]></text></generalfeedback>
+<defaultgrade>0.25</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.k</text></tag><tag><text>examen-u1</text></tag></tags>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback><partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback><incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="100" format="html"><text><![CDATA[Condición de carrera.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Interbloqueo.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Inanición.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Desbordamiento.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>[2.k] E06 Qué es un interbloqueo</text></name>
+<questiontext format="html"><text><![CDATA[<p>¿Qué es un interbloqueo (deadlock)?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Espera circular: cada hilo tiene lo que otro necesita. Lo del primer apartado es inanición.</p>]]></text></generalfeedback>
+<defaultgrade>0.25</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.k</text></tag><tag><text>examen-u1</text></tag></tags>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback><partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback><incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="0" format="html"><text><![CDATA[Un hilo que nunca consigue turno aunque los demás avanzan.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="100" format="html"><text><![CDATA[Dos o más hilos esperan cada uno algo que tiene otro y ninguno avanza.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Un hilo muere por una excepción.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Un error de compilación por tener dos cerrojos.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>[2.f] E07 synchronized en un método</text></name>
+<questiontext format="html"><text><![CDATA[<p>¿Qué efecto tiene la palabra <code>synchronized</code> en un método?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>El cerrojo es del objeto: mientras uno está dentro de cualquier método <code>synchronized</code>, los demás esperan.</p>]]></text></generalfeedback>
+<defaultgrade>0.25</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.f</text></tag><tag><text>examen-u1</text></tag></tags>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback><partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback><incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="0" format="html"><text><![CDATA[Crea un hilo nuevo para el método.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Impide que otros hilos lean la variable.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="100" format="html"><text><![CDATA[Solo un hilo a la vez puede estar dentro de los métodos sincronizados de ese objeto.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Lo hace más rápido.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>[2.f] E08 wait()</text></name>
+<questiontext format="html"><text><![CDATA[<p>Un hilo llama a <code>wait()</code> dentro de un método <code>synchronized</code>. ¿Qué pasa?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p><code>wait()</code> suelta el cerrojo; si no lo soltara, nadie podría avisar.</p>]]></text></generalfeedback>
+<defaultgrade>0.25</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.f</text></tag><tag><text>examen-u1</text></tag></tags>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback><partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback><incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="100" format="html"><text><![CDATA[Suelta el cerrojo y espera hasta que otro hilo llame a <code>notify()</code> o <code>notifyAll()</code>.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Duerme un tiempo fijo y sigue.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Se queda con el cerrojo mientras espera.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Termina el hilo.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>[2.f] E09 Lectores y escritores</text></name>
+<questiontext format="html"><text><![CDATA[<p>En el problema de lectores y escritores, ¿qué es cierto?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Leer no cambia el dato, así que los lectores pueden compartir. Escribir exige estar solo.</p>]]></text></generalfeedback>
+<defaultgrade>0.25</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.f</text></tag><tag><text>examen-u1</text></tag></tags>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback><partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback><incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="0" format="html"><text><![CDATA[Varios escritores pueden escribir a la vez.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="100" format="html"><text><![CDATA[Varios lectores pueden leer a la vez; un escritor necesita estar solo.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Solo puede haber un lector a la vez.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Un lector y un escritor pueden coincidir sin problema.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="multichoice">
+<name><text>[2.a] E10 Cuándo usar hilos</text></name>
+<questiontext format="html"><text><![CDATA[<p>¿En cuál de estas situaciones es más útil usar varios hilos?</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Varios hilos compensan cuando hay esperas largas o tareas que deben avanzar a la vez.</p>]]></text></generalfeedback>
+<defaultgrade>0.25</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.a</text></tag><tag><text>examen-u1</text></tag></tags>
+<single>true</single><shuffleanswers>true</shuffleanswers><answernumbering>abc</answernumbering>
+<correctfeedback format="html"><text></text></correctfeedback><partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback><incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>0</shownumcorrectfeedback>
+<answer fraction="0" format="html"><text><![CDATA[Un programa que imprime su nombre.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Un programa que lee un número y lo muestra.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="100" format="html"><text><![CDATA[Una aplicación que descarga un fichero grande y a la vez debe seguir respondiendo a los clics del usuario.]]></text><feedback format="html"><text></text></feedback></answer>
+<answer fraction="0" format="html"><text><![CDATA[Calcular 2 + 2.]]></text><feedback format="html"><text></text></feedback></answer>
+</question>
+<question type="matching">
+<name><text>[2.j] E11 Métodos de la librería</text></name>
+<questiontext format="html"><text><![CDATA[<p>Une cada método con lo que hace. Sobra una descripción.</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Cada método tiene una sola función. La descripción «elimina el hilo» no es de ninguno.</p>]]></text></generalfeedback>
+<defaultgrade>1</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.j</text></tag><tag><text>examen-u1</text></tag></tags>
+<shuffleanswers>true</shuffleanswers>
+<correctfeedback format="html"><text></text></correctfeedback><partiallycorrectfeedback format="html"><text></text></partiallycorrectfeedback><incorrectfeedback format="html"><text></text></incorrectfeedback><shownumcorrectfeedback>1</shownumcorrectfeedback>
+<subquestion format="html"><text><![CDATA[<code>Thread.sleep(500)</code>]]></text><answer><text>Pausa el hilo actual un tiempo.</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[<code>h.join()</code>]]></text><answer><text>Espera a que otro hilo termine.</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[<code>Thread.yield()</code>]]></text><answer><text>Sugiere al planificador que otro hilo use el procesador.</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[<code>h.setPriority(...)</code>]]></text><answer><text>Cambia el número que sugiere la importancia del hilo.</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[<code>wait()</code>]]></text><answer><text>Suelta el cerrojo y espera un aviso.</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[<code>notifyAll()</code>]]></text><answer><text>Despierta a todos los hilos que esperan en este objeto.</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[<code>h.getState()</code>]]></text><answer><text>Dice en qué estado está el hilo.</text></answer></subquestion>
+<subquestion format="html"><text><![CDATA[<code>Thread.currentThread()</code>]]></text><answer><text>Devuelve el hilo que está ejecutando esa línea.</text></answer></subquestion>
+<subquestion format="html"><text></text><answer><text>Elimina el hilo inmediatamente.</text></answer></subquestion>
+</question>
+<question type="cloze">
+<name><text>[2.c] E12 Autobús</text></name>
+<questiontext format="html"><text><![CDATA[<p>Un autobús se va llenando: cada viajero es un hilo que sube 5 veces. En este programa se arranca un solo viajero. Escribe en cada hueco lo que falta. Los dos últimos: el primero pone el hilo en marcha y el segundo hace que «Fin» salga cuando el viajero ya ha terminado.</p><pre>class Autobus {
+    private int pasajeros = {1:NUMERICAL:=0};
+    public {1:SHORTANSWER_C:=synchronized} void sube() {
+        pasajeros{1:SHORTANSWER_C:=++};
+        System.out.println(Thread.currentThread().{1:SHORTANSWER_C:=getName}() + ": " + pasajeros);
+    }
+}
+class Viajero {1:SHORTANSWER_C:=implements} Runnable {
+    private Autobus a;
+    public Viajero(Autobus a) { this.a = a; }
+    @Override
+    public void {1:SHORTANSWER_C:=run}() {
+        for (int i = 0; i {1:SHORTANSWER_C:=&lt;~=&lt;=} 5; i++) {
+            a.sube();
+        }
+    }
+}
+public class Principal {
+    public static void main(String[] args) throws InterruptedException {
+        Autobus a = new Autobus();
+        Thread h = new {1:SHORTANSWER_C:=Thread}(new Viajero(a), "Viajero 1");
+        h.{1:SHORTANSWER_C:=start}();
+        h.{1:SHORTANSWER_C:=join}();
+        System.out.println("Fin");
+    }
+}</pre>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Contador a 0, método <code>synchronized</code>, <code>++</code>, <code>getName()</code>, <code>implements Runnable</code>, <code>run()</code>, <code>i &lt; 5</code>, <code>new Thread</code>, <code>start()</code> y <code>join()</code>.</p>]]></text></generalfeedback>
+<defaultgrade>1.5</defaultgrade><penalty>0.3333333</penalty><hidden>0</hidden>
+<tags><tag><text>2.c</text></tag><tag><text>examen-u1</text></tag></tags>
+</question>
+<question type="cloze">
+<name><text>[2.i] E13 Salida con join (a)</text></name>
+<questiontext format="html"><text><![CDATA[<p>¿Qué sale por pantalla? Escribe una línea de salida en cada hueco, de la primera a la última.</p><pre>class Eco implements Runnable {
+    private String t;
+    public Eco(String t) { this.t = t; }
+    public void run() { System.out.println(t); }
+}
+public class Principal {
+    public static void main(String[] args) throws InterruptedException {
+        Thread a = new Thread(new Eco("A"));
+        Thread b = new Thread(new Eco("B"));
+        System.out.println("1");
+        a.start();
+        a.join();
+        System.out.println("2");
+        b.start();
+        b.join();
+        System.out.println("3");
+    }
+}</pre><p>Línea 1: {1:SHORTANSWER_C:=1} &nbsp; Línea 2: {1:SHORTANSWER_C:=A} &nbsp; Línea 3: {1:SHORTANSWER_C:=2} &nbsp; Línea 4: {1:SHORTANSWER_C:=B} &nbsp; Línea 5: {1:SHORTANSWER_C:=3}</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p>Salida: 1, A, 2, B, 3. Cada <code>join()</code> hace que <code>main</code> espere al hilo antes de seguir.</p>]]></text></generalfeedback>
+<defaultgrade>0.5</defaultgrade><penalty>0.3333333</penalty><hidden>0</hidden>
+<tags><tag><text>2.i</text></tag><tag><text>examen-u1</text></tag></tags>
+</question>
+<question type="essay">
+<name><text>[2.i] E14 Salida sin join (b)</text></name>
+<questiontext format="html"><text><![CDATA[<p>Se borran las dos líneas <code>join()</code> del programa anterior. ¿Se puede asegurar que la salida sea la misma? ¿Podría salir el 3 antes que la A? Explica por qué.</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p><b>Solución y reparto de puntos</b> (acepta variantes equivalentes):</p><ul><li>0,25: responde «no».</li><li>0,25: razón (sin <code>join()</code> <code>main</code> no espera; el orden lo decide el planificador; sí puede salir el 3 antes que la A).</li></ul><pre>No. Sin join(), main sigue ejecutando mientras los hilos arrancan; el orden depende del planificador. Sí, el 3 podría salir antes que la A.</pre>]]></text></generalfeedback>
+<defaultgrade>0.5</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.i</text></tag><tag><text>examen-u1</text></tag></tags>
+<responseformat>monospaced</responseformat><responserequired>1</responserequired>
+<responsefieldlines>8</responsefieldlines><attachments>0</attachments><attachmentsrequired>0</attachmentsrequired>
+<graderinfo format="html"><text><![CDATA[<p><b>Solución y reparto de puntos</b> (acepta variantes equivalentes):</p><ul><li>0,25: responde «no».</li><li>0,25: razón (sin <code>join()</code> <code>main</code> no espera; el orden lo decide el planificador; sí puede salir el 3 antes que la A).</li></ul><pre>No. Sin join(), main sigue ejecutando mientras los hilos arrancan; el orden depende del planificador. Sí, el 3 podría salir antes que la A.</pre>]]></text></graderinfo>
+<responsetemplate format="html"><text></text></responsetemplate>
+</question>
+<question type="essay">
+<name><text>[2.e] E15 Heladería</text></name>
+<questiontext format="html"><text><![CDATA[<p>La heladería. Cuatro cajeros atienden a la vez, cada uno como un hilo. Cada cajero cobra 25 helados, uno a uno. Entre todos comparten el número de helados vendidos. Cada vez que se cobra un helado se muestra el nombre del cajero y la cuenta total. El último mensaje tiene que decir siempre 100. Te damos el programa principal: escribe las clases <code>Heladeria</code> y <code>Cajero</code> para que funcione <b>sin cambiarlo</b>.</p><pre>public class Principal {
+    public static void main(String[] args) {
+        Heladeria h = new Heladeria();
+        for (int i = 1; i &lt;= 4; i++) {
+            new Thread(new Cajero(h), "Cajero " + i).start();
+        }
+    }
+}</pre>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p><b>Solución y reparto de puntos</b> (acepta variantes equivalentes):</p><ul><li>1,25: <code>Heladeria</code> con atributo <code>vendidos</code> y método <code>synchronized</code> que suma y muestra nombre y cuenta (sin <code>synchronized</code>, máximo 0,5 en esta clase).</li><li>0,75: <code>Cajero implements Runnable</code>, recibe la heladería por constructor y <code>run()</code> con un <code>for</code> de 25 que llama al método de la heladería.</li></ul><pre>public class Heladeria {
+    private int vendidos = 0;
+    public synchronized void cobra() {
+        vendidos++;
+        System.out.println(Thread.currentThread().getName() + ": " + vendidos);
+    }
+}
+public class Cajero implements Runnable {
+    private Heladeria h;
+    public Cajero(Heladeria h) { this.h = h; }
+    @Override
+    public void run() {
+        for (int i = 0; i &lt; 25; i++) {
+            h.cobra();
+        }
+    }
+}</pre>]]></text></generalfeedback>
+<defaultgrade>2</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.e</text></tag><tag><text>examen-u1</text></tag></tags>
+<responseformat>monospaced</responseformat><responserequired>1</responserequired>
+<responsefieldlines>30</responsefieldlines><attachments>0</attachments><attachmentsrequired>0</attachmentsrequired>
+<graderinfo format="html"><text><![CDATA[<p><b>Solución y reparto de puntos</b> (acepta variantes equivalentes):</p><ul><li>1,25: <code>Heladeria</code> con atributo <code>vendidos</code> y método <code>synchronized</code> que suma y muestra nombre y cuenta (sin <code>synchronized</code>, máximo 0,5 en esta clase).</li><li>0,75: <code>Cajero implements Runnable</code>, recibe la heladería por constructor y <code>run()</code> con un <code>for</code> de 25 que llama al método de la heladería.</li></ul><pre>public class Heladeria {
+    private int vendidos = 0;
+    public synchronized void cobra() {
+        vendidos++;
+        System.out.println(Thread.currentThread().getName() + ": " + vendidos);
+    }
+}
+public class Cajero implements Runnable {
+    private Heladeria h;
+    public Cajero(Heladeria h) { this.h = h; }
+    @Override
+    public void run() {
+        for (int i = 0; i &lt; 25; i++) {
+            h.cobra();
+        }
+    }
+}</pre>]]></text></graderinfo>
+<responsetemplate format="html"><text></text></responsetemplate>
+</question>
+<question type="essay">
+<name><text>[2.f] E16 Taquilla (6A)</text></name>
+<questiontext format="html"><text><![CDATA[<p>Esta taquilla de cine la usan varios compradores y un reponedor a la vez. Un comprador espera si no quedan entradas. Señala <b>tres fallos</b> y explica en una frase por qué lo son. Después escribe la clase corregida.</p><pre>class Taquilla {
+    private int entradas = 0;
+    public void reponer(int n) {
+        entradas = entradas + n;
+        notify();
+    }
+    public synchronized void vender() throws InterruptedException {
+        if (entradas == 0) {
+            wait();
+        }
+        entradas--;
+    }
+}</pre>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p><b>Solución y reparto de puntos</b> (acepta variantes equivalentes):</p><ul><li>0,15 cada fallo con su razón (0,45): 1) <code>reponer()</code> sin <code>synchronized</code>: <code>notify()</code> sin cerrojo da <code>IllegalMonitorStateException</code> y pisa <code>entradas</code>. 2) <code>if</code> en lugar de <code>while</code>: al despertar hay que volver a comprobar. 3) <code>notify()</code> en lugar de <code>notifyAll()</code>: puede despertar al que no toca.</li><li>0,30: clase corregida.</li></ul><pre>class Taquilla {
+    private int entradas = 0;
+    public synchronized void reponer(int n) {
+        entradas = entradas + n;
+        notifyAll();
+    }
+    public synchronized void vender() throws InterruptedException {
+        while (entradas == 0) {
+            wait();
+        }
+        entradas--;
+    }
+}</pre>]]></text></generalfeedback>
+<defaultgrade>0.75</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.f</text></tag><tag><text>examen-u1</text></tag></tags>
+<responseformat>monospaced</responseformat><responserequired>1</responserequired>
+<responsefieldlines>22</responsefieldlines><attachments>0</attachments><attachmentsrequired>0</attachmentsrequired>
+<graderinfo format="html"><text><![CDATA[<p><b>Solución y reparto de puntos</b> (acepta variantes equivalentes):</p><ul><li>0,15 cada fallo con su razón (0,45): 1) <code>reponer()</code> sin <code>synchronized</code>: <code>notify()</code> sin cerrojo da <code>IllegalMonitorStateException</code> y pisa <code>entradas</code>. 2) <code>if</code> en lugar de <code>while</code>: al despertar hay que volver a comprobar. 3) <code>notify()</code> en lugar de <code>notifyAll()</code>: puede despertar al que no toca.</li><li>0,30: clase corregida.</li></ul><pre>class Taquilla {
+    private int entradas = 0;
+    public synchronized void reponer(int n) {
+        entradas = entradas + n;
+        notifyAll();
+    }
+    public synchronized void vender() throws InterruptedException {
+        while (entradas == 0) {
+            wait();
+        }
+        entradas--;
+    }
+}</pre>]]></text></graderinfo>
+<responsetemplate format="html"><text></text></responsetemplate>
+</question>
+<question type="essay">
+<name><text>[2.k] E17 Dos impresoras (6B)</text></name>
+<questiontext format="html"><text><![CDATA[<p>Dos hilos necesitan usar el escáner y la impresora para copiar un documento. (a) ¿Qué puede ocurrir al ejecutarlos a la vez? Explica el motivo. (b) Escribe el código del hilo 2 cambiado para que no pueda ocurrir.</p><pre>// Hilo 1                              // Hilo 2
+synchronized (escaner) {               synchronized (impresora) {
+    synchronized (impresora) {             synchronized (escaner) {
+        copiar();                              copiar();
+    }                                      }
+}                                      }</pre>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p><b>Solución y reparto de puntos</b> (acepta variantes equivalentes):</p><ul><li>0,25: nombra el interbloqueo. 0,25: motivo (espera circular).</li><li>0,25: el hilo 2 pide primero el escáner y después la impresora (mismo orden que el hilo 1).</li></ul><pre>a) Interbloqueo: el hilo 1 tiene el escáner y espera la impresora; el hilo 2 tiene la impresora y espera el escáner; ninguno suelta.
+b) Mismo orden en los dos hilos:
+synchronized (escaner) {
+    synchronized (impresora) {
+        copiar();
+    }
+}</pre>]]></text></generalfeedback>
+<defaultgrade>0.75</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.k</text></tag><tag><text>examen-u1</text></tag></tags>
+<responseformat>monospaced</responseformat><responserequired>1</responserequired>
+<responsefieldlines>14</responsefieldlines><attachments>0</attachments><attachmentsrequired>0</attachmentsrequired>
+<graderinfo format="html"><text><![CDATA[<p><b>Solución y reparto de puntos</b> (acepta variantes equivalentes):</p><ul><li>0,25: nombra el interbloqueo. 0,25: motivo (espera circular).</li><li>0,25: el hilo 2 pide primero el escáner y después la impresora (mismo orden que el hilo 1).</li></ul><pre>a) Interbloqueo: el hilo 1 tiene el escáner y espera la impresora; el hilo 2 tiene la impresora y espera el escáner; ninguno suelta.
+b) Mismo orden en los dos hilos:
+synchronized (escaner) {
+    synchronized (impresora) {
+        copiar();
+    }
+}</pre>]]></text></graderinfo>
+<responsetemplate format="html"><text></text></responsetemplate>
+</question>
+<question type="essay">
+<name><text>[2.f] E18 Estantería</text></name>
+<questiontext format="html"><text><![CDATA[<p>Una estantería de un almacén guarda como máximo 3 cajas. Varios hilos ponen cajas y varios hilos cogen cajas. Si está llena, el que pone espera. Si está vacía, el que coge espera. Escribe la clase <code>Estanteria</code> con los métodos <code>poner()</code> y <code>coger()</code>. Basta con llevar la cuenta de las cajas (un <code>int</code>).</p>]]></text></questiontext>
+<generalfeedback format="html"><text><![CDATA[<p><b>Solución y reparto de puntos</b> (acepta variantes equivalentes):</p><ul><li>0,1: <code>synchronized</code>.</li><li>0,2: <code>while</code> y <code>wait()</code> con la condición correcta en los dos métodos.</li><li>0,1: <code>notifyAll()</code> tras cambiar la cuenta.</li><li>0,1: <code>cajas++</code> y <code>cajas--</code>.</li></ul><pre>class Estanteria {
+    private int cajas = 0;
+    public synchronized void poner() throws InterruptedException {
+        while (cajas == 3) {
+            wait();
+        }
+        cajas++;
+        notifyAll();
+    }
+    public synchronized void coger() throws InterruptedException {
+        while (cajas == 0) {
+            wait();
+        }
+        cajas--;
+        notifyAll();
+    }
+}</pre>]]></text></generalfeedback>
+<defaultgrade>0.5</defaultgrade><penalty>0</penalty><hidden>0</hidden>
+<tags><tag><text>2.f</text></tag><tag><text>examen-u1</text></tag></tags>
+<responseformat>monospaced</responseformat><responserequired>1</responserequired>
+<responsefieldlines>22</responsefieldlines><attachments>0</attachments><attachmentsrequired>0</attachmentsrequired>
+<graderinfo format="html"><text><![CDATA[<p><b>Solución y reparto de puntos</b> (acepta variantes equivalentes):</p><ul><li>0,1: <code>synchronized</code>.</li><li>0,2: <code>while</code> y <code>wait()</code> con la condición correcta en los dos métodos.</li><li>0,1: <code>notifyAll()</code> tras cambiar la cuenta.</li><li>0,1: <code>cajas++</code> y <code>cajas--</code>.</li></ul><pre>class Estanteria {
+    private int cajas = 0;
+    public synchronized void poner() throws InterruptedException {
+        while (cajas == 3) {
+            wait();
+        }
+        cajas++;
+        notifyAll();
+    }
+    public synchronized void coger() throws InterruptedException {
+        while (cajas == 0) {
+            wait();
+        }
+        cajas--;
+        notifyAll();
+    }
+}</pre>]]></text></graderinfo>
+<responsetemplate format="html"><text></text></responsetemplate>
+</question>
+</quiz>

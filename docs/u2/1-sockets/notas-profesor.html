@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notas del profesor · 1 Comunicaciones en red: cliente y servidor</title>
+<link rel="stylesheet" href="../../estilo/tema.css">
+<script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t)}catch(e){}</script>
+</head>
+<body class="">
+<header class="cabecera">
+  <a class="marca" href="../../index.html">PSP · 2º DAM</a>
+  <nav><a href="../../glosario/index.html">Glosario</a><button id="tema" type="button" aria-label="Cambiar entre tema claro y oscuro">◐</button></nav>
+</header>
+<main class="contenido">
+<h1>Notas del profesor</h1>
+<p class="suave">1 Comunicaciones en red: cliente y servidor</p>
+<form id="acceso" class="tarjeta acceso">
+<label>Código de acceso<input name="frase" type="password" autocomplete="off" required></label>
+<button class="boton" type="submit">Entrar</button>
+</form>
+<p id="error" class="aviso" hidden>Código incorrecto.</p>
+<div id="notas" class="notas"></div>
+<script type="application/json" id="paquete">{"v":1,"it":600000,"sal":"3P/juHXyoHVFqSqU875epA==","iv":"iBZC8VwaXEGzIopq","datos":"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"}</script>
+</main>
+<script type="module" src="../../estilo/tema.js"></script>
+<script type="module" src="../../estilo/acceso.js"></script>
+</body>
+</html>

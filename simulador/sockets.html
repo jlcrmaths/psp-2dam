@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador de sockets</title>
+<style>
+:root{
+  --bg:#f6f4ef; --panel:#ffffff; --ink:#1d2433; --mute:#5d6678; --line:#d9d4c7;
+  --acc:#2563eb; --bad:#dc2626; --ok:#16a34a; --warn:#d97706; --lock:#9333ea;
+  --code:#10151f; --codeink:#e6e9f0; --csize:15px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141821; --panel:#1d2330; --ink:#eef0f5; --mute:#a3acbf; --line:#323a4d;
+    --acc:#60a5fa; --bad:#f87171; --ok:#4ade80; --warn:#fbbf24; --lock:#c084fc;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.4 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;padding:12px 20px;border-bottom:2px solid var(--line)}
+h1{font-size:1.4rem;margin:0;flex:1 1 260px}
+.controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,select{font:inherit;padding:6px 14px;border-radius:10px;border:2px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+select#reto{font-weight:700;border-color:var(--acc)}
+button.main{background:var(--ok);border-color:var(--ok);color:#fff;font-weight:700}
+button:hover{filter:brightness(.95)}
+button:disabled{opacity:.45;cursor:not-allowed}
+a.volver{font-size:.85rem;color:var(--acc);font-weight:700;text-decoration:none;border:2px solid var(--acc);border-radius:10px;padding:4px 10px;white-space:nowrap}
+main{display:grid;grid-template-columns:1fr;gap:16px;padding:16px 20px;align-items:start}
+@media (min-width:1150px){main{grid-template-columns:minmax(0,1.25fr) minmax(380px,.75fr)} .right{position:sticky;top:12px;max-height:calc(100vh - 24px);overflow-y:auto}}
+.panel{background:var(--panel);border:2px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:14px}
+h2{font-size:.95rem;margin:0 0 8px;color:var(--mute);text-transform:uppercase;letter-spacing:.06em}
+.enun p{margin:0 0 8px}
+.enun ul{margin:0 0 8px;padding-left:1.3em}
+code{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--line);padding:0 5px;border-radius:4px;font-size:.9em}
+.hint{font-size:.85em;color:var(--mute)}
+.side{border:3px solid var(--line);border-radius:14px;padding:8px 10px;background:var(--bg);margin-bottom:10px}
+.side.run{border-color:var(--acc)} .side.blocked{border-color:var(--warn)} .side.error{border-color:var(--bad)} .side.done{border-color:var(--ok)}
+.side .top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px}
+.side .nm{font-weight:700;font-size:1.05em}
+.badge{font-size:.78em;padding:1px 10px;border-radius:999px;border:2px solid var(--line);white-space:nowrap}
+.side.run .badge{border-color:var(--acc);color:var(--acc)}
+.side.blocked .badge{border-color:var(--warn);color:var(--warn);font-weight:700}
+.side.error .badge{border-color:var(--bad);color:var(--bad)}
+.side.done .badge{border-color:var(--ok);color:var(--ok)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+@media (min-width:700px){.cols{grid-template-columns:minmax(0,1.6fr) minmax(0,1fr)}}
+.code{background:var(--code);color:var(--codeink);border-radius:10px;padding:6px 0;font:var(--csize)/1.5 ui-monospace,Menlo,Consolas,monospace;overflow-x:auto;min-height:3em}
+.code .ln{display:flex;align-items:center;padding:0 6px 0 4px;white-space:pre}
+.code .ar{display:inline-block;width:1.5em;flex:none;text-align:center;color:transparent}
+.code .ln.cur{background:color-mix(in srgb,var(--acc) 35%,transparent)} .code .ln.cur .ar{color:var(--acc)}
+.code .ln.cur.blk{background:color-mix(in srgb,var(--warn) 35%,transparent)} .code .ln.cur.blk .ar{color:var(--warn)}
+.code .ln.cur.err{background:color-mix(in srgb,var(--bad) 35%,transparent)} .code .ln.cur.err .ar{color:var(--bad)}
+.code .ln.bad{background:color-mix(in srgb,var(--bad) 30%,transparent)}
+.code .nn{color:#6b7a8c;width:1.7em;text-align:right;margin-right:8px;flex:none}
+.code .tools{margin-left:auto;padding-left:14px;display:flex;gap:2px;flex:none}
+.code .tools button{padding:0 6px;font-size:.8em;border-radius:6px;background:transparent;color:#9aa6b8;border-color:#2c3548}
+.code .slot{display:block;width:100%;text-align:left;padding:0 6px 0 36px;margin:0;height:11px;line-height:9px;font-size:.7em;border:0;border-radius:0;background:transparent;color:transparent;cursor:pointer}
+.code .slot:hover,.code .slot.sel,.code .slot.over{background:color-mix(in srgb,var(--ok) 35%,transparent);color:#cfe;height:20px;line-height:18px}
+.code.vacio .slot{height:34px;line-height:32px;color:#6b7a8c;font-size:.85em}
+.pant{background:#0a0e12;color:#9fe870;border-radius:10px;padding:6px 10px;font:13px/1.5 ui-monospace,Menlo,Consolas,monospace;min-height:6em;max-height:14em;overflow-y:auto}
+.pant small{display:block;color:#6b7a8c}
+.pant .e{color:#ff8a8a}
+.vars{font-size:.8em;color:var(--mute);min-height:1.3em;margin-top:4px}
+.comp{font-size:.85em;margin-top:6px}
+.comp .er{color:var(--bad);margin:2px 0}
+.comp .okk{color:var(--ok)}
+.pipe{border:3px dashed var(--line);border-radius:14px;padding:6px 10px;margin-bottom:10px;display:grid;grid-template-columns:1fr 1fr;gap:6px 14px}
+.pipe .conn{grid-column:1/-1;font-weight:700;text-align:center}
+.pipe .lane h3{font-size:.72rem;margin:0 0 2px;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+.pipe .lane{min-height:2.6em}
+.pipe .full{grid-column:1/-1}
+.chip{display:inline-block;background:color-mix(in srgb,var(--acc) 16%,var(--panel));border:2px solid var(--acc);border-radius:12px;padding:0 10px;margin:2px 3px 2px 0;font-size:.85em;animation:pop .3s}
+.chip.buf{background:color-mix(in srgb,var(--warn) 16%,var(--panel));border-color:var(--warn)}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.nota{font-size:.8em;color:var(--mute)}
+.res{padding:10px 14px;border-radius:12px;border:3px solid var(--line);margin-bottom:12px}
+.res.ok{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 12%,var(--panel))}
+.res.ko{border-color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,var(--panel))}
+.res.lock{border-color:var(--lock);background:color-mix(in srgb,var(--lock) 12%,var(--panel))}
+.res.info{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 12%,var(--panel))}
+ul#log{margin:0;padding-left:1.2em;max-height:11em;overflow-y:auto;font-size:.9em}
+/* piezas */
+.grupo{margin:8px 0 2px;font-size:.8rem;font-weight:700;color:var(--mute);text-transform:uppercase;letter-spacing:.05em}
+.pieces{display:flex;flex-direction:column;gap:4px}
+.piece{display:block;text-align:left;font:13px/1.35 ui-monospace,Menlo,Consolas,monospace;padding:4px 10px;border-radius:8px;border:2px solid var(--line);background:var(--bg);cursor:grab;white-space:normal;word-break:break-word}
+.piece.s{border-left:6px solid #0ea5e9} .piece.c{border-left:6px solid #f97316}
+.piece.sel{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 16%,var(--panel))}
+.leyenda{font-size:.8em;color:var(--mute)}
+.leyenda b.s{color:#0ea5e9} .leyenda b.c{color:#f97316}
+body.corre .piece{opacity:.5;pointer-events:none}
+.code input.arg{font:inherit;background:#1d2636;color:#ffd479;border:1px solid #3b4a66;border-radius:5px;padding:0 4px;margin:0 2px;min-width:8em}
+.code input.arg:focus{outline:2px solid var(--ok)}
+.code .nn{cursor:grab}
+/* ===== Vista de ejecución: todo en grande (se activa al ejecutar) ===== */
+#retoLinea{display:none}
+body.corre{--csize:21px;font-size:20px}
+body.corre main{grid-template-columns:minmax(0,1fr);max-width:none}
+body.corre .right, body.corre .enun{display:none}
+body.corre #retoLinea{display:block;grid-area:reto;font-weight:700;color:var(--mute);margin:0}
+body.corre .left{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-areas:"reto reto" "banner banner" "sc ss" "pipe pipe" "log log";gap:12px 16px;align-items:start}
+body.corre #banner{grid-area:banner} body.corre #sideC{grid-area:sc;margin:0} body.corre #sideS{grid-area:ss;margin:0}
+body.corre #pipe{grid-area:pipe;margin:0;padding:10px 16px;font-size:1.05em} body.corre .logp{grid-area:log;margin:0}
+body.corre .cols{grid-template-columns:minmax(0,1fr)}
+body.corre .code .ln{white-space:pre-wrap;word-break:break-word;padding:2px 8px 2px 4px}
+body.corre .code .ln.cur{outline:3px solid var(--acc);outline-offset:-3px}
+body.corre .code .ln.cur.blk{outline-color:var(--warn)}
+body.corre .code .ln.cur.err{outline-color:var(--bad)}
+body.corre .pant{font-size:18px;min-height:5em}
+body.corre .vars{font-size:1em}
+body.corre .chip{font-size:1.15em;padding:2px 14px}
+body.corre .pipe .lane h3{font-size:.85rem}
+body.corre .pipe .lane{min-height:3.4em}
+body.corre .side .nm{font-size:1.3em} body.corre .badge{font-size:.95em}
+body.corre .res{font-size:1.1em}
+body.corre ul#log{max-height:14em;font-size:1em}
+@media (max-width:1000px){body.corre .left{grid-template-columns:minmax(0,1fr);grid-template-areas:"reto" "banner" "sc" "ss" "pipe" "log"}}
+#toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:8px 16px;border-radius:10px;font-size:.9rem;opacity:0;transition:opacity .25s;pointer-events:none;z-index:9}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <a class="volver" href="index.html">← Simulador de hilos</a>
+  <h1>Simulador de sockets</h1>
+  <div class="controls">
+    <select id="reto" aria-label="Reto"></select>
+    <label class="hint">Arranca primero
+      <select id="arranque" aria-label="Quién arranca primero">
+        <option value="s" selected>el servidor</option>
+        <option value="c">el cliente</option>
+        <option value="a">los dos a la vez</option>
+      </select></label>
+    <button class="main" id="bRun">▶ Ejecutar</button>
+    <button id="bStep">Paso</button>
+    <button id="bReset">↺ Reiniciar</button>
+    <button id="bSol">Solución</button>
+    <button id="bClear">Vaciar</button>
+    <select id="speed" aria-label="Velocidad">
+      <option value="900">Lento</option>
+      <option value="500" selected>Normal</option>
+      <option value="200">Rápido</option>
+    </select>
+  </div>
+</header>
+<main>
+  <section class="left">
+    <p id="retoLinea"></p>
+    <div class="panel enun"><h2>Enunciado</h2><div id="enun"></div></div>
+    <div id="banner"></div>
+    <div class="side" id="sideC"></div>
+    <div class="pipe" id="pipe"></div>
+    <div class="side" id="sideS"></div>
+    <div class="panel logp"><h2>Qué va pasando</h2><ul id="log"></ul></div>
+  </section>
+  <section class="right">
+    <div class="panel">
+      <h2>Piezas</h2>
+      <p class="leyenda">Pulsa una pieza y luego un hueco verde entre las líneas (o al revés), o arrástrala. Borde <b class="c">naranja</b> = del cliente, <b class="s">azul</b> = del servidor. Las líneas se pueden arrastrar para cambiarlas de sitio.</p>
+      <div class="pieces" id="pieces"></div>
+    </div>
+  </section>
+</main>
+<div id="toast"></div>
+<script>
+/* ===== Piezas (instrucciones que el alumno coloca) ===== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;');
+const otro = k => k === 'c' ? 's' : 'c';
+const NOMBRE = { c: 'Cliente', s: 'Servidor' };
+let R = null;
+
+function log(m) { R.log.push(m); }
+function mostrar(k, t) { R[k].out.push({ t }); }
+function leer(k) {
+  const me = R[k];
+  if (me.closed) throw new Error('SocketException: Socket closed');
+  // Cada paso se decide con lo que había al empezar el paso: lo que el otro hace en este mismo paso se nota en el siguiente.
+  const q = R.net.q[k], sn = R.snap;
+  if (sn.q[k] > 0 && q.length) { sn.q[k]--; return { v: q.shift() }; }
+  if (sn.q[k] === 0 && q.length === 0 && sn.eof[otro(k)]) return { v: null };
+  return null;
+}
+function enviar(k, msg) {
+  if (R[k].af) { R.net.q[otro(k)].push(msg); log(`${NOMBRE[k]} envía «${msg}»`); }
+  else { R.net.buf[k].push(msg); log(`${NOMBRE[k]}: «${msg}» se queda en el buffer (sin autoFlush no sale)`); }
+}
+function cerrar(k, que) {
+  R.net.buf[k].forEach(m => R.net.q[otro(k)].push(m)); R.net.buf[k] = [];
+  R.net.eof[k] = true; R[k].closed = true; log(`${NOMBRE[k]}: ${que} (la conexión se cierra)`);
+}
+const lee = (k, ln, dest) => { const r = leer(k); if (!r) return 'block'; R[k].vars[dest || 'linea'] = r.v; log(`${NOMBRE[k]}: readLine() devuelve ${r.v === null ? 'null' : '«' + r.v + '»'}`); return r; };
+const msg = (txt, fn) => ({ t: `pw.println(${txt});`, req: ['pw'], f: k => enviar(k, fn(R[k].vars)) });
+const pant = (txt, fn) => ({ t: `System.out.println(${txt});`, req: [], f: k => mostrar(k, fn(R[k].vars)) });
+const cierre = (t, req) => ({ t, req: [req], f: k => cerrar(k, 'cierra') });
+
+const PIEZAS = [
+  ['Conectar', { id: 'ss', side: 's', t: 'ServerSocket ss = new ServerSocket(12349);', decl: 'ss', f: k => { R.net.listening = true; log('Servidor: puerto 12349 abierto'); } }],
+  ['Conectar', { id: 'accept', side: 's', t: 'Socket s = ss.accept();', req: ['ss'], decl: 's', f: k => { if (R.snap.pending) { R.net.pending = false; R.net.connected = true; log('Servidor: accept() recibe al cliente'); return; } return 'block'; } }],
+  ['Conectar', { id: 'connect', side: 'c', t: 'Socket s = new Socket("localhost", 12349);', decl: 's', f: k => { if (!R.snap.listening) throw new Error('ConnectException: Connection refused'); R.net.pending = true; R.net.connected = true; log('Cliente: se conecta al servidor'); } }],
+  ['Canales', { id: 'br', t: 'BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));', req: ['s'], decl: 'br' }],
+  ['Canales', { id: 'pw', t: 'PrintWriter pw = new PrintWriter(s.getOutputStream(), true);', req: ['s'], decl: 'pw', f: k => { R[k].af = true; } }],
+  ['Canales', { id: 'pwNo', t: 'PrintWriter pw = new PrintWriter(s.getOutputStream());', req: ['s'], decl: 'pw', f: k => { R[k].af = false; } }],
+  ['Variables', { id: 'linea', t: 'String linea;', decl: 'linea' }],
+  ['Variables', { id: 'randN', t: 'int n = (int) (Math.random() * 101);', decl: 'n', f: k => { R[k].vars.n = Math.floor(Math.random() * 101); } }],
+  ['Variables', { id: 'parseN', t: 'int n = Integer.parseInt(linea);', req: ['linea'], decl: 'n', f: k => { R[k].vars.n = parseInt(R[k].vars.linea, 10); } }],
+  ['Enviar', { id: 'pHola', ...msg('"Hola"', () => 'Hola') }],
+  ['Enviar', { id: 'pHolaCli', ...msg('"Hola, cliente"', () => 'Hola, cliente') }],
+  ['Enviar', { id: 'pMsg', ...msg('"Mensaje " + i', v => 'Mensaje ' + v.i), req: ['pw', 'i'] }],
+  ['Enviar', { id: 'pRec', ...msg('"Recibido: " + linea', v => 'Recibido: ' + v.linea), req: ['pw', 'linea'] }],
+  ['Enviar', { id: 'pN', ...msg('n', v => String(v.n)), req: ['pw', 'n'] }],
+  ['Enviar', { id: 'pPar', ...msg('n % 2 == 0 ? "par" : "impar"', v => v.n % 2 === 0 ? 'par' : 'impar'), req: ['pw', 'n'] }],
+  ['Leer', { id: 'read', t: 'linea = br.readLine();', req: ['br', 'linea'], f: k => lee(k) }],
+  ['Leer', { id: 'readIn', t: 'System.out.println("El cliente dice: " + br.readLine());', req: ['br'], f: k => { const r = lee(k, null, 'tmp'); if (r === 'block') return r; mostrar(k, 'El cliente dice: ' + r.v); } }],
+  ['Bucles', { id: 'while', kind: 'while', t: 'while ((linea = br.readLine()) != null) {', req: ['br', 'linea'], f: (k, ln) => { const r = lee(k); if (r === 'block') return r; if (r.v === null) return { jump: ln.end + 1 }; } }],
+  ['Bucles', { id: 'for3', kind: 'for', t: 'for (int i = 1; i <= 3; i++) {', decl: 'i', f: (k, ln) => forF(k, ln, 1, 3, true) }],
+  ['Bucles', { id: 'for25', kind: 'for', t: 'for (int i = 0; i < 25; i++) {', decl: 'i', f: (k, ln) => forF(k, ln, 0, 25, false) }],
+  ['Bucles', { id: 'fin', kind: 'close', t: '}', f: (k, ln) => { if (ln.pi.kind === 'for') R[k].vars.i++; return { jump: ln.start }; } }],
+  ['Pantalla', { id: 'sConectado', ...pant('"Conectado"', () => 'Conectado') }],
+  ['Pantalla', { id: 'sCliente', ...pant('"El cliente dice: " + linea', v => 'El cliente dice: ' + v.linea), req: ['linea'] }],
+  ['Pantalla', { id: 'sServidor', ...pant('"El Servidor dice: " + linea', v => 'El Servidor dice: ' + v.linea), req: ['linea'] }],
+  ['Pantalla', { id: 'sN', ...pant('n + " – " + linea', v => v.n + ' – ' + v.linea), req: ['n', 'linea'] }],
+  ['Pantalla', { id: 'sDesc', ...pant('"Cliente desconectado"', () => 'Cliente desconectado') }],
+  ['Pantalla', { id: 'sCalla', ...pant('"El cliente ya no habla"', () => 'El cliente ya no habla') }],
+  ['Cerrar', { id: 'shut', side: 'c', t: 's.shutdownOutput();', req: ['s'], f: k => { R.net.eof[k] = true; log(`${NOMBRE[k]}: se calla (cierra solo la salida) pero sigue escuchando`); } }],
+  ['Cerrar', { id: 'cBr', ...cierre('br.close();', 'br') }],
+  ['Cerrar', { id: 'cPw', ...cierre('pw.close();', 'pw') }],
+  ['Cerrar', { id: 'cS', ...cierre('s.close();', 's') }],
+  ['Cerrar', { id: 'cSs', side: 's', ...cierre('ss.close();', 'ss'), f: k => { R.net.listening = false; log('Servidor: puerto cerrado'); } }],
+];
+PIEZAS.splice(24, 0, ['Pantalla', { id: 'sEspera', ...pant('"Esperando conexión..."', () => 'Esperando conexión...') }]);
+PIEZAS.push(['Pantalla', { id: 'outLibre', libre: true, pre: 'System.out.println(', t: 'System.out.println( ✎ );', req: [], f: (k, ln) => mostrar(k, ln.val(k)) }]);
+PIEZAS.push(['Enviar', { id: 'pwLibre', libre: true, pre: 'pw.println(', t: 'pw.println( ✎ );', req: ['pw'], f: (k, ln) => enviar(k, ln.val(k)) }]);
+const PZ = {}; PIEZAS.forEach(([g, p]) => { p.g = g; p.req = p.req || []; p.f = p.f || (() => {}); PZ[p.id] = p; });
+function forF(k, ln, ini, n, incl) {
+  const v = R[k].vars; if (v.i === undefined) v.i = ini;
+  if (incl ? v.i > n : v.i >= n) { v.i = undefined; return { jump: ln.end + 1 }; }
+}
+
+/* ===== Mensajes escritos a mano: «texto» + variable + ... ===== */
+const VARS_OK = ['linea', 'i', 'n'];
+function parseExpr(src) {
+  const s = String(src || '').trim();
+  if (!s) return { err: 'falta el mensaje entre los paréntesis' };
+  const partes = []; let cur = '', q = false;
+  for (const ch of s) { if (ch === '"') q = !q; if (ch === '+' && !q) { partes.push(cur); cur = ''; } else cur += ch; }
+  if (q) return { err: 'falta cerrar las comillas «"»' };
+  partes.push(cur);
+  const toks = [];
+  for (const raw of partes) {
+    const x = raw.trim();
+    if (/^"[^"]*"$/.test(x)) toks.push({ lit: x.slice(1, -1) });
+    else if (/^\d+$/.test(x)) toks.push({ lit: x });
+    else if (VARS_OK.includes(x)) toks.push({ v: x });
+    else if (!x) return { err: 'sobra un «+» o falta algo a su lado' };
+    else if (/^[A-Za-z_]\w*$/.test(x)) return { err: `no se encuentra la variable «${x}» (¿falta poner el texto entre comillas?)` };
+    else return { err: `no entiendo «${x}»: el texto va entre comillas y se une con +` };
+  }
+  return { toks };
+}
+const evalExpr = (toks, vars) => toks.map(x => x.lit !== undefined ? x.lit : (vars[x.v] === null ? 'null' : String(vars[x.v]))).join('');
+const textoLinea = it => PZ[it.id].libre ? PZ[it.id].pre + it.arg + ');' : PZ[it.id].t;
+
+/* ===== Retos ===== */
+const SIMBOLO = { ss: 'ServerSocket ss', s: 'Socket s', br: 'BufferedReader br', pw: 'PrintWriter pw', linea: 'String linea', i: 'i (hace falta un for)', n: 'int n' };
+const RETOS = [
+  { id: 'conectar', titulo: '1. Conectar',
+    enun: '<p><b>Objetivo:</b> que el servidor y el cliente se conecten. El servidor muestra «Esperando conexión...» y, cuando llega el cliente, «Conectado». El cliente muestra «Conectado» cuando consigue conectar.</p><p class="hint">Prueba después a cambiar quién arranca primero (arriba). Los mensajes de pantalla los puedes escribir tú con la pieza <code>System.out.println( ✎ )</code>: texto entre comillas y variables unidas con <code>+</code>.</p>',
+    sol: { s: ['ss', 'sEspera', 'accept', 'sConectado'], c: ['connect', 'sConectado'] },
+    check: () => comprueba([[R.s.out, 'Conectado'], [R.c.out, 'Conectado']]) },
+  { id: 'dialogo', titulo: '2. El primer diálogo',
+    enun: '<p><b>Objetivo:</b> el cliente saluda con «Hola». El servidor lee el saludo, muestra «El cliente dice: Hola» y contesta «Hola, cliente». El cliente lee la respuesta y muestra «El Servidor dice: Hola, cliente».</p><p class="hint">Necesitas conectar, crear los dos canales (lectura y escritura) y declarar <code>linea</code>. Con el <code>true</code> del <code>PrintWriter</code>.</p>',
+    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'read', 'sCliente', 'pHolaCli'], c: ['connect', 'br', 'pw', 'linea', 'pHola', 'read', 'sServidor'] },
+    check: () => comprueba([[R.s.out, 'El cliente dice: Hola'], [R.c.out, 'El Servidor dice: Hola, cliente']]) },
+  { id: 'bucle', titulo: '3. Tres mensajes y un bucle',
+    enun: '<p><b>Objetivo:</b> el cliente envía «Mensaje 1», «Mensaje 2» y «Mensaje 3», <b>uno cada vez</b>, esperando la respuesta («Hola») antes de enviar el siguiente, y muestra cada respuesta. El servidor repite en un bucle: muestra el mensaje, contesta «Hola» y, cuando el cliente se va, muestra «Cliente desconectado». El cliente cierra el socket al terminar.</p><p class="hint">Un solo <code>readLine()</code> por vuelta.</p>',
+    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'while', 'sCliente', 'pHola', 'fin', 'sDesc'], c: ['connect', 'br', 'pw', 'linea', 'for3', 'pMsg', 'read', 'sServidor', 'fin', 'cS'] },
+    check: () => comprueba([[R.s.out, 'El cliente dice: Mensaje 1'], [R.s.out, 'El cliente dice: Mensaje 2'], [R.s.out, 'El cliente dice: Mensaje 3'], [R.s.out, 'Cliente desconectado'], [R.c.out, 'El Servidor dice: Hola', 3]]) },
+  { id: 'callarse', titulo: '4. Callarse sin irse',
+    enun: '<p><b>Objetivo:</b> el cliente envía los tres mensajes <b>seguidos</b>, avisa de que ya no habla pero sigue escuchando, y muestra las tres respuestas «Recibido: Mensaje N». El servidor contesta a cada mensaje y, cuando el cliente se calla, muestra «El cliente ya no habla» y cierra todo.</p><p class="hint">¿Qué pieza avisa de que te callas sin cerrar la conexión entera?</p>',
+    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'while', 'sCliente', 'pRec', 'fin', 'sCalla', 'cS', 'cSs'], c: ['connect', 'br', 'pw', 'linea', 'for3', 'pMsg', 'fin', 'shut', 'while', 'sServidor', 'fin', 'cS'] },
+    check: () => comprueba([[R.s.out, 'El cliente ya no habla'], [R.c.out, 'El Servidor dice: Recibido: Mensaje 1'], [R.c.out, 'El Servidor dice: Recibido: Mensaje 2'], [R.c.out, 'El Servidor dice: Recibido: Mensaje 3']]) },
+  { id: 'parimpar', titulo: '5. Pares e impares',
+    enun: '<p><b>Objetivo (el ejercicio de clase):</b> el cliente genera 25 números aleatorios entre 0 y 100, envía cada uno y espera la respuesta. El servidor contesta «par» o «impar». El cliente muestra cada número con su respuesta: <code>27 – impar</code>. Al terminar el cliente, el servidor se da cuenta y sale del bucle.</p><p class="hint">Lo que llega por la red es texto: hay que convertirlo en número en el servidor.</p>',
+    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'while', 'parseN', 'pPar', 'fin', 'sDesc'], c: ['connect', 'br', 'pw', 'linea', 'for25', 'randN', 'pN', 'read', 'sN', 'fin', 'cS'] },
+    check: () => {
+      const l = R.c.out.map(o => o.t).filter(t => /^\d+ – (par|impar)$/.test(t));
+      if (l.length !== 25) return `el cliente debe mostrar 25 líneas «número – par/impar» y muestra ${l.length}`;
+      if (l.some(t => { const [n, r] = t.split(' – '); return (n % 2 === 0 ? 'par' : 'impar') !== r; })) return 'alguna respuesta es incorrecta';
+      return null;
+    } },
+  { id: 'libre', titulo: 'Libre (prueba lo que quieras)',
+    enun: '<p>Monta cliente y servidor como quieras, con cualquier pieza. Prueba los fallos que hemos visto: el <code>PrintWriter</code> sin <code>true</code>, los dos leyendo primero, un segundo <code>readLine()</code> dentro del bucle, <code>close()</code> en vez de <code>shutdownOutput()</code>...</p>',
+    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'read', 'sCliente', 'pHolaCli'], c: ['connect', 'br', 'pw', 'linea', 'pHola', 'read', 'sServidor'] },
+    check: () => null },
+];
+function comprueba(lista) {
+  const falta = [];
+  lista.forEach(([out, texto, veces]) => {
+    const n = out.filter(o => o.t === texto).length;
+    if (n < (veces || 1)) falta.push(`«${texto}»${veces ? ' (' + veces + ' veces)' : ''}`);
+  });
+  return falta.length ? 'falta que se muestre ' + falta.join(', ') : null;
+}
+
+/* ===== Estado del editor ===== */
+let reto = RETOS[0];
+const code = { c: [], s: [] };
+let selPieza = null, selHueco = null, corre = false, timer = null, malas = { c: [], s: [] };
+
+function toast(t) { const e = $('toast'); e.textContent = t; e.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => e.classList.remove('on'), 2600); }
+
+function insertar(k, pos, id) {
+  const p = PZ[id];
+  if (p.side && p.side !== k) { toast(`«${p.t.slice(0, 36)}…» es del ${p.side === 's' ? 'servidor' : 'cliente'}: no va en el ${NOMBRE[k].toLowerCase()}`); return false; }
+  code[k].splice(pos, 0, p.libre ? { id, arg: '""' } : { id }); selPieza = null; selHueco = null; limpiar(); pintarEditor();
+  if (p.libre) { const inp = document.querySelector(`.ln[data-k="${k}"][data-i="${pos}"] input`); if (inp) { inp.focus(); inp.setSelectionRange(1, 1); } }
+  return true;
+}
+function limpiar() { malas = { c: [], s: [] }; }
+
+/* ===== Compilación (comprobaciones antes de ejecutar) ===== */
+function compilar(k) {
+  const errs = [], decl = new Set(), pila = [];
+  const prog = code[k].map(it => ({ p: PZ[it.id], it, t: textoLinea(it), pi: null }));
+  prog.forEach((ln, idx) => {
+    if (ln.p.libre) {
+      const e = parseExpr(ln.it.arg);
+      if (e.err) errs.push({ idx, msg: `línea ${idx + 1}: ${e.err}` });
+      else { e.toks.filter(x => x.v).forEach(x => { if (!decl.has(x.v)) errs.push({ idx, msg: `línea ${idx + 1}: no se encuentra «${SIMBOLO[x.v] || x.v}» (todavía no está creado)` }); }); ln.val = kk => evalExpr(e.toks, R[kk].vars); }
+    }
+    ln.p.req.forEach(r => { if (!decl.has(r)) errs.push({ idx, msg: `línea ${idx + 1}: no se encuentra «${SIMBOLO[r] || r}» (todavía no está creado)` }); });
+    if (ln.p.decl) {
+      if (decl.has(ln.p.decl) && ln.p.decl !== 'i') errs.push({ idx, msg: `línea ${idx + 1}: «${ln.p.decl}» ya está declarado` });
+      decl.add(ln.p.decl);
+    }
+    if (ln.p.kind === 'while' || ln.p.kind === 'for') pila.push(idx);
+    if (ln.p.kind === 'close') {
+      if (!pila.length) errs.push({ idx, msg: `línea ${idx + 1}: sobra esta «}»` });
+      else { const o = pila.pop(); prog[o].end = idx; ln.start = o; ln.pi = prog[o].p; if (prog[o].p.kind === 'for') decl.delete('i'); }
+    }
+  });
+  pila.forEach(o => errs.push({ idx: o, msg: `línea ${o + 1}: falta cerrar la llave «}»` }));
+  if (!prog.length) errs.push({ idx: -1, msg: 'El programa está vacío: coloca piezas.' });
+  return { errs, prog };
+}
+
+/* ===== Ejecución ===== */
+function arrancar() {
+  const cs = compilar('c'), ss = compilar('s');
+  malas = { c: cs.errs.map(e => e.idx), s: ss.errs.map(e => e.idx) };
+  if (cs.errs.length || ss.errs.length) { pintarEditor(); mostrarErrores(cs.errs, ss.errs); return false; }
+  const a = $('arranque').value;
+  R = {
+    net: { listening: false, pending: false, connected: false, q: { c: [], s: [] }, eof: { c: false, s: false }, buf: { c: [], s: [] } },
+    c: { prog: cs.prog, pc: 0, status: 'run', vars: {}, closed: false, out: [], delay: a === 's' ? 2 : 0, af: true },
+    s: { prog: ss.prog, pc: 0, status: 'run', vars: {}, closed: false, out: [], delay: a === 'c' ? 2 : 0, af: true },
+    log: [], tick: 0, stuck: false, quieto: 0, fin: false, sig: '',
+  };
+  corre = true; document.body.classList.add('corre'); $('retoLinea').textContent = '🎯 ' + reto.titulo; window.scrollTo(0, 0);
+  pintarEditor(); pintarEscena();
+  return true;
+}
+function mostrarErrores(ec, es) {
+  const f = (k, e) => e.length ? `<div class="comp">${e.map(x => `<div class="er">✖ ${esc(x.msg)}</div>`).join('')}</div>` : '';
+  $('sideC').querySelector('.comp-sitio').innerHTML = f('c', ec);
+  $('sideS').querySelector('.comp-sitio').innerHTML = f('s', es);
+  toast('Hay errores de compilación: corrígelos antes de ejecutar');
+}
+function terminar(k, error) { const me = R[k]; me.status = error ? 'error' : 'done'; R.net.eof[k] = true; log(`${NOMBRE[k]} termina${error ? ' con error' : ''}`); }
+function paso(k) {
+  const me = R[k];
+  if (me.status === 'done' || me.status === 'error') return;
+  if (me.delay > 0) { me.delay--; me.status = 'wait'; return; }
+  const ln = me.prog[me.pc];
+  if (!ln) { terminar(k); return; }
+  let r;
+  try { r = ln.p.f(k, ln); }
+  catch (e) { me.out.push({ t: 'Exception: ' + e.message, e: 1 }); log(`${NOMBRE[k]}: ${e.message}`); terminar(k, true); return; }
+  if (r === 'block') {
+    if (me.status !== 'blocked') log(`${NOMBRE[k]}: se queda esperando ${ln.p.id === 'accept' ? 'a que llegue un cliente (accept)' : 'una línea del otro (readLine)'}`);
+    me.status = 'blocked'; me.espera = ln.p.id === 'accept' ? 'a un cliente' : 'una línea'; return;
+  }
+  me.status = 'run';
+  me.pc = r && r.jump !== undefined ? r.jump : me.pc + 1;
+  if (me.pc >= me.prog.length) terminar(k);
+}
+const firma = () => JSON.stringify([R.c.pc, R.s.pc, R.c.status, R.s.status, R.net.q, R.net.eof, R.net.buf, R.net.listening, R.net.pending, R.c.delay, R.s.delay, R.c.out.length, R.s.out.length]);
+/* Bloqueo detectado al instante: nadie puede avanzar (todo lo que no ha terminado está esperando algo que ya no puede llegar) */
+function sigueEsperando(k) {
+  const ln = R[k].prog[R[k].pc];
+  if (ln.p.id === 'accept') return !R.net.pending;
+  return !(R.net.q[k].length || R.net.eof[otro(k)] || R[k].closed);
+}
+function sinSalida() {
+  if (R.c.delay > 0 || R.s.delay > 0) return false;
+  let alguno = false;
+  for (const k of ['c', 's']) {
+    if (['done', 'error'].includes(R[k].status)) continue;
+    if (R[k].status === 'blocked' && sigueEsperando(k)) { alguno = true; continue; }
+    return false;
+  }
+  return alguno;
+}
+function tick() {
+  if (!R || R.fin) return;
+  R.tick++;
+  R.snap = { pending: R.net.pending, listening: R.net.listening, q: { c: R.net.q.c.length, s: R.net.q.s.length }, eof: { c: R.net.eof.c, s: R.net.eof.s } };
+  (R.tick % 2 ? ['c', 's'] : ['s', 'c']).forEach(paso);
+  const hechos = ['c', 's'].every(k => ['done', 'error'].includes(R[k].status));
+  const f = firma(); R.quieto = f === R.sig ? R.quieto + 1 : 0; R.sig = f;
+  if (hechos) R.fin = true;
+  else if (sinSalida() || (R.quieto >= 2 && ['c', 's'].some(k => R[k].status === 'blocked'))) { R.stuck = true; R.fin = true; log('🔒 Nadie puede avanzar: bloqueo'); }
+  pintarEscena();
+  if (R.fin) parar();
+}
+function parar() { if (timer) { clearInterval(timer); timer = null; } $('bRun').textContent = '▶ Ejecutar'; }
+function ejecutar() {
+  if (timer) { parar(); return; }
+  if (!corre || (R && R.fin)) { if (!arrancar()) return; }
+  $('bRun').textContent = '⏸ Pausa';
+  timer = setInterval(tick, Number($('speed').value));
+}
+function reiniciar() { parar(); R = null; corre = false; document.body.classList.remove('corre'); limpiar(); pintarEditor(); pintarEscena(); }
+
+/* ===== Veredicto ===== */
+function veredicto() {
+  const n = R.net;
+  const err = ['c', 's'].find(k => R[k].status === 'error');
+  if (err) {
+    const t = R[err].out.filter(o => o.e).pop().t;
+    if (/Connection refused/.test(t)) return ['ko', '❌ El cliente llamó cuando nadie escuchaba: <code>Connection refused</code>. Se arranca <b>primero el servidor</b> (o el cliente tiene que esperar).'];
+    if (/Socket closed/.test(t)) return ['ko', '❌ <code>close()</code> cierra el socket entero, también la parte de escuchar: el <code>readLine()</code> lanza <code>Socket closed</code>. Para callarte y seguir escuchando existe otra pieza.'];
+    return ['ko', `❌ ${esc(t)}`];
+  }
+  if (R.stuck) {
+    if (n.buf.c.length || n.buf.s.length) return ['lock', '🔒 Hay mensajes atrapados en el <b>buffer</b> (📭): el <code>PrintWriter</code> sin <code>true</code> no los envía, y el otro espera para siempre. Con <code>true</code> cada <code>println()</code> sale al momento.'];
+    if (R.c.status === 'blocked' && R.s.status === 'blocked') return ['lock', '🔒 <b>Bloqueo</b>: los dos esperan a que el otro hable (<code>readLine()</code>/<code>accept()</code>). No hay error: los programas siguen vivos pero parados. Cada <code>println()</code> de uno debe encontrar un <code>readLine()</code> del otro.'];
+    const b = R.c.status === 'blocked' ? 'c' : 's';
+    return ['lock', `🔒 El ${NOMBRE[b].toLowerCase()} se ha quedado esperando algo que nunca llegará (la otra parte ya terminó o no va a enviar más).`];
+  }
+  if (n.buf.c.length || n.buf.s.length) return ['ko', '❌ Cuando el programa terminó, había mensajes <b>sin enviar</b> en el buffer (📭) y se perdieron. El <code>PrintWriter</code> sin <code>true</code> no envía al momento: usa <code>true</code> (autoFlush).'];
+  const falta = reto.check();
+  if (falta) return ['info', `ℹ️ No hay errores, pero no cumple el enunciado: ${esc(falta)}.`];
+  return ['ok', reto.id === 'libre' ? '✅ Los dos programas han terminado sin errores.' : '🎉 ¡Reto conseguido!'];
+}
+
+/* ===== Dibujo ===== */
+const ETQ = { run: '▶ ejecutando', blocked: '⏳ BLOQUEADO', done: '✔ terminado', error: '✖ error', wait: '… aún no arranca' };
+function indentar(k) {
+  let n = 0;
+  return code[k].map(it => { const p = PZ[it.id]; if (p.kind === 'close') n = Math.max(0, n - 1); const r = n; if (p.kind === 'for' || p.kind === 'while') n++; return r; });
+}
+function pintarEditor() {
+  ['c', 's'].forEach(k => {
+    const ind = indentar(k);
+    const lineas = code[k].map((it, i) => {
+      const p = PZ[it.id];
+      const cur = R && corre && i === R[k].pc && !['done'].includes(R[k].status) ? ' cur' + (R[k].status === 'blocked' ? ' blk' : R[k].status === 'error' ? ' err' : '') : '';
+      const mala = malas[k].includes(i) ? ' bad' : '';
+      const herr = corre ? '' : `<span class="tools"><button data-a="up" data-k="${k}" data-i="${i}" title="Subir">↑</button><button data-a="dn" data-k="${k}" data-i="${i}" title="Bajar">↓</button><button data-a="rm" data-k="${k}" data-i="${i}" title="Quitar">✕</button></span>`;
+      return `<button class="slot" data-k="${k}" data-pos="${i}">＋</button><div class="ln${cur}${mala}" data-k="${k}" data-i="${i}"><span class="ar">▶</span><span class="nn" draggable="${!corre}" data-k="${k}" data-i="${i}" title="Arrastra para mover">${i + 1}</span>${'    '.repeat(ind[i])}${p.libre ? (corre ? esc(textoLinea(it)) : esc(p.pre) + `<input class="arg" value="${esc(it.arg).replace(/"/g, '&quot;')}" size="${Math.max(14, it.arg.length + 2)}" spellcheck="false">);`) : esc(p.t)}${herr}</div>`;
+    }).join('') + `<button class="slot" data-k="${k}" data-pos="${code[k].length}">＋ ${code[k].length ? '' : 'pulsa aquí y elige una pieza'}</button>`;
+    const box = $('side' + k.toUpperCase()).querySelector('.code');
+    box.className = 'code' + (code[k].length ? '' : ' vacio');
+    box.innerHTML = lineas;
+  });
+  enlazarEditor();
+}
+function enlazarEditor() {
+  document.querySelectorAll('.slot').forEach(b => {
+    const k = b.dataset.k, pos = +b.dataset.pos;
+    b.classList.toggle('sel', !!selHueco && selHueco.k === k && selHueco.pos === pos);
+    b.onclick = () => {
+      if (corre) return;
+      if (selPieza) insertar(k, pos, selPieza);
+      else { selHueco = (selHueco && selHueco.k === k && selHueco.pos === pos) ? null : { k, pos }; pintarEditor(); }
+    };
+    b.ondragover = e => { e.preventDefault(); b.classList.add('over'); };
+    b.ondragleave = () => b.classList.remove('over');
+    b.ondrop = e => {
+      e.preventDefault(); b.classList.remove('over'); if (corre) return;
+      const d = e.dataTransfer.getData('text/plain');
+      if (d.startsWith('p:')) insertar(k, pos, d.slice(2));
+      else if (d.startsWith('l:')) {
+        const [, k2, i2] = d.split(':');
+        if (k2 !== k) { toast('No se pueden pasar líneas de un programa al otro'); return; }
+        const [it0] = code[k].splice(+i2, 1); code[k].splice(pos > +i2 ? pos - 1 : pos, 0, it0); limpiar(); pintarEditor();
+      }
+    };
+  });
+  document.querySelectorAll('.nn[draggable="true"]').forEach(d => { d.ondragstart = e => e.dataTransfer.setData('text/plain', `l:${d.dataset.k}:${d.dataset.i}`); });
+  document.querySelectorAll('.ln input.arg').forEach(inp => {
+    const ln = inp.closest('.ln'), k = ln.dataset.k, i = +ln.dataset.i;
+    inp.oninput = () => { code[k][i].arg = inp.value; inp.size = Math.max(14, inp.value.length + 2); if (malas[k].length) { malas[k] = []; ln.classList.remove('bad'); } };
+    inp.onkeydown = e => { if (e.key === 'Enter') inp.blur(); };
+  });
+  document.querySelectorAll('.tools button').forEach(b => b.onclick = () => {
+    const k = b.dataset.k, i = +b.dataset.i, a = b.dataset.a;
+    if (a === 'rm') code[k].splice(i, 1);
+    else if (a === 'up' && i > 0) [code[k][i - 1], code[k][i]] = [code[k][i], code[k][i - 1]];
+    else if (a === 'dn' && i < code[k].length - 1) [code[k][i + 1], code[k][i]] = [code[k][i], code[k][i + 1]];
+    limpiar(); pintarEditor();
+  });
+}
+function pintarEscena() {
+  ['c', 's'].forEach(k => {
+    const me = R ? R[k] : null;
+    const el = $('side' + k.toUpperCase());
+    el.className = 'side ' + (me && me.status !== 'wait' ? me.status : '');
+    el.querySelector('.badge').textContent = me ? (me.status === 'blocked' ? `⏳ BLOQUEADO: espera ${me.espera}` : ETQ[me.status]) : 'sin ejecutar';
+    el.querySelector('.pant').innerHTML = '<small>pantalla</small>' + (me ? me.out.map(o => `<div class="${o.e ? 'e' : ''}">${esc(o.t)}</div>`).join('') : '');
+    const v = me ? [(me.vars.linea !== undefined ? `linea = ${me.vars.linea === null ? 'null' : '«' + esc(me.vars.linea) + '»'}` : ''), (me.vars.i !== undefined ? `i = ${me.vars.i}` : ''), (me.vars.n !== undefined ? `n = ${me.vars.n}` : '')].filter(Boolean).join(' · ') : '';
+    el.querySelector('.vars').innerHTML = v;
+    if (me) el.querySelector('.comp-sitio').innerHTML = '';
+  });
+  pintarEditor();
+  const n = R ? R.net : null;
+  const chips = (arr, cl) => arr.map(m => `<span class="chip ${cl || ''}">${esc(m)}</span>`).join('');
+  $('pipe').innerHTML = !n ? '<div class="conn nota">La conexión aparecerá aquí al ejecutar</div>' :
+    `<div class="conn">${n.connected ? '🔗 conectados' : n.listening ? '👂 el servidor escucha' : '— sin conexión —'}</div>` +
+    `<div class="lane"><h3>Cliente → Servidor</h3>${chips(n.q.s)}${n.eof.c ? '<div class="nota">🤐 el cliente ha cerrado su salida</div>' : ''}</div>` +
+    `<div class="lane"><h3>Servidor → Cliente</h3>${chips(n.q.c)}${n.eof.s ? '<div class="nota">🤐 el servidor ha cerrado su salida</div>' : ''}</div>` +
+    (n.buf.c.length || n.buf.s.length ? `<div class="lane full"><h3>📭 Buffers sin enviar</h3>${chips(n.buf.c.map(m => 'cliente: ' + m), 'buf')}${chips(n.buf.s.map(m => 'servidor: ' + m), 'buf')}</div>` : '');
+  $('log').innerHTML = R ? R.log.slice().reverse().map(m => `<li>${esc(m)}</li>`).join('') : '';
+  if (R && R.fin) { const [cl, m] = veredicto(); $('banner').innerHTML = `<div class="res ${cl}">${m}</div>`; } else $('banner').innerHTML = '';
+}
+function esqueleto() {
+  ['c', 's'].forEach(k => {
+    $('side' + k.toUpperCase()).innerHTML = `<div class="top"><span class="nm">${k === 'c' ? '💻' : '🖥️'} ${NOMBRE[k]}</span><span class="badge"></span></div><div class="cols"><div><div class="code"></div><div class="comp-sitio"></div></div><div><div class="pant"></div><div class="vars"></div></div></div>`;
+  });
+}
+function pintarPiezas() {
+  const grupos = [...new Set(PIEZAS.map(x => x[0]))];
+  $('pieces').innerHTML = grupos.map(g => `<div class="grupo">${g}</div>` +
+    PIEZAS.filter(x => x[0] === g).map(([, p]) => `<button class="piece ${p.side || ''}" draggable="true" data-id="${p.id}">${esc(p.t)}</button>`).join('')).join('');
+  document.querySelectorAll('.piece').forEach(b => {
+    b.onclick = () => {
+      const id = b.dataset.id;
+      if (selHueco) { insertar(selHueco.k, selHueco.pos, id); return; }
+      selPieza = selPieza === id ? null : id;
+      document.querySelectorAll('.piece').forEach(x => x.classList.toggle('sel', x.dataset.id === selPieza));
+    };
+    b.ondragstart = e => e.dataTransfer.setData('text/plain', 'p:' + b.dataset.id);
+  });
+}
+function elegirReto(id) {
+  reto = RETOS.find(r => r.id === id);
+  $('enun').innerHTML = reto.enun;
+  code.c = []; code.s = []; selPieza = null; selHueco = null;
+  reiniciar();
+}
+esqueleto(); pintarPiezas();
+$('reto').innerHTML = RETOS.map(r => `<option value="${r.id}">${r.titulo}</option>`).join('');
+$('reto').onchange = () => elegirReto($('reto').value);
+$('bRun').onclick = ejecutar;
+$('bStep').onclick = () => { parar(); if (!corre || R.fin) { if (!arrancar()) return; } tick(); };
+$('bReset').onclick = reiniciar;
+$('bSol').onclick = () => { reiniciar(); code.c = reto.sol.c.map(id => ({ id })); code.s = reto.sol.s.map(id => ({ id })); pintarEditor(); };
+$('bClear').onclick = () => { code.c = []; code.s = []; reiniciar(); };
+$('arranque').onchange = reiniciar;
+elegirReto(RETOS[0].id);
+</script>
+</body>
+</html>

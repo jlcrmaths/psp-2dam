@@ -1,0 +1,757 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>1 Comunicaciones en red: cliente y servidor</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/monokai.css">
+<link rel="stylesheet" href="../../estilo/tema.css">
+<link rel="stylesheet" href="../../estilo/presentacion.css">
+<script>try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t)}catch(e){}</script>
+</head>
+<body class="presentacion">
+<div class="reveal">
+<div class="slides">
+<section>
+<section>
+<h2>Comunicaciones en red</h2>
+  <p>PSP · 2º DAM · Unidad 2 · Apartado 1</p>
+</section>
+<section>
+<h3>Objetivo de la clase</h3>
+  <ul>
+    <li>Entender el modelo <b>cliente/servidor</b></li>
+    <li>Saber qué hace el cliente y qué hace el servidor</li>
+    <li>Saber cómo se encuentran: <b>dirección IP</b> y <b>puerto</b></li>
+    <li>Preparar las importaciones de Java que usaremos en todos los programas de red</li>
+  </ul>
+</section>
+</section>
+<section>
+<section>
+<h3>Hasta ahora, un solo ordenador</h3>
+  <p>En la unidad 1 los hilos y los procesos vivían en <b>la misma máquina</b>.</p>
+  <p class="fragment">Ahora los programas van a estar en <b>ordenadores distintos</b> y se hablarán <b>por la red</b>.</p>
+  <p class="fragment caja">Ejemplo de todos los días: tu navegador pide una página y otro ordenador, muy lejos, se la envía.</p>
+</section>
+<section>
+<h3>Una idea para recordarlo: el bar</h3>
+  <ul>
+    <li>El <b>cliente</b> es quien <b>pide</b>: «un café, por favor».</li>
+    <li class="fragment">El <b>servidor</b> es quien <b>atiende</b>: prepara el café y lo sirve.</li>
+    <li class="fragment">El cliente <b>no sabe cómo</b> se hace el café. Solo pide y recibe.</li>
+    <li class="fragment">El servidor <b>espera</b> sin parar a que llegue alguien.</li>
+  </ul>
+</section>
+<section>
+<h3>Modelo cliente/servidor</h3>
+  <div class="escena-cs">
+    <div class="equipo"><div class="icono">💻</div><b>Cliente</b><div class="peque">pide</div></div>
+    <div class="cable">
+      <div class="paquete ida fragment viaja"><code>¿Hora?</code></div>
+      <div class="paquete vuelta fragment viaja"><code>16:30</code></div>
+    </div>
+    <div class="equipo"><div class="icono">🖥️</div><b>Servidor</b><div class="peque">atiende</div></div>
+  </div>
+  <ol class="peque">
+    <li class="fragment">1. El cliente <b>envía una petición</b></li>
+    <li class="fragment">2. El servidor la <b>procesa</b> y <b>responde</b></li>
+  </ol>
+</section>
+<section>
+<h3>¿Quién hace qué?</h3>
+  <table>
+    <tr><th>Cliente</th><th>Servidor</th></tr>
+    <tr><td>Habla con el usuario</td><td>Hace el trabajo pesado</td></tr>
+    <tr><td>Empieza la conversación</td><td>Espera a que alguien le hable</td></tr>
+    <tr><td>Es un programa activo</td><td>Es un programa pasivo</td></tr>
+    <tr><td>Uno por usuario</td><td>Atiende a muchos clientes</td></tr>
+  </table>
+</section>
+<section>
+<h3>Un servidor, muchos clientes</h3>
+  <div class="escena-cs muchos">
+    <div class="clientes">
+      <div class="equipo fragment">💻<br><span class="peque">Cliente 1</span></div>
+      <div class="equipo fragment">💻<br><span class="peque">Cliente 2</span></div>
+      <div class="equipo fragment">💻<br><span class="peque">Cliente 3</span></div>
+    </div>
+    <div class="flechas">⇄</div>
+    <div class="equipo"><div class="icono">🖥️</div><b>Servidor</b></div>
+  </div>
+  <p class="fragment caja">Los clientes no se hablan entre ellos: todos hablan con el servidor. Por eso el servidor debe saber atender a varios a la vez. ¡Para eso servirán los hilos!</p>
+</section>
+</section>
+<section>
+<section>
+<h3>¿Cómo se encuentran? Dirección IP y puerto</h3>
+  <p>Una dirección completa tiene dos partes, como la de una casa:</p>
+  <ul>
+    <li><b>Dirección IP</b>: el <b>edificio</b>. Dice a qué ordenador vamos. Ejemplo: <code>192.168.1.200</code></li>
+    <li class="fragment"><b>Puerto</b>: el <b>piso</b>. Dice a qué programa de ese ordenador hablamos. Es un número.</li>
+  </ul>
+  <p class="fragment caja">En un mismo ordenador puede haber varios servidores a la vez, cada uno en su puerto: la web en el 80, el correo en otro...</p>
+</section>
+<section>
+<h3>Los puertos, por rangos</h3>
+  <table>
+    <tr><th>Rango</th><th>Para qué</th></tr>
+    <tr><td>0 – 1023</td><td>Servicios conocidos (web 80, FTP 21, SSH 22)</td></tr>
+    <tr><td>1024 – 49151</td><td>Los podemos usar en nuestras aplicaciones</td></tr>
+    <tr><td>49152 – 65535</td><td>Temporales: los usa el sistema</td></tr>
+  </table>
+  <p class="fragment caja">Nuestros servidores usarán puertos entre 1024 y 49151. Por ejemplo, el <b>2000</b>.</p>
+</section>
+</section>
+<section>
+<section>
+<h3>La mochila de redes: las importaciones</h3>
+  <p>Antes de escribir un programa de red hay que <b>traer</b> las clases que vamos a usar. Se hace con <code>import</code>, al principio del archivo.</p>
+  <p class="fragment">Hay dos formas de hacerlo. Las dos funcionan igual. Pero una es más limpia.</p>
+</section>
+<section>
+<h3>Dos formas de importar</h3>
+  <div class="dos-cols">
+    <div>
+      <p><b>Con asterisco</b> <span class="peque">(rápida)</span></p>
+      <pre><code class="language-java" data-trim>
+import java.net.*;
+import java.io.*;
+      </code></pre>
+    </div>
+    <div>
+      <p><b>Una por una</b> <span class="peque">(limpia)</span></p>
+      <pre><code class="language-java" data-trim>
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.net.ServerSocket;
+import java.net.Socket;
+      </code></pre>
+    </div>
+  </div>
+</section>
+<section>
+<h3>¿Por qué es mejor la de la derecha?</h3>
+  <ul>
+    <li class="fragment">El <code>*</code> trae <b>todas</b> las clases del paquete, aunque solo uses dos. La otra trae <b>solo las que usas</b>.</li>
+    <li class="fragment">Leyendo los <code>import</code> ya sabes <b>qué usa el programa</b>, sin leer el código.</li>
+    <li class="fragment">Evita confusiones cuando dos paquetes tienen una clase con el mismo nombre.</li>
+    <li class="fragment">Es la forma que se usa en proyectos profesionales.</li>
+  </ul>
+  <p class="fragment caja">Regla de clase: <b>importaremos siempre una clase por línea</b>. Si escribes los <code>import</code> en NetBeans, te los sugiere solo.</p>
+</section>
+<section>
+<h3>Qué es cada cosa de la mochila</h3>
+  <table>
+    <tr><th>Clase</th><th>Paquete</th><th>Para qué</th></tr>
+    <tr><td><code>ServerSocket</code></td><td>java.net</td><td>El servidor se queda escuchando en un puerto</td></tr>
+    <tr><td><code>Socket</code></td><td>java.net</td><td>La conexión entre cliente y servidor</td></tr>
+    <tr><td><code>InputStreamReader</code></td><td>java.io</td><td>Convierte los bytes que llegan en caracteres</td></tr>
+    <tr><td><code>BufferedReader</code></td><td>java.io</td><td>Lee línea a línea lo que llega</td></tr>
+    <tr><td><code>PrintWriter</code></td><td>java.io</td><td>Escribe líneas de texto para enviarlas</td></tr>
+    <tr><td><code>IOException</code></td><td>java.io</td><td>El error que puede dar la red o la lectura</td></tr>
+  </table>
+  <p class="peque">Los usaremos uno a uno en los próximos ejemplos.</p>
+</section>
+</section>
+<section>
+<section>
+<h3>El primer contacto: sin conexión no hay química</h3>
+  <p>Para que dos programas se hablen, primero tiene que haber una <b>conexión</b>.</p>
+  <ul>
+    <li class="fragment">El <b>servidor</b> abre un puerto y <b>espera</b>.</li>
+    <li class="fragment">El <b>cliente</b> <b>llama</b> a ese puerto.</li>
+    <li class="fragment">Cuando se encuentran, queda un <b>canal</b> entre los dos.</li>
+  </ul>
+  <p class="fragment caja">Orden importante: el servidor se arranca <b>siempre primero</b>. Si el cliente llama y nadie escucha, da error.</p>
+</section>
+<section>
+<div class="nuevo">
+  <h3>Lo nuevo de hoy</h3>
+  <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>ServerSocket</code>: la usa el servidor. Se crea con el número de puerto y se queda escuchando en él.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>accept()</code> de la clase <code>ServerSocket</code>: es un método <b>bloqueante</b>: <b>detiene</b> el programa hasta que un cliente se conecta. Cuando llega, devuelve un <code>Socket</code>.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>Socket</code>: el canal de comunicación con el otro programa. El cliente lo crea con el nombre del ordenador y el puerto del servidor.</p></div>
+  </div>
+</section>
+<section>
+<h3>El servidor, línea por línea</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1|2|3|4">        ServerSocket ss = new ServerSocket(12349);
+        System.out.println(&quot;Esperando conexión...&quot;);
+        Socket s = ss.accept();
+        System.out.println(&quot;Conectado&quot;);</code></pre>
+  <ol class="peque">
+    <li>Crea un <code>ServerSocket</code> en el puerto <code>12349</code>. Desde aquí el puerto está abierto.</li>
+    <li>Escribe que está esperando. Todavía no ha llegado nadie.</li>
+    <li>El método <code>accept()</code> de la clase <code>ServerSocket</code> es <b>bloqueante</b>: <b>para</b> el programa aquí. No pasa a la línea siguiente hasta que un cliente llame.</li>
+    <li>Ya hay cliente: <code>accept()</code> devolvió el <code>Socket</code> <code>s</code> y se escribe «Conectado».</li>
+  </ol>
+</section>
+<section>
+<h3>El cliente, línea por línea</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1|2">        Socket s = new Socket(&quot;localhost&quot;, 12349);
+        System.out.println(&quot;Conectado&quot;);</code></pre>
+  <ol class="peque">
+    <li>Crea un <code>Socket</code> con dos datos: <code>"localhost"</code> (el ordenador del servidor; aquí, el mismo en el que estamos) y <code>12349</code> (el puerto donde escucha).</li>
+    <li>Si la conexión sale bien, escribe «Conectado».</li>
+  </ol>
+  <p class="fragment caja">Los dos números de puerto deben ser <b>el mismo</b>. Si no, el cliente llama a una puerta donde no vive nadie.</p>
+</section>
+<section>
+<h3>Animación: el accept() despierta</h3>
+  <div class="escena-cs">
+    <div class="equipo"><div class="icono">💻</div><b>Cliente</b>
+      <div class="dicho-cs fragment" data-fragment-index="3">Conectado</div>
+    </div>
+    <div class="cable">
+      <div class="paquete ida fragment viaja" data-fragment-index="1"><code>new Socket(...)</code></div>
+    </div>
+    <div class="equipo"><div class="icono">🖥️</div><b>Servidor</b>
+      <div class="dicho-cs">Esperando conexión...</div>
+      <div class="dicho-cs fragment" data-fragment-index="2">Conectado</div>
+    </div>
+  </div>
+  <p class="fragment caja">Hasta que llega el cliente, el servidor está <b>bloqueado</b> en <code>accept()</code>: no hace nada más. La llamada del cliente lo despierta.</p>
+</section>
+<section>
+<h3>Pruébalo tú</h3>
+  <ol>
+    <li>Ejecuta <b>primero</b> la clase <code>Servidor</code>: escribe «Esperando conexión...» y se queda parada.</li>
+    <li>Ejecuta después la clase <code>Cliente</code>.</li>
+    <li>Los dos escriben «Conectado».</li>
+  </ol>
+  <p class="aviso">¿Y si ejecutas el <code>Cliente</code> sin arrancar el servidor? Java lanza <code>ConnectException: Connection refused</code> (conexión rechazada): nadie escuchaba.</p>
+</section>
+</section>
+<section>
+<section>
+<h3>Hablar y escuchar: los dos canales</h3>
+  <p>Con el <code>Socket</code> ya tenemos la conexión. Pero para <b>conversar</b> hacen falta dos canales:</p>
+  <ul>
+    <li class="fragment">Uno para <b>escuchar</b> lo que dice el otro (entrada)</li>
+    <li class="fragment">Uno para <b>hablar</b> (salida)</li>
+  </ul>
+  <p class="fragment caja">Como un teléfono: tiene auricular para escuchar y micrófono para hablar. <b>Cliente y servidor crean los mismos dos canales</b>, con el mismo código.</p>
+</section>
+<section>
+<div class="nuevo">
+  <h3>Lo nuevo de hoy</h3>
+  <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>getInputStream()</code> de la clase <code>Socket</code>: da la entrada del socket, por donde llegan los bytes que envía el otro.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>getOutputStream()</code> de la clase <code>Socket</code>: da la salida del socket, por donde se envían los bytes al otro.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>InputStreamReader</code>: convierte los bytes que llegan en caracteres.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>BufferedReader</code>: lee texto línea a línea con su método <code>readLine()</code>. Es el canal para <b>escuchar</b>.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Clase</span><p><code>PrintWriter</code>: escribe texto con <code>println()</code>, como <code>System.out</code>, pero hacia el otro programa. Es el canal para <b>hablar</b>.</p></div>
+  </div>
+</section>
+<section>
+<h3>El canal para escuchar</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="2">        Socket s = ss.accept();
+        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);</code></pre>
+  <ol class="peque">
+    <li class="fragment"><code>s.getInputStream()</code>: la entrada del socket. Por aquí llegan <b>bytes</b>.</li>
+    <li class="fragment"><code>new InputStreamReader(...)</code>: convierte esos bytes en <b>caracteres</b>.</li>
+    <li class="fragment"><code>new BufferedReader(...)</code>: junta los caracteres y deja leer <b>una línea entera</b> cada vez. Lo guardamos en <code>br</code>.</li>
+  </ol>
+  <p class="fragment caja">Va por capas, de dentro hacia fuera: bytes → caracteres → líneas.</p>
+</section>
+<section>
+<h3>El canal para hablar</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="3">        Socket s = ss.accept();
+        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);</code></pre>
+  <ol class="peque">
+    <li class="fragment"><code>s.getOutputStream()</code>: la salida del socket. Por aquí se <b>envían</b> los datos.</li>
+    <li class="fragment"><code>new PrintWriter(..., true)</code>: permite escribir texto con <code>println()</code>. Lo guardamos en <code>pw</code>.</li>
+    <li class="fragment">El <code>true</code> es el <b>autoFlush</b>: cada <code>println()</code> se envía <b>en el momento</b>. Sin él, el texto podría quedarse esperando en el buzón y el otro no recibirlo.</li>
+  </ol>
+</section>
+<section>
+<h3>Servidor y cliente: el mismo código</h3>
+  <div class="dos-cols">
+    <div><p><b>Servidor</b></p><pre><code class="language-java" data-trim data-line-numbers="1-2">        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);</code></pre></div>
+    <div><p><b>Cliente</b></p><pre><code class="language-java" data-trim data-line-numbers="1-2">        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);</code></pre></div>
+  </div>
+  <p class="fragment caja">Las dos líneas son idénticas. Lo que cambia es <b>cómo consiguen el <code>Socket</code></b>: el servidor con <code>accept()</code> y el cliente con <code>new Socket(...)</code>.</p>
+</section>
+</section>
+<section>
+<section>
+<h3>Siempre flush positivo</h3>
+  <p>Cuando haces <code>println()</code> en un <code>PrintWriter</code>, el texto <b>no sale siempre al momento</b>.</p>
+  <p class="fragment">Java lo guarda en una zona de espera, el <b>buffer</b>, y lo envía cuando le parece. Es como un <b>buzón</b>: metes la carta, pero no se va hasta que pasa el cartero.</p>
+  <p class="fragment caja">Con <b>flush</b> («vaciar») obligamos a que el buzón se vacíe y la carta salga ya.</p>
+</section>
+<section>
+<div class="nuevo">
+  <h3>Lo nuevo de hoy</h3>
+  <div class="nuevo-item"><span class="etiqueta">Concepto</span><p><b>Buffer</b>: zona de espera donde Java guarda el texto antes de enviarlo. Mejora la velocidad, pero retrasa el envío.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Concepto</span><p><b>Flush</b>: vaciar el buffer y enviar ya todo lo que haya esperando.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Parámetro</span><p><code>true</code> como segundo dato de <code>new PrintWriter(salida, true)</code>: es el <b>autoFlush</b>. Hace flush solo, cada vez que se usa <code>println()</code>.</p></div>
+  </div>
+</section>
+<section>
+<h3>Animación: sin autoFlush y con autoFlush</h3>
+  <div class="escena-cs">
+    <div class="equipo"><div class="icono">🖥️</div><b>Servidor</b>
+      <div class="dicho-cs fragment" data-fragment-index="1"><code>pw.println("Hola")</code></div>
+      <div class="dicho-cs fragment" data-fragment-index="2">📭 Sin <code>true</code>: «Hola» espera en el buffer</div>
+    </div>
+    <div class="cable">
+      <div class="paquete ida fragment viaja" data-fragment-index="4"><code>Hola</code></div>
+    </div>
+    <div class="equipo"><div class="icono">💻</div><b>Cliente</b>
+      <div class="dicho-cs fragment" data-fragment-index="3">Esperando... (<code>readLine()</code> bloqueado)</div>
+      <div class="dicho-cs fragment" data-fragment-index="5">El servidor dice: Hola</div>
+    </div>
+  </div>
+  <p class="fragment caja" data-fragment-index="4">Con <code>true</code> (autoFlush): el texto sale en el momento y el cliente lo recibe.</p>
+</section>
+<section>
+<h3>El servidor con autoFlush</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1|2">        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+        pw.println(&quot;Hola, cliente&quot;);</code></pre>
+  <ol class="peque">
+    <li class="fragment">El <code>true</code> activa el <b>autoFlush</b> del <code>PrintWriter</code>.</li>
+    <li class="fragment">Este <code>println()</code> envía el saludo <b>en ese instante</b>.</li>
+  </ol>
+</section>
+<section>
+<h3>El cliente espera el saludo</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="2|3">        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        String linea = br.readLine();
+        System.out.println(&quot;El servidor dice: &quot; + linea);</code></pre>
+  <ol class="peque">
+    <li class="fragment">El método <code>readLine()</code> de la clase <code>BufferedReader</code> también es <b>bloqueante</b>: espera hasta que llega una línea entera.</li>
+    <li class="fragment">Cuando llega, la muestra. Salida: <code>El servidor dice: Hola, cliente</code></li>
+  </ol>
+</section>
+<section>
+<h3>¿Y si se nos olvida el true?</h3>
+  <pre><code class="language-java" data-trim>PrintWriter pw = new PrintWriter(s.getOutputStream());</code></pre>
+  <ul>
+    <li class="fragment">El saludo se queda en el buffer y <b>no sale</b>.</li>
+    <li class="fragment">El cliente se queda esperando en <code>readLine()</code>. Si el servidor termina antes de enviarlo, el cliente recibe <code>null</code> y el saludo se pierde.</li>
+    <li class="fragment">No da ningún error: el programa simplemente no funciona.</li>
+  </ul>
+  <p class="fragment caja">Regla de clase: en un <code>PrintWriter</code> sobre un socket, <b>siempre <code>true</code></b>. Flush positivo, nunca negativo.</p>
+</section>
+</section>
+<section>
+<section>
+<h3>El salto de línea nos guiará</h3>
+  <p>Por la red los datos viajan <b>seguidos</b>, como una cinta sin cortes. ¿Cómo sabe el cliente dónde <b>acaba un mensaje</b> y empieza el siguiente?</p>
+  <p class="fragment">Con un <b>salto de línea</b>. Cada mensaje es <b>una línea</b>: termina cuando llega el salto.</p>
+  <p class="fragment salida">Hola⏎¿Qué tal?⏎</p>
+</section>
+<section>
+<div class="nuevo">
+  <h3>Lo nuevo de hoy</h3>
+  <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>println()</code> de la clase <code>PrintWriter</code>: escribe el texto y <b>añade el salto de línea</b> al final. Ese salto marca el fin del mensaje.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>readLine()</code> de la clase <code>BufferedReader</code>: lee <b>hasta el salto de línea</b> y devuelve esa línea como <code>String</code>, sin el salto. Si todavía no ha llegado el salto, <b>espera</b>.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Valor</span><p><code>null</code>: lo que devuelve <code>readLine()</code> cuando el otro programa ha cerrado la conexión y ya no hay más líneas.</p></div>
+  </div>
+</section>
+<section>
+<h3>Animación: un println, un readLine</h3>
+  <div class="escena-cs">
+    <div class="equipo"><div class="icono">🖥️</div><b>Servidor</b>
+      <div class="dicho-cs fragment" data-fragment-index="1"><code>println("Hola")</code></div>
+      <div class="dicho-cs fragment" data-fragment-index="3"><code>println("¿Qué tal?")</code></div>
+    </div>
+    <div class="cable">
+      <div class="paquete ida fragment viaja" data-fragment-index="2"><code>Hola⏎</code></div>
+    </div>
+    <div class="equipo"><div class="icono">💻</div><b>Cliente</b>
+      <div class="dicho-cs fragment" data-fragment-index="2"><code>readLine()</code> → «Hola»</div>
+      <div class="dicho-cs fragment" data-fragment-index="4"><code>readLine()</code> → «¿Qué tal?»</div>
+    </div>
+  </div>
+  <p class="fragment caja" data-fragment-index="4">Cada <code>println()</code> del servidor se recibe con <b>un</b> <code>readLine()</code> del cliente.</p>
+</section>
+<section>
+<h3>El servidor envía dos mensajes</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1|2">        pw.println(&quot;Hola&quot;);
+        pw.println(&quot;¿Qué tal?&quot;);</code></pre>
+  <ol class="peque">
+    <li class="fragment">Primer mensaje: <code>Hola</code> y su salto de línea.</li>
+    <li class="fragment">Segundo mensaje: <code>¿Qué tal?</code> y su salto de línea.</li>
+  </ol>
+  <p class="fragment caja">Con el autoFlush (<code>true</code>) de antes, cada línea sale en el momento.</p>
+</section>
+<section>
+<h3>El cliente los recibe, línea por línea</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1|2-3|4-5">        String linea;
+        linea = br.readLine();
+        System.out.println(&quot;Recibido: &quot; + linea);
+        linea = br.readLine();
+        System.out.println(&quot;Recibido: &quot; + linea);</code></pre>
+  <ol class="peque">
+    <li class="fragment">Declara la variable <code>linea</code>, de tipo <code>String</code>, donde guardará lo que lea.</li>
+    <li class="fragment"><code>br.readLine()</code> espera hasta que llega la primera línea y la guarda en <code>linea</code>. Se muestra «Recibido: Hola».</li>
+    <li class="fragment">Segundo <code>readLine()</code>: recibe «¿Qué tal?».</li>
+  </ol>
+</section>
+<section>
+<h3>Cuidado con el salto de línea</h3>
+  <ul>
+    <li class="fragment">Un <code>println()</code> por mensaje y un <code>readLine()</code> para leerlo. Si el cliente pide más líneas de las que envía el servidor, se queda <b>esperando</b>.</li>
+    <li class="fragment">Si un mensaje no lleva salto de línea (por ejemplo, con <code>print()</code> en vez de <code>println()</code>), <code>readLine()</code> no sabe dónde acaba y <b>sigue esperando</b>.</li>
+    <li class="fragment">Un mensaje no debe llevar saltos de línea dentro: se leería como dos mensajes.</li>
+  </ul>
+  <p class="fragment caja">Regla de clase: <b>un mensaje = una línea</b>. El salto de línea nos guía.</p>
+</section>
+</section>
+<section>
+<section>
+<h3>Ejemplo: el primer diálogo</h3>
+  <p>Juntamos todo lo visto: conexión, canales, mensajes de una línea y autoFlush.</p>
+  <ol>
+    <li class="fragment">El cliente se conecta y dice <b>Hola</b>.</li>
+    <li class="fragment">El servidor lee el saludo, lo muestra y contesta <b>Hola, cliente</b>.</li>
+    <li class="fragment">El cliente lee la respuesta y la muestra.</li>
+  </ol>
+</section>
+<section>
+<h3>El servidor del diálogo</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1-3|4|5-6|7-9|10">        ServerSocket ss = new ServerSocket(12349);
+        System.out.println(&quot;Esperando conexión...&quot;);
+        Socket s = ss.accept();
+        System.out.println(&quot;Conectado&quot;);
+        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+        String linea;
+        linea = br.readLine();
+        System.out.println(&quot;El cliente dice: &quot; + linea);
+        pw.println(&quot;Hola, cliente&quot;);</code></pre>
+  <ol class="peque">
+    <li class="fragment">Abre el puerto y espera al cliente: <code>ServerSocket</code> y <code>accept()</code>.</li>
+    <li class="fragment">Ya está conectado.</li>
+    <li class="fragment">Crea los dos canales: <code>br</code> para escuchar y <code>pw</code> para hablar.</li>
+    <li class="fragment">Lee la línea del cliente y la muestra.</li>
+    <li class="fragment">Contesta con <code>println()</code>.</li>
+  </ol>
+</section>
+<section>
+<h3>El cliente del diálogo</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1|2-3|4|5-7">        Socket s = new Socket(&quot;localhost&quot;, 12349);
+        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+        pw.println(&quot;Hola&quot;);
+        String linea;
+        linea = br.readLine();
+        System.out.println(&quot;El Servidor dice: &quot; + linea);</code></pre>
+  <ol class="peque">
+    <li class="fragment">Se conecta al servidor.</li>
+    <li class="fragment">Crea los dos canales.</li>
+    <li class="fragment">Envía el saludo.</li>
+    <li class="fragment">Espera la respuesta con <code>readLine()</code> y la muestra.</li>
+  </ol>
+  <p class="fragment caja">Salida del cliente: <code>El Servidor dice: Hola, cliente</code>. Salida del servidor: <code>El cliente dice: Hola</code>.</p>
+</section>
+</section>
+<section>
+<section>
+<h3>Ejercicio: pares e impares por la red</h3>
+  <p>Vamos a hacer dos programas:</p>
+  <ul>
+    <li><b>Cliente</b>: genera 25 números aleatorios entre 0 y 100 y se los envía al servidor.</li>
+    <li><b>Servidor</b>: recibe cada número y le contesta si es <b>par</b> o <b>impar</b>.</li>
+    <li>El cliente muestra el resultado:</li>
+  </ul>
+  <div class="salida">27 – impar<br>13 – impar<br>72 – par<br>…</div>
+</section>
+<section>
+<h3>Antes de programar: el plan</h3>
+  <p>Cada número es un <b>mensaje de una línea</b>. Piénsalo como una conversación:</p>
+  <ol>
+    <li class="fragment">El cliente envía un número.</li>
+    <li class="fragment">El servidor lo lee y contesta «par» o «impar».</li>
+    <li class="fragment">El cliente lee la respuesta y la muestra.</li>
+    <li class="fragment">Se repite 25 veces.</li>
+  </ol>
+  <p class="fragment caja">¿Cómo sabe el servidor que debe dejar de leer? Cuando el cliente termina y cierra la conexión, <code>readLine()</code> devuelve <code>null</code>.</p>
+</section>
+<section>
+<h3>Solución: el servidor</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1-3|4-5|6|7|8-9|10-11">        ServerSocket ss = new ServerSocket(12349);
+        System.out.println(&quot;Esperando conexión...&quot;);
+        Socket s = ss.accept();
+        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+        String linea;
+        while ((linea = br.readLine()) != null) {
+            int n = Integer.parseInt(linea);
+            pw.println(n % 2 == 0 ? &quot;par&quot; : &quot;impar&quot;);
+        }
+        System.out.println(&quot;Cliente desconectado&quot;);</code></pre>
+  <ol class="peque">
+    <li class="fragment">Abre el puerto y espera al cliente.</li>
+    <li class="fragment">Crea los dos canales.</li>
+    <li class="fragment">Declara <code>linea</code>.</li>
+    <li class="fragment">El <code>while</code> lee una línea y sigue mientras no sea <code>null</code>.</li>
+    <li class="fragment">Convierte la línea en número con <code>Integer.parseInt</code> y contesta «par» o «impar» según el resto de dividir entre 2.</li>
+    <li class="fragment">Cuando el cliente se desconecta, sale del bucle y avisa.</li>
+  </ol>
+</section>
+<section>
+<h3>Solución: el cliente</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1-3|4|5|6|7-8">        Socket s = new Socket(&quot;localhost&quot;, 12349);
+        BufferedReader br = new BufferedReader(new InputStreamReader(s.getInputStream()));
+        PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+        for (int i = 0; i &lt; 25; i++) {
+            int n = (int) (Math.random() * 101);
+            pw.println(n);
+            String linea = br.readLine();
+            System.out.println(n + &quot; – &quot; + linea);
+        }</code></pre>
+  <ol class="peque">
+    <li class="fragment">Se conecta al servidor y crea los canales.</li>
+    <li class="fragment"><code>for</code> de 25 vueltas.</li>
+    <li class="fragment">Número aleatorio entre 0 y 100.</li>
+    <li class="fragment">Lo envía.</li>
+    <li class="fragment">Lee la respuesta y la muestra junto al número.</li>
+  </ol>
+</section>
+</section>
+<section>
+<section>
+<h3>Siempre uno tiene que dar el brazo a torcer</h3>
+  <p>Una conversación necesita <b>turnos</b>: uno habla y el otro escucha.</p>
+  <p class="fragment">Pero <code>readLine()</code> es <b>bloqueante</b>. ¿Qué pasa si <b>los dos</b> empiezan escuchando?</p>
+  <p class="fragment caja">Los dos esperan a que el otro hable. Y como los dos esperan, <b>nadie habla nunca</b>.</p>
+</section>
+<section>
+<h3>Animación: los dos esperan</h3>
+  <div class="escena-cs">
+    <div class="equipo"><div class="icono">💻</div><b>Cliente</b>
+      <div class="dicho-cs"><code>readLine()</code>: espero al servidor...</div>
+      <div class="dicho-cs fragment" data-fragment-index="2">⏳ Sigo esperando</div>
+    </div>
+    <div class="cable"></div>
+    <div class="equipo"><div class="icono">🖥️</div><b>Servidor</b>
+      <div class="dicho-cs"><code>readLine()</code>: espero al cliente...</div>
+      <div class="dicho-cs fragment" data-fragment-index="2">⏳ Sigo esperando</div>
+    </div>
+  </div>
+  <p class="fragment aviso" data-fragment-index="3">No hay error ni mensaje: los dos programas están vivos, pero parados para siempre.</p>
+</section>
+<section>
+<h3>El código que se queda bloqueado</h3>
+  <div class="dos-cols">
+    <div><p><b>Servidor</b></p><pre><code class="language-java" data-trim data-line-numbers="2">        String linea;
+        linea = br.readLine();
+        System.out.println(&quot;El cliente dice: &quot; + linea);
+        pw.println(&quot;Hola, cliente&quot;);</code></pre></div>
+    <div><p><b>Cliente</b></p><pre><code class="language-java" data-trim data-line-numbers="2">        String linea;
+        linea = br.readLine();
+        System.out.println(&quot;El Servidor dice: &quot; + linea);
+        pw.println(&quot;Hola&quot;);</code></pre></div>
+  </div>
+  <p class="fragment caja">Los dos empiezan por <code>readLine()</code>. Es como dos personas al teléfono, cada una esperando a que la otra diga «¿Hola?».</p>
+</section>
+<section>
+<h3>La solución: uno habla primero</h3>
+  <p>Hay que decidir <b>quién habla primero</b>. Ese «da el brazo a torcer». El otro escucha.</p>
+  <ol>
+    <li class="fragment">El que habla primero hace <code>println()</code> y después <code>readLine()</code>.</li>
+    <li class="fragment">El que escucha primero hace <code>readLine()</code> y después <code>println()</code>.</li>
+  </ol>
+  <p class="fragment caja">En nuestro ejemplo habla primero el <b>cliente</b> (<code>pw.println("Hola")</code>) y el servidor escucha. Es el orden del proyecto <code>Dialogo</code>.</p>
+</section>
+<section>
+<h3>El protocolo: un guion con turnos</h3>
+  <p>Al orden de los mensajes que se acuerdan cliente y servidor se le llama <b>protocolo</b>. Es un guion:</p>
+  <table>
+    <tr><th>Turno</th><th>Cliente</th><th>Servidor</th></tr>
+    <tr><td>1</td><td>habla: <code>println()</code></td><td>escucha: <code>readLine()</code></td></tr>
+    <tr><td>2</td><td>escucha: <code>readLine()</code></td><td>habla: <code>println()</code></td></tr>
+  </table>
+  <p class="fragment caja">Cada <code>println()</code> de uno tiene que encontrarse con un <code>readLine()</code> del otro. Si los guiones no encajan, el programa se bloquea. Es la misma idea del interbloqueo de la unidad 1: cada uno espera algo que solo el otro puede dar.</p>
+</section>
+</section>
+<section>
+<section>
+<h3>Si te vas, cierra</h3>
+  <p>Cuando sales de una habitación, <b>apagas la luz y cierras la puerta</b>.</p>
+  <p class="fragment">Con la red pasa igual: cuando terminamos, hay que <b>cerrar</b> lo que hemos abierto. El puerto, la conexión y los canales usan recursos del ordenador.</p>
+  <p class="fragment caja">Si no se cierran, quedan ocupados. En un servidor que sigue funcionando mucho tiempo, se acaban acumulando.</p>
+</section>
+<section>
+<div class="nuevo">
+  <h3>Lo nuevo de hoy</h3>
+  <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>close()</code>: cierra y libera el recurso. Lo tienen las clases <code>BufferedReader</code>, <code>PrintWriter</code>, <code>Socket</code> y <code>ServerSocket</code>.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Concepto</span><p><b>Orden de cierre</b>: al revés de como se abrió. Primero los canales (<code>br</code> y <code>pw</code>), luego el <code>Socket</code> y por último el <code>ServerSocket</code>.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Concepto</span><p>Cuando un programa cierra su <code>Socket</code>, al otro le avisa: su <code>readLine()</code> devuelve <code>null</code>.</p></div>
+  </div>
+</section>
+<section>
+<h3>Abrir y cerrar: orden inverso</h3>
+  <table>
+    <tr><th>Se abre así</th><th>Se cierra así</th></tr>
+    <tr><td>1. <code>ServerSocket ss</code></td><td>4. <code>ss.close()</code></td></tr>
+    <tr><td>2. <code>Socket s</code></td><td>3. <code>s.close()</code></td></tr>
+    <tr><td>3. <code>BufferedReader br</code> y <code>PrintWriter pw</code></td><td>1-2. <code>br.close()</code> y <code>pw.close()</code></td></tr>
+  </table>
+  <p class="fragment caja">Como ponerse y quitarse la ropa: lo último que te pones es lo primero que te quitas.</p>
+</section>
+<section>
+<h3>El servidor cierra todo</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1-2|3|4">        br.close();
+        pw.close();
+        s.close();
+        ss.close();</code></pre>
+  <ol class="peque">
+    <li class="fragment">Cierra los dos canales: <code>br</code> y <code>pw</code>.</li>
+    <li class="fragment">Cierra el <code>Socket</code> de la conexión con el cliente.</li>
+    <li class="fragment">Cierra el <code>ServerSocket</code>: libera el puerto 12349. Solo lo tiene el servidor.</li>
+  </ol>
+</section>
+<section>
+<h3>El cliente cierra todo</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1-2|3">        br.close();
+        pw.close();
+        s.close();</code></pre>
+  <ol class="peque">
+    <li class="fragment">Cierra sus dos canales.</li>
+    <li class="fragment">Cierra su <code>Socket</code>. El cliente no tiene <code>ServerSocket</code>, así que una línea menos.</li>
+  </ol>
+  <p class="fragment caja">Al cerrar el cliente, el <code>readLine()</code> del servidor devuelve <code>null</code>. Así el servidor sabe que el cliente se ha ido.</p>
+</section>
+</section>
+<section>
+<section>
+<h3>Lee con moderación</h3>
+  <p>Para conversar mucho rato, el servidor repite en un <b>bucle</b>: lee un mensaje, contesta, y vuelve a leer.</p>
+  <p class="fragment">La regla: <b>un <code>readLine()</code> por vuelta</b>. Lo que lees, lo guardas en una variable y usas la variable. No vuelvas a llamar a <code>readLine()</code>.</p>
+  <p class="fragment caja">Cada <code>readLine()</code> se come una línea. Si llamas dos veces, la primera se pierde y la segunda se queda esperando.</p>
+</section>
+<section>
+<h3>El bucle correcto</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="2|3|4">        String linea;
+        while ((linea = br.readLine()) != null) {
+            System.out.println(&quot;El cliente dice: &quot; + linea);
+            pw.println(&quot;Hola&quot;);
+        }</code></pre>
+  <ol class="peque">
+    <li class="fragment">El <code>while</code> hace tres cosas a la vez: lee con <code>readLine()</code>, guarda la línea en <code>linea</code> y comprueba que no sea <code>null</code>. Sigue mientras lleguen mensajes.</li>
+    <li class="fragment">Muestra el mensaje usando la variable <code>linea</code>.</li>
+    <li class="fragment">Contesta «Hola». Después vuelve arriba a leer el mensaje siguiente.</li>
+  </ol>
+  <p class="fragment caja">El bucle acaba cuando el cliente se desconecta: <code>readLine()</code> devuelve <code>null</code> (recuerda el 7º paso: cerrar avisa al otro).</p>
+</section>
+<section>
+<h3>El bucle incorrecto ❌</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="2-3">        String linea;
+        while ((linea = br.readLine()) != null) {
+            System.out.println(&quot;El cliente dice: &quot; + br.readLine());
+            pw.println(&quot;Hola&quot;);
+        }</code></pre>
+  <ul class="peque">
+    <li class="fragment">El <code>while</code> ya lee el mensaje 1 y lo guarda en <code>linea</code>.</li>
+    <li class="fragment">Dentro, el <code>readLine()</code> <b>otra vez</b> se queda esperando el mensaje 2.</li>
+    <li class="fragment">Pero el cliente no enviará el 2 hasta recibir la respuesta al 1. Los dos esperan: <b>bloqueo</b>, como en el 6º paso.</li>
+  </ul>
+  <p class="fragment caja">Y aunque no se bloqueara, el mensaje que se muestra sería otro distinto del que se guardó en <code>linea</code>.</p>
+</section>
+<section>
+<h3>Pruébalo: la conversación completa</h3>
+  <ol>
+    <li>Ejecuta <code>Servidor</code> del proyecto <code>LeeConModeracion</code> y después <code>Cliente</code>.</li>
+    <li>El cliente envía <code>Mensaje 1</code>, <code>Mensaje 2</code> y <code>Mensaje 3</code>, y muestra tres veces «El Servidor dice: Hola».</li>
+    <li>El servidor muestra los tres mensajes y, al irse el cliente, «Cliente desconectado».</li>
+    <li>Ahora cambia a <code>ServidorMal</code> y mira qué pasa.</li>
+  </ol>
+</section>
+</section>
+<section>
+<section>
+<h3>A veces, hay que saber callarse</h3>
+  <p>El servidor sabe que el cliente ha terminado cuando <code>readLine()</code> devuelve <code>null</code>.</p>
+  <p class="fragment">Pero, ¿y si el cliente quiere decir «ya no tengo más que decir» y <b>aun así seguir escuchando</b> las respuestas?</p>
+  <p class="fragment caja">Con <code>close()</code> no se puede: cierra la conexión entera y el cliente deja de oír. Necesita <b>cerrar solo la parte de hablar</b>.</p>
+</section>
+<section>
+<div class="nuevo">
+  <h3>Lo nuevo de hoy</h3>
+  <div class="nuevo-item"><span class="etiqueta">Método</span><p><code>shutdownOutput()</code> de la clase <code>Socket</code>: cierra <b>solo la salida</b>. El otro programa recibe <code>null</code> en su <code>readLine()</code>, como si te hubieras ido, pero tú sigues pudiendo <b>escuchar</b>.</p></div>
+  <div class="nuevo-item"><span class="etiqueta">Comparación</span><p><code>close()</code> de la clase <code>Socket</code>: cierra <b>todo</b>, hablar y escuchar.</p></div>
+  </div>
+</section>
+<section>
+<h3>Animación: callarse sin irse</h3>
+  <div class="escena-cs">
+    <div class="equipo"><div class="icono">💻</div><b>Cliente</b>
+      <div class="dicho-cs fragment" data-fragment-index="1">Envía 3 mensajes</div>
+      <div class="dicho-cs fragment" data-fragment-index="2"><code>shutdownOutput()</code> 🤐</div>
+      <div class="dicho-cs fragment" data-fragment-index="5">Sigue escuchando las respuestas</div>
+    </div>
+    <div class="cable">
+      <div class="paquete ida fragment viaja" data-fragment-index="1"><code>3 mensajes</code></div>
+      <div class="paquete vuelta fragment viaja" data-fragment-index="5"><code>respuestas</code></div>
+    </div>
+    <div class="equipo"><div class="icono">🖥️</div><b>Servidor</b>
+      <div class="dicho-cs fragment" data-fragment-index="3"><code>readLine()</code> → <code>null</code></div>
+      <div class="dicho-cs fragment" data-fragment-index="4">«El cliente ya no habla»</div>
+    </div>
+  </div>
+</section>
+<section>
+<h3>El cliente se calla, pero escucha</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="1-3|4|5-8">        for (int i = 1; i &lt;= 3; i++) {
+            pw.println(&quot;Mensaje &quot; + i);
+        }
+        s.shutdownOutput();
+        String linea;
+        while ((linea = br.readLine()) != null) {
+            System.out.println(&quot;El Servidor dice: &quot; + linea);
+        }</code></pre>
+  <ol class="peque">
+    <li class="fragment">Envía tres mensajes con un <code>for</code>.</li>
+    <li class="fragment"><code>s.shutdownOutput()</code>: «ya no hablo más». El servidor lo nota porque su <code>readLine()</code> devuelve <code>null</code>.</li>
+    <li class="fragment">Sigue leyendo con un <code>while</code> hasta que el servidor, al acabar, cierre la conexión.</li>
+  </ol>
+</section>
+<section>
+<h3>Con close() no funciona ❌</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="4">        for (int i = 1; i &lt;= 3; i++) {
+            pw.println(&quot;Mensaje &quot; + i);
+        }
+        s.close();</code></pre>
+  <ul class="peque">
+    <li class="fragment"><code>s.close()</code> cierra todo: también la parte de escuchar.</li>
+    <li class="fragment">Al llamar después a <code>readLine()</code>, Java lanza <code>SocketException: Socket closed</code>.</li>
+    <li class="fragment">Las respuestas del servidor se pierden.</li>
+  </ul>
+  <p class="fragment caja">Resumen: <code>shutdownOutput()</code> = «me callo, pero te sigo oyendo». <code>close()</code> = «me voy».</p>
+</section>
+<section>
+<h3>El servidor del ejemplo</h3>
+  <pre><code class="language-java" data-trim data-line-numbers="2-5|6|7-10">        String linea;
+        while ((linea = br.readLine()) != null) {
+            System.out.println(&quot;El cliente dice: &quot; + linea);
+            pw.println(&quot;Recibido: &quot; + linea);
+        }
+        System.out.println(&quot;El cliente ya no habla&quot;);
+        br.close();
+        pw.close();
+        s.close();
+        ss.close();</code></pre>
+  <ol class="peque">
+    <li class="fragment">Contesta a cada mensaje con el bucle de siempre.</li>
+    <li class="fragment">Cuando el cliente se calla, <code>readLine()</code> devuelve <code>null</code> y el servidor avisa.</li>
+    <li class="fragment">Cierra todo: eso hace que el cliente, que seguía escuchando, también reciba <code>null</code> y termine.</li>
+  </ol>
+</section>
+</section>
+</div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/dist/reveal.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@5/plugin/highlight/highlight.js"></script>
+<script>Reveal.initialize({ hash: true, slideNumber: 'c/t', plugins: [ RevealHighlight ] });</script>
+</body>
+</html>

@@ -89,3 +89,11 @@ pre code { background: none; padding: 0; color: inherit; }
 }
 
 [hidden] { display: none !important; }
+
+/* Pestañas de unidad (índice) */
+.pestanas { display: none; gap: 6px; margin: 18px 0 8px; border-bottom: 1px solid var(--borde); flex-wrap: wrap; }
+.js .pestanas { display: flex; }
+.pestana { background: none; border: 1px solid transparent; border-bottom: none; border-radius: 8px 8px 0 0; padding: 8px 18px; font: inherit; font-weight: 600; color: var(--suave); cursor: pointer; }
+.pestana:hover { color: var(--texto); }
+.pestana[aria-selected="true"] { background: var(--tarjeta); color: var(--acento); border-color: var(--borde); margin-bottom: -1px; border-bottom: 1px solid var(--tarjeta); }
+.panel-unidad[hidden] { display: none; }

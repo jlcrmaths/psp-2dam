@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apartado 5.4 – Tuberías entre procesos</title>
+<link rel="stylesheet" href="../../estilo/tema.css">
+<script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t)}catch(e){}</script>
+</head>
+<body class="">
+<header class="cabecera">
+  <a class="marca" href="../../index.html">PSP · 2º DAM</a>
+  <nav><a href="../../glosario/index.html">Glosario</a><button id="tema" type="button" aria-label="Cambiar entre tema claro y oscuro">◐</button></nav>
+</header>
+<main class="contenido">
+<h1>Apartado 5.4 – Tuberías entre procesos</h1>
+<p>Cada ejercicio es un proyecto de NetBeans con dos clases, <code>Programa1</code> y <code>Programa2</code>, cada una con su propio <code>main</code>. Las clases van en el paquete <code>tuberias</code>. Son dos programas distintos que se ejecutan a la vez, conectados de forma que lo que muestra el primero lo recibe el segundo.</p>
+
+<section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
+<h2>Ejercicio 1: sumar los pares (proyecto <code>SumaPares</code>)</h2>
+<p><code>Programa1</code> genera 25 números aleatorios entre 0 y 100 y los muestra, uno por línea. <code>Programa2</code> recibe esos números y suma solo los que sean pares. Al final muestra el resultado de la suma.</p>
+<p>Ejecútalos conectados varias veces. Comprueba una de las sumas a mano con los números que salen.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Son dos programas independientes: ninguno sabe nada del otro. El primero solo muestra números por pantalla y el segundo solo lee lo que le llega. La conexión no se hace en Java, se hace al ejecutarlos desde la terminal con el símbolo de tubería. Para leer lo que llega, el segundo programa usa la misma entrada que usaría para leer el teclado. Lo que llega es texto, no números. Para saber si un número es par piensa en el resto de dividirlo entre 2.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p><code>Programa1</code> usa un <code>for</code> de 25 vueltas. En cada vuelta muestra con <code>println</code> un número de 0 a 100 sacado de <code>Math.random()</code>. <code>Programa2</code> crea un <code>BufferedReader</code> a partir de un <code>InputStreamReader</code> que lee <code>System.in</code>. Lee con <code>readLine()</code> dentro de un <code>while</code> que se repite hasta que <code>readLine()</code> devuelva <code>null</code>, que significa que el otro programa ya terminó. Como leer puede fallar, el <code>main</code> lleva <code>throws IOException</code>. Cada línea se convierte en número con <code>Integer.parseInt</code>. Si el resto de dividir entre 2 con el operador <code>%</code> es 0, el número es par y se suma a una variable. Al salir del <code>while</code> se muestra la suma. Para conectarlos, genera el <code>.jar</code> del proyecto (Limpiar y generar) y, en la terminal, escribe <code>java -cp</code> con el <code>.jar</code> y <code>tuberias.Programa1</code>, el símbolo <code>|</code> y lo mismo con <code>tuberias.Programa2</code>.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>SumaPares</code> y el paquete <code>tuberias</code>.</li>
+<li>Crea la clase <code>Programa1</code> con su <code>main</code>.</li>
+<li>Con un <code>for</code> de 25 vueltas, muestra con <code>System.out.println</code> un número entre 0 y 100 en cada vuelta: <code>(int) (Math.random() * 101)</code>.</li>
+<li>Crea la clase <code>Programa2</code> con su <code>main</code>, y añádele <code>throws IOException</code>.</li>
+<li>En <code>main</code>, crea un <code>InputStreamReader</code> con <code>System.in</code> y con él un <code>BufferedReader</code>.</li>
+<li>Crea una variable <code>String linea</code> y una variable <code>int suma</code> que empiece en 0.</li>
+<li>Escribe un <code>while</code> cuya condición lea la línea con <code>readLine()</code>, la guarde en <code>linea</code> y compare con <code>null</code>.</li>
+<li>Dentro del <code>while</code>, convierte el texto en número con <code>Integer.parseInt</code>.</li>
+<li>Si el número es par (<code>n % 2 == 0</code>), súmalo a <code>suma</code>.</li>
+<li>Cuando termine el <code>while</code>, muestra la suma.</li>
+<li>En NetBeans, limpia y genera el proyecto (Mayús + F11). Se crea un <code>.jar</code> en la carpeta <code>dist</code>.</li>
+<li>Abre la terminal en la carpeta <code>dist</code> y ejecuta <code>java -cp SumaPares.jar tuberias.Programa1</code>, el símbolo <code>|</code> y <code>java -cp SumaPares.jar tuberias.Programa2</code>.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-2" data-ejercicio="ej-2">
+<h2>Ejercicio 2: invertir y contar (proyecto <code>InvertirYContar</code>)</h2>
+<p><code>Programa1</code> recibe una línea de texto y la muestra al revés. <code>Programa2</code> cuenta cuántos caracteres tiene la línea invertida y muestra ese número por pantalla.</p>
+<p>Prueba con <code>Hola mundo</code>: el primer programa muestra <code>odnum aloH</code> y el segundo debe mostrar 10.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Esta vez el primer programa recibe la línea del teclado, y es el segundo el que recibe datos de la tubería. Dale la vuelta al texto con una clase de Java pensada para modificar textos; <code>String</code> no tiene ese método. Contar caracteres es medir el largo del texto. Fíjate en el espacio: también cuenta como carácter. Aquí llega una sola línea, así que no hace falta repetir.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p><code>Programa1</code> lee una línea con <code>nextLine()</code> de un <code>Scanner</code> sobre <code>System.in</code>. Para invertirla, crea un <code>StringBuilder</code> con ese texto, llama a su método <code>reverse()</code> y convierte el resultado otra vez en <code>String</code> con <code>toString()</code>. Después lo muestra con <code>println</code>. <code>Programa2</code> lee una sola línea con un <code>BufferedReader</code> sobre <code>InputStreamReader</code> sobre <code>System.in</code>, igual que en el ejercicio 1, con <code>throws IOException</code> en el <code>main</code>. Muestra el valor del método <code>length()</code> de esa línea. Se ejecutan con <code>|</code>; el primer programa se queda esperando a que escribas la línea.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>InvertirYContar</code> y el paquete <code>tuberias</code>.</li>
+<li>Crea la clase <code>Programa1</code>. En <code>main</code>, crea un <code>Scanner</code> con <code>System.in</code> y lee una línea con <code>nextLine()</code>.</li>
+<li>Crea un <code>StringBuilder</code> con esa línea y llama a <code>reverse()</code>.</li>
+<li>Convierte el resultado a <code>String</code> con <code>toString()</code>.</li>
+<li>Muestra el texto invertido con <code>println</code>.</li>
+<li>Crea la clase <code>Programa2</code> con <code>throws IOException</code> en el <code>main</code>.</li>
+<li>Crea un <code>InputStreamReader</code> con <code>System.in</code> y con él un <code>BufferedReader</code>.</li>
+<li>Lee una línea con <code>readLine()</code>.</li>
+<li>Muestra su longitud con <code>length()</code>.</li>
+<li>Genera el <code>.jar</code> y ejecuta <code>Programa1</code>, el símbolo <code>|</code> y <code>Programa2</code> con <code>java -cp</code>. Escribe una línea cuando el primero la pida.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-3" data-ejercicio="ej-3">
+<h2>Ejercicio 3: par o impar (proyecto <code>ParImpar</code>)</h2>
+<p><code>Programa1</code> genera 25 números aleatorios entre 0 y 100. <code>Programa2</code> recibe esos números y los muestra por pantalla indicando si cada uno es par o impar.</p>
+<p>Por ejemplo:</p>
+<pre><code>27 - impar
+13 - impar
+72 - par
+</code></pre>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p><code>Programa1</code> es el mismo del ejercicio 1. Todo el trabajo está en <code>Programa2</code>. Es parecido a la suma de pares, pero ahora cada número se muestra, no se suma. Necesitas una decisión con dos caminos. Java tiene una forma de escribir esa decisión dentro del propio <code>println</code>, con los signos de interrogación y dos puntos.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Copia <code>Programa1</code> del ejercicio 1. En <code>Programa2</code>, lee con <code>BufferedReader</code> hasta que <code>readLine()</code> devuelva <code>null</code>, como antes. Convierte cada línea con <code>Integer.parseInt</code>. Para decidir puedes usar un <code>if</code>/<code>else</code>, o el operador ternario: una condición, un signo <code>?</code>, el valor si es verdadera, dos puntos y el valor si es falsa. Si el resto de dividir entre 2 es 0, muestra el número, un guion y la palabra <code>par</code>; si no, <code>impar</code>.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>ParImpar</code> y el paquete <code>tuberias</code>.</li>
+<li>Copia en él <code>Programa1</code> del ejercicio 1.</li>
+<li>Crea la clase <code>Programa2</code> con <code>throws IOException</code> en el <code>main</code>.</li>
+<li>Crea el <code>BufferedReader</code> sobre <code>InputStreamReader</code> sobre <code>System.in</code>.</li>
+<li>Crea una variable <code>String linea</code>.</li>
+<li>Escribe un <code>while</code> que lea con <code>readLine()</code>, guarde en <code>linea</code> y compare con <code>null</code>.</li>
+<li>Dentro, convierte <code>linea</code> en número con <code>Integer.parseInt</code>.</li>
+<li>Si <code>n % 2 == 0</code>, muestra <code>linea + &quot; - par&quot;</code>. Si no, <code>linea + &quot; - impar&quot;</code>. Puedes hacerlo con <code>if</code>/<code>else</code> o con el operador ternario dentro del <code>println</code>.</li>
+<li>Genera el <code>.jar</code> y ejecuta <code>Programa1</code>, el símbolo <code>|</code> y <code>Programa2</code> con <code>java -cp</code>.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-4" data-ejercicio="ej-4">
+<h2>Ejercicio 4: promedio de los mayores que 50 (proyecto <code>PromedioMayores50</code>)</h2>
+<p><code>Programa1</code> genera 25 números aleatorios entre 0 y 100. <code>Programa2</code> recibe esos números y calcula el promedio de los que son mayores que 50. Muestra ese promedio.</p>
+<p>Si ningún número es mayor que 50, el programa debe avisarlo en vez de mostrar un promedio.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p><code>Programa1</code> es otra vez el mismo. En <code>Programa2</code> hace falta llevar dos cuentas a la vez: la suma de los números que valen y cuántos son. El promedio es una división, y dividir dos enteros en Java descarta los decimales. Piensa qué pasa si no entra ningún número en la cuenta.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>Copia <code>Programa1</code> del ejercicio 1. En <code>Programa2</code>, usa dos variables <code>int</code>: <code>suma</code> y <code>cuantos</code>, las dos en 0. Lee las líneas como en los ejercicios anteriores. Si el número es mayor que 50, súmalo a <code>suma</code> y suma 1 a <code>cuantos</code>. Al terminar, si <code>cuantos</code> vale 0 muestra el aviso. Si no, calcula <code>(double) suma / cuantos</code>: el <code>(double)</code> delante convierte la suma en decimal antes de dividir y así no se pierden los decimales.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>PromedioMayores50</code> y el paquete <code>tuberias</code>.</li>
+<li>Copia en él <code>Programa1</code> del ejercicio 1.</li>
+<li>Crea la clase <code>Programa2</code> con <code>throws IOException</code> en el <code>main</code>.</li>
+<li>Crea el <code>BufferedReader</code> sobre <code>InputStreamReader</code> sobre <code>System.in</code>.</li>
+<li>Crea <code>String linea</code> y las variables <code>suma</code> y <code>cuantos</code>, las dos en 0.</li>
+<li>Lee las líneas con un <code>while</code> hasta <code>null</code> y conviértelas con <code>Integer.parseInt</code>.</li>
+<li>Si <code>n &gt; 50</code>, haz <code>suma = suma + n</code> y <code>cuantos++</code>.</li>
+<li>Al terminar el <code>while</code>, si <code>cuantos == 0</code>, muestra que ningún número es mayor que 50.</li>
+<li>Si no, calcula <code>double promedio = (double) suma / cuantos</code>.</li>
+<li>Muestra el promedio.</li>
+<li>Genera el <code>.jar</code>, ejecuta las dos clases con <code>|</code> y comprueba el promedio a mano.</li>
+</ol>
+</div>
+</section>
+
+</main>
+<script type="module" src="../../estilo/tema.js"></script>
+<script type="module" src="../../estilo/ayudas.js"></script>
+</body>
+</html>

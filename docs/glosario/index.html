@@ -17,6 +17,44 @@
 <p class="suave">Términos de Java usados en las clases, en orden alfabético.</p>
 <input id="buscar" type="search" placeholder="Buscar un término…" aria-label="Buscar un término">
 <div id="lista" class="rejilla">
+<article class="ficha tarjeta" data-nombre="? : (operador ternario)">
+<h2><code>? : (operador ternario)</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Un if/else escrito en una sola línea: condición ? valor si es verdadera : valor si es falsa.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Elegir entre dos valores dentro de otra instrucción, por ejemplo dentro de un println.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">System.out.println(n % 2 == 0 ? &quot;par&quot; : &quot;impar&quot;);
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="(double)">
+<h2><code>(double)</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Conversión de tipo. Escrito delante de un valor, lo convierte en decimal (double).</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Dividir dos int en Java descarta los decimales: 157 / 2 vale 78. Con (double) 157 / 2 vale 78.5.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">double promedio = (double) suma / cuantos;
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="% (resto)">
+<h2><code>% (resto)</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Operador que da el resto de una división entera. 7 % 2 vale 1 y 8 % 2 vale 0.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Saber si un número es par (n % 2 == 0) o hacer que un contador vuelva a 0 al llegar a un límite (i % 7).</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">if (n % 2 == 0) {
+    System.out.println(&quot;par&quot;);
+}
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="+=">
 <h2><code>+=</code></h2>
 <dl>
@@ -25,6 +63,20 @@
 <dt>Para qué sirve</dt><dd><p>Acumular un total sin repetir el nombre de la variable. dineroGanado += PRECIO es lo mismo que dineroGanado = dineroGanado + PRECIO.</p>
 </dd>
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">dineroGanado += PRECIO;
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="accept()">
+<h2><code>accept()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de la clase ServerSocket. Es bloqueante: detiene el programa hasta que un cliente se conecta, y entonces devuelve un Socket con ese cliente.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Que el servidor espere a los clientes sin gastar nada mientras no llega ninguno. Al ser bloqueante, el servidor no puede hacer otra cosa mientras espera (más adelante lo resolveremos con hilos).</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">ServerSocket ss = new ServerSocket(12349);
+// El programa se para aquí hasta que llegue un cliente.
+Socket s = ss.accept();
 </code></pre>
 </dd>
 </dl>
@@ -52,6 +104,20 @@ System.out.println(numeros.length);   // 3
 </dd>
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">ArrayList&lt;Thread&gt; clientes = new ArrayList&lt;&gt;();
 clientes.add(hilo);
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="autoFlush (buffer y flush)">
+<h2><code>autoFlush (buffer y flush)</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>El PrintWriter guarda lo que escribes en una zona de espera, el buffer. Hacer flush es vaciarla y enviar todo. Con true como segundo dato del constructor, el autoFlush hace flush solo en cada println().</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Que lo que escribes llegue al otro programa en el momento. Sin él, el texto puede quedarse en el buffer y el otro se queda esperando.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">// Con autoFlush: cada println() sale al instante.
+PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+pw.println(&quot;Hola&quot;);
 </code></pre>
 </dd>
 </dl>
@@ -93,6 +159,35 @@ terminado = true;
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="Cerrar la conexión">
+<h2><code>Cerrar la conexión</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Llamar a close() en los canales (br y pw), en el Socket y, en el servidor, en el ServerSocket. Se cierra en orden inverso al que se abrió.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Liberar el puerto y los recursos del ordenador, y avisar al otro programa: cuando un Socket se cierra, el readLine() del otro devuelve null.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">br.close();
+pw.close();
+s.close();
+ss.close();
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Cliente/servidor">
+<h2><code>Cliente/servidor</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Modelo de comunicación en el que un programa, el cliente, pide cosas y otro programa, el servidor, las atiende y responde.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Centralizar un recurso (datos, páginas, ficheros) en un servidor al que acceden muchos clientes por la red. El cliente habla con el usuario y el servidor hace el trabajo.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">// No es código: es el esquema de la conversación.
+// Cliente  -&gt; Servidor: &quot;¿Qué hora es?&quot;
+// Servidor -&gt; Cliente:  &quot;16:30&quot;
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="close()">
 <h2><code>close()</code></h2>
 <dl>
@@ -130,6 +225,20 @@ cuenta = temp + 1;
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">public HiloSuma(int[] numeros) {
     this.numeros = numeros;
 }
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Dirección IP">
+<h2><code>Dirección IP</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Número que identifica a un ordenador en la red, por ejemplo 192.168.1.200. Para el propio ordenador se usa el nombre localhost.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Indicar a qué ordenador queremos enviar los datos. Es como el edificio de una dirección; el puerto es el piso.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">// Direcciones que usaremos para conectar:
+// &quot;localhost&quot;      -&gt; este mismo ordenador
+// &quot;192.168.1.200&quot;  -&gt; otro ordenador de la red
 </code></pre>
 </dd>
 </dl>
@@ -272,6 +381,18 @@ bw.flush();
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="getInputStream()">
+<h2><code>getInputStream()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de la clase Process. Devuelve lo que el proceso lanzado escribe con println, para leerlo desde nuestro programa.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Ser el extremo de la tubería: nuestro programa recibe la salida del proceso. Se envuelve con InputStreamReader y BufferedReader.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">BufferedReader br = new BufferedReader(new InputStreamReader(p.getInputStream()));
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="getName()">
 <h2><code>getName()</code></h2>
 <dl>
@@ -281,6 +402,18 @@ bw.flush();
 </dd>
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Thread h = new Thread(new Contador(), &quot;Hilo 1&quot;);
 System.out.println(h.getName());   // Hilo 1
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="getOutputStream()">
+<h2><code>getOutputStream()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de la clase Socket. Devuelve la salida del socket: el flujo por el que se envían bytes al otro programa.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Es el punto de partida del canal para hablar. Se envuelve en un PrintWriter para escribir texto con println().</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
 </code></pre>
 </dd>
 </dl>
@@ -338,6 +471,19 @@ sleep(3000);
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="Importar clase por clase">
+<h2><code>Importar clase por clase</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Escribir un import por cada clase que se usa (import java.net.Socket;) en lugar de traer todo el paquete con asterisco (import java.net.*;).</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Que se vea qué clases usa el programa, no traer clases sin usar y evitar choques de nombres. Es la forma limpia que usaremos en clase.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">import java.net.ServerSocket;
+import java.net.Socket;
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="inanición">
 <h2><code>inanición</code></h2>
 <dl>
@@ -348,6 +494,18 @@ sleep(3000);
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">while (estado == CON_ESCRITOR || escritoresEsperando &gt; 0) {
     wait();
 }
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="InputStreamReader">
+<h2><code>InputStreamReader</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase que convierte lo que llega por una entrada (por ejemplo System.in) en letras.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Se usa dentro de un BufferedReader para poder leer línea a línea con readLine(), también lo que llega por una tubería.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">BufferedReader bf = new BufferedReader(new InputStreamReader(System.in));
 </code></pre>
 </dd>
 </dl>
@@ -491,6 +649,19 @@ h1.start();
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="nextInt() y nextLine()">
+<h2><code>nextInt() y nextLine()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Métodos de la clase Scanner. nextInt() lee un número entero. nextLine() lee una línea entera de texto, con espacios.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Leer lo que el usuario escribe, o lo que llega por la entrada si hay tubería.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">int num = sc.nextInt();
+String t = sc.nextLine();
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="notify()">
 <h2><code>notify()</code></h2>
 <dl>
@@ -548,6 +719,18 @@ public void run() {
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="parseInt() de Integer">
+<h2><code>parseInt() de Integer</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Método de la clase Integer. Convierte un texto con un número, como &quot;27&quot;, en el número entero 27.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Las líneas que llegan por la tubería son texto. Para sumar o comparar hay que convertirlas. Si el texto no es un número, lanza NumberFormatException.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">int n = Integer.parseInt(&quot;27&quot;);
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="Principal">
 <h2><code>Principal</code></h2>
 <dl>
@@ -564,6 +747,19 @@ public void run() {
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="PrintWriter">
+<h2><code>PrintWriter</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase que escribe texto con print() y println(), igual que System.out, pero hacia otro destino (aquí, el socket).</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Es el canal para hablar: lo que se escribe con println() llega al otro programa. Con el segundo parámetro true (autoFlush) cada línea se envía en el momento.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">PrintWriter pw = new PrintWriter(s.getOutputStream(), true);
+pw.println(&quot;Hola&quot;);
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="private">
 <h2><code>private</code></h2>
 <dl>
@@ -572,6 +768,73 @@ public void run() {
 <dt>Para qué sirve</dt><dd><p>Guardar datos propios de la clase, como el array que recibe un hilo.</p>
 </dd>
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">private int[] numeros;
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Proceso">
+<h2><code>Proceso</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Un programa en marcha, con su propia memoria. Dos procesos no comparten variables ni objetos.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Dos procesos se comunican por tuberías, ficheros o redes. Los hilos, en cambio, viven dentro de un mismo proceso y sí comparten memoria.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">// Cada &#39;java -jar ...&#39; que lanzas en la terminal crea un proceso nuevo.
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Process">
+<h2><code>Process</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase que representa un proceso en marcha, visto desde el programa que lo lanzó.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Comunicarse con el proceso: leer lo que escribe (getInputStream()), enviarle datos (getOutputStream()) o esperar a que termine (waitFor()).</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Process p = pb.start();
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="ProcessBuilder">
+<h2><code>ProcessBuilder</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase que prepara un comando del sistema, igual que el que escribirías en la terminal. Cada trozo del comando va en un texto aparte. Su método start() lo ejecuta.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Lanzar otro programa desde Java como un proceso nuevo.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">ProcessBuilder pb = new ProcessBuilder(&quot;java&quot;, &quot;-cp&quot;, ruta, &quot;tuberias.Programa1&quot;);
+Process p = pb.start();
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Protocolo de turnos">
+<h2><code>Protocolo de turnos</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>El guion acordado entre cliente y servidor: quién habla primero, qué manda cada uno y en qué orden. Cada println() de uno debe encontrar un readLine() en el otro.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Evitar que los dos se queden esperando a la vez. Como readLine() es bloqueante, si los dos empiezan leyendo, nadie habla nunca y el programa se queda parado sin dar error.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">// Cliente: habla primero, luego escucha.
+pw.println(&quot;Hola&quot;);
+linea = br.readLine();
+// Servidor: escucha primero, luego habla.
+linea = br.readLine();
+pw.println(&quot;Hola, cliente&quot;);
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="Puerto">
+<h2><code>Puerto</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Número, de 0 a 65535, que indica a qué programa de un ordenador van los datos. Un servidor escucha en un puerto.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Que en un mismo ordenador haya varios servidores a la vez, cada uno en su puerto. En nuestras prácticas usamos puertos entre 1024 y 49151, por ejemplo el 2000.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">// El servidor usará este puerto:
+int puerto = 2000;
 </code></pre>
 </dd>
 </dl>
@@ -674,6 +937,21 @@ public void run() {
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="Salto de línea como fin de mensaje">
+<h2><code>Salto de línea como fin de mensaje</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Por la red los datos llegan seguidos, sin cortes. El salto de línea que añade println() marca dónde acaba cada mensaje, y readLine() lee justo hasta ahí.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Separar los mensajes entre cliente y servidor: cada println() se recibe con un readLine(). Si falta el salto, readLine() no sabe dónde acaba y sigue esperando.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">// Servidor:
+pw.println(&quot;Hola&quot;);
+// Cliente:
+String linea = br.readLine();   // &quot;Hola&quot;
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="Scanner">
 <h2><code>Scanner</code></h2>
 <dl>
@@ -742,6 +1020,18 @@ public static final int CON_ESCRITOR = 2;
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="StringBuilder">
+<h2><code>StringBuilder</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Clase de Java que guarda un texto que se puede modificar. Un String normal no se puede cambiar.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Dar la vuelta a un texto con reverse(). Después, toString() lo convierte otra vez en un String.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">String al = new StringBuilder(&quot;Hola&quot;).reverse().toString();  // aloH
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="switch">
 <h2><code>switch</code></h2>
 <dl>
@@ -787,6 +1077,30 @@ public static final int CON_ESCRITOR = 2;
         // trabaja con los dos
     }
 }
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="System.err">
+<h2><code>System.err</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>La salida de errores del programa. Se muestra por pantalla aunque haya una tubería: no viaja al programa siguiente.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Escribir avisos de error sin mezclarlos con los datos que van por la tubería.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">System.err.println(&quot;Se ha producido un error en E/S&quot;);
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="System.in">
+<h2><code>System.in</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>La entrada estándar del programa. Normalmente es el teclado; si hay una tubería, es la salida del programa anterior.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Leer datos con Scanner o con BufferedReader. El programa no sabe si le llegan del teclado o de otro programa.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">Scanner sc = new Scanner(System.in);
 </code></pre>
 </dd>
 </dl>
@@ -927,6 +1241,19 @@ System.out.println(actual.getName());
 </dd>
 </dl>
 </article>
+<article class="ficha tarjeta" data-nombre="Tubería (pipe)">
+<h2><code>Tubería (pipe)</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Conexión entre dos programas: la salida del primero se convierte en la entrada del segundo. En la terminal se escribe con el símbolo |.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Que un programa use los datos que produce otro sin ficheros de por medio. Cada programa es un proceso distinto y solo comparten texto.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">// En la terminal (no es código Java):
+// java -jar GenerarNumeros.jar | java -jar SumarPares.jar
+</code></pre>
+</dd>
+</dl>
+</article>
 <article class="ficha tarjeta" data-nombre="wait()">
 <h2><code>wait()</code></h2>
 <dl>
@@ -966,6 +1293,21 @@ wait(15000);
 </dd>
 <dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">while (numCuadros == numMaxCuadros) {
     wait();
+}
+</code></pre>
+</dd>
+</dl>
+</article>
+<article class="ficha tarjeta" data-nombre="while con readLine()">
+<h2><code>while con readLine()</code></h2>
+<dl>
+<dt>Qué es</dt><dd><p>Condición de bucle que lee una línea, la guarda en una variable y la compara con null, todo a la vez.</p>
+</dd>
+<dt>Para qué sirve</dt><dd><p>Recorrer todo lo que llega por una entrada o un fichero sin repetir el readLine() antes y dentro del bucle.</p>
+</dd>
+<dt>Ejemplo mínimo</dt><dd><pre><code class="language-java">String linea;
+while ((linea = entrada.readLine()) != null) {
+    System.out.println(linea);
 }
 </code></pre>
 </dd>

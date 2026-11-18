@@ -15,8 +15,17 @@
 <main class="contenido">
 <h1>PSP · 2º DAM</h1>
 <p class="suave">Programación de servicios y procesos. Materiales de clase.</p>
-<h2>Unidad 1</h2>
+<div class="pestanas" role="tablist">
+<button type="button" role="tab" class="pestana" data-unidad="u1" aria-selected="true">Unidad 1</button>
+<button type="button" role="tab" class="pestana" data-unidad="u2" aria-selected="false">Unidad 2</button>
+</div>
+<section class="panel-unidad" id="u1" role="tabpanel">
 <div class="lista">
+<div class="tarjeta">
+<h3>5.4 Tuberías entre procesos</h3>
+<p class="suave">Dos programas distintos, un solo resultado. ¿Cómo hace uno para pasarle datos al otro sin ficheros de por medio?</p>
+<p class="enlaces"><a class="boton" href="u1/5.4-tuberias/presentacion.html">Presentación</a> <a class="boton" href="u1/5.4-tuberias/enunciado.html">Enunciado</a> <a class="boton" href="u1/5.4-tuberias/notas-profesor.html">🔒 Notas</a></p>
+</div>
 <div class="tarjeta">
 <h3>6.1 Crear hilos en Java</h3>
 <p class="suave">¿Cómo hacemos que un programa haga varias cosas a la vez? Crearemos nuestros primeros hilos y veremos qué pasa cuando arrancan juntos.</p>
@@ -53,14 +62,25 @@
 <p class="enlaces"><a class="boton" href="u1/6.8-interbloqueo/presentacion.html">Presentación</a> <a class="boton" href="u1/6.8-interbloqueo/enunciado.html">Enunciado</a> <a class="boton" href="u1/6.8-interbloqueo/Interbloqueo.zip">Descargar Interbloqueo.zip</a> <a class="boton" href="u1/6.8-interbloqueo/notas-profesor.html">🔒 Notas</a></p>
 </div>
 </div>
+</section>
+<section class="panel-unidad" id="u2" role="tabpanel" hidden>
+<div class="lista">
+<div class="tarjeta">
+<h3>1 Comunicaciones en red: cliente y servidor</h3>
+<p class="suave">Dos programas en dos ordenadores distintos, y uno le pide cosas al otro. ¿Cómo se encuentran y cómo se hablan?</p>
+<p class="enlaces"><a class="boton" href="u2/1-sockets/presentacion.html">Presentación</a> <a class="boton" href="u2/1-sockets/enunciado.html">Enunciado</a> <a class="boton" href="u2/1-sockets/notas-profesor.html">🔒 Notas</a></p>
+</div>
+</div>
+</section>
 <h2>Consulta</h2>
 <div class="lista">
 <div class="tarjeta"><h3><a href="simulador/index.html">Simulador de hilos</a></h3><p class="suave">Ejecuta la cocina, el parking, la tienda de bicis, el pintor y la fábrica, y comprueba qué falla al quitar <code>while</code>, <code>synchronized</code> o <code>notifyAll()</code></p></div>
+<div class="tarjeta"><h3><a href="simulador/sockets.html">Simulador de sockets</a></h3><p class="suave">Cliente y servidor hablando por un puerto, paso a paso</p></div>
 <div class="tarjeta"><h3><a href="simulador/prueba.html">Ponte a prueba</a></h3><p class="suave">Ejercicios al azar con otra historia (panadería, biblioteca…), en tres niveles y con nota</p></div>
 <div class="tarjeta"><h3><a href="glosario/index.html">Glosario</a></h3><p class="suave">Términos de Java usados en las clases</p></div>
 </div>
 </main>
 <script type="module" src="estilo/tema.js"></script>
-
+<script type="module" src="estilo/pestanas.js"></script>
 </body>
 </html>

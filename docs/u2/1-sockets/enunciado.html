@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Apartado 1 – Comunicaciones en red: cliente y servidor</title>
+<link rel="stylesheet" href="../../estilo/tema.css">
+<script>document.documentElement.classList.add('js');try{var t=localStorage.getItem('tema');if(t)document.documentElement.setAttribute('data-tema',t)}catch(e){}</script>
+</head>
+<body class="">
+<header class="cabecera">
+  <a class="marca" href="../../index.html">PSP · 2º DAM</a>
+  <nav><a href="../../glosario/index.html">Glosario</a><button id="tema" type="button" aria-label="Cambiar entre tema claro y oscuro">◐</button></nav>
+</header>
+<main class="contenido">
+<h1>Apartado 1 – Comunicaciones en red: cliente y servidor</h1>
+<p>Cada ejercicio es un proyecto de NetBeans con dos clases, <code>Servidor</code> y <code>Cliente</code>, cada una con su propio <code>main</code>. Las clases van en el paquete que indique el ejercicio. Son dos programas distintos que se ejecutan a la vez: se arranca primero el servidor y después el cliente. Usa el puerto 12349.</p>
+
+<section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
+<h2>Ejercicio 1: pares e impares por la red (proyecto <code>ParImparSocket</code>)</h2>
+<p>El cliente genera 25 números aleatorios entre 0 y 100 y los envía al servidor. El servidor recibe cada número y le contesta si es par o impar. El cliente muestra por pantalla cada número con la respuesta del servidor, así:</p>
+<p>27 – impar
+13 – impar
+72 – par</p>
+<p>Ejecuta los dos programas varias veces y comprueba a mano que las respuestas son correctas. Al terminar el cliente, el servidor debe avisar de que el cliente se ha desconectado.</p>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>El servidor se queda esperando hasta que llega el cliente. Cuando ya están conectados, los dos necesitan un canal para escuchar y otro para hablar, y los dos se crean igual. Cada número es un mensaje: un mensaje es una línea. El cliente envía un número y espera la respuesta antes de enviar el siguiente. El servidor repite lo mismo muchas veces y debe saber cuándo parar: piensa qué devuelve la lectura cuando el otro programa ya ha terminado. Lo que llega por la red es texto, no un número.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>En el servidor, <code>ServerSocket</code> en el puerto 12349 y <code>accept()</code> para esperar al cliente. Después crea un <code>BufferedReader</code> con un <code>InputStreamReader</code> sobre <code>getInputStream()</code> del socket, y un <code>PrintWriter</code> sobre <code>getOutputStream()</code> del socket con <code>true</code> como segundo dato (autoFlush). Lee con <code>readLine()</code> dentro de un <code>while</code> que se repite hasta que <code>readLine()</code> devuelva <code>null</code>. Convierte cada línea en número con <code>Integer.parseInt</code>. El resto de dividir entre 2 con el operador <code>%</code> dice si es par. Responde con <code>println()</code>. En el cliente, crea el <code>Socket</code> con <code>&quot;localhost&quot;</code> y el puerto, y los mismos dos canales. Un <code>for</code> de 25 vueltas: genera el número con <code>Math.random()</code>, envíalo con <code>println()</code>, lee la respuesta con <code>readLine()</code> y muestra el número y la respuesta.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Crea el proyecto <code>ParImparSocket</code> y el paquete <code>parimpar</code>.</li>
+<li>Crea la clase <code>Servidor</code> con su <code>main</code> y declara <code>main</code> con <code>throws IOException</code>.</li>
+<li>En <code>Servidor</code>, crea un <code>ServerSocket</code> en el puerto 12349, muestra «Esperando conexión...» y llama a <code>accept()</code> para obtener el <code>Socket</code>.</li>
+<li>Crea <code>br</code> (un <code>BufferedReader</code>) y <code>pw</code> (un <code>PrintWriter</code> con autoFlush) a partir de ese socket.</li>
+<li>Declara <code>String linea;</code> y haz un <code>while</code> que lea con <code>br.readLine()</code> y siga mientras el resultado no sea <code>null</code>.</li>
+<li>Dentro del <code>while</code>, convierte <code>linea</code> en un <code>int</code> con <code>Integer.parseInt</code> y responde con <code>pw.println()</code> «par» o «impar».</li>
+<li>Después del <code>while</code>, muestra «Cliente desconectado».</li>
+<li>Crea la clase <code>Cliente</code> con su <code>main</code>, también con <code>throws IOException</code>.</li>
+<li>En <code>Cliente</code>, crea el <code>Socket</code> con <code>&quot;localhost&quot;</code> y 12349, y los mismos <code>br</code> y <code>pw</code>.</li>
+<li>Haz un <code>for</code> de 25 vueltas. En cada una, genera un número entre 0 y 100, envíalo con <code>pw.println()</code>, lee la respuesta con <code>br.readLine()</code> y muestra «número – respuesta».</li>
+<li>Ejecuta primero <code>Servidor</code> y después <code>Cliente</code>. Comprueba la salida de los dos.</li>
+</ol>
+</div>
+</section>
+
+</main>
+<script type="module" src="../../estilo/tema.js"></script>
+<script type="module" src="../../estilo/ayudas.js"></script>
+</body>
+</html>
