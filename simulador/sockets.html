@@ -205,11 +205,6 @@ const PIEZAS = [
   ['Variables', { id: 'linea', t: 'String linea;', decl: 'linea' }],
   ['Variables', { id: 'randN', t: 'int n = (int) (Math.random() * 101);', decl: 'n', f: k => { R[k].vars.n = Math.floor(Math.random() * 101); } }],
   ['Variables', { id: 'parseN', t: 'int n = Integer.parseInt(linea);', req: ['linea'], decl: 'n', f: k => { R[k].vars.n = parseInt(R[k].vars.linea, 10); } }],
-  ['Enviar', { id: 'pHola', ...msg('"Hola"', () => 'Hola') }],
-  ['Enviar', { id: 'pHolaCli', ...msg('"Hola, cliente"', () => 'Hola, cliente') }],
-  ['Enviar', { id: 'pMsg', ...msg('"Mensaje " + i', v => 'Mensaje ' + v.i), req: ['pw', 'i'] }],
-  ['Enviar', { id: 'pRec', ...msg('"Recibido: " + linea', v => 'Recibido: ' + v.linea), req: ['pw', 'linea'] }],
-  ['Enviar', { id: 'pN', ...msg('n', v => String(v.n)), req: ['pw', 'n'] }],
   ['Enviar', { id: 'pPar', ...msg('n % 2 == 0 ? "par" : "impar"', v => v.n % 2 === 0 ? 'par' : 'impar'), req: ['pw', 'n'] }],
   ['Leer', { id: 'read', t: 'linea = br.readLine();', req: ['br', 'linea'], f: k => lee(k) }],
   ['Leer', { id: 'readIn', t: 'System.out.println("El cliente dice: " + br.readLine());', req: ['br'], f: k => { const r = lee(k, null, 'tmp'); if (r === 'block') return r; mostrar(k, 'El cliente dice: ' + r.v); } }],
@@ -217,19 +212,12 @@ const PIEZAS = [
   ['Bucles', { id: 'for3', kind: 'for', t: 'for (int i = 1; i <= 3; i++) {', decl: 'i', f: (k, ln) => forF(k, ln, 1, 3, true) }],
   ['Bucles', { id: 'for25', kind: 'for', t: 'for (int i = 0; i < 25; i++) {', decl: 'i', f: (k, ln) => forF(k, ln, 0, 25, false) }],
   ['Bucles', { id: 'fin', kind: 'close', t: '}', f: (k, ln) => { if (ln.pi.kind === 'for') R[k].vars.i++; return { jump: ln.start }; } }],
-  ['Pantalla', { id: 'sConectado', ...pant('"Conectado"', () => 'Conectado') }],
-  ['Pantalla', { id: 'sCliente', ...pant('"El cliente dice: " + linea', v => 'El cliente dice: ' + v.linea), req: ['linea'] }],
-  ['Pantalla', { id: 'sServidor', ...pant('"El Servidor dice: " + linea', v => 'El Servidor dice: ' + v.linea), req: ['linea'] }],
-  ['Pantalla', { id: 'sN', ...pant('n + " – " + linea', v => v.n + ' – ' + v.linea), req: ['n', 'linea'] }],
-  ['Pantalla', { id: 'sDesc', ...pant('"Cliente desconectado"', () => 'Cliente desconectado') }],
-  ['Pantalla', { id: 'sCalla', ...pant('"El cliente ya no habla"', () => 'El cliente ya no habla') }],
   ['Cerrar', { id: 'shut', side: 'c', t: 's.shutdownOutput();', req: ['s'], f: k => { R.net.eof[k] = true; log(`${NOMBRE[k]}: se calla (cierra solo la salida) pero sigue escuchando`); } }],
   ['Cerrar', { id: 'cBr', ...cierre('br.close();', 'br') }],
   ['Cerrar', { id: 'cPw', ...cierre('pw.close();', 'pw') }],
   ['Cerrar', { id: 'cS', ...cierre('s.close();', 's') }],
   ['Cerrar', { id: 'cSs', side: 's', ...cierre('ss.close();', 'ss'), f: k => { R.net.listening = false; log('Servidor: puerto cerrado'); } }],
 ];
-PIEZAS.splice(24, 0, ['Pantalla', { id: 'sEspera', ...pant('"Esperando conexión..."', () => 'Esperando conexión...') }]);
 PIEZAS.push(['Pantalla', { id: 'outLibre', libre: true, pre: 'System.out.println(', t: 'System.out.println( ✎ );', req: [], f: (k, ln) => mostrar(k, ln.val(k)) }]);
 PIEZAS.push(['Enviar', { id: 'pwLibre', libre: true, pre: 'pw.println(', t: 'pw.println( ✎ );', req: ['pw'], f: (k, ln) => enviar(k, ln.val(k)) }]);
 const PZ = {}; PIEZAS.forEach(([g, p]) => { p.g = g; p.req = p.req || []; p.f = p.f || (() => {}); PZ[p.id] = p; });
@@ -264,26 +252,28 @@ const textoLinea = it => PZ[it.id].libre ? PZ[it.id].pre + it.arg + ');' : PZ[it
 
 /* ===== Retos ===== */
 const SIMBOLO = { ss: 'ServerSocket ss', s: 'Socket s', br: 'BufferedReader br', pw: 'PrintWriter pw', linea: 'String linea', i: 'i (hace falta un for)', n: 'int n' };
+// En las soluciones, 'out:texto' y 'pw:texto' son las piezas con campo libre.
+const solItem = x => x.startsWith('out:') ? { id: 'outLibre', arg: x.slice(4) } : x.startsWith('pw:') ? { id: 'pwLibre', arg: x.slice(3) } : { id: x };
 const RETOS = [
   { id: 'conectar', titulo: '1. Conectar',
     enun: '<p><b>Objetivo:</b> que el servidor y el cliente se conecten. El servidor muestra «Esperando conexión...» y, cuando llega el cliente, «Conectado». El cliente muestra «Conectado» cuando consigue conectar.</p><p class="hint">Prueba después a cambiar quién arranca primero (arriba). Los mensajes de pantalla los puedes escribir tú con la pieza <code>System.out.println( ✎ )</code>: texto entre comillas y variables unidas con <code>+</code>.</p>',
-    sol: { s: ['ss', 'sEspera', 'accept', 'sConectado'], c: ['connect', 'sConectado'] },
+    sol: { s: ['ss', 'out:"Esperando conexión..."', 'accept', 'out:"Conectado"'], c: ['connect', 'out:"Conectado"'] },
     check: () => comprueba([[R.s.out, 'Conectado'], [R.c.out, 'Conectado']]) },
   { id: 'dialogo', titulo: '2. El primer diálogo',
     enun: '<p><b>Objetivo:</b> el cliente saluda con «Hola». El servidor lee el saludo, muestra «El cliente dice: Hola» y contesta «Hola, cliente». El cliente lee la respuesta y muestra «El Servidor dice: Hola, cliente».</p><p class="hint">Necesitas conectar, crear los dos canales (lectura y escritura) y declarar <code>linea</code>. Con el <code>true</code> del <code>PrintWriter</code>.</p>',
-    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'read', 'sCliente', 'pHolaCli'], c: ['connect', 'br', 'pw', 'linea', 'pHola', 'read', 'sServidor'] },
+    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'read', 'out:"El cliente dice: " + linea', 'pw:"Hola, cliente"'], c: ['connect', 'br', 'pw', 'linea', 'pw:"Hola"', 'read', 'out:"El Servidor dice: " + linea'] },
     check: () => comprueba([[R.s.out, 'El cliente dice: Hola'], [R.c.out, 'El Servidor dice: Hola, cliente']]) },
   { id: 'bucle', titulo: '3. Tres mensajes y un bucle',
     enun: '<p><b>Objetivo:</b> el cliente envía «Mensaje 1», «Mensaje 2» y «Mensaje 3», <b>uno cada vez</b>, esperando la respuesta («Hola») antes de enviar el siguiente, y muestra cada respuesta. El servidor repite en un bucle: muestra el mensaje, contesta «Hola» y, cuando el cliente se va, muestra «Cliente desconectado». El cliente cierra el socket al terminar.</p><p class="hint">Un solo <code>readLine()</code> por vuelta.</p>',
-    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'while', 'sCliente', 'pHola', 'fin', 'sDesc'], c: ['connect', 'br', 'pw', 'linea', 'for3', 'pMsg', 'read', 'sServidor', 'fin', 'cS'] },
+    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'while', 'out:"El cliente dice: " + linea', 'pw:"Hola"', 'fin', 'out:"Cliente desconectado"'], c: ['connect', 'br', 'pw', 'linea', 'for3', 'pw:"Mensaje " + i', 'read', 'out:"El Servidor dice: " + linea', 'fin', 'cS'] },
     check: () => comprueba([[R.s.out, 'El cliente dice: Mensaje 1'], [R.s.out, 'El cliente dice: Mensaje 2'], [R.s.out, 'El cliente dice: Mensaje 3'], [R.s.out, 'Cliente desconectado'], [R.c.out, 'El Servidor dice: Hola', 3]]) },
   { id: 'callarse', titulo: '4. Callarse sin irse',
     enun: '<p><b>Objetivo:</b> el cliente envía los tres mensajes <b>seguidos</b>, avisa de que ya no habla pero sigue escuchando, y muestra las tres respuestas «Recibido: Mensaje N». El servidor contesta a cada mensaje y, cuando el cliente se calla, muestra «El cliente ya no habla» y cierra todo.</p><p class="hint">¿Qué pieza avisa de que te callas sin cerrar la conexión entera?</p>',
-    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'while', 'sCliente', 'pRec', 'fin', 'sCalla', 'cS', 'cSs'], c: ['connect', 'br', 'pw', 'linea', 'for3', 'pMsg', 'fin', 'shut', 'while', 'sServidor', 'fin', 'cS'] },
+    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'while', 'out:"El cliente dice: " + linea', 'pw:"Recibido: " + linea', 'fin', 'out:"El cliente ya no habla"', 'cS', 'cSs'], c: ['connect', 'br', 'pw', 'linea', 'for3', 'pw:"Mensaje " + i', 'fin', 'shut', 'while', 'out:"El Servidor dice: " + linea', 'fin', 'cS'] },
     check: () => comprueba([[R.s.out, 'El cliente ya no habla'], [R.c.out, 'El Servidor dice: Recibido: Mensaje 1'], [R.c.out, 'El Servidor dice: Recibido: Mensaje 2'], [R.c.out, 'El Servidor dice: Recibido: Mensaje 3']]) },
   { id: 'parimpar', titulo: '5. Pares e impares',
     enun: '<p><b>Objetivo (el ejercicio de clase):</b> el cliente genera 25 números aleatorios entre 0 y 100, envía cada uno y espera la respuesta. El servidor contesta «par» o «impar». El cliente muestra cada número con su respuesta: <code>27 – impar</code>. Al terminar el cliente, el servidor se da cuenta y sale del bucle.</p><p class="hint">Lo que llega por la red es texto: hay que convertirlo en número en el servidor.</p>',
-    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'while', 'parseN', 'pPar', 'fin', 'sDesc'], c: ['connect', 'br', 'pw', 'linea', 'for25', 'randN', 'pN', 'read', 'sN', 'fin', 'cS'] },
+    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'while', 'parseN', 'pPar', 'fin', 'out:"Cliente desconectado"'], c: ['connect', 'br', 'pw', 'linea', 'for25', 'randN', 'pw:n', 'read', 'out:n + " – " + linea', 'fin', 'cS'] },
     check: () => {
       const l = R.c.out.map(o => o.t).filter(t => /^\d+ – (par|impar)$/.test(t));
       if (l.length !== 25) return `el cliente debe mostrar 25 líneas «número – par/impar» y muestra ${l.length}`;
@@ -292,7 +282,7 @@ const RETOS = [
     } },
   { id: 'libre', titulo: 'Libre (prueba lo que quieras)',
     enun: '<p>Monta cliente y servidor como quieras, con cualquier pieza. Prueba los fallos que hemos visto: el <code>PrintWriter</code> sin <code>true</code>, los dos leyendo primero, un segundo <code>readLine()</code> dentro del bucle, <code>close()</code> en vez de <code>shutdownOutput()</code>...</p>',
-    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'read', 'sCliente', 'pHolaCli'], c: ['connect', 'br', 'pw', 'linea', 'pHola', 'read', 'sServidor'] },
+    sol: { s: ['ss', 'accept', 'br', 'pw', 'linea', 'read', 'out:"El cliente dice: " + linea', 'pw:"Hola, cliente"'], c: ['connect', 'br', 'pw', 'linea', 'pw:"Hola"', 'read', 'out:"El Servidor dice: " + linea'] },
     check: () => null },
 ];
 function comprueba(lista) {
@@ -557,7 +547,7 @@ $('reto').onchange = () => elegirReto($('reto').value);
 $('bRun').onclick = ejecutar;
 $('bStep').onclick = () => { parar(); if (!corre || R.fin) { if (!arrancar()) return; } tick(); };
 $('bReset').onclick = reiniciar;
-$('bSol').onclick = () => { reiniciar(); code.c = reto.sol.c.map(id => ({ id })); code.s = reto.sol.s.map(id => ({ id })); pintarEditor(); };
+$('bSol').onclick = () => { reiniciar(); code.c = reto.sol.c.map(solItem); code.s = reto.sol.s.map(solItem); pintarEditor(); };
 $('bClear').onclick = () => { code.c = []; code.s = []; reiniciar(); };
 $('arranque').onchange = reiniciar;
 const retoInicial = RETOS.find(r => r.id === location.hash.slice(1)) || RETOS[0];
