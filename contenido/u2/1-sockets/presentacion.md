@@ -230,6 +230,7 @@ import java.net.Socket;
     <li>Ejecuta después la clase <code>Cliente</code>.</li>
     <li>Los dos escriben «Conectado».</li>
   </ol>
+  <p class="aviso">Míralo también en el simulador: <a href="../../simulador/sockets.html#conectar" target="_blank" rel="noopener">1. Conectar</a> (se abre en otra pestaña).</p>
   <p class="aviso">¿Y si ejecutas el <code>Cliente</code> sin arrancar el servidor? Java lanza <code>ConnectException: Connection refused</code> (conexión rechazada): nadie escuchaba.</p>
 
 ---

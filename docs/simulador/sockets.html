@@ -560,7 +560,9 @@ $('bReset').onclick = reiniciar;
 $('bSol').onclick = () => { reiniciar(); code.c = reto.sol.c.map(id => ({ id })); code.s = reto.sol.s.map(id => ({ id })); pintarEditor(); };
 $('bClear').onclick = () => { code.c = []; code.s = []; reiniciar(); };
 $('arranque').onchange = reiniciar;
-elegirReto(RETOS[0].id);
+const retoInicial = RETOS.find(r => r.id === location.hash.slice(1)) || RETOS[0];
+$('reto').value = retoInicial.id;
+elegirReto(retoInicial.id);
 </script>
 </body>
 </html>
