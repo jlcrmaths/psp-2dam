@@ -306,6 +306,19 @@ import java.net.Socket;
 ---
 
 <!-- html -->
+  <h3>Pruébalo tú</h3>
+  <ol>
+    <li>Abre el proyecto <code>Canales</code> en NetBeans.</li>
+    <li>Ejecuta <b>primero</b> la clase <code>Servidor</code>: escribe «Esperando conexión...» y se queda parada.</li>
+    <li>Ejecuta después la clase <code>Cliente</code>.</li>
+    <li>Los dos escriben «Canales listos».</li>
+  </ol>
+  <p class="aviso">No se envía ningún mensaje todavía: solo se preparan <code>br</code> y <code>pw</code>. Por eso no ves nada más.</p>
+  <p class="aviso">Pruébalo también en el simulador: <a href="../../simulador/sockets.html#libre" target="_blank" rel="noopener">Libre</a> (se abre en otra pestaña). Conecta los dos programas y añade las piezas <b>Canales</b> a cada uno.</p>
+
+---
+
+<!-- html -->
   <h3>Siempre flush positivo</h3>
   <p>Cuando haces <code>println()</code> en un <code>PrintWriter</code>, el texto <b>no sale siempre al momento</b>.</p>
   <p class="fragment">Java lo guarda en una zona de espera, el <b>buffer</b>, y lo envía cuando le parece. Es como un <b>buzón</b>: metes la carta, pero no se va hasta que pasa el cartero.</p>
