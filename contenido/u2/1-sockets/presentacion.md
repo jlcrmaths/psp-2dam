@@ -301,6 +301,7 @@ import java.net.Socket;
     <div><p><b>Cliente</b></p>{{codigo: Canales/Cliente.java :: 11-12 @@ 1-2}}</div>
   </div>
   <p class="fragment caja">Las dos líneas son idénticas. Lo que cambia es <b>cómo consiguen el <code>Socket</code></b>: el servidor con <code>accept()</code> y el cliente con <code>new Socket(...)</code>.</p>
+  <p class="fragment caja"><b>Plantilla:</b> este proyecto, <code>Canales</code>, es el punto de partida de los siguientes. Servidor y cliente conectan y preparan <code>br</code> y <code>pw</code>. Desde aquí solo añadimos lo que cada ejercicio pide: <code>println()</code> para hablar y <code>readLine()</code> para escuchar.</p>
 
 ---
 
