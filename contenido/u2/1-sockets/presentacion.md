@@ -236,6 +236,19 @@ import java.net.Socket;
 ---
 
 <!-- html -->
+  <h3>Si el puerto sigue ocupado</h3>
+  <p>Si ejecutas el <code>Servidor</code> dos veces, la segunda falla con <code>BindException: Address already in use</code>: el puerto lo tiene todavía la primera ejecución.</p>
+  <p>Lo normal es parar el programa con el <b>cuadrado rojo</b> de la ventana Output de NetBeans. Si no basta, ciérralo desde Windows:</p>
+  <ol>
+    <li>Abre el <b>Símbolo del sistema</b> (<code>cmd</code>).</li>
+    <li>Busca quién usa el puerto: <code>netstat -ano | findstr 12349</code>. El número de la <b>última columna</b> es el PID.</li>
+    <li>Ciérralo: <code>taskkill /PID número /F</code>, cambiando <code>número</code> por ese PID.</li>
+  </ol>
+  <p class="aviso">Si <code>netstat</code> no muestra nada, el puerto ya está libre.</p>
+
+---
+
+<!-- html -->
   <h3>Hablar y escuchar: los dos canales</h3>
   <p>Con el <code>Socket</code> ya tenemos la conexión. Pero para <b>conversar</b> hacen falta dos canales:</p>
   <ul>
