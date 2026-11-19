@@ -4,7 +4,7 @@ Cada ejercicio es un proyecto de NetBeans con dos clases, `Servidor` y `Cliente`
 
 ## Ejercicio 1: ¿dónde está mi saludo? (proyecto `Flush`)
 
-El proyecto `Flush` ya está hecho: el servidor envía «Hola, cliente» y el cliente lo muestra. Tu trabajo es estropearlo y arreglarlo para ver qué hace el flush.
+El proyecto `Flush` ya está hecho (**[descarga Flush.zip](Flush.zip)**, descomprímelo y ábrelo en NetBeans con Archivo > Abrir proyecto): el servidor envía «Hola, cliente» y el cliente lo muestra. Tu trabajo es estropearlo y arreglarlo para ver qué hace el flush.
 
 1. Ejecuta primero `Servidor` y después `Cliente`. Anota qué sale en cada consola.
 2. En `Servidor`, quita el `true` de `new PrintWriter(s.getOutputStream(), true)`. Ejecuta de nuevo los dos programas. ¿Qué muestra ahora el cliente?
