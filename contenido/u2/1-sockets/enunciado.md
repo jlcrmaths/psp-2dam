@@ -2,7 +2,34 @@
 
 Cada ejercicio es un proyecto de NetBeans con dos clases, `Servidor` y `Cliente`, cada una con su propio `main`. Las clases van en el paquete que indique el ejercicio. Son dos programas distintos que se ejecutan a la vez: se arranca primero el servidor y después el cliente. Usa el puerto 12349.
 
-## Ejercicio 1: pares e impares por la red (proyecto `ParImparSocket`)
+## Ejercicio 1: ¿dónde está mi saludo? (proyecto `Flush`)
+
+El proyecto `Flush` ya está hecho: el servidor envía «Hola, cliente» y el cliente lo muestra. Tu trabajo es estropearlo y arreglarlo para ver qué hace el flush.
+
+1. Ejecuta primero `Servidor` y después `Cliente`. Anota qué sale en cada consola.
+2. En `Servidor`, quita el `true` de `new PrintWriter(s.getOutputStream(), true)`. Ejecuta de nuevo los dos programas. ¿Qué muestra ahora el cliente?
+3. Añade `Thread.sleep(30000);` al final del `main` del servidor, para que siga vivo 30 segundos. Cambia `throws IOException` por `throws Exception`. Ejecuta de nuevo. ¿Qué hace ahora el cliente?
+4. Arréglalo de dos formas, probando cada una por separado:
+   - a) Vuelve a poner el `true`.
+   - b) Sin el `true`, añade `pw.flush();` justo después del `println`.
+5. Responde con tus palabras: ¿por qué el saludo no salía? ¿Qué hace el flush?
+
+### Pistas
+Fíjate en qué cambia entre el paso 2 y el 3: en uno el servidor termina enseguida y en el otro sigue vivo. El texto de un `println` sin autoFlush no se envía solo. Piensa dónde se queda esperando.
+
+### Más ayuda
+El `PrintWriter` guarda el texto en un buffer. El segundo dato `true` de `new PrintWriter(salida, true)` es el autoFlush: envía el texto en cada `println()`. Sin él, el texto solo sale con `pw.flush()`. `Thread.sleep(30000)` para el programa 30 segundos y exige `throws Exception` en el `main`. Si el servidor termina, Java cierra el socket y el buffer sin enviar se pierde: el cliente lee `null`.
+
+### Paso a paso
+1. Abre el proyecto `Flush` y ejecuta `Servidor` y después `Cliente`. Comprueba que sale «El servidor dice: Hola, cliente».
+2. En `Servidor`, quita el `, true` de la línea del `PrintWriter`. Ejecuta de nuevo los dos. Anota qué muestra el cliente.
+3. Vuelve a poner el `true`. Ejecuta y comprueba que todo funciona otra vez.
+4. Quita otra vez el `true`. Cambia `throws IOException` por `throws Exception` en el `main` del servidor.
+5. Añade `Thread.sleep(30000);` como última línea del `main`. Ejecuta los dos y mira cuánto tarda el cliente en mostrar algo.
+6. Añade `pw.flush();` justo después de `pw.println("Hola, cliente");`. Ejecuta de nuevo: el cliente debe recibir el saludo al momento.
+7. Escribe con tus palabras por qué el saludo no salía y qué hace el flush.
+
+## Ejercicio 2: pares e impares por la red (proyecto `ParImparSocket`)
 
 El cliente genera 25 números aleatorios entre 0 y 100 y los envía al servidor. El servidor recibe cada número y le contesta si es par o impar. El cliente muestra por pantalla cada número con la respuesta del servidor, así:
 
