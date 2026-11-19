@@ -364,6 +364,27 @@ import java.net.Socket;
   </ul>
   <p class="fragment caja">Regla de clase: en un <code>PrintWriter</code> sobre un socket, <b>siempre <code>true</code></b>. Flush positivo, nunca negativo.</p>
 </section>
+<section>
+<h3>Ejercicio 1: ¿dónde está mi saludo?</h3>
+  <p>Abre el proyecto <code>Flush</code>. Vamos a <b>estropearlo</b> y a arreglarlo.</p>
+  <ol>
+    <li>Ejecuta <code>Servidor</code> y después <code>Cliente</code>. Sale «El servidor dice: Hola, cliente».</li>
+    <li>En <code>Servidor</code>, quita el <code>true</code> del <code>PrintWriter</code> y ejecuta otra vez. ¿Qué muestra el cliente?</li>
+    <li>Añade <code>Thread.sleep(30000);</code> al final del <code>main</code> (con <code>throws Exception</code>) y ejecuta. ¿Qué hace el cliente ahora?</li>
+    <li>Arréglalo de dos formas: con el <code>true</code> y con <code>pw.flush();</code> después del <code>println</code>.</li>
+  </ol>
+  <p class="aviso">Apunta qué ves en cada paso y por qué.</p>
+</section>
+<section>
+<h3>Qué ha pasado</h3>
+  <ul>
+    <li class="fragment">Sin el <code>true</code>, el saludo se queda en el <b>buffer</b>.</li>
+    <li class="fragment">Si el servidor termina enseguida, el socket se cierra y el saludo se pierde: el cliente muestra <code>null</code>.</li>
+    <li class="fragment">Si el servidor sigue vivo (<code>sleep</code>), el saludo sigue sin salir y el cliente se queda <b>esperando</b> en <code>readLine()</code>.</li>
+    <li class="fragment">Con <code>true</code> o con <code>flush()</code>, el saludo sale en el momento.</li>
+  </ul>
+  <p class="fragment caja">Dos síntomas, una sola causa: el texto no salió del buffer.</p>
+</section>
 </section>
 <section>
 <section>
@@ -480,7 +501,7 @@ import java.net.Socket;
 </section>
 <section>
 <section>
-<h3>Ejercicio: pares e impares por la red</h3>
+<h3>Ejercicio 2: pares e impares por la red</h3>
   <p>Vamos a hacer dos programas:</p>
   <ul>
     <li><b>Cliente</b>: genera 25 números aleatorios entre 0 y 100 y se los envía al servidor.</li>

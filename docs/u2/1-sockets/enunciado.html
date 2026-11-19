@@ -17,7 +17,38 @@
 <p>Cada ejercicio es un proyecto de NetBeans con dos clases, <code>Servidor</code> y <code>Cliente</code>, cada una con su propio <code>main</code>. Las clases van en el paquete que indique el ejercicio. Son dos programas distintos que se ejecutan a la vez: se arranca primero el servidor y después el cliente. Usa el puerto 12349.</p>
 
 <section class="ejercicio tarjeta" id="ej-1" data-ejercicio="ej-1">
-<h2>Ejercicio 1: pares e impares por la red (proyecto <code>ParImparSocket</code>)</h2>
+<h2>Ejercicio 1: ¿dónde está mi saludo? (proyecto <code>Flush</code>)</h2>
+<p>El proyecto <code>Flush</code> ya está hecho: el servidor envía «Hola, cliente» y el cliente lo muestra. Tu trabajo es estropearlo y arreglarlo para ver qué hace el flush.</p>
+<ol>
+<li>Ejecuta primero <code>Servidor</code> y después <code>Cliente</code>. Anota qué sale en cada consola.</li>
+<li>En <code>Servidor</code>, quita el <code>true</code> de <code>new PrintWriter(s.getOutputStream(), true)</code>. Ejecuta de nuevo los dos programas. ¿Qué muestra ahora el cliente?</li>
+<li>Añade <code>Thread.sleep(30000);</code> al final del <code>main</code> del servidor, para que siga vivo 30 segundos. Cambia <code>throws IOException</code> por <code>throws Exception</code>. Ejecuta de nuevo. ¿Qué hace ahora el cliente?</li>
+<li>Arréglalo de dos formas, probando cada una por separado:<ul>
+<li>a) Vuelve a poner el <code>true</code>.</li>
+<li>b) Sin el <code>true</code>, añade <code>pw.flush();</code> justo después del <code>println</code>.</li>
+</ul>
+</li>
+<li>Responde con tus palabras: ¿por qué el saludo no salía? ¿Qué hace el flush?</li>
+</ol>
+
+<div class="ayuda-botones" hidden><button type="button" data-nivel="0" aria-expanded="false">Pistas</button><button type="button" data-nivel="1" aria-expanded="false">Más ayuda</button><button type="button" data-nivel="2" aria-expanded="false">Paso a paso</button></div>
+<div class="ayuda" data-nivel="0"><h3>Pistas</h3><p>Fíjate en qué cambia entre el paso 2 y el 3: en uno el servidor termina enseguida y en el otro sigue vivo. El texto de un <code>println</code> sin autoFlush no se envía solo. Piensa dónde se queda esperando.</p>
+</div>
+<div class="ayuda" data-nivel="1"><h3>Más ayuda</h3><p>El <code>PrintWriter</code> guarda el texto en un buffer. El segundo dato <code>true</code> de <code>new PrintWriter(salida, true)</code> es el autoFlush: envía el texto en cada <code>println()</code>. Sin él, el texto solo sale con <code>pw.flush()</code>. <code>Thread.sleep(30000)</code> para el programa 30 segundos y exige <code>throws Exception</code> en el <code>main</code>. Si el servidor termina, Java cierra el socket y el buffer sin enviar se pierde: el cliente lee <code>null</code>.</p>
+</div>
+<div class="ayuda" data-nivel="2"><h3>Paso a paso</h3><ol>
+<li>Abre el proyecto <code>Flush</code> y ejecuta <code>Servidor</code> y después <code>Cliente</code>. Comprueba que sale «El servidor dice: Hola, cliente».</li>
+<li>En <code>Servidor</code>, quita el <code>, true</code> de la línea del <code>PrintWriter</code>. Ejecuta de nuevo los dos. Anota qué muestra el cliente.</li>
+<li>Vuelve a poner el <code>true</code>. Ejecuta y comprueba que todo funciona otra vez.</li>
+<li>Quita otra vez el <code>true</code>. Cambia <code>throws IOException</code> por <code>throws Exception</code> en el <code>main</code> del servidor.</li>
+<li>Añade <code>Thread.sleep(30000);</code> como última línea del <code>main</code>. Ejecuta los dos y mira cuánto tarda el cliente en mostrar algo.</li>
+<li>Añade <code>pw.flush();</code> justo después de <code>pw.println(&quot;Hola, cliente&quot;);</code>. Ejecuta de nuevo: el cliente debe recibir el saludo al momento.</li>
+<li>Escribe con tus palabras por qué el saludo no salía y qué hace el flush.</li>
+</ol>
+</div>
+</section>
+<section class="ejercicio tarjeta" id="ej-2" data-ejercicio="ej-2">
+<h2>Ejercicio 2: pares e impares por la red (proyecto <code>ParImparSocket</code>)</h2>
 <p>El cliente genera 25 números aleatorios entre 0 y 100 y los envía al servidor. El servidor recibe cada número y le contesta si es par o impar. El cliente muestra por pantalla cada número con la respuesta del servidor, así:</p>
 <p>27 – impar
 13 – impar
